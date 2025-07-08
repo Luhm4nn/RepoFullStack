@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model asiento {
+  idSala          Int
+  filaAsiento     String            @db.VarChar(2)
+  nroAsiento      Int
+  tipo            String            @db.VarChar(45)
+  idTarifa        Int?
+  tarifa          tarifa?           @relation(fields: [idTarifa], references: [idtarifa], onDelete: NoAction, onUpdate: NoAction, map: "asiento_ibfk_1")
+  sala            sala              @relation(fields: [idSala], references: [idSala], onDelete: NoAction, onUpdate: NoAction, map: "asiento_ibfk_2")
+  asiento_reserva asiento_reserva[]
+
+  @@id([idSala, filaAsiento, nroAsiento])
+  @@index([idTarifa], map: "idTarifa")
+}
+
+model asiento_reserva {
+  idSala            Int
+  filaAsiento       String   @db.VarChar(2)
+  nroAsiento        Int
+  fechaFuncion      DateTime @db.Date
+  horaInicioFuncion DateTime @db.Time(0)
+  DNI               Int
+  fechaHoraReserva  DateTime @db.DateTime(0)
+  asiento           asiento  @relation(fields: [idSala, filaAsiento, nroAsiento], references: [idSala, filaAsiento, nroAsiento], onDelete: NoAction, onUpdate: NoAction, map: "asiento-reserva_ibfk_1")
+  reserva           reserva  @relation(fields: [idSala, fechaFuncion, horaInicioFuncion, DNI, fechaHoraReserva], references: [idSala, fechaFuncion, horaInicioFuncion, DNI, fechaHoraReserva], onDelete: NoAction, onUpdate: NoAction, map: "asiento-reserva_ibfk_2")
+
+  @@id([idSala, filaAsiento, nroAsiento, horaInicioFuncion, fechaFuncion])
+  @@index([idSala, fechaFuncion, horaInicioFuncion, DNI, fechaHoraReserva], map: "idSala")
+  @@map("asiento-reserva")
+}
+
+model cliente {
+  DNI             Int       @id
+  nombreCliente   String    @db.VarChar(45)
+  apellidoCliente String    @db.VarChar(45)
+  email           String    @db.VarChar(70)
+  telefono        Int?
+  reserva         reserva[]
+}
+
+model funcion {
+  idSala            Int
+  fechaFuncion      DateTime  @db.Date
+  horaInicioFuncion DateTime  @db.Time(0)
+  idPelicula        Int
+  pelicula          pelicula  @relation(fields: [idPelicula], references: [idPelicula], onDelete: NoAction, onUpdate: NoAction, map: "funcion_ibfk_1")
+  sala              sala      @relation(fields: [idSala], references: [idSala], onDelete: NoAction, onUpdate: NoAction, map: "funcion_ibfk_2")
+  reserva           reserva[]
+
+  @@id([idSala, fechaFuncion, horaInicioFuncion])
+  @@index([idPelicula], map: "idPelicula")
+}
+
+model parametro {
+  idParametro          Int    @id @default(autoincrement())
+  descripcionParametro String @db.VarChar(45)
+  valor                Int
+}
+
+model pelicula {
+  idPelicula     Int       @id @default(autoincrement())
+  nombrePelicula String    @db.VarChar(45)
+  duracion       Int
+  generoPelicula String    @db.VarChar(45)
+  director       String?   @db.VarChar(45)
+  fechaEstreno   DateTime? @db.Date
+  sinopsis       String?   @db.VarChar(500)
+  trailerURL     String?   @db.VarChar(200)
+  portada        Bytes?    @db.Blob
+  MPAA           String?   @db.VarChar(45)
+  funcion        funcion[]
+}
+
+model reserva {
+  idSala               Int
+  fechaFuncion         DateTime          @db.Date
+  horaInicioFuncion    DateTime          @db.Time(0)
+  DNI                  Int
+  fechaHoraReserva     DateTime          @db.DateTime(0)
+  fechaHoraCancelacion DateTime?         @db.DateTime(0)
+  estado               String            @db.VarChar(45)
+  total                Decimal           @db.Decimal(7, 2)
+  asiento_reserva      asiento_reserva[]
+  cliente              cliente           @relation(fields: [DNI], references: [DNI], onDelete: NoAction, onUpdate: NoAction, map: "reserva_ibfk_1")
+  funcion              funcion           @relation(fields: [idSala, fechaFuncion, horaInicioFuncion], references: [idSala, fechaFuncion, horaInicioFuncion], onDelete: NoAction, onUpdate: NoAction, map: "reserva_ibfk_2")
+
+  @@id([idSala, fechaFuncion, horaInicioFuncion, DNI, fechaHoraReserva])
+  @@index([DNI], map: "DNI")
+}
+
+model sala {
+  idSala    Int       @id @default(autoincrement())
+  Ubicacion String    @db.VarChar(45)
+  Capacidad Int?
+  asiento   asiento[]
+  funcion   funcion[]
+}
+
+model tarifa {
+  idtarifa          Int       @id @default(autoincrement())
+  precio            Decimal   @db.Decimal(5, 2)
+  descripcionTarifa String    @db.VarChar(45)
+  fechaDesde        DateTime  @db.Date
+  asiento           asiento[]
+}

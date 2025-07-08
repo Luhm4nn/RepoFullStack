@@ -2,6 +2,7 @@ import express from 'express';
 import { indexRoutes } from './routes/index.routes.js';
 import { peliculasRoutes } from './routes/peliculas.routes.js';
 
+
 const app = express();
 const PORT = 4000;
 

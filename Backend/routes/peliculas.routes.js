@@ -5,7 +5,7 @@ import {
   createPelicula,
   deletePelicula,
   updatePelicula,
-} from "./peliculas.controllers.js";
+} from "../Controllers/peliculas.controllers.js";
 const router = Router();
 
 router.get("/Peliculas",getPeliculas);
