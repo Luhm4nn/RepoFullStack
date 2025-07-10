@@ -16,7 +16,7 @@ CREATE TABLE `cliente` (
   `nombreCliente` varchar(45) NOT NULL,
   `apellidoCliente` varchar(45) NOT NULL,
   `email` varchar(70) NOT NULL,
-  `telefono` int DEFAULT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`DNI`)
 );
 CREATE TABLE `parametro` (

@@ -33,13 +33,17 @@ export const createPelicula = async (req, res) => {
 };
 
 export const deletePelicula = async (req, res) => {
-  const deletedPelicula = await deleteOne(req.params.id);
-  if (!deletedPelicula) {
-    const error = new Error("Película no encontrada para eliminar.");
-    error.status = 404;
-    throw error;
+  try {
+    await deleteOne(req.params.id); 
+    res.status(200).json({ message: "Pelicula eliminada correctamente" }); // Enviar respuesta de éxito
+  } catch (error) {
+    if (error.code === 'P2025') { // Código de error de Prisma para "Registro no encontrado"
+      const notFoundError = new Error("Pelicula no encontrada para eliminar.");
+      notFoundError.status = 404;
+      throw notFoundError;// Lanzar error personalizado si la película no se encuentra
+    }
+    throw error; // Lanzar error si ocurre otro tipo de error
   }
-  res.status(204).json(deletedPelicula);
 };
 
 export const updatePelicula = async (req, res) => {

@@ -46,7 +46,10 @@ async function deleteOne(id) {
     } catch (error) {
         if (error.code === 'P2025') {
             console.error("Error: Película no encontrada para eliminar.");
+            return null; // Película no encontrada
         }
+        throw error;
+        // Si se desea manejar otros tipos de errores, se puede agregar más lógica aca
     }
 }
 
