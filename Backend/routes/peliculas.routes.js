@@ -6,16 +6,17 @@ import {
   deletePelicula,
   updatePelicula,
 } from "../Controllers/peliculas.controllers.js";
+import { asyncHandler } from "../Middlewares/asyncHandler.js";
 const router = Router();
 
-router.get("/Peliculas",getPeliculas);
+router.get("/Peliculas",asyncHandler(getPeliculas));
 
-router.get("/Pelicula/:id", getPelicula);
+router.get("/Pelicula/:id", asyncHandler(getPelicula));
 
-router.post("/Peliculas", createPelicula);
+router.post("/Pelicula", asyncHandler(createPelicula));
 
-router.put("/Peliculas/:id",updatePelicula);
+router.put("/Pelicula/:id", asyncHandler(updatePelicula));
 
-router.delete("/Pelicula/:id", deletePelicula);
+router.delete("/Pelicula/:id",  asyncHandler(deletePelicula));
 
 export const peliculasRoutes = router;
