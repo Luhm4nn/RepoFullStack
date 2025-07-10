@@ -42,7 +42,7 @@ model cliente {
   nombreCliente   String    @db.VarChar(45)
   apellidoCliente String    @db.VarChar(45)
   email           String    @db.VarChar(70)
-  telefono        Int?
+  telefono        String    @db.VarChar(20)
   reserva         reserva[]
 }
 
