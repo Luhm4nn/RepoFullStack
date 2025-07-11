@@ -31,7 +31,7 @@ async function createOne(data) {
 async function deleteOne(id) {
   const deletedTarifa = await prisma.tarifa.delete({
     where: {
-      idtarifa: parseInt(id, 10),
+      idTarifa: parseInt(id, 10),
     },
   });
   console.log("Tarifa eliminada.");
