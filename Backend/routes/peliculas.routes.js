@@ -6,7 +6,7 @@ import {
   deletePelicula,
   updatePelicula,
 } from "../Controllers/peliculas.controllers.js";
-import { asyncHandler } from "../Middlewares/asyncHandler.js";
+import { asyncHandler } from "../middlewares/asyncHandler.js";
 const router = Router();
 
 router.get("/Peliculas",asyncHandler(getPeliculas));

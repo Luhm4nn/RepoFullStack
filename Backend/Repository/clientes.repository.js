@@ -1,4 +1,4 @@
-import prisma from "../prisma/prisma.js";
+import prisma from "../Prisma/prisma.js";
 
 // Repository for Clientes
 
@@ -41,7 +41,7 @@ async function deleteOne(dni) {
     console.log(clienteEliminado); 
     } catch (error) {
         if (error.code === 'P2025') {
-            console.error("Error: Cliente no encontrado para eliminar.");
+            console.error("Error: Cliente no encontrado para eliminar.");//Error de Prisma para "Registro no encontrado"
             return null; // Cliente no encontrado
         }
         throw error;

@@ -1,4 +1,4 @@
-import prisma from "../prisma/prisma.js";
+import prisma from "../Prisma/prisma.js";
 
 // Repository for Peliculas
 
@@ -45,11 +45,10 @@ async function deleteOne(id) {
     console.log(peliculaEliminada); 
     } catch (error) {
         if (error.code === 'P2025') {
-            console.error("Error: Película no encontrada para eliminar.");
+            console.error("Error: Película no encontrada para eliminar.");//Error de Prisma para "Registro no encontrado"
             return null; // Película no encontrada
         }
         throw error;
-        // Si se desea manejar otros tipos de errores, se puede agregar más lógica aca
     }
 }
 

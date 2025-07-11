@@ -7,8 +7,8 @@ CREATE TABLE `tarifa` (
 );
 CREATE TABLE `sala` (
   `idSala` int NOT NULL AUTO_INCREMENT,
-  `Ubicacion` varchar(45) NOT NULL,
-  `Capacidad` int DEFAULT NULL,
+  `ubicacion` varchar(45) NOT NULL,
+  `capacidad` int DEFAULT NULL,
   PRIMARY KEY (`idSala`)
 );
 CREATE TABLE `cliente` (
@@ -87,15 +87,5 @@ CREATE TABLE `asiento-reserva` (
   CONSTRAINT `asiento-reserva_ibfk_1` FOREIGN KEY (`idSala`, `filaAsiento`, `nroAsiento`) REFERENCES `asiento` (`idSala`, `filaAsiento`, `nroAsiento`),
   CONSTRAINT `asiento-reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaFuncion`, `horaInicioFuncion`, `DNI`, `fechaHoraReserva`) REFERENCES `reserva` (`idSala`, `fechaFuncion`, `horaInicioFuncion`, `DNI`, `fechaHoraReserva`)
 );
-
-
-
-
-
-
-
-
-
-
 
 

@@ -1,4 +1,4 @@
-import prisma from "../prisma/prisma.js";
+import prisma from "../Prisma/prisma.js";
 
 // Repository for Parametros
 

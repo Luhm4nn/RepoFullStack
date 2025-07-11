@@ -6,7 +6,7 @@ import {
   deleteCliente,
   updateCliente,
 } from "../Controllers/clientes.controllers.js";
-import { asyncHandler } from "../Middlewares/asyncHandler.js";
+import { asyncHandler } from "../middlewares/asyncHandler.js";
 const router = Router();
 
 router.get("/Clientes",asyncHandler(getClientes));

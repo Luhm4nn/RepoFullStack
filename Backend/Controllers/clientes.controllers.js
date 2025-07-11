@@ -38,11 +38,11 @@ export const deleteCliente = async (req, res) => {
     res.status(200).json({ message: "Cliente eliminado correctamente" });
   } catch (error) {
     if (error.code === 'P2025') { 
-      const notFoundError = new Error("Cliente no encontrado para eliminar.");
+      const notFoundError = new Error("Cliente no encontrado para eliminar.");// Lanzar error personalizado si el cliente no se encuentra
       notFoundError.status = 404;
       throw notFoundError;
     }
-    throw error;
+    throw error;// Lanzar error si ocurre otro tipo de error
   }
 };
 
