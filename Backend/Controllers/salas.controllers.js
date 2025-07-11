@@ -33,31 +33,11 @@ export const createSala = async (req, res) => {
 };
 
 export const deleteSala = async (req, res) => {
-  try {
     const deletedSala = await deleteOne(req.params.id); 
     res.status(200).json({deletedSala}); // Enviar respuesta de éxito
-    if (!deletedSala) {
-      const error = new Error("Sala no encontrada para eliminar.");
-      error.status = 404;
-      throw error;
-    }
-  } catch (error) {
-    if (error.code === 'P2025') { // Código de error de Prisma para "Registro no encontrado"
-      const notFoundError = new Error("Sala no encontrada para eliminar.");
-      notFoundError.status = 404;
-      throw notFoundError;// Lanzar error personalizado si la sala no se encuentra
-    }
-    throw error; // Lanzar error si ocurre otro tipo de error
-  }
 };
 
 export const updateSala = async (req, res) => {
  const updatedSala = await updateOne(req.params.id, req.body);
- if (!updatedSala) {
-    const error = new Error("Sala no encontrada para actualizar.");
-    error.status = 404;
-    throw error;
-  }
  res.status(200).json(updatedSala);
-  
 };
