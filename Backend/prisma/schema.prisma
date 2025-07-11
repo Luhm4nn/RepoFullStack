@@ -13,7 +13,7 @@ model asiento {
   nroAsiento      Int
   tipo            String            @db.VarChar(45)
   idTarifa        Int?
-  tarifa          tarifa?           @relation(fields: [idTarifa], references: [idtarifa], onDelete: NoAction, onUpdate: NoAction, map: "asiento_ibfk_1")
+  tarifa          tarifa?           @relation(fields: [idTarifa], references: [idTarifa], onDelete: NoAction, onUpdate: NoAction, map: "asiento_ibfk_1")
   sala            sala              @relation(fields: [idSala], references: [idSala], onDelete: NoAction, onUpdate: NoAction, map: "asiento_ibfk_2")
   asiento_reserva asiento_reserva[]
 
@@ -105,7 +105,7 @@ model sala {
 }
 
 model tarifa {
-  idtarifa          Int       @id @default(autoincrement())
+  idTarifa          Int       @id @default(autoincrement())
   precio            Decimal   @db.Decimal(5, 2)
   descripcionTarifa String    @db.VarChar(45)
   fechaDesde        DateTime  @db.Date

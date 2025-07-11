@@ -1,9 +1,9 @@
 CREATE TABLE `tarifa` (
-  `idtarifa` int NOT NULL AUTO_INCREMENT,
+  `idTarifa` int NOT NULL AUTO_INCREMENT,
   `precio` decimal(5,2) NOT NULL,
   `descripcionTarifa` varchar(45) NOT NULL,
   `fechaDesde` date NOT NULL,
-  PRIMARY KEY (`idtarifa`)
+  PRIMARY KEY (`idTarifa`)
 );
 CREATE TABLE `sala` (
   `idSala` int NOT NULL AUTO_INCREMENT,
