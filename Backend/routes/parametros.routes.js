@@ -6,7 +6,7 @@ import {
   deleteParametro,
   updateParametro,
 }  from "../Controllers/parametros.controllers.js";
-import { asyncHandler } from "../Middlewares/asyncHandler.js";
+import { asyncHandler } from "../middlewares/asyncHandler.js";
 const router = Router();
 
 router.get("/Parametros",asyncHandler(getParametros));
