@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Luhm4nn/RepoFullStack/issues"
   },
-  "homepage": "https://github.com/Luhm4nn/RepoFullStack#readme"
+  "homepage": "https://github.com/Luhm4nn/RepoFullStack#readme",
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
 }
