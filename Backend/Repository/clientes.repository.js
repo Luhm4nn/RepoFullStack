@@ -31,43 +31,29 @@ async function createOne(data) {
 }
 
 async function deleteOne(dni) {
-  try {
-    const clienteEliminado = await prisma.cliente.delete({
-      where: {
-        DNI: parseInt(dni, 10),
-      },
-    });
-    console.log(clienteEliminado);
-  } catch (error) {
-    if (error.code === "P2025") {
-      console.error("Error: Cliente no encontrado para eliminar."); //Error de Prisma para "Registro no encontrado"
-      return null; // Cliente no encontrado
-    }
-    throw error;
-  }
+  const clienteEliminado = await prisma.cliente.delete({
+    where: {
+      DNI: parseInt(dni, 10),
+    },
+  });
+  console.log(clienteEliminado);
 }
 
 async function updateOne(dni, data) {
-  try {
-    const updatedCliente = await prisma.cliente.update({
-      where: {
-        DNI: parseInt(dni, 10),
-      },
-      data: {
-        DNI: data.DNI,
-        nombreCliente: data.nombreCliente,
-        apellidoCliente: data.apellidoCliente,
-        email: data.email,
-        telefono: data.telefono,
-      },
-    });
-    console.log("Cliente actualizado:");
-    return updatedCliente;
-  } catch (error) {
-    if (error.code === "P2025") {
-      console.error("Error: Cliente no encontrado para actualizar.");
-    }
-  }
+  const updatedCliente = await prisma.cliente.update({
+    where: {
+      DNI: parseInt(dni, 10),
+    },
+    data: {
+      DNI: data.DNI,
+      nombreCliente: data.nombreCliente,
+      apellidoCliente: data.apellidoCliente,
+      email: data.email,
+      telefono: data.telefono,
+    },
+  });
+  console.log("Cliente actualizado:");
+  return updatedCliente;
 }
 
 export { getOne, getAll, createOne, deleteOne, updateOne };

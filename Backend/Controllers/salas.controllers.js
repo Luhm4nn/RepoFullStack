@@ -20,21 +20,11 @@ export const getSalas = async (req, res) => {
 
 export const getSala = async (req, res) => {
   const sala = await getOne(req.params.id);
-  if (!sala) {
-    const error = new Error("Sala no encontrada.");
-    error.status = 404;
-    throw error;
-  }
   res.json(sala);
 };
 
 export const createSala = async (req, res) => {
   const newSala = await createOne(req.body);
-  if (!newSala) {
-    const error = new Error("Error al crear la sala.");
-    error.status = 400;
-    throw error;
-  }
   res.status(201).json(newSala);
 };
 

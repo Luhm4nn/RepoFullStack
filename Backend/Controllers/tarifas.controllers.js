@@ -20,11 +20,6 @@ export const getTarifas = async (req, res) => {
 
 export const getTarifa = async (req, res) => {
   const tarifa = await getOne(req.params.id);
-  if (!tarifa) {
-    const error = new Error("Tarifa no encontrada.");
-    error.status = 404;
-    throw error;
-  }
   res.json(tarifa);
 };
 

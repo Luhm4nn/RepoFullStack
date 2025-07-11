@@ -30,35 +30,15 @@ export const getParametro = async (req, res, next) => {
 
 export const createParametro = async (req, res) => {
   const newParametro = await createOne(req.body);
-  if (!newParametro) {
-    const error = new Error("Error al crear el parametro.");
-    error.status = 400;
-    throw error;
-  }
   res.status(201).json(newParametro);
 };
 
 export const deleteParametro = async (req, res) => {
-  try {
-    await deleteOne(req.params.id);
-    res.status(200).json({ message: "Parametro eliminado correctamente" }); // Enviar respuesta de éxito
-  } catch (error) {
-    if (error.code === "P2025") {
-      // Código de error de Prisma para "Registro no encontrado"
-      const notFoundError = new Error("Parametro no encontrado para eliminar.");
-      notFoundError.status = 404;
-      throw notFoundError;
-    }
-    throw error; // Lanzar error si ocurre otro tipo de error
-  }
+  await deleteOne(req.params.id);
+  res.status(200).json({ message: "Parametro eliminado correctamente" }); // Enviar respuesta de éxito
 };
 
 export const updateParametro = async (req, res) => {
   const updatedParametro = await updateOne(req.params.id, req.body);
-  if (!updatedParametro) {
-    const error = new Error("Parametro no encontrado para actualizar.");
-    error.status = 404;
-    throw error;
-  }
   res.status(200).json(updatedParametro);
 };

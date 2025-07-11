@@ -35,47 +35,34 @@ async function createOne(data) {
 }
 
 async function deleteOne(id) {
-  try {
-    const peliculaEliminada = await prisma.pelicula.delete({
-      where: {
-        idPelicula: parseInt(id, 10),
-      },
-    });
-    console.log(peliculaEliminada);
-  } catch (error) {
-    if (error.code === "P2025") {
-      console.error("Error: Película no encontrada para eliminar."); //Error de Prisma para "Registro no encontrado"
-      return null; // Película no encontrada
-    }
-    throw error;
-  }
+  const peliculaEliminada = await prisma.pelicula.delete({
+    where: {
+      idPelicula: parseInt(id, 10),
+    },
+  });
+  console.log(peliculaEliminada);
+  throw error;
 }
 
 async function updateOne(id, data) {
-  try {
-    const updatedPelicula = await prisma.pelicula.update({
-      where: {
-        idPelicula: parseInt(id, 10),
-      },
-      data: {
-        nombrePelicula: data.nombrePelicula,
-        duracion: data.duracion,
-        generoPelicula: data.generoPelicula,
-        director: data.director,
-        fechaEstreno: data.fechaEstreno,
-        sinopsis: data.sinopsis,
-        trailerURL: data.trailerURL,
-        portada: data.portada,
-        MPAA: data.MPAA,
-      },
-    });
-    console.log("Película actualizada:");
-    return updatedPelicula;
-  } catch (error) {
-    if (error.code === "P2025") {
-      console.error("Error: Película no encontrada para actualizar.");
-    }
-  }
+  const updatedPelicula = await prisma.pelicula.update({
+    where: {
+      idPelicula: parseInt(id, 10),
+    },
+    data: {
+      nombrePelicula: data.nombrePelicula,
+      duracion: data.duracion,
+      generoPelicula: data.generoPelicula,
+      director: data.director,
+      fechaEstreno: data.fechaEstreno,
+      sinopsis: data.sinopsis,
+      trailerURL: data.trailerURL,
+      portada: data.portada,
+      MPAA: data.MPAA,
+    },
+  });
+  console.log("Película actualizada:");
+  return updatedPelicula;
 }
 
 export { getOne, getAll, createOne, deleteOne, updateOne };

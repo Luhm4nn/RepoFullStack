@@ -28,40 +28,26 @@ async function createOne(data) {
 }
 
 async function deleteOne(id) {
-  try {
-    const parametroEliminado = await prisma.parametro.delete({
-      where: {
-        idParametro: parseInt(id, 10),
-      },
-    });
-    console.log(parametroEliminado);
-  } catch (error) {
-    if (error.code === "P2025") {
-      console.error("Error: Parametro no encontrado para eliminar.");
-      return null;
-    }
-    throw error;
-  }
+  const parametroEliminado = await prisma.parametro.delete({
+    where: {
+      idParametro: parseInt(id, 10),
+    },
+  });
+  console.log(parametroEliminado);
 }
 
 async function updateOne(id, data) {
-  try {
-    const updatedParametro = await prisma.parametro.update({
-      where: {
-        idParametro: parseInt(id, 10),
-      },
-      data: {
-        descripcionParametro: data.descripcionParametro,
-        valor: data.valor,
-      },
-    });
-    console.log("Parametro actualizado:");
-    return updatedParametro;
-  } catch (error) {
-    if (error.code === "P2025") {
-      console.error("Error: Parametro no encontrado para actualizar.");
-    }
-  }
+  const updatedParametro = await prisma.parametro.update({
+    where: {
+      idParametro: parseInt(id, 10),
+    },
+    data: {
+      descripcionParametro: data.descripcionParametro,
+      valor: data.valor,
+    },
+  });
+  console.log("Parametro actualizado:");
+  return updatedParametro;
 }
 
 export { getOne, getAll, createOne, deleteOne, updateOne };
