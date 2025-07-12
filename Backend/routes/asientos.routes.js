@@ -9,14 +9,14 @@ import {
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 const router = Router();
 
-router.get("/Sala/:id/Asientos",asyncHandler(getAsientos));
+router.get("/Sala/:idSala/Asientos",asyncHandler(getAsientos));
 
-router.get("/Sala/:id/Asientos/:fila/:nro", asyncHandler(getAsiento));
+router.get("/Sala/:idSala/Asientos/:filaAsiento/:nroAsiento", asyncHandler(getAsiento));
 
-router.post("/Sala/:id/Asiento", asyncHandler(createAsiento));
+router.post("/Sala/:idSala/Asiento", asyncHandler(createAsiento));
 
-router.put("/Sala/:id/Asientos/:fila/:nro", asyncHandler(updateAsiento));
+router.put("/Sala/:idSala/Asientos/:filaAsiento/:nroAsiento", asyncHandler(updateAsiento));
 
-router.delete("/Sala/:id/Asientos/:fila/:nro",  asyncHandler(deleteAsiento));
+router.delete("/Sala/:idSala/Asientos/:filaAsiento/:nroAsiento",  asyncHandler(deleteAsiento));
 
 export const asientosRoutes = router;
