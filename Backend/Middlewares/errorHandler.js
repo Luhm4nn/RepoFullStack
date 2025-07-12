@@ -7,14 +7,15 @@ export const errorHandler = (err, req, res, next) => {
     err.status = 404; // Asignar un estado 404 para errores de registro no encontrado
     err.message = "Error: " + err.meta.cause + " Record: " + err.meta.modelName; // Mensaje de error personalizado
   }
-  if (err.status === 404) {
-    console.error("Error 404: ", err.message);
-  }
   if(err.code === "P2002") {
     console.error("Error de Prisma: Violación de unicidad.", err.meta);
     err.status = 409; // Asignar un estado 409 para errores de violación de unicidad
     err.message = "Error: " + err.meta.cause + " Record: " + err.meta.modelName; // Mensaje de error personalizado
-  } else {
+  } 
+  if (err.status === 404) {
+    console.error("Error 404: ", err.message);
+  }
+  else {
     console.error("Error interno del servidor:", err);
   }
   const status = err.status || 500;

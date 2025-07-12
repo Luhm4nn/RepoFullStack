@@ -23,7 +23,6 @@ async function createOne(data) {
       capacidad: data.capacidad,
     },
   });
-  console.log("Nueva sala creada.", newSala);
   return newSala;
 }
 
@@ -33,7 +32,6 @@ async function deleteOne(id) {
       idSala: parseInt(id, 10),
     },
   });
-  console.log("Sala eliminada.");
   return deletedSala;
 }
 
@@ -47,7 +45,6 @@ async function updateOne(id, data) {
       capacidad: data.capacidad,
     },
   });
-  console.log("Sala actualizada.");
   return updatedSala;
 }
 

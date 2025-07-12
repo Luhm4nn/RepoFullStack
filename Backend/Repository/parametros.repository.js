@@ -23,17 +23,16 @@ async function createOne(data) {
       valor: data.valor,
     },
   });
-  console.log("Nuevo parametro creado:", newParametro);
   return newParametro;
 }
 
 async function deleteOne(id) {
-  const parametroEliminado = await prisma.parametro.delete({
+  const deletedParametro = await prisma.parametro.delete({
     where: {
       idParametro: parseInt(id, 10),
     },
   });
-  console.log(parametroEliminado);
+  return deletedParametro;
 }
 
 async function updateOne(id, data) {
@@ -46,7 +45,6 @@ async function updateOne(id, data) {
       valor: data.valor,
     },
   });
-  console.log("Parametro actualizado:");
   return updatedParametro;
 }
 
