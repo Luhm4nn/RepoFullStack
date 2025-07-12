@@ -26,17 +26,16 @@ async function createOne(data) {
       telefono: data.telefono,
     },
   });
-  console.log("Nuevo cliente creado:", newCliente);
   return newCliente;
 }
 
 async function deleteOne(dni) {
-  const clienteEliminado = await prisma.cliente.delete({
+  const deletedCliente = await prisma.cliente.delete({
     where: {
       DNI: parseInt(dni, 10),
     },
   });
-  console.log(clienteEliminado);
+  return deletedCliente;
 }
 
 async function updateOne(dni, data) {
@@ -52,7 +51,6 @@ async function updateOne(dni, data) {
       telefono: data.telefono,
     },
   });
-  console.log("Cliente actualizado:");
   return updatedCliente;
 }
 

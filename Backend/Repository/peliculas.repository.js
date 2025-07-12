@@ -30,18 +30,16 @@ async function createOne(data) {
       MPAA: data.MPAA,
     },
   });
-  console.log("Nueva película creada:", newPelicula);
   return newPelicula;
 }
 
 async function deleteOne(id) {
-  const peliculaEliminada = await prisma.pelicula.delete({
+  const deletedPelicula = await prisma.pelicula.delete({
     where: {
       idPelicula: parseInt(id, 10),
     },
   });
-  console.log(peliculaEliminada);
-  throw error;
+  return deletedPelicula;
 }
 
 async function updateOne(id, data) {
@@ -61,7 +59,6 @@ async function updateOne(id, data) {
       MPAA: data.MPAA,
     },
   });
-  console.log("Película actualizada:");
   return updatedPelicula;
 }
 

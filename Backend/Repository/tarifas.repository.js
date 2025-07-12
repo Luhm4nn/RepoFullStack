@@ -24,7 +24,6 @@ async function createOne(data) {
       fechaDesde: data.fechaDesde,
     },
   });
-  console.log("Nueva Tarifa creada.");
   return newTarifa;
 }
 
@@ -34,7 +33,6 @@ async function deleteOne(id) {
       idTarifa: parseInt(id, 10),
     },
   });
-  console.log("Tarifa eliminada.");
   return deletedTarifa;
 }
 
@@ -49,7 +47,6 @@ async function updateOne(id, data) {
       fechaDesde: data.fechaDesde,
     },
   });
-  console.log("Tarifa actualizada.");
   return updatedTarifa;
 }
 
