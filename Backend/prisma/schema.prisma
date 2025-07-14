@@ -25,8 +25,8 @@ model asiento_reserva {
   idSala            Int
   filaAsiento       String   @db.VarChar(2)
   nroAsiento        Int
-  fechaFuncion      DateTime @db.Date
-  horaInicioFuncion DateTime @db.Time(0)
+  fechaFuncion      DateTime @db.DateTime(0)
+  horaInicioFuncion DateTime @db.DateTime(0)
   DNI               Int
   fechaHoraReserva  DateTime @db.DateTime(0)
   asiento           asiento  @relation(fields: [idSala, filaAsiento, nroAsiento], references: [idSala, filaAsiento, nroAsiento], onDelete: NoAction, onUpdate: NoAction, map: "asiento-reserva_ibfk_1")
@@ -48,8 +48,8 @@ model cliente {
 
 model funcion {
   idSala            Int
-  fechaFuncion      DateTime  @db.Date
-  horaInicioFuncion DateTime  @db.Time(0)
+  fechaFuncion      DateTime  @db.DateTime(0)
+  horaInicioFuncion DateTime  @db.DateTime(0)
   idPelicula        Int
   pelicula          pelicula  @relation(fields: [idPelicula], references: [idPelicula], onDelete: NoAction, onUpdate: NoAction, map: "funcion_ibfk_1")
   sala              sala      @relation(fields: [idSala], references: [idSala], onDelete: NoAction, onUpdate: NoAction, map: "funcion_ibfk_2")
@@ -81,8 +81,8 @@ model pelicula {
 
 model reserva {
   idSala               Int
-  fechaFuncion         DateTime          @db.Date
-  horaInicioFuncion    DateTime          @db.Time(0)
+  fechaFuncion         DateTime          @db.DateTime(0)
+  horaInicioFuncion    DateTime          @db.DateTime(0)
   DNI                  Int
   fechaHoraReserva     DateTime          @db.DateTime(0)
   fechaHoraCancelacion DateTime?         @db.DateTime(0)

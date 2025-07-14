@@ -7,6 +7,7 @@ import { parametrosRoutes } from "./routes/parametros.routes.js";
 import { salasRoutes } from "./routes/salas.routes.js";
 import { tarifasRoutes } from "./routes/tarifas.routes.js";
 import { asientosRoutes } from "./routes/asientos.routes.js";
+import { funcionesRoutes } from "./routes/funciones.routes.js";
 
 const app = express();
 const PORT = 4000;
@@ -19,7 +20,8 @@ app.use(clientesRoutes);
 app.use(parametrosRoutes);
 app.use(salasRoutes);
 app.use(tarifasRoutes);
-app.use(asientosRoutes)
+app.use(asientosRoutes);
+app.use(funcionesRoutes);
 
 app.use(errorHandler);
 

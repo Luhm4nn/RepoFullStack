@@ -35,7 +35,7 @@ export const createParametro = async (req, res) => {
 
 export const deleteParametro = async (req, res) => {
   await deleteOne(req.params.id);
-  res.status(200).json({ message: "Parametro eliminado correctamente" }); // Enviar respuesta de éxito
+  res.status(200).json({ message: "Parametro eliminado correctamente." }); // Enviar respuesta de éxito
 };
 
 export const updateParametro = async (req, res) => {

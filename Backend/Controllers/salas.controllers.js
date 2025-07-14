@@ -30,7 +30,7 @@ export const createSala = async (req, res) => {
 
 export const deleteSala = async (req, res) => {
   const deletedSala = await deleteOne(req.params.id);
-  res.status(200).json({ message:"Sala eliminada correctamente" }); // Enviar respuesta de éxito
+  res.status(200).json({ message: "Sala eliminada correctamente." }); // Enviar respuesta de éxito
 };
 
 export const updateSala = async (req, res) => {

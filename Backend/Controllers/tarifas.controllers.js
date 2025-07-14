@@ -35,10 +35,10 @@ export const createTarifa = async (req, res) => {
 
 export const deleteTarifa = async (req, res) => {
   const deletedTarifa = await deleteOne(req.params.id);
-  res.status(200).json({ message: "Tarifa eliminada correctamente" }); // Enviar respuesta de éxito
+  res.status(200).json({ message: "Tarifa eliminada correctamente." }); // Enviar respuesta de éxito
 };
 
 export const updateTarifa = async (req, res) => {
   const updatedTarifa = await updateOne(req.params.id, req.body);
-  res.status(200).json(updatedTarifa); 
+  res.status(200).json(updatedTarifa);
 };

@@ -52,8 +52,8 @@ CREATE TABLE `asiento` (
 
 CREATE TABLE `funcion` (
   `idSala` int NOT NULL,
-  `fechaFuncion` date NOT NULL,
-  `horaInicioFuncion` time NOT NULL,
+  `fechaFuncion` datetime NOT NULL,
+  `horaInicioFuncion` datetime NOT NULL,
   `idPelicula` int NOT NULL,
   PRIMARY KEY (`idSala`,`fechaFuncion`,`horaInicioFuncion`),
   KEY `idPelicula` (`idPelicula`),
@@ -62,8 +62,8 @@ CREATE TABLE `funcion` (
 );
 CREATE TABLE `reserva` (
   `idSala` int NOT NULL,
-  `fechaFuncion` date NOT NULL,
-  `horaInicioFuncion` time NOT NULL,
+  `fechaFuncion` datetime NOT NULL,
+  `horaInicioFuncion` datetime NOT NULL,
   `DNI` int NOT NULL,
   `fechaHoraReserva` datetime NOT NULL,
   `fechaHoraCancelacion` datetime DEFAULT NULL,
@@ -78,8 +78,8 @@ CREATE TABLE `asiento-reserva` (
   `idSala` int NOT NULL,
   `filaAsiento` varchar(2) NOT NULL,
   `nroAsiento` int NOT NULL,
-  `fechaFuncion` date NOT NULL,
-  `horaInicioFuncion` time NOT NULL,
+  `fechaFuncion` datetime NOT NULL,
+  `horaInicioFuncion` datetime NOT NULL,
   `DNI` int NOT NULL,
   `fechaHoraReserva` datetime NOT NULL,
   PRIMARY KEY (`idSala`,`filaAsiento`,`nroAsiento`,`horaInicioFuncion`,`fechaFuncion`),

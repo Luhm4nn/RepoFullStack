@@ -32,7 +32,6 @@ async function createOne(data) {
   });
   return newPelicula;
 }
-
 async function deleteOne(id) {
   const deletedPelicula = await prisma.pelicula.delete({
     where: {
