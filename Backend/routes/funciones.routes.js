@@ -13,7 +13,7 @@ const router = Router();
 router.get("/Funciones", asyncHandler(getFunciones));
 
 router.get(
-  "/Funciones/:idSala/:fechaFuncion/:horaInicioFuncion",
+  "/Funcion/:idSala/:fechaFuncion/:horaInicioFuncion",
   asyncHandler(getFuncion)
 );
 

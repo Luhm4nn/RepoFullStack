@@ -8,13 +8,13 @@ async function getAll() {
 }
 
 async function getOne(idSala_fechaFuncion_horaInicioFuncion) {
+  const fechaHoraISO = `${idSala_fechaFuncion_horaInicioFuncion.fechaFuncion}T${idSala_fechaFuncion_horaInicioFuncion.horaInicioFuncion}.000Z`;
   const funcion = await prisma.funcion.findUnique({
     where: {
       idSala_fechaFuncion_horaInicioFuncion: {
         idSala: parseInt(idSala_fechaFuncion_horaInicioFuncion.idSala, 10),
-        fechaFuncion: idSala_fechaFuncion_horaInicioFuncion.fechaFuncion,
-        horaInicioFuncion:
-          idSala_fechaFuncion_horaInicioFuncion.horaInicioFuncion,
+        fechaFuncion: fechaHoraISO,
+        horaInicioFuncion: fechaHoraISO,
       },
     },
   });
@@ -36,16 +36,13 @@ async function createOne(data) {
 }
 
 async function deleteOne(idSala_fechaFuncion_horaInicioFuncion) {
+  const fechaHoraISO = `${idSala_fechaFuncion_horaInicioFuncion.fechaFuncion}T${idSala_fechaFuncion_horaInicioFuncion.horaInicioFuncion}.000Z`;
   const deletedFuncion = await prisma.funcion.delete({
     where: {
       idSala_fechaFuncion_horaInicioFuncion: {
         idSala: parseInt(idSala_fechaFuncion_horaInicioFuncion.idSala, 10),
-        fechaFuncion: new Date(
-          idSala_fechaFuncion_horaInicioFuncion.fechaFuncion
-        ),
-        horaInicioFuncion: new Date(
-          idSala_fechaFuncion_horaInicioFuncion.horaInicioFuncion
-        ),
+        fechaFuncion: fechaHoraISO,
+        horaInicioFuncion: fechaHoraISO,
       },
     },
   });
@@ -53,16 +50,13 @@ async function deleteOne(idSala_fechaFuncion_horaInicioFuncion) {
 }
 
 async function updateOne(idSala_fechaFuncion_horaInicioFuncion, data) {
+  fechaHoraISO = `${data.fechaFuncion}T${data.horaInicioFuncion}.000Z`;
   const updatedFuncion = await prisma.funcion.update({
     where: {
       idSala_fechaFuncion_horaInicioFuncion: {
         idSala: parseInt(idSala_fechaFuncion_horaInicioFuncion.idSala, 10),
-        fechaFuncion: new Date(
-          idSala_fechaFuncion_horaInicioFuncion.fechaFuncion
-        ),
-        horaInicioFuncion: new Date(
-          idSala_fechaFuncion_horaInicioFuncion.horaInicioFuncion
-        ),
+        fechaFuncion: fechaHoraISO,
+        horaInicioFuncion: fechaHoraISO,
       },
     },
     data: {
