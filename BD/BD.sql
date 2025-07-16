@@ -54,7 +54,7 @@ CREATE TABLE `funcion` (
   `idSala` int NOT NULL,
   `fechaHoraFuncion` datetime NOT NULL,
   `idPelicula` int NOT NULL,
-  PRIMARY KEY (`idSala`,`fechaFuncion`,`horaInicioFuncion`),
+  PRIMARY KEY (`idSala`,`fechaHoraFuncion`),
   KEY `idPelicula` (`idPelicula`),
   CONSTRAINT `funcion_ibfk_1` FOREIGN KEY (`idPelicula`) REFERENCES `pelicula` (`idPelicula`),
   CONSTRAINT `funcion_ibfk_2` FOREIGN KEY (`idSala`) REFERENCES `sala` (`idSala`)
@@ -63,7 +63,7 @@ CREATE TABLE `reserva` (
   `idSala` int NOT NULL,
   `fechaHoraFuncion` datetime NOT NULL,
   `DNI` int NOT NULL,
-  `fechaHoraReserva` datetime NOT NULL,
+  `fechaHoraReserva` datetime CURRENT_TIMESTAMP NOT NULL,
   `fechaHoraCancelacion` datetime DEFAULT NULL,
   `estado` varchar(45) NOT NULL,
   `total` decimal(7,2) NOT NULL,
