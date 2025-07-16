@@ -45,7 +45,6 @@ CREATE TABLE `asiento` (
   `tipo` varchar(45) NOT NULL,
   `idTarifa` int DEFAULT NULL,
   PRIMARY KEY (`idSala`,`filaAsiento`,`nroAsiento`),
-  KEY `idTarifa` (`idTarifa`),
   CONSTRAINT `asiento_ibfk_1` FOREIGN KEY (`idTarifa`) REFERENCES `tarifa` (`idtarifa`),
   CONSTRAINT `asiento_ibfk_2` FOREIGN KEY (`idSala`) REFERENCES `sala` (`idSala`)
 );
@@ -55,7 +54,6 @@ CREATE TABLE `funcion` (
   `fechaHoraFuncion` datetime NOT NULL,
   `idPelicula` int NOT NULL,
   PRIMARY KEY (`idSala`,`fechaHoraFuncion`),
-  KEY `idPelicula` (`idPelicula`),
   CONSTRAINT `funcion_ibfk_1` FOREIGN KEY (`idPelicula`) REFERENCES `pelicula` (`idPelicula`),
   CONSTRAINT `funcion_ibfk_2` FOREIGN KEY (`idSala`) REFERENCES `sala` (`idSala`)
 );
@@ -63,12 +61,11 @@ CREATE TABLE `reserva` (
   `idSala` int NOT NULL,
   `fechaHoraFuncion` datetime NOT NULL,
   `DNI` int NOT NULL,
-  `fechaHoraReserva` datetime CURRENT_TIMESTAMP NOT NULL,
+  `fechaHoraReserva` datetime NOT NULL,
   `fechaHoraCancelacion` datetime DEFAULT NULL,
   `estado` varchar(45) NOT NULL,
   `total` decimal(7,2) NOT NULL,
   PRIMARY KEY (`idSala`,`fechaHoraFuncion`,`DNI`,`fechaHoraReserva`),
-  KEY `DNI` (`DNI`),
   CONSTRAINT `reserva_ibfk_1` FOREIGN KEY (`DNI`) REFERENCES `cliente` (`DNI`),
   CONSTRAINT `reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaHoraFuncion`) REFERENCES `funcion` (`idSala`, `fechaHoraFuncion`)
 );
@@ -80,7 +77,6 @@ CREATE TABLE `asiento-reserva` (
   `DNI` int NOT NULL,
   `fechaHoraReserva` datetime NOT NULL,
   PRIMARY KEY (`idSala`,`filaAsiento`,`nroAsiento`,`fechaHoraFuncion`),
-  KEY `idSala` (`idSala`,`fechaHoraFuncion`,`DNI`,`fechaHoraReserva`),
   CONSTRAINT `asiento-reserva_ibfk_1` FOREIGN KEY (`idSala`, `filaAsiento`, `nroAsiento`) REFERENCES `asiento` (`idSala`, `filaAsiento`, `nroAsiento`),
   CONSTRAINT `asiento-reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaHoraFuncion`, `DNI`, `fechaHoraReserva`) REFERENCES `reserva` (`idSala`, `fechaHoraFuncion`, `DNI`, `fechaHoraReserva`)
 );

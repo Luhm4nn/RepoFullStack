@@ -18,7 +18,7 @@ model asiento {
   asiento_reserva asiento_reserva[]
 
   @@id([idSala, filaAsiento, nroAsiento])
-  @@index([idTarifa], map: "idTarifa")
+  @@index([idTarifa], map: "asiento_ibfk_1")
 }
 
 model asiento_reserva {
@@ -32,7 +32,7 @@ model asiento_reserva {
   reserva          reserva  @relation(fields: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], references: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], onDelete: NoAction, onUpdate: NoAction, map: "asiento-reserva_ibfk_2")
 
   @@id([idSala, filaAsiento, nroAsiento, fechaHoraFuncion])
-  @@index([idSala, fechaHoraFuncion, DNI, fechaHoraReserva], map: "idSala")
+  @@index([idSala, fechaHoraFuncion, DNI, fechaHoraReserva], map: "asiento-reserva_ibfk_2")
   @@map("asiento-reserva")
 }
 
@@ -54,7 +54,7 @@ model funcion {
   reserva          reserva[]
 
   @@id([idSala, fechaHoraFuncion])
-  @@index([idPelicula], map: "idPelicula")
+  @@index([idPelicula], map: "funcion_ibfk_1")
 }
 
 model parametro {
@@ -90,7 +90,7 @@ model reserva {
   funcion              funcion           @relation(fields: [idSala, fechaHoraFuncion], references: [idSala, fechaHoraFuncion], onDelete: NoAction, onUpdate: NoAction, map: "reserva_ibfk_2")
 
   @@id([idSala, fechaHoraFuncion, DNI, fechaHoraReserva])
-  @@index([DNI], map: "DNI")
+  @@index([DNI], map: "reserva_ibfk_1")
 }
 
 model sala {
