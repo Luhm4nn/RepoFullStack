@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "../Repository/funcion.repository.js";
+} from "../Repository/funciones.repository.js";
 
 // Controllers for Funciones
 

@@ -5,7 +5,7 @@ import {
   createFuncion,
   updateFuncion,
   deleteFuncion,
-} from "../Controllers/funcion.controllers.js";
+} from "../Controllers/funciones.controllers.js";
 
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 const router = Router();
