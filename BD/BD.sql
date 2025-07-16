@@ -52,8 +52,7 @@ CREATE TABLE `asiento` (
 
 CREATE TABLE `funcion` (
   `idSala` int NOT NULL,
-  `fechaFuncion` datetime NOT NULL,
-  `horaInicioFuncion` datetime NOT NULL,
+  `fechaHoraFuncion` datetime NOT NULL,
   `idPelicula` int NOT NULL,
   PRIMARY KEY (`idSala`,`fechaFuncion`,`horaInicioFuncion`),
   KEY `idPelicula` (`idPelicula`),
@@ -62,30 +61,28 @@ CREATE TABLE `funcion` (
 );
 CREATE TABLE `reserva` (
   `idSala` int NOT NULL,
-  `fechaFuncion` datetime NOT NULL,
-  `horaInicioFuncion` datetime NOT NULL,
+  `fechaHoraFuncion` datetime NOT NULL,
   `DNI` int NOT NULL,
   `fechaHoraReserva` datetime NOT NULL,
   `fechaHoraCancelacion` datetime DEFAULT NULL,
   `estado` varchar(45) NOT NULL,
   `total` decimal(7,2) NOT NULL,
-  PRIMARY KEY (`idSala`,`fechaFuncion`,`horaInicioFuncion`,`DNI`,`fechaHoraReserva`),
+  PRIMARY KEY (`idSala`,`fechaHoraFuncion`,`DNI`,`fechaHoraReserva`),
   KEY `DNI` (`DNI`),
   CONSTRAINT `reserva_ibfk_1` FOREIGN KEY (`DNI`) REFERENCES `cliente` (`DNI`),
-  CONSTRAINT `reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaFuncion`, `horaInicioFuncion`) REFERENCES `funcion` (`idSala`, `fechaFuncion`, `horaInicioFuncion`)
+  CONSTRAINT `reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaHoraFuncion`) REFERENCES `funcion` (`idSala`, `fechaHoraFuncion`)
 );
 CREATE TABLE `asiento-reserva` (
   `idSala` int NOT NULL,
   `filaAsiento` varchar(2) NOT NULL,
   `nroAsiento` int NOT NULL,
-  `fechaFuncion` datetime NOT NULL,
-  `horaInicioFuncion` datetime NOT NULL,
+  `fechaHoraFuncion` datetime NOT NULL,
   `DNI` int NOT NULL,
   `fechaHoraReserva` datetime NOT NULL,
-  PRIMARY KEY (`idSala`,`filaAsiento`,`nroAsiento`,`horaInicioFuncion`,`fechaFuncion`),
-  KEY `idSala` (`idSala`,`fechaFuncion`,`horaInicioFuncion`,`DNI`,`fechaHoraReserva`),
+  PRIMARY KEY (`idSala`,`filaAsiento`,`nroAsiento`,`fechaHoraFuncion`),
+  KEY `idSala` (`idSala`,`fechaHoraFuncion`,`DNI`,`fechaHoraReserva`),
   CONSTRAINT `asiento-reserva_ibfk_1` FOREIGN KEY (`idSala`, `filaAsiento`, `nroAsiento`) REFERENCES `asiento` (`idSala`, `filaAsiento`, `nroAsiento`),
-  CONSTRAINT `asiento-reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaFuncion`, `horaInicioFuncion`, `DNI`, `fechaHoraReserva`) REFERENCES `reserva` (`idSala`, `fechaFuncion`, `horaInicioFuncion`, `DNI`, `fechaHoraReserva`)
+  CONSTRAINT `asiento-reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaHoraFuncion`, `DNI`, `fechaHoraReserva`) REFERENCES `reserva` (`idSala`, `fechaHoraFuncion`, `DNI`, `fechaHoraReserva`)
 );
 
 

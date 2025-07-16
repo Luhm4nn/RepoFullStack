@@ -22,18 +22,17 @@ model asiento {
 }
 
 model asiento_reserva {
-  idSala            Int
-  filaAsiento       String   @db.VarChar(2)
-  nroAsiento        Int
-  fechaFuncion      DateTime @db.DateTime(0)
-  horaInicioFuncion DateTime @db.DateTime(0)
-  DNI               Int
-  fechaHoraReserva  DateTime @db.DateTime(0)
-  asiento           asiento  @relation(fields: [idSala, filaAsiento, nroAsiento], references: [idSala, filaAsiento, nroAsiento], onDelete: NoAction, onUpdate: NoAction, map: "asiento-reserva_ibfk_1")
-  reserva           reserva  @relation(fields: [idSala, fechaFuncion, horaInicioFuncion, DNI, fechaHoraReserva], references: [idSala, fechaFuncion, horaInicioFuncion, DNI, fechaHoraReserva], onDelete: NoAction, onUpdate: NoAction, map: "asiento-reserva_ibfk_2")
+  idSala           Int
+  filaAsiento      String   @db.VarChar(2)
+  nroAsiento       Int
+  fechaHoraFuncion DateTime @db.DateTime(0)
+  DNI              Int
+  fechaHoraReserva DateTime @db.DateTime(0)
+  asiento          asiento  @relation(fields: [idSala, filaAsiento, nroAsiento], references: [idSala, filaAsiento, nroAsiento], onDelete: NoAction, onUpdate: NoAction, map: "asiento-reserva_ibfk_1")
+  reserva          reserva  @relation(fields: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], references: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], onDelete: NoAction, onUpdate: NoAction, map: "asiento-reserva_ibfk_2")
 
-  @@id([idSala, filaAsiento, nroAsiento, horaInicioFuncion, fechaFuncion])
-  @@index([idSala, fechaFuncion, horaInicioFuncion, DNI, fechaHoraReserva], map: "idSala")
+  @@id([idSala, filaAsiento, nroAsiento, fechaHoraFuncion])
+  @@index([idSala, fechaHoraFuncion, DNI, fechaHoraReserva], map: "idSala")
   @@map("asiento-reserva")
 }
 
@@ -47,15 +46,14 @@ model cliente {
 }
 
 model funcion {
-  idSala            Int
-  fechaFuncion      DateTime  @db.DateTime(0)
-  horaInicioFuncion DateTime  @db.DateTime(0)
-  idPelicula        Int
-  pelicula          pelicula  @relation(fields: [idPelicula], references: [idPelicula], onDelete: NoAction, onUpdate: NoAction, map: "funcion_ibfk_1")
-  sala              sala      @relation(fields: [idSala], references: [idSala], onDelete: NoAction, onUpdate: NoAction, map: "funcion_ibfk_2")
-  reserva           reserva[]
+  idSala           Int
+  fechaHoraFuncion DateTime  @db.DateTime(0)
+  idPelicula       Int
+  pelicula         pelicula  @relation(fields: [idPelicula], references: [idPelicula], onDelete: NoAction, onUpdate: NoAction, map: "funcion_ibfk_1")
+  sala             sala      @relation(fields: [idSala], references: [idSala], onDelete: NoAction, onUpdate: NoAction, map: "funcion_ibfk_2")
+  reserva          reserva[]
 
-  @@id([idSala, fechaFuncion, horaInicioFuncion])
+  @@id([idSala, fechaHoraFuncion])
   @@index([idPelicula], map: "idPelicula")
 }
 
@@ -81,8 +79,7 @@ model pelicula {
 
 model reserva {
   idSala               Int
-  fechaFuncion         DateTime          @db.DateTime(0)
-  horaInicioFuncion    DateTime          @db.DateTime(0)
+  fechaHoraFuncion     DateTime          @db.DateTime(0)
   DNI                  Int
   fechaHoraReserva     DateTime          @db.DateTime(0)
   fechaHoraCancelacion DateTime?         @db.DateTime(0)
@@ -90,9 +87,9 @@ model reserva {
   total                Decimal           @db.Decimal(7, 2)
   asiento_reserva      asiento_reserva[]
   cliente              cliente           @relation(fields: [DNI], references: [DNI], onDelete: NoAction, onUpdate: NoAction, map: "reserva_ibfk_1")
-  funcion              funcion           @relation(fields: [idSala, fechaFuncion, horaInicioFuncion], references: [idSala, fechaFuncion, horaInicioFuncion], onDelete: NoAction, onUpdate: NoAction, map: "reserva_ibfk_2")
+  funcion              funcion           @relation(fields: [idSala, fechaHoraFuncion], references: [idSala, fechaHoraFuncion], onDelete: NoAction, onUpdate: NoAction, map: "reserva_ibfk_2")
 
-  @@id([idSala, fechaFuncion, horaInicioFuncion, DNI, fechaHoraReserva])
+  @@id([idSala, fechaHoraFuncion, DNI, fechaHoraReserva])
   @@index([DNI], map: "DNI")
 }
 
