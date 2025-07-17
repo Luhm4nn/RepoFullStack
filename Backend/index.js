@@ -9,6 +9,7 @@ import { tarifasRoutes } from "./routes/tarifas.routes.js";
 import { asientosRoutes } from "./routes/asientos.routes.js";
 import { funcionesRoutes } from "./routes/funciones.routes.js";
 import { reservasRoutes } from "./routes/reservas.routes.js";
+import { asientoReservasRoutes } from "./routes/asientoreservas.routes.js";
 
 const app = express();
 const PORT = 4000;
@@ -24,6 +25,7 @@ app.use(tarifasRoutes);
 app.use(asientosRoutes);
 app.use(funcionesRoutes);
 app.use(reservasRoutes);
+app.use(asientoReservasRoutes);
 
 app.use(errorHandler);
 
