@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "../Repository/peliculas.repository.js";
+} from "./peliculas.repository.js";
 
 // Controllers for Peliculas
 

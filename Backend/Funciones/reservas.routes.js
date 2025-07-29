@@ -5,9 +5,9 @@ import {
   createReserva,
   cancellReserva,
   deleteReserva,
-} from "../Controllers/reservas.controllers.js";
+} from "./reservas.controllers.js";
 
-import { asyncHandler } from "../middlewares/asyncHandler.js";
+import { asyncHandler } from "../Middlewares/asyncHandler.js";
 const router = Router();
 
 router.get("/Reservas", asyncHandler(getReservas));

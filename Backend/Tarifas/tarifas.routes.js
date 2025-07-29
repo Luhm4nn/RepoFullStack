@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { asyncHandler } from "../middlewares/asyncHandler.js";
+import { asyncHandler } from "../Middlewares/asyncHandler.js";
 import {
   getTarifas,
   getTarifa,
   createTarifa,
   deleteTarifa,
   updateTarifa,
-} from "../Controllers/tarifas.controllers.js";
+} from "./tarifas.controllers.js";
 
 const router = Router();
 

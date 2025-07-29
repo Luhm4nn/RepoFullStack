@@ -1,18 +1,18 @@
 import express from "express";
-import { indexRoutes } from "./routes/index.routes.js";
-import { peliculasRoutes } from "./routes/peliculas.routes.js";
+import { indexRoutes } from "./index.routes.js";
+import { peliculasRoutes } from "./Peliculas/peliculas.routes.js";
 import { errorHandler } from "./Middlewares/errorHandler.js";
-import { clientesRoutes } from "./routes/clientes.routes.js";
-import { parametrosRoutes } from "./routes/parametros.routes.js";
-import { salasRoutes } from "./routes/salas.routes.js";
-import { tarifasRoutes } from "./routes/tarifas.routes.js";
-import { asientosRoutes } from "./routes/asientos.routes.js";
-import { funcionesRoutes } from "./routes/funciones.routes.js";
-import { reservasRoutes } from "./routes/reservas.routes.js";
-import { asientoReservasRoutes } from "./routes/asientoreservas.routes.js";
+import { clientesRoutes } from "./Clientes/clientes.routes.js";
+import { parametrosRoutes } from "./Parametros/parametros.routes.js";
+import { salasRoutes } from "./Salas/salas.routes.js";
+import { tarifasRoutes } from "./Tarifas/tarifas.routes.js";
+import { asientosRoutes } from "./Salas/asientos.routes.js";
+import { funcionesRoutes } from "./Funciones/funciones.routes.js";
+import { reservasRoutes } from "./Funciones/reservas.routes.js";
+import { asientoReservasRoutes } from "./Funciones/asientoreservas.routes.js";
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
 

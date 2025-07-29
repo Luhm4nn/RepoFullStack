@@ -5,8 +5,8 @@ import {
   createAsiento,
   deleteAsiento,
   updateAsiento,
-} from "../Controllers/asientos.controllers.js";
-import { asyncHandler } from "../middlewares/asyncHandler.js";
+} from "./asientos.controllers.js";
+import { asyncHandler } from "../Middlewares/asyncHandler.js";
 const router = Router();
 
 router.get("/Sala/:idSala/Asientos", asyncHandler(getAsientos));

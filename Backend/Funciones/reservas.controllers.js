@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   cancellOne,
-} from "../Repository/reservas.repository.js";
+} from "./reservas.repository.js";
 
 // Controllers for Reservas
 

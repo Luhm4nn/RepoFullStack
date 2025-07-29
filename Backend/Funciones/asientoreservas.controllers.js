@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "../Repository/asientoreservas.repository.js";
+} from "./asientoreservas.repository.js";
 
 // Controllers for AsientoReservas
 
@@ -35,7 +35,9 @@ export const createAsientoReserva = async (req, res) => {
 
 export const deleteAsientoReserva = async (req, res) => {
   await deleteOne(req.params);
-  res.status(200).json({ message: "Reserva de asiento eliminada correctamente." }); // Enviar respuesta de éxito
+  res
+    .status(200)
+    .json({ message: "Reserva de asiento eliminada correctamente." }); // Enviar respuesta de éxito
 };
 
 export const updateAsientoReserva = async (req, res) => {

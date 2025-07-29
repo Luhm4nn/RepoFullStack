@@ -1,4 +1,4 @@
-import prisma from "../Prisma/prisma.js";
+import prisma from "../prisma/prisma.js";
 
 // Repository for Tarifas
 

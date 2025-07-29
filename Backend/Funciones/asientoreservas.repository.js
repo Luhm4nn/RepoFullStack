@@ -1,4 +1,4 @@
-import prisma from "../Prisma/prisma.js";
+import prisma from "../prisma/prisma.js";
 
 // Repository for AsientoReservas
 
@@ -10,11 +10,18 @@ async function getAll() {
 async function getOne(idSala_filaAsiento_nroAsiento_fechaHoraFuncion) {
   const asientoreserva = await prisma.asiento_reserva.findUnique({
     where: {
-        idSala_filaAsiento_nroAsiento_fechaHoraFuncion: {
-        idSala: parseInt(idSala_filaAsiento_nroAsiento_fechaHoraFuncion.idSala, 10),
+      idSala_filaAsiento_nroAsiento_fechaHoraFuncion: {
+        idSala: parseInt(
+          idSala_filaAsiento_nroAsiento_fechaHoraFuncion.idSala,
+          10
+        ),
         filaAsiento: idSala_filaAsiento_nroAsiento_fechaHoraFuncion.filaAsiento,
-        nroAsiento: parseInt(idSala_filaAsiento_nroAsiento_fechaHoraFuncion.nroAsiento, 10),
-        fechaHoraFuncion: idSala_filaAsiento_nroAsiento_fechaHoraFuncion.fechaHoraFuncion,
+        nroAsiento: parseInt(
+          idSala_filaAsiento_nroAsiento_fechaHoraFuncion.nroAsiento,
+          10
+        ),
+        fechaHoraFuncion:
+          idSala_filaAsiento_nroAsiento_fechaHoraFuncion.fechaHoraFuncion,
       },
     },
   });
@@ -35,15 +42,21 @@ async function createOne(data) {
   return newAsientoReserva;
 }
 
-
 async function deleteOne(idSala_filaAsiento_nroAsiento_fechaHoraFuncion) {
   const deletedAsientoReserva = await prisma.asiento_reserva.delete({
     where: {
       idSala_filaAsiento_nroAsiento_fechaHoraFuncion: {
-      idSala: parseInt(idSala_filaAsiento_nroAsiento_fechaHoraFuncion.idSala, 10),
-      filaAsiento: idSala_filaAsiento_nroAsiento_fechaHoraFuncion.filaAsiento,
-      nroAsiento: parseInt(idSala_filaAsiento_nroAsiento_fechaHoraFuncion.nroAsiento, 10),
-      fechaHoraFuncion: idSala_filaAsiento_nroAsiento_fechaHoraFuncion.fechaHoraFuncion,
+        idSala: parseInt(
+          idSala_filaAsiento_nroAsiento_fechaHoraFuncion.idSala,
+          10
+        ),
+        filaAsiento: idSala_filaAsiento_nroAsiento_fechaHoraFuncion.filaAsiento,
+        nroAsiento: parseInt(
+          idSala_filaAsiento_nroAsiento_fechaHoraFuncion.nroAsiento,
+          10
+        ),
+        fechaHoraFuncion:
+          idSala_filaAsiento_nroAsiento_fechaHoraFuncion.fechaHoraFuncion,
       },
     },
   });
@@ -54,10 +67,17 @@ async function updateOne(idSala_filaAsiento_nroAsiento_fechaHoraFuncion) {
   const updatedReserva = await prisma.asiento_reserva.update({
     where: {
       idSala_filaAsiento_nroAsiento_fechaHoraFuncion: {
-        idSala: parseInt(idSala_filaAsiento_nroAsiento_fechaHoraFuncion.idSala, 10),
+        idSala: parseInt(
+          idSala_filaAsiento_nroAsiento_fechaHoraFuncion.idSala,
+          10
+        ),
         filaAsiento: idSala_filaAsiento_nroAsiento_fechaHoraFuncion.filaAsiento,
-        nroAsiento: parseInt(idSala_filaAsiento_nroAsiento_fechaHoraFuncion.nroAsiento, 10),
-        fechaHoraFuncion: idSala_filaAsiento_nroAsiento_fechaHoraFuncion.fechaHoraFuncion,
+        nroAsiento: parseInt(
+          idSala_filaAsiento_nroAsiento_fechaHoraFuncion.nroAsiento,
+          10
+        ),
+        fechaHoraFuncion:
+          idSala_filaAsiento_nroAsiento_fechaHoraFuncion.fechaHoraFuncion,
       },
     },
     data: {

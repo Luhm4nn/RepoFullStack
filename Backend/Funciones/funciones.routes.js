@@ -5,9 +5,9 @@ import {
   createFuncion,
   updateFuncion,
   deleteFuncion,
-} from "../Controllers/funciones.controllers.js";
+} from "./funciones.controllers.js";
 
-import { asyncHandler } from "../middlewares/asyncHandler.js";
+import { asyncHandler } from "../Middlewares/asyncHandler.js";
 const router = Router();
 
 router.get("/Funciones", asyncHandler(getFunciones));

@@ -1,4 +1,4 @@
-import prisma from "../Prisma/prisma.js";
+import prisma from "../prisma/prisma.js";
 
 // Repository for Reservas
 
@@ -10,11 +10,16 @@ async function getAll() {
 async function getOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
   const reserva = await prisma.reserva.findUnique({
     where: {
-        idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
-        idSala: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala, 10),
-        fechaHoraFuncion: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
+      idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
+        idSala: parseInt(
+          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala,
+          10
+        ),
+        fechaHoraFuncion:
+          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
         DNI: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.DNI, 10),
-        fechaHoraReserva: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
+        fechaHoraReserva:
+          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
       },
     },
   });
@@ -29,22 +34,28 @@ async function createOne(data) {
       fechaHoraFuncion: data.fechaHoraFuncion,
       DNI: parseInt(data.DNI, 10),
       estado: "ACTIVA",
-      fechaHoraReserva: data.fechaHoraReserva ? new Date(data.fechaHoraReserva) : new Date(),
+      fechaHoraReserva: data.fechaHoraReserva
+        ? new Date(data.fechaHoraReserva)
+        : new Date(),
       total: parseFloat(data.total),
     },
   });
   return newReserva;
 }
 
-
 async function deleteOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
   const deletedReserva = await prisma.reserva.delete({
     where: {
       idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
-        idSala: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala, 10),
-        fechaHoraFuncion: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
+        idSala: parseInt(
+          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala,
+          10
+        ),
+        fechaHoraFuncion:
+          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
         DNI: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.DNI, 10),
-        fechaHoraReserva: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
+        fechaHoraReserva:
+          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
       },
     },
   });
@@ -55,10 +66,15 @@ async function cancellOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
   const cancelledReserva = await prisma.reserva.update({
     where: {
       idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
-        idSala: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala, 10),
-        fechaHoraFuncion: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
+        idSala: parseInt(
+          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala,
+          10
+        ),
+        fechaHoraFuncion:
+          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
         DNI: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.DNI, 10),
-        fechaHoraReserva: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
+        fechaHoraReserva:
+          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
       },
     },
     data: {

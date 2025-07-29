@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "../Repository/salas.repository.js";
+} from "./salas.repository.js";
 
 // Controllers for Salas
 
