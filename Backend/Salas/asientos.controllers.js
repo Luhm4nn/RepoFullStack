@@ -35,7 +35,7 @@ export const createAsiento = async (req, res) => {
 
 export const deleteAsiento = async (req, res) => {
   await deleteOne(req.params);
-  res.status(200).json({ message: "Asiento eliminado correctamente." }); // Enviar respuesta de éxito
+  res.status(200).json({ message: "Asiento eliminado correctamente." });
 };
 
 export const updateAsiento = async (req, res) => {

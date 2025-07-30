@@ -37,7 +37,7 @@ export const deleteAsientoReserva = async (req, res) => {
   await deleteOne(req.params);
   res
     .status(200)
-    .json({ message: "Reserva de asiento eliminada correctamente." }); // Enviar respuesta de éxito
+    .json({ message: "Reserva de asiento eliminada correctamente." });
 };
 
 export const updateAsientoReserva = async (req, res) => {

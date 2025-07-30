@@ -35,7 +35,7 @@ export const createFuncion = async (req, res) => {
 
 export const deleteFuncion = async (req, res) => {
   await deleteOne(req.params);
-  res.status(200).json({ message: "Función eliminada correctamente." }); // Enviar respuesta de éxito
+  res.status(200).json({ message: "Función eliminada correctamente." });
 };
 
 export const updateFuncion = async (req, res) => {

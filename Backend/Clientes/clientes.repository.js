@@ -3,7 +3,13 @@ import prisma from "../prisma/prisma.js";
 // Repository for Clientes
 
 async function getAll() {
-  const clientes = await prisma.cliente.findMany();
+  const clientes = await prisma.cliente.findMany({
+    include: {
+      _count: {
+        select: { reserva: true },
+      },
+    },
+  });
   return clientes;
 }
 

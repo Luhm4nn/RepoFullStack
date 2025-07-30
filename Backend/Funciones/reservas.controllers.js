@@ -35,7 +35,7 @@ export const createReserva = async (req, res) => {
 
 export const deleteReserva = async (req, res) => {
   await deleteOne(req.params);
-  res.status(200).json({ message: "Reserva eliminada correctamente." }); // Enviar respuesta de éxito
+  res.status(200).json({ message: "Reserva eliminada correctamente." });
 };
 
 export const cancellReserva = async (req, res) => {

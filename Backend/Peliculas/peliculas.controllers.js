@@ -35,7 +35,7 @@ export const createPelicula = async (req, res) => {
 
 export const deletePelicula = async (req, res, next) => {
   const deletedPelicula = await deleteOne(req.params.id);
-  res.status(200).json({ message: "Pelicula eliminada correctamente." }); // Enviar respuesta de éxito
+  res.status(200).json({ message: "Pelicula eliminada correctamente." });
 };
 
 export const updatePelicula = async (req, res) => {

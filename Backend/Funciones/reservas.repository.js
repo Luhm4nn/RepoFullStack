@@ -3,7 +3,16 @@ import prisma from "../prisma/prisma.js";
 // Repository for Reservas
 
 async function getAll() {
-  const reservas = await prisma.reserva.findMany();
+  const reservas = await prisma.reserva.findMany({
+    include: {
+      funcion: {
+        include: {
+          sala: true,
+          pelicula: true,
+        },
+      },
+    },
+  });
   return reservas;
 }
 

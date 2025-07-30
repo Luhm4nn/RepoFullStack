@@ -7,6 +7,10 @@ async function getAll(idSala) {
     where: {
       idSala: parseInt(idSala, 10),
     },
+    include: {
+      tarifa: true,
+      sala: true,
+    },
   });
   return asientos;
 }

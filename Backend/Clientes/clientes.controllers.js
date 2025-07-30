@@ -35,7 +35,7 @@ export const createCliente = async (req, res) => {
 
 export const deleteCliente = async (req, res) => {
   await deleteOne(req.params.dni);
-  res.status(200).json({ message: "Cliente eliminado correctamente." }); // Enviar respuesta de éxito
+  res.status(200).json({ message: "Cliente eliminado correctamente." });
 };
 
 export const updateCliente = async (req, res) => {
