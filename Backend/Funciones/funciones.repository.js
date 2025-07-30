@@ -3,7 +3,12 @@ import prisma from "../prisma/prisma.js";
 // Repository for Funciones
 
 async function getAll() {
-  const funciones = await prisma.funcion.findMany();
+  const funciones = await prisma.funcion.findMany({
+    include: {
+      sala: true,
+      pelicula: true,
+    },
+  });
   return funciones;
 }
 
