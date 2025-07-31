@@ -4,7 +4,14 @@
   "description": "Repositorio con desarrollo back y front de la app web de cines para DSW",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "frontend:install": "cd Frontend/cinema-app && npm install",
+    "frontend:start": "cd Frontend/cinema-app && npm start",
+    "frontend:build": "cd Frontend/cinema-app && npm run build",
+    "frontend:test": "cd Frontend/cinema-app && npm test",
+    "backend:start": "cd Backend && node index.js",
+    "dev:frontend": "cd Frontend/cinema-app && npm start",
+    "dev:backend": "cd Backend && node index.js"
   },
   "repository": {
     "type": "git",
