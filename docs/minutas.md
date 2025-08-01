@@ -59,6 +59,7 @@ Este documento contiene un registro de las reuniones realizadas para la planific
 - Usar Axios para consumir la API.
 - Usar Tailwind para la estética.
 - Crear documentación.
+- Una vez comprendido como encarar el Front definir tareas individuales para cada uno.
 
 **Próximas tareas:**
 
