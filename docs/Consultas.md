@@ -1,8 +1,8 @@
-#Diego Lezcano
+## Diego Lezcano
 
-#Emiliano Luhmann
+## Emiliano Luhmann
 
-#Resueltas
+## Resueltas
 
 - En los CRUDS Reserva y Asiento Reseva, como manejar las rutas, pasarlo por body o hacer que, por ejemplo, la reserva dependa
   del Cliente y la Funcion en routes, y esta de la Sala y Pelicula y asi sucesivamente.
