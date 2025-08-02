@@ -46,7 +46,7 @@ Este documento contiene un registro de las reuniones realizadas para la planific
 
 ---
 
-## 📅 Reunión 3 - /08/2025
+## 📅 Reunión 3 - 01/08/2025
 
 **Participantes:** Emiliano, Diego
 **Objetivos:**
@@ -64,3 +64,23 @@ Este documento contiene un registro de las reuniones realizadas para la planific
 **Próximas tareas:**
 
 - Emiliano, Diego: Iniciar Creación de FrontEnd con la perspectiva del admin.
+
+---
+
+## 📅 Reunión 4 - 02/08/2025
+
+**Participantes:** Emiliano, Diego
+**Objetivos:**
+
+- Planificar desarrollo Frontend.
+- Determinar estética de la página.
+
+**Decisiones tomadas:**
+
+- Se acordó la paleta de colores para la página.
+- Se utilizará la librería de componentes de Untitled UI.
+
+**Próximas tareas:**
+
+- Diego: Gestionar Peliculas Front.
+- Emiliano: Gestionar Salas Front.
