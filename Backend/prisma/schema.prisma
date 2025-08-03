@@ -94,11 +94,12 @@ model reserva {
 }
 
 model sala {
-  idSala    Int       @id @default(autoincrement())
-  ubicacion String    @db.VarChar(45)
-  capacidad Int?
-  asiento   asiento[]
-  funcion   funcion[]
+  idSala          Int       @id @default(autoincrement())
+  ubicacion       String    @db.VarChar(45)
+  filas           Int
+  asientosPorFila Int
+  asiento         asiento[]
+  funcion         funcion[]
 }
 
 model tarifa {

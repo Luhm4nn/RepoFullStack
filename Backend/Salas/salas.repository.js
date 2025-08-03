@@ -20,7 +20,8 @@ async function createOne(data) {
   const newSala = await prisma.sala.create({
     data: {
       ubicacion: data.ubicacion,
-      capacidad: data.capacidad,
+      filas: data.filas,
+      asientosPorFila: data.asientosPorFila,
     },
   });
   return newSala;
@@ -42,7 +43,8 @@ async function updateOne(id, data) {
     },
     data: {
       ubicacion: data.ubicacion,
-      capacidad: data.capacidad,
+      filas: data.filas,
+      asientosPorFila: data.asientosPorFila,
     },
   });
   return updatedSala;

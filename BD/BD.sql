@@ -8,7 +8,8 @@ CREATE TABLE `tarifa` (
 CREATE TABLE `sala` (
   `idSala` int NOT NULL AUTO_INCREMENT,
   `ubicacion` varchar(45) NOT NULL,
-  `capacidad` int DEFAULT NULL,
+  `filas` int NOT NULL,
+  `asientosPorFila` int NOT NULL,
   PRIMARY KEY (`idSala`)
 );
 CREATE TABLE `cliente` (
