@@ -1,8 +1,11 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, TextInput, Textarea, Select } from "flowbite-react";
 import salasSchema from "../validations/SalasSchema";
+import VIPSeatSelector from "./VIPSeatSelector";
+import { useState } from "react";
 
 export default function SalasForm({ onSubmit }) {
+  const [vipSeats, setVipSeats] = useState([])
   return (
     <div className="bg-slate-800 border-slate-700 p-4 md:p-6 overflow-hidden rounded-lg scrollbar-hide shadow-lg">
       <h2 className="text-2xl text-white font-bold mb-4">Agregar Nueva Sala</h2>
@@ -15,12 +18,17 @@ export default function SalasForm({ onSubmit }) {
         }}
         validationSchema={salasSchema}
         onSubmit={(values, { resetForm, setSubmitting }) => {
-          onSubmit(values); 
-          resetForm(); 
-          setSubmitting(false);
-        }}
+            const dataToSubmit = {
+              ...values,
+              vipSeats: vipSeats
+            };
+            onSubmit(dataToSubmit); 
+            resetForm(); 
+            setVipSeats([]);
+            setSubmitting(false);
+          }}
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, values }) => (
           <Form className="space-y-4">
             <div className="grid grid-cols-1 gap-4 ">
             
@@ -67,6 +75,29 @@ export default function SalasForm({ onSubmit }) {
                 />
                 <ErrorMessage name="asientosPorFila" component="span" className="text-red-500 text-sm" />
               </div>
+
+              {values.filas && values.asientosPorFila && parseInt(values.filas) > 0 && parseInt(values.asientosPorFila) > 0 && (
+                <div>
+                  <Label value="Configuración de Asientos VIP" />
+                    <div className="mt-2">
+                      <VIPSeatSelector
+                        filas={values.filas}
+                        asientosPorFila={values.asientosPorFila}
+                        onVIPSeatsChange={setVipSeats}
+                        key={`${values.filas}-${values.asientosPorFila}`}
+                      />
+                    </div>
+
+                    {vipSeats.length > 0 && (
+                      <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
+                        <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                          <strong>Asientos VIP seleccionados:</strong> {vipSeats.join(', ')}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
 
             {/* Botones */}
             <div className="flex flex-col sm:flex-row sm:justify-end gap-4 pt-4">

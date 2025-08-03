@@ -33,10 +33,7 @@ function SalasPage() {
         <div className="mb-6">
           <Button 
           onClick={() => setMostrarFormulario(!mostrarFormulario)}
-          className={`${mostrarFormulario 
-            ? 'bg-red-500 hover:bg-red-600 text-white' 
-            : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white'
-    }`}
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
   >
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="size-4.5 mr-2.25">
     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
