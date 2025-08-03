@@ -1,5 +1,9 @@
-- Eliminar capacidad de Sala: porque usamos _ count en el repository.
+## Cuestiones menores a resolver luego (Diego)
+- Ocultar Scrollbar en todos lados
+- En popup de Añadir sala y similar, corregir que el cancelar haga un reload(), y gestionar desde el SalasPage con onclick y que cierre el popup.
 
+## Cuestiones menores a resolver luego (Emiliano)
+- 
 
 
 - Main Page 

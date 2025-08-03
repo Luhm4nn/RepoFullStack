@@ -1,25 +1,19 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, TextInput, Textarea, Select } from "flowbite-react";
-import peliculaSchema from "../validations/PeliculasSchema";
+import salasSchema from "../validations/SalasSchema";
 
-export default function PeliculasForm({ onSubmit }) {
+export default function SalasForm({ onSubmit }) {
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold mb-4">Agregar Nueva Película</h2>
+    <div className="bg-slate-800 border-slate-700 p-4 md:p-6 overflow-hidden rounded-lg scrollbar-hide shadow-lg">
+      <h2 className="text-2xl text-white font-bold mb-4">Agregar Nueva Sala</h2>
       
       <Formik
         initialValues={{ 
-          nombrePelicula: "", 
-          duracion: "", 
-          generoPelicula: "", 
-          director: "", 
-          fechaEstreno: "", 
-          sinopsis: "", 
-          trailerURL: "", 
-          portada: "", 
-          MPAA: "" 
+          ubicacion: '',
+          filas: '',
+          asientosPorFila: '',
         }}
-        validationSchema={peliculaSchema}
+        validationSchema={salasSchema}
         onSubmit={(values, { resetForm, setSubmitting }) => {
           onSubmit(values); 
           resetForm(); 
@@ -28,131 +22,62 @@ export default function PeliculasForm({ onSubmit }) {
       >
         {({ isSubmitting }) => (
           <Form className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Nombre de la Película */}
-              <div>
-                <Label htmlFor="nombrePelicula" value="Nombre de la Película *" />
-                <Field
-                  as={TextInput}
-                  name="nombrePelicula"
-                  placeholder="Ej. Avengers: Endgame"
-                  required
-                />
-                <ErrorMessage name="nombrePelicula" component="span" className="text-red-500 text-sm" />
-              </div>
-
-              {/* Director */}
-              <div>
-                <Label htmlFor="director" value="Director *" />
-                <Field
-                  as={TextInput}
-                  name="director"
-                  placeholder="Ej. Christopher Nolan"
-                  required
-                />
-                <ErrorMessage name="director" component="span" className="text-red-500 text-sm" />
-              </div>
-
-              {/* Género */}
-              <div>
-                <Label htmlFor="generoPelicula" value="Género *" />
-                <Field as={Select} name="generoPelicula" required>
-                  <option value="">Selecciona un género</option>
-                  <option value="Accion">Acción</option>
-                  <option value="Drama">Drama</option>
-                  <option value="Comedia">Comedia</option>
-                  <option value="Terror">Terror</option>
-                  <option value="Ciencia Ficcion">Ciencia Ficción</option>
-                  <option value="Romance">Romance</option>
-                  <option value="Thriller">Thriller</option>
-                  <option value="Aventura">Aventura</option>
-                  <option value="Animacion">Animación</option>
-                  <option value="Documental">Documental</option>
+            <div className="grid grid-cols-1 gap-4 ">
+            
+            {/* Ubicacion */}
+              <div >
+                <Label htmlFor="ubicacion" value="Ubicación *" />
+                <Field as={Select} name="ubicacion"  required color className="bg-slate-700 hover:bg-white/10 text-white">
+                  <option value="" className="bg-slate-700 border-slate-600 hover:bg-white/10 text-white" >Selecciona una ubicación</option>
+                  <option value="Ala Derecha" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Ala Derecha</option>
+                  <option value="Ala Izquierda" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Ala Izquierda</option>
+                  <option value="Planta Baja" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Planta Baja</option>
+                  <option value="Sótano" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Sótano</option>
+                  <option value="Primer Piso" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Primer Piso</option>
                 </Field>
-                <ErrorMessage name="generoPelicula" component="span" className="text-red-500 text-sm" />
+                <ErrorMessage name="ubicacion" component="span" className="text-red-500 text-sm" />
               </div>
 
-              {/* Duración */}
+            {/* Filas */}
               <div>
-                <Label htmlFor="duracion" value="Duración (minutos) *" />
+                <Label htmlFor="filas" value="Filas *" />
                 <Field
                   as={TextInput}
-                  name="duracion"
+                  name="filas"
                   type="number"
-                  placeholder="120"
+                  placeholder="10"
                   required
+                  color
+                  className="bg-slate-700 hover:bg-white/10 text-white"
                 />
-                <ErrorMessage name="duracion" component="span" className="text-red-500 text-sm" />
+                <ErrorMessage name="filas" component="span" className="text-red-500 text-sm" />
               </div>
 
-              {/* Fecha de Estreno */}
+              {/* Asientos por fila */}
               <div>
-                <Label htmlFor="fechaEstreno" value="Fecha de Estreno" />
+                <Label htmlFor="asientosPorFila" value="Asientos por fila *" />
                 <Field
                   as={TextInput}
-                  name="fechaEstreno"
-                  type="date"
+                  name="asientosPorFila"
+                  type="number"
+                  placeholder="10"
+                  required
+                  color
+                  className="bg-slate-700 hover:bg-white/10 text-white"
                 />
-                <ErrorMessage name="fechaEstreno" component="span" className="text-red-500 text-sm" />
+                <ErrorMessage name="asientosPorFila" component="span" className="text-red-500 text-sm" />
               </div>
-
-              {/* Clasificación MPAA */}
-              <div>
-                <Label htmlFor="MPAA" value="Clasificación MPAA" />
-                <Field as={Select} name="MPAA">
-                  <option value="">Selecciona clasificación</option>
-                  <option value="G">G - Audiencia General</option>
-                  <option value="PG">PG - Se sugiere supervisión</option>
-                  <option value="PG-13">PG-13 - Mayores de 13 años</option>
-                  <option value="R">R - Restringida</option>
-                  <option value="NC-17">NC-17 - Solo adultos</option>
-                </Field>
-                <ErrorMessage name="MPAA" component="span" className="text-red-500 text-sm" />
-              </div>
-            </div>
-
-            {/* Sinopsis */}
-            <div>
-              <Label htmlFor="sinopsis" value="Sinopsis" />
-              <Field
-                as={Textarea}
-                name="sinopsis"
-                placeholder="Descripción de la película..."
-                rows={4}
-              />
-              <ErrorMessage name="sinopsis" component="span" className="text-red-500 text-sm" />
-            </div>
-
-            {/* URL del Trailer */}
-            <div>
-              <Label htmlFor="trailerURL" value="URL del Trailer" />
-              <Field
-                as={TextInput}
-                name="trailerURL"
-                placeholder="https://youtube.com/watch?v=..."
-              />
-              <ErrorMessage name="trailerURL" component="span" className="text-red-500 text-sm" />
-            </div>
-
-            {/* URL de la Portada */}
-            <div>
-              <Label htmlFor="portada" value="URL de la Portada" />
-              <Field
-                as={TextInput}
-                name="portada"
-                placeholder="https://imagen.com/poster.jpg"
-              />
-              <ErrorMessage name="portada" component="span" className="text-red-500 text-sm" />
-            </div>
 
             {/* Botones */}
-            <div className="flex gap-4 pt-4">
-              <Button type="submit" disabled={isSubmitting} color="blue">
-                {isSubmitting ? "Guardando..." : "Guardar Película"}
-              </Button>
-              <Button type="button" color="gray" onClick={() => window.location.reload()}>
+            <div className="flex flex-col sm:flex-row sm:justify-end gap-4 pt-4">
+              <Button type="button" color className="text-white bg-slate-700 hover:bg-white/10" onClick={() => window.location.reload()}>
                 Cancelar
               </Button>
+              <Button type="submit" disabled={isSubmitting} color className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white">
+                {isSubmitting ? "Guardando..." : "Guardar Sala"}
+              </Button>
+              
+            </div>
             </div>
           </Form>
         )}

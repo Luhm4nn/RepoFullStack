@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Button } from "flowbite-react";
 import SalasList from "../components/SalasList";
-//import SalasForm
+import SalasForm from "../components/SalasForm";
 import { getSalas } from "../api/Salas.api";
+import { createSala } from "../api/Salas.api";
 
 function SalasPage() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -11,13 +12,12 @@ function SalasPage() {
   const handleSubmit = async (values) => {
     try {
       console.log('Enviando película:', values);
-      //await createPelicula(values);
-      console.log('Película creada exitosamente');
+      await createSala(values);
+      console.log('Sala creada exitosamente');
       
       setMostrarFormulario(false);
       setRefreshList(prev => prev + 1);
       
-      alert('Sala agregada exitosamente');
     } catch (error) {
       console.error('Error al crear sala:', error);
       alert('Error al agregar sala');
@@ -45,10 +45,28 @@ function SalasPage() {
   </Button>
         </div>
         {mostrarFormulario && (
-          <div className="mb-6">
-            <SalasForm onSubmit={handleSubmit} />
+          <>
+          {/*Fondo oscuro*/}
+          <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          onClick={() => setMostrarFormulario(false)}
+        ></div>
+          
+          {/* Formulario de Crear Sala */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      
+              <SalasForm 
+                onSubmit={(data) => {
+                  handleSubmit(data);
+                  setMostrarFormulario(false);
+                }} 
+              />
+           
           </div>
-        )}
+        </div>
+      </>
+    )}
 
         <SalasList key={refreshList} />
       </div>

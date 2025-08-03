@@ -102,6 +102,8 @@ function SalasList() {
         </Table>
       </div>
 
+      {/* Responsive view para mobile */}
+
       <div className="md:hidden space-y-4">
         {salas.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
@@ -113,7 +115,7 @@ function SalasList() {
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                  <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                     {sala.idSala || '?'}
                   </div>
                   <div>

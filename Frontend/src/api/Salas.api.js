@@ -12,12 +12,12 @@ export const getSalas = async () => {
   }
 }
 
-/*export const createPelicula = async (pelicula) => {
+export const createSala = async (sala) => {
   try {
-    const response = await axios.post(API_URL, pelicula);
+    const response = await axios.post("http://localhost:4000/Sala", sala);
     return response.data;
   } catch (error) {
-    console.error("Error creating pelicula:", error);
+    console.error("Error creating sala:", error);
     throw error;
   }
-}*/
+}

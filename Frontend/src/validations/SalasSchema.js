@@ -2,7 +2,7 @@ import * as Yup from "yup";
 
 const salasSchema = Yup.object().shape({
   ubicacion: Yup.string()
-    .oneOf(["Ala Norte", "Ala Sur", "Planta Baja", "Primer Piso"], "Ubicación inválida")
+    .oneOf(["Ala Derecha", "Ala Izquierda", "Planta Baja", "Sótano", "Primer Piso"], "Ubicación inválida")
     .required("La ubicación es requerida"),
   
   filas: Yup.number()
@@ -12,7 +12,7 @@ const salasSchema = Yup.object().shape({
     .max(100, "Máximo 100 filas")
     .required("La cantidad de filas es requerida"),
   
-    asientosPorFila: Yup.number()
+  asientosPorFila: Yup.number()
     .positive("Debe ser un número positivo")
     .integer("Debe ser un número entero")
     .min(1, "Mínimo 1 asiento por fila")
