@@ -1,12 +1,10 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, TextInput, Textarea, Select } from "flowbite-react";
-import peliculaSchema from "../validations/PeliculasSchema";
+//import peliculaSchema from "../validations/PeliculasSchema";
 
-export default function PeliculasForm({ onSubmit }) {
+export default function PeliculasForm({ onSubmit, onCancel }) {
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold mb-4">Agregar Nueva Película</h2>
-      
+    <div className="space-y-4">
       <Formik
         initialValues={{ 
           nombrePelicula: "", 
@@ -19,7 +17,7 @@ export default function PeliculasForm({ onSubmit }) {
           portada: "", 
           MPAA: "" 
         }}
-        validationSchema={peliculaSchema}
+        //validationSchema={peliculaSchema}
         onSubmit={(values, { resetForm, setSubmitting }) => {
           onSubmit(values); 
           resetForm(); 
@@ -146,12 +144,20 @@ export default function PeliculasForm({ onSubmit }) {
             </div>
 
             {/* Botones */}
-            <div className="flex gap-4 pt-4">
-              <Button type="submit" disabled={isSubmitting} color="blue">
-                {isSubmitting ? "Guardando..." : "Guardar Película"}
-              </Button>
-              <Button type="button" color="gray" onClick={() => window.location.reload()}>
+            <div className="flex gap-4 pt-4 justify-end">
+              <Button 
+                type="button" 
+                color="gray" 
+                onClick={onCancel}
+              >
                 Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="!bg-gradient-to-r from-purple-600 to-blue-600 hover:!from-purple-700 hover:!to-blue-700"
+              >
+                {isSubmitting ? "Guardando..." : "Guardar Película"}
               </Button>
             </div>
           </Form>

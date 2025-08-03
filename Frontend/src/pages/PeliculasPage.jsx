@@ -1,24 +1,24 @@
 import { useState } from "react";
-import { Button } from "flowbite-react";
+import { Button, Modal } from "flowbite-react";
 import PeliculasList from "../components/PeliculasList";
 import PeliculasForm from "../components/PeliculasForm";
 import { createPelicula } from "../api/Peliculas.api";
 
 function PeliculasPage() {
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [refreshList, setRefreshList] = useState(0);
-
+  const [openModal, setOpenModal] = useState(false);
+  
   const handleSubmit = async (values) => {
     try {
       console.log('📤 Enviando película:', values);
       await createPelicula(values);
       console.log('✅ Película creada exitosamente');
       
-      // Cerrar formulario y refrescar lista
-      setMostrarFormulario(false);
-      setRefreshList(prev => prev + 1); // Trigger refresh en PeliculasList
+      // Cerrar modal y refrescar lista
+      setOpenModal(false);
+      setRefreshList(prev => prev + 1);
       
-      // Mostrar mensaje de éxito (opcional)
+      // Mostrar mensaje de éxito
       alert('Película agregada exitosamente');
     } catch (error) {
       console.error('❌ Error al crear película:', error);
@@ -29,27 +29,34 @@ function PeliculasPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="container mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">Gestión de Películas</h1>
+        <h1 className="text-3xl text-gray-200 font-bold">Gestión de Películas</h1>
+        <span className="text-gray-300 mt-1 mb-5 block">
+          Aquí puedes gestionar las películas del cine.
+        </span>
         
         <div className="mb-6">
           <Button 
-          onClick={() => setMostrarFormulario(!mostrarFormulario)}
-          className={`${mostrarFormulario 
-            ? 'bg-red-500 hover:bg-red-600 text-white' 
-            : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white'
-    }`}
-  >
-    {mostrarFormulario ? "Cancelar" : "Añadir Película"}
-  </Button>
+            onClick={() => setOpenModal(true)}
+            className="!bg-gradient-to-r from-purple-700 to-blue-700 hover:!from-purple-600 hover:!to-blue-600 text-white"
+          >
+            ✨ Añadir Película +
+          </Button>
         </div>
 
-        {mostrarFormulario && (
-          <div className="mb-6">
-            <PeliculasForm onSubmit={handleSubmit} />
-          </div>
-        )}
-
         <PeliculasList key={refreshList} />
+
+        {/* Modal */}
+        <Modal show={openModal} onClose={() => setOpenModal(false)} size="4xl">
+          <Modal.Header>
+            <span className="text-xl font-bold">Agregar Nueva Película</span>
+          </Modal.Header>
+          <Modal.Body>
+            <PeliculasForm 
+              onSubmit={handleSubmit} 
+              onCancel={() => setOpenModal(false)} 
+            />
+          </Modal.Body>
+        </Modal>
       </div>
     </div>
   );

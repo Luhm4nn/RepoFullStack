@@ -45,17 +45,16 @@ function PeliculasList() {
     <div className="overflow-x-auto">
       <Table hoverable>
         <TableHead>
-          <TableRow>
-            <TableHeadCell>Título</TableHeadCell>
-            <TableHeadCell>Director</TableHeadCell>
-            <TableHeadCell>Género</TableHeadCell>
-            <TableHeadCell>Duración</TableHeadCell>
-            <TableHeadCell>Año</TableHeadCell>
-            <TableHeadCell>
-              <span className="sr-only">Acciones</span>
-            </TableHeadCell>
-          </TableRow>
-        </TableHead>
+          <TableRow className="!bg-slate-800/50 !text-white">
+          <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Título</TableHeadCell>
+          <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Género</TableHeadCell>
+          <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">MPAA</TableHeadCell>
+          <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Duración</TableHeadCell>
+          <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Año</TableHeadCell>
+          <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Acciones
+    </TableHeadCell>
+  </TableRow>
+</TableHead>
         <TableBody className="divide-y">
           {peliculas.length === 0 ? (
             <TableRow>
@@ -65,12 +64,12 @@ function PeliculasList() {
             </TableRow>
           ) : (
             peliculas.map((pelicula) => (
-              <TableRow key={pelicula.idPelicula} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+              <TableRow key={pelicula.idPelicula} className="bg-slate-800/50 hover:!bg-white/10">
+                <TableCell className="whitespace-nowrap font-medium !text-gray-200 ">
                   {pelicula.nombrePelicula || 'Sin título'}
                 </TableCell>
-                <TableCell>{pelicula.director || 'Sin director'}</TableCell>
                 <TableCell>{pelicula.generoPelicula || 'Sin género'}</TableCell>
+                <TableCell>{pelicula.mpaa || 'Sin clasificación'}</TableCell>
                 <TableCell>{pelicula.duracion ? `${pelicula.duracion} min` : 'N/A'}</TableCell>
                 <TableCell>
                   {pelicula.fechaEstreno && pelicula.fechaEstreno !== null ? 
