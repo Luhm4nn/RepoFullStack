@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom"
 import MainPage from "./pages/MainPage"
 import NotFound from "./pages/NotFound"
-import NavbarPrueba from "./components/NavbarPrueba"
+import AdminNavbar from "./components/AdminNavbar"
 import PeliculasPage from "./pages/PeliculasPage"
 import ConfiguracionPage from "./pages/ConfiguracionPage"
 import FuncionesPage from "./pages/FuncionesPage"
@@ -16,8 +16,8 @@ import FAQ from "./pages/FAQ"
 function App() {
   return (
     <>
-    <div className="min-h-screen bg-gray-700 font-montserrat">
-      <NavbarPrueba />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 font-montserrat">
+      <AdminNavbar  />
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="*" element={<NotFound />} />

@@ -12,7 +12,7 @@ function PeliculasPage() {
   };
 
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <h1>Películas</h1>
       <h2 >Lista de Películas</h2>
 

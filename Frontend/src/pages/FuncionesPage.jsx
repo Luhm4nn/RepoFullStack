@@ -1,6 +1,6 @@
 function FuncionesPage() {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <h1>Funciones</h1>
     </div>
   );

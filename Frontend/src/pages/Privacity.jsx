@@ -1,6 +1,6 @@
 function Privacity() {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <h1>Políticas de Privacidad</h1>
     </div>
   );

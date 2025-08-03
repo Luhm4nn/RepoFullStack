@@ -1,6 +1,6 @@
 function AboutMe() {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <h1>Sobre Nosotros</h1>
     </div>
   );

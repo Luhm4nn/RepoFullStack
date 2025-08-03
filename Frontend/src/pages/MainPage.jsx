@@ -3,7 +3,7 @@ import { Button } from "flowbite-react";
 
 function MainPage() {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <h1 className="bg-red-500">Main Page</h1>
 
       <p className="text-gray-100">Welcome to the main page!</p>
