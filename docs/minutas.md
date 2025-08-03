@@ -78,7 +78,7 @@ Este documento contiene un registro de las reuniones realizadas para la planific
 **Decisiones tomadas:**
 
 - Se acordó la paleta de colores para la página.
-- Se utilizará la librería de componentes de Chakra UI.
+- Se utilizará la librería de componentes de Flowbite.
 - Se utilizará la libreria de iconos de HeroIcons.
 
 **Próximas tareas:**
