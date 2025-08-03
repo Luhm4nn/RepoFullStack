@@ -83,5 +83,5 @@ Este documento contiene un registro de las reuniones realizadas para la planific
 
 **Próximas tareas:**
 
-- Diego: Gestionar Peliculas Front.
-- Emiliano: Gestionar Salas Front.
+- Diego: Gestionar Peliculas Front, Footer.
+- Emiliano: Gestionar Salas Front, Navbar.
