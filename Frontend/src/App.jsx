@@ -6,6 +6,11 @@ import PeliculasPage from "./pages/PeliculasPage"
 import ConfiguracionPage from "./pages/ConfiguracionPage"
 import FuncionesPage from "./pages/FuncionesPage"
 import SalasPage from "./pages/SalasPage"
+import FooterComp from "./components/FooterComp"
+import Terminos from "./pages/Terminos"
+import Privacity from "./pages/Privacity"
+import AboutMe from "./pages/AboutMe"
+import FAQ from "./pages/FAQ"
 
 
 function App() {
@@ -20,7 +25,12 @@ function App() {
         <Route path="/Configuracion" element={<ConfiguracionPage />} />
         <Route path="/Funciones" element={<FuncionesPage />} />
         <Route path="/Salas" element={<SalasPage />} />
+        <Route path="/Terminos" element={<Terminos/>} />
+        <Route path="/Privacity" element={<Privacity/>} />
+        <Route path="/AboutMe" element={<AboutMe/>} />
+        <Route path="/FAQ" element={<FAQ/>} />
       </Routes>
+      <FooterComp />
     </div>
     </>
   )
