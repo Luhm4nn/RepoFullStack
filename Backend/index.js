@@ -10,9 +10,14 @@ import { asientosRoutes } from "./Salas/asientos.routes.js";
 import { funcionesRoutes } from "./Funciones/funciones.routes.js";
 import { reservasRoutes } from "./Funciones/reservas.routes.js";
 import { asientoReservasRoutes } from "./Funciones/asientoreservas.routes.js";
+import cors from "cors";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+app.use(cors({
+  origin: 'http://localhost:5173'
+}));
 
 app.use(express.json());
 
@@ -26,6 +31,7 @@ app.use(asientosRoutes);
 app.use(funcionesRoutes);
 app.use(reservasRoutes);
 app.use(asientoReservasRoutes);
+
 
 app.use(errorHandler);
 

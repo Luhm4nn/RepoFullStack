@@ -30,7 +30,6 @@ export default function AdminNavbar() {
               alt="User settings"
               img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
               rounded
-              imgClassName="object-cover w-full h-full rounded-full w-24 h-24 p-0 m-0"
             />
           }
         >
