@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PeliculasForm from "../components/PeliculasForm";
 
+
 function PeliculasPage() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [peliculas, setPeliculas] = useState([]);

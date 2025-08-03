@@ -3,9 +3,9 @@ import { useState } from 'react'
 
 export default function Navbar() {
   return (
-    <nav>
-      <h1>My App</h1>
-        <ul>
+    <nav className="bg-purple-800 text-white flex justify-between items-center">
+      <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Cutzy</h1>
+        <ul className="flex space-x-4">
             <li><Link to="/">Inicio</Link></li>
             <li><Link to="/Peliculas">Peliculas</Link></li>
             <li><Link to="/Salas">Salas</Link></li>
