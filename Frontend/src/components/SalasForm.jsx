@@ -6,8 +6,10 @@ import { useState } from "react";
 
 export default function SalasForm({ onSubmit }) {
   const [vipSeats, setVipSeats] = useState([])
+
   return (
-    <div className="bg-slate-800 border-slate-700 p-4 md:p-6 overflow-hidden rounded-lg scrollbar-hide shadow-lg">
+    <div
+      className="bg-slate-800 border-slate-700 p-4 md:p-6 overflow-hidden scrollbar-none rounded-lg shadow-lg">
       <h2 className="text-2xl text-white font-bold mb-4">Agregar Nueva Sala</h2>
       
       <Formik
@@ -35,7 +37,7 @@ export default function SalasForm({ onSubmit }) {
             {/* Ubicacion */}
               <div >
                 <Label htmlFor="ubicacion" value="Ubicación *" />
-                <Field as={Select} name="ubicacion"  required color className="bg-slate-700 hover:bg-white/10 text-white">
+                <Field as={Select} name="ubicacion" color className="bg-slate-700 hover:bg-white/10 text-white">
                   <option value="" className="bg-slate-700 border-slate-600 hover:bg-white/10 text-white" >Selecciona una ubicación</option>
                   <option value="Ala Derecha" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Ala Derecha</option>
                   <option value="Ala Izquierda" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Ala Izquierda</option>
@@ -54,7 +56,6 @@ export default function SalasForm({ onSubmit }) {
                   name="filas"
                   type="number"
                   placeholder="10"
-                  required
                   color
                   className="bg-slate-700 hover:bg-white/10 text-white"
                 />
@@ -69,14 +70,14 @@ export default function SalasForm({ onSubmit }) {
                   name="asientosPorFila"
                   type="number"
                   placeholder="10"
-                  required
                   color
                   className="bg-slate-700 hover:bg-white/10 text-white"
                 />
                 <ErrorMessage name="asientosPorFila" component="span" className="text-red-500 text-sm" />
               </div>
 
-              {values.filas && values.asientosPorFila && parseInt(values.filas) > 0 && parseInt(values.asientosPorFila) > 0 && (
+              {values.filas && values.asientosPorFila && parseInt(values.filas) > 0 &&
+               parseInt(values.filas) < 26 && parseInt(values.asientosPorFila) > 0 && parseInt(values.asientosPorFila) < 26 && (
                 <div>
                   <Label value="Configuración de Asientos VIP" />
                     <div className="mt-2">
@@ -89,8 +90,8 @@ export default function SalasForm({ onSubmit }) {
                     </div>
 
                     {vipSeats.length > 0 && (
-                      <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
-                        <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                      <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200">
+                        <p className="text-sm text-yellow-800">
                           <strong>Asientos VIP seleccionados:</strong> {vipSeats.join(', ')}
                         </p>
                       </div>

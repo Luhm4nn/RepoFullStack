@@ -6,6 +6,8 @@ import {
   updateOne,
 } from "./salas.repository.js";
 
+import {createManyForSala} from "./asientos.repository.js";
+
 // Controllers for Salas
 
 export const getSalas = async (req, res) => {
@@ -25,8 +27,18 @@ export const getSala = async (req, res) => {
 
 export const createSala = async (req, res) => {
   const newSala = await createOne(req.body);
+
+  const asientosToCreate = await createManyForSala(
+    newSala.idSala,
+    req.body.filas,
+    req.body.asientosPorFila,
+    req.body.vipSeats
+  );
+
   res.status(201).json(newSala);
+
 };
+
 
 export const deleteSala = async (req, res) => {
   const deletedSala = await deleteOne(req.params.id);

@@ -28,6 +28,30 @@ async function getOne(idSala_filaAsiento_nroAsiento) {
   return asiento;
 }
 
+async function createManyForSala(idSala, filas, asientosPorFila, vipSeats = []) {
+  const asientosToCreate = [];
+
+  for (let i=0; i < filas; i++) {
+    const filaLetter = String.fromCharCode(65 + i); // A, B, C, D...
+
+    for(let nroAsiento = 1; nroAsiento <= asientosPorFila; nroAsiento++) {
+      const tipo = vipSeats.includes(`${filaLetter}${nroAsiento}`) ? "VIP" : "Normal";
+      asientosToCreate.push({
+        idSala: parseInt(idSala, 10),
+        filaAsiento: filaLetter,
+        nroAsiento: nroAsiento,
+        tipo: tipo,
+        idTarifa: null, //Luego codear la parte de las tarifas (para vip o normal activa)
+      });
+    }
+  }
+
+  const createdAsientos = await prisma.asiento.createMany({
+    data: asientosToCreate,
+  })
+  return createdAsientos;
+}
+
 async function createOne(idSala, data) {
   const newAsiento = await prisma.asiento.create({
     data: {
@@ -71,4 +95,4 @@ async function updateOne(idSala_filaAsiento_nroAsiento, data) {
   return updatedAsiento;
 }
 
-export { getOne, getAll, createOne, deleteOne, updateOne };
+export { getOne, getAll, createManyForSala, createOne, deleteOne, updateOne };
