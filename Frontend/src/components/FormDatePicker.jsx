@@ -1,7 +1,6 @@
 import { Datepicker } from "flowbite-react";
 import { Field, ErrorMessage } from "formik";
-import { formatToISO8601 } from "../utils/dateFormater.js"; // ← Usa tu dateFormatter
-
+import { formatToISO8601 } from "../utils/dateFormater.js"; 
 function FormDatePicker({ 
   name, 
   label, 
@@ -22,8 +21,7 @@ function FormDatePicker({
           <Datepicker
             value={field.value ? new Date(field.value) : null}
             onSelectedDateChanged={(date) => {
-              // ✅ Usa tu dateFormatter de utils
-              const formattedDate = date ? date.toISOString().split('T')[0] : '';
+              const formattedDate = date ? formatToISO8601(date) : '';
               console.log('📅 Fecha seleccionada:', formattedDate, '| Campo:', name); // Para debug
               form.setFieldValue(name, formattedDate);
             }}
