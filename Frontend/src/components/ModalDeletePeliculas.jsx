@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "flowbite-react";
 import { deletePelicula } from "../api/Peliculas.api";
 
-function ModalEliminarPeliculas({ pelicula, onSuccess, onClose }) {
+function ModalDeletePeliculas({ pelicula, onSuccess, onClose }) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -38,13 +38,13 @@ function ModalEliminarPeliculas({ pelicula, onSuccess, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Fondo difuminado */}
+      {/* Blurred background */}
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
         onClick={handleClose}
       />
 
-      {/* Modal centrado */}
+      {/* Centered modal */}
       <div className="relative bg-slate-800 rounded-xl shadow-2xl p-8 w-full max-w-md mx-4">
         {/* Header */}
         <div className="text-center mb-6">
@@ -61,8 +61,8 @@ function ModalEliminarPeliculas({ pelicula, onSuccess, onClose }) {
           <p className="text-gray-300 mb-4">
             Esta acción no se puede deshacer. La película será eliminada permanentemente.
           </p>
-          
-          {/* Información de la película */}
+
+          {/* Information about película */}
           <div className="bg-slate-700 rounded-lg p-4 mb-6">
             <h4 className="text-white font-semibold text-lg mb-2">
               🎬 {pelicula.nombrePelicula}
@@ -78,7 +78,7 @@ function ModalEliminarPeliculas({ pelicula, onSuccess, onClose }) {
           </div>
         </div>
 
-        {/* Botones */}
+        {/* Buttons */}
         <div className="flex gap-4 justify-center">
           <Button 
             type="button" 
@@ -114,4 +114,4 @@ function ModalEliminarPeliculas({ pelicula, onSuccess, onClose }) {
   );
 }
 
-export default ModalEliminarPeliculas;
+export default ModalDeletePeliculas;

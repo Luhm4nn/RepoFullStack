@@ -4,6 +4,8 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { createPelicula, updatePelicula } from "../api/Peliculas.api";
 import peliculaSchema from "../validations/PeliculasSchema.js";
 import { formatToISO8601 } from "../utils/dateFormater.js";
+import FormDatePicker from "./FormDatePicker";
+
 
 function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
   const [showModal, setShowModal] = useState(false);
@@ -22,6 +24,12 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
       onClose();
     }
   };
+  const formatDateForInput = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "";
+  return date.toISOString().split('T')[0]; // YYYY-MM-DD para el input
+};
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     try {
@@ -61,20 +69,13 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
     }
   };
 
-  // Función para formatear fecha para el input
-  const formatDateForInput = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toISOString().split('T')[0];
-  };
-
-  // Valores iniciales del formulario
+  // initial values for the form
   const initialValues = isEditing ? {
     nombrePelicula: peliculaToEdit.nombrePelicula || "",
     duracion: peliculaToEdit.duracion?.toString() || "",
     generoPelicula: peliculaToEdit.generoPelicula || "",
     director: peliculaToEdit.director || "",
-    fechaEstreno: formatDateForInput(peliculaToEdit.fechaEstreno) || "",
+    fechaEstreno: formatDateForInput(peliculaToEdit.fechaEstreno),
     sinopsis: peliculaToEdit.sinopsis || "",
     trailerURL: peliculaToEdit.trailerURL || "",
     portada: peliculaToEdit.portada || "",
@@ -102,18 +103,18 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
         </Button>
       )}
 
-      {/* Modal con fondo difuminado */}
+      {/* Modal with blurred background */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          {/* Fondo difuminado */}
+          {/* Blurred background */}
           <div 
             className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
             onClick={handleClose}
           />
 
-          {/* Contenido centrado */}
+          {/* Centered content */}
           <div className="relative bg-slate-800 rounded-xl shadow-2xl p-8 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-            {/* Header simple */}
+            {/* SSimple header */}
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-white">
                 {isEditing ? "✏️ Editar Película" : "🎬 Añadir Nueva Película"}
@@ -126,16 +127,16 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
               </button>
             </div>
 
-            {/* Formulario */}
+            {/* Form */}
             <Formik
               initialValues={initialValues}
               onSubmit={handleSubmit}
               validationSchema={peliculaSchema}
-              enableReinitialize={true} // Permite reinicializar cuando cambian los valores
+              enableReinitialize={true} 
             >
               {({ isSubmitting }) => (
                 <Form className="space-y-6">
-                  {/* Grid de campos principales */}
+                  {/* Grid with main fields */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-white font-medium mb-2">
@@ -201,12 +202,12 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                       <label className="block text-white font-medium mb-2">
                         Fecha de Estreno
                       </label>
-                      <Field
-                        as={TextInput}
+                      <FormDatePicker
                         name="fechaEstreno"
-                        type="date"
+                        placeholder="📅 Selecciona la fecha de estreno"
                         disabled={isSubmitting}
                       />
+        
                       <ErrorMessage name="fechaEstreno" component="div" className="text-red-400 text-sm mt-1" />
                     </div>
 
@@ -270,7 +271,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                     </div>
                   </div>
 
-                  {/* Botones */}
+                  {/* Buttons */}
                   <div className="flex gap-4 pt-6 justify-center border-t border-gray-600">
                     <Button 
                       type="button" 

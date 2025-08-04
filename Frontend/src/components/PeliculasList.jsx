@@ -2,7 +2,7 @@ import { getPeliculas } from "../api/Peliculas.api";
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Button } from "flowbite-react";
 import { useEffect, useState } from "react";
 import ModalPeliculas from "./ModalPeliculas";
-import ModalEliminarPeliculas from "./ModalEliminarPeliculas";
+import ModalDeletePeliculas from "./ModalDeletePeliculas";
 
 function PeliculasList({ refreshTrigger }) {
   const [peliculas, setPeliculas] = useState([]);
@@ -46,7 +46,6 @@ function PeliculasList({ refreshTrigger }) {
   };
 
   const handleRefresh = () => {
-    // Refrescar la lista después de eliminar
     const fetchPeliculas = async () => {
       try {
         const data = await getPeliculas();
@@ -151,7 +150,7 @@ function PeliculasList({ refreshTrigger }) {
 
       {/* Modal de eliminación */}
       {peliculaToDelete && (
-        <ModalEliminarPeliculas 
+        <ModalDeletePeliculas 
           pelicula={peliculaToDelete}
           onSuccess={handleRefresh}
           onClose={handleCloseDelete}
