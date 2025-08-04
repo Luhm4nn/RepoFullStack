@@ -21,7 +21,7 @@ function PeliculasPage() {
           <ModalPeliculas onSuccess={handleMovieAdded} />
         </div>
 
-        <PeliculasList key={refreshList} />
+        <PeliculasList refreshTrigger={refreshList} />
       </div>
     </div>
   );

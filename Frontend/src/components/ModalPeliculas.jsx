@@ -1,18 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, TextInput, Select, Textarea } from "flowbite-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { createPelicula } from "../api/Peliculas.api";
+import { createPelicula, updatePelicula } from "../api/Peliculas.api";
 import peliculaSchema from "../validations/PeliculasSchema.js";
 import { formatToISO8601 } from "../utils/dateFormater.js";
 
-function ModalPeliculas({ onSuccess }) {
+function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
   const [showModal, setShowModal] = useState(false);
+  const isEditing = !!peliculaToEdit;
+
+  // Abre el modal automáticamente si hay una película para editar
+  useEffect(() => {
+    if (peliculaToEdit) {
+      setShowModal(true);
+    }
+  }, [peliculaToEdit]);
+
+  const handleClose = () => {
+    setShowModal(false);
+    if (onClose) {
+      onClose();
+    }
+  };
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     try {
-      console.log('Enviando película:', values);
+      console.log(isEditing ? 'Editando película:' : 'Creando película:', values);
       
-      // cleans data before sending
+      // Limpiar datos antes de enviar
       const cleanData = {
         ...values,
         duracion: parseInt(values.duracion),
@@ -23,77 +38,104 @@ function ModalPeliculas({ onSuccess }) {
         MPAA: values.MPAA || null
       };
       
-      await createPelicula(cleanData);
-      console.log('Película creada exitosamente');
+      if (isEditing) {
+        await updatePelicula(peliculaToEdit.idPelicula, cleanData);
+        console.log('Película actualizada exitosamente');
+      } else {
+        await createPelicula(cleanData);
+        console.log('Película creada exitosamente');
+      }
       
-      setShowModal(false);
+      handleClose();
       resetForm();
       
       if (onSuccess) {
         onSuccess();
       }
       
-      
     } catch (error) {
-      console.error("Error creating pelicula:", error);
-      alert('Error al crear película: ' + (error.response?.data?.message || error.message));
+      console.error(`Error ${isEditing ? 'actualizando' : 'creando'} película:`, error);
+      alert(`Error al ${isEditing ? 'actualizar' : 'crear'} película: ` + (error.response?.data?.message || error.message));
     } finally {
       setSubmitting(false);
     }
   };
 
+  // Función para formatear fecha para el input
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  };
+
+  // Valores iniciales del formulario
+  const initialValues = isEditing ? {
+    nombrePelicula: peliculaToEdit.nombrePelicula || "",
+    duracion: peliculaToEdit.duracion?.toString() || "",
+    generoPelicula: peliculaToEdit.generoPelicula || "",
+    director: peliculaToEdit.director || "",
+    fechaEstreno: formatDateForInput(peliculaToEdit.fechaEstreno) || "",
+    sinopsis: peliculaToEdit.sinopsis || "",
+    trailerURL: peliculaToEdit.trailerURL || "",
+    portada: peliculaToEdit.portada || "",
+    MPAA: peliculaToEdit.MPAA || "",
+  } : {
+    nombrePelicula: "",
+    duracion: "",
+    generoPelicula: "",
+    director: "",
+    fechaEstreno: "",
+    sinopsis: "",
+    trailerURL: "",
+    portada: "",
+    MPAA: "",
+  };
+
   return (
     <>
-      <Button 
-        onClick={() => setShowModal(true)}
-        className="!bg-gradient-to-r from-purple-700 to-blue-700 hover:!from-purple-600 hover:!to-blue-600 text-white"
-      >
-        ➕ Añadir Película
-      </Button>
+      {!isEditing && (
+        <Button 
+          onClick={() => setShowModal(true)}
+          className="!bg-gradient-to-r from-purple-700 to-blue-700 hover:!from-purple-600 hover:!to-blue-600 text-white"
+        >
+          ➕ Añadir Película
+        </Button>
+      )}
 
-      {/* Modal with blurred background */}
+      {/* Modal con fondo difuminado */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          {/*blured background*/}
+          {/* Fondo difuminado */}
           <div 
             className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
-            onClick={() => setShowModal(false)}
+            onClick={handleClose}
           />
 
-          {/* centered content */}
+          {/* Contenido centrado */}
           <div className="relative bg-slate-800 rounded-xl shadow-2xl p-8 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-            {/* simple header */}
+            {/* Header simple */}
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-white">
-                🎬 Añadir Nueva Película
+                {isEditing ? "✏️ Editar Película" : "🎬 Añadir Nueva Película"}
               </h2>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={handleClose}
                 className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl font-light"
               >
                 ×
               </button>
             </div>
 
-            {/* Form */}
+            {/* Formulario */}
             <Formik
-              initialValues={{
-                nombrePelicula: "",
-                duracion: "",
-                generoPelicula: "",
-                director: "",
-                fechaEstreno: "",
-                sinopsis: "",
-                trailerURL: "",
-                portada: "",
-                MPAA: "",
-              }}
+              initialValues={initialValues}
               onSubmit={handleSubmit}
               validationSchema={peliculaSchema}
+              enableReinitialize={true} // Permite reinicializar cuando cambian los valores
             >
               {({ isSubmitting }) => (
                 <Form className="space-y-6">
-                  {/* Grid of main fields */}
+                  {/* Grid de campos principales */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-white font-medium mb-2">
@@ -228,12 +270,12 @@ function ModalPeliculas({ onSuccess }) {
                     </div>
                   </div>
 
-                  {/* Buttons */}
+                  {/* Botones */}
                   <div className="flex gap-4 pt-6 justify-center border-t border-gray-600">
                     <Button 
                       type="button" 
                       color="gray" 
-                      onClick={() => setShowModal(false)}
+                      onClick={handleClose}
                       disabled={isSubmitting}
                       className="px-8"
                     >
@@ -244,7 +286,7 @@ function ModalPeliculas({ onSuccess }) {
                       disabled={isSubmitting}
                       className="!bg-gradient-to-r from-purple-600 to-blue-600 hover:!from-purple-700 hover:!to-blue-700 px-8"
                     >
-                      {isSubmitting ? "Guardando..." : "Crear Película"}
+                      {isSubmitting ? "Guardando..." : (isEditing ? "Actualizar Película" : "Crear Película")}
                     </Button>
                   </div>
                 </Form>
