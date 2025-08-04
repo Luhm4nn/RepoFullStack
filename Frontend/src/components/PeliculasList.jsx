@@ -2,12 +2,14 @@ import { getPeliculas } from "../api/Peliculas.api";
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Button } from "flowbite-react";
 import { useEffect, useState } from "react";
 import ModalPeliculas from "./ModalPeliculas";
+import ModalEliminarPeliculas from "./ModalEliminarPeliculas";
 
 function PeliculasList({ refreshTrigger }) {
   const [peliculas, setPeliculas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [peliculaToEdit, setPeliculaToEdit] = useState(null);
+  const [peliculaToDelete, setPeliculaToDelete] = useState(null);
 
   useEffect(() => {
     const fetchPeliculas = async () => {
@@ -34,8 +36,17 @@ function PeliculasList({ refreshTrigger }) {
     setPeliculaToEdit(null);
   };
 
-  const handleEditSuccess = () => {
-    // Refrescar la lista después de editar
+  const handleDelete = (pelicula) => {
+    console.log('Preparando eliminar película:', pelicula);
+    setPeliculaToDelete(pelicula);
+  };
+
+  const handleCloseDelete = () => {
+    setPeliculaToDelete(null);
+  };
+
+  const handleRefresh = () => {
+    // Refrescar la lista después de eliminar
     const fetchPeliculas = async () => {
       try {
         const data = await getPeliculas();
@@ -45,14 +56,7 @@ function PeliculasList({ refreshTrigger }) {
       }
     };
     fetchPeliculas();
-    setPeliculaToEdit(null);
-  };
-
-  const handleDelete = (id) => {
-    if (confirm('¿Estás seguro de que quieres eliminar esta película?')) {
-      // Aquí implementarías la funcionalidad de eliminar
-      console.log('Eliminar película con ID:', id);
-    }
+    setPeliculaToDelete(null);
   };
 
   if (loading) {
@@ -121,7 +125,7 @@ function PeliculasList({ refreshTrigger }) {
                         ✏️ Editar
                       </Button>
                       <Button 
-                        onClick={() => handleDelete(pelicula.idPelicula)} 
+                        onClick={() => handleDelete(pelicula)} 
                         size="xs" 
                         className="!bg-red-600 hover:!bg-red-700"
                       >
@@ -140,8 +144,17 @@ function PeliculasList({ refreshTrigger }) {
       {peliculaToEdit && (
         <ModalPeliculas 
           peliculaToEdit={peliculaToEdit}
-          onSuccess={handleEditSuccess}
+          onSuccess={handleRefresh}
           onClose={handleCloseEdit}
+        />
+      )}
+
+      {/* Modal de eliminación */}
+      {peliculaToDelete && (
+        <ModalEliminarPeliculas 
+          pelicula={peliculaToDelete}
+          onSuccess={handleRefresh}
+          onClose={handleCloseDelete}
         />
       )}
     </>
