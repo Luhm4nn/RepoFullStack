@@ -30,10 +30,10 @@ function SalasList() {
   if (error) {
     return (
       <div className="text-center p-4">
-        <p className="text-red-500">Error: {error}</p>
+        <p className="text-white text-xl">No se encontraron Salas cargadas.</p>
         <button 
           onClick={() => window.location.reload()} 
-          className="mt-2 px-4 py-2 w-full sm:w-auto bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-600 text-sm"
+          className="mt-2 px-4 py-2 w-full sm:w-auto bg-gradient-to-r from-orange-500 to-red-600 hover:bg-gradient-to-r hover:from-orange-600 hover:to-red-700 text-white rounded transition-colors text-sm"
         >
           Reintentar
         </button>

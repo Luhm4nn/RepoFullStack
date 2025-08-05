@@ -144,7 +144,7 @@ const VIPSeatSelector = ({ filas = 10, asientosPorFila = 12, onVIPSeatsChange })
           <button
             onClick={clearAllVIP}
             type="button"
-            className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded text-xs transition-colors"
+            className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-600 hover:bg-gradient-to-r hover:from-orange-600 hover:to-red-700 text-white rounded text-xs transition-colors"
           >
             Limpiar VIP
           </button>
