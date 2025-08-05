@@ -143,6 +143,7 @@ const VIPSeatSelector = ({ filas = 10, asientosPorFila = 12, onVIPSeatsChange })
           <span>Asientos VIP: {getVIPCount()}/{getTotalSeats()}</span>
           <button
             onClick={clearAllVIP}
+            type="button"
             className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded text-xs transition-colors"
           >
             Limpiar VIP
