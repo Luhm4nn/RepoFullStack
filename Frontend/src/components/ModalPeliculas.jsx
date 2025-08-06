@@ -170,16 +170,16 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                       </label>
                       <Field as={Select} name="generoPelicula" disabled={isSubmitting}>
                         <option value="">Selecciona el género principal</option>
-                        <option value="Accion">🎬 Acción</option>
-                        <option value="Drama">🎭 Drama</option>
-                        <option value="Comedia">😂 Comedia</option>
-                        <option value="Terror">👻 Terror</option>
-                        <option value="Ciencia Ficcion">🚀 Ciencia Ficción</option>
-                        <option value="Romance">💕 Romance</option>
-                        <option value="Thriller">🔥 Thriller</option>
-                        <option value="Aventura">🗺️ Aventura</option>
-                        <option value="Animacion">🎨 Animación</option>
-                        <option value="Documental">📚 Documental</option>
+                        <option value="Accion">Acción</option>
+                        <option value="Drama">Drama</option>
+                        <option value="Comedia">Comedia</option>
+                        <option value="Terror">Terror</option>
+                        <option value="Ciencia Ficcion">Ciencia Ficción</option>
+                        <option value="Romance">Romance</option>
+                        <option value="Thriller">Thriller</option>
+                        <option value="Aventura">Aventura</option>
+                        <option value="Animacion">Animación</option>
+                        <option value="Documental">Documental</option>
                       </Field>
                       <ErrorMessage name="generoPelicula" component="div" className="text-red-400 text-sm mt-1" />
                     </div>
@@ -204,7 +204,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                       </label>
                       <FormDatePicker
                         name="fechaEstreno"
-                        placeholder="📅 Selecciona la fecha de estreno"
+                        placeholder="Selecciona la fecha de estreno"
                         disabled={isSubmitting}
                       />
         
@@ -216,7 +216,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                         Clasificación por Edad (MPAA)
                       </label>
                       <Field as={Select} name="MPAA" disabled={isSubmitting}>
-                        <option value="">🔒 Selecciona la clasificación</option>
+                        <option value="">Selecciona la clasificación</option>
                         <option value="G">G - Apto para toda la familia</option>
                         <option value="PG">PG - Se recomienda supervisión parental</option>
                         <option value="PG-13">PG-13 - Mayores de 13 años</option>

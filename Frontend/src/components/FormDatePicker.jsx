@@ -4,7 +4,7 @@ import { formatToISO8601 } from "../utils/dateFormater.js";
 function FormDatePicker({ 
   name, 
   label, 
-  placeholder = "📅 Selecciona una fecha", 
+  placeholder = "Selecciona una fecha", 
   disabled = false,
   required = false 
 }) {
