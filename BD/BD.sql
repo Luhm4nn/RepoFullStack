@@ -47,7 +47,7 @@ CREATE TABLE `asiento` (
   `idTarifa` int DEFAULT NULL,
   PRIMARY KEY (`idSala`,`filaAsiento`,`nroAsiento`),
   CONSTRAINT `asiento_ibfk_1` FOREIGN KEY (`idTarifa`) REFERENCES `tarifa` (`idtarifa`),
-  CONSTRAINT `asiento_ibfk_2` FOREIGN KEY (`idSala`) REFERENCES `sala` (`idSala`)
+  CONSTRAINT `asiento_ibfk_2` FOREIGN KEY (`idSala`) REFERENCES `sala` (`idSala`) ON DELETE CASCADE
 );
 
 CREATE TABLE `funcion` (

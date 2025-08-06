@@ -14,6 +14,7 @@ import {
 
 import { useEffect, useState } from "react";
 import SalasEditForm from "./SalasEditForm";
+import SalaDelete from "./SalaDelete";
 
 function SalasList() {
   const [salas, setSalas] = useState([]);
@@ -111,8 +112,14 @@ function SalasList() {
   return (
     <div className="w-full">
       {/* Modal de Edición */}
-      <Modal show={editingModal} onClose={closeEditModal} size="4xl">
-        <ModalBody className="p-0">
+      <Modal show={editingModal} onClose={closeEditModal} size="4xl"
+      theme={{
+          content: {
+            base: "relative h-full w-full p-4 flex items-center justify-center min-h-screen",
+            inner: "relative rounded-lg bg-slate-800 shadow flex flex-col max-h-[90vh] w-full max-w-md mx-auto"
+          }
+        }}>
+        <ModalBody className="p-0 rounded-lg">
           {selectedSala && (
             <SalasEditForm
               sala={selectedSala}
@@ -126,42 +133,22 @@ function SalasList() {
 
 
       {/* Modal de Confirmación de Eliminación */}
-      <Modal show={deleteModal} onClose={closeDeleteModal} size="md">
-        <ModalHeader>
-          <span className="text-red-600">Confirmar Eliminación</span>
-        </ModalHeader>
-        <ModalBody>
-          {salaToDelete && (
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              </div>
-              <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                ¿Estás seguro de que quieres eliminar la Sala {salaToDelete.idSala}?
-              </h3>
-              <p className="mb-5 text-sm text-gray-400">
-                Esta acción eliminará todos los asientos asociados y no se puede deshacer.
-              </p>
-              <div className="flex justify-center gap-4">
-                <Button
-                  color="failure"
-                  onClick={confirmDelete}
-                >
-                  Sí, eliminar
-                </Button>
-                <Button
-                  color="gray"
-                  onClick={closeDeleteModal}
-                >
-                  Cancelar
-                </Button>
-              </div>
-            </div>
-          )}
+      <Modal show={deleteModal} onClose={closeDeleteModal} size="sm"
+      theme={{
+          content: {
+            base: "relative h-full w-full p-4 flex items-center justify-center min-h-screen",
+            inner: "relative rounded-lg bg-slate-800 shadow flex flex-col max-h-[90vh] w-full max-w-md mx-auto"
+          }
+        }}>
+        <ModalBody className="p-0">
+          <SalaDelete
+            sala={salaToDelete}
+            onConfirm={confirmDelete}
+            onCancel={closeDeleteModal}
+          />
         </ModalBody>
       </Modal>
+
 
       <div className="hidden md:block overflow-x-auto">
         <Table hoverable>

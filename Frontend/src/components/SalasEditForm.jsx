@@ -69,7 +69,7 @@ export default function SalasEditForm({ sala, onSubmit, onCancel }) {
             <div className="grid grid-cols-1 gap-4">
               
               {/* Información de la sala (solo lectura) */}
-              <div className="bg-slate-700/30 p-3 rounded-lg border border-slate-600">
+              <div className="bg-slate-700 p-3 rounded-lg border border-slate-600">
                 <h3 className="text-white font-semibold mb-2">Información de la Sala</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
@@ -81,7 +81,7 @@ export default function SalasEditForm({ sala, onSubmit, onCancel }) {
                     <span className="text-white ml-2">{sala.asientosPorFila}</span>
                   </div>
                   <div>
-                    <span className="text-gray-400">Capacidad total:</span>
+                    <span className="text-gray-400">Capacidad:</span>
                     <span className="text-white ml-2">{sala.filas * sala.asientosPorFila} asientos</span>
                   </div>
                   <div>
@@ -91,28 +91,16 @@ export default function SalasEditForm({ sala, onSubmit, onCancel }) {
                 </div>
               </div>
 
-              {/* Ubicación (editable) */}
-              <div>
+              {/* Ubicación */}
+              <div >
                 <Label htmlFor="ubicacion" value="Ubicación *" />
-                <Field as={Select} name="ubicacion" className="bg-slate-700 hover:bg-white/10 text-white">
-                  <option value="" className="bg-slate-700 border-slate-600 hover:bg-white/10 text-white">
-                    Selecciona una ubicación
-                  </option>
-                  <option value="Ala Derecha" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">
-                    Ala Derecha
-                  </option>
-                  <option value="Ala Izquierda" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">
-                    Ala Izquierda
-                  </option>
-                  <option value="Planta Baja" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">
-                    Planta Baja
-                  </option>
-                  <option value="Sótano" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">
-                    Sótano
-                  </option>
-                  <option value="Primer Piso" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">
-                    Primer Piso
-                  </option>
+                <Field as={Select} name="ubicacion" color className="bg-slate-700 hover:bg-white/10 text-white">
+                  <option value="" className="bg-slate-700 border-slate-600 hover:bg-white/10 text-white" >Selecciona una ubicación</option>
+                  <option value="Ala Derecha" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Ala Derecha</option>
+                  <option value="Ala Izquierda" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Ala Izquierda</option>
+                  <option value="Planta Baja" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Planta Baja</option>
+                  <option value="Sótano" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Sótano</option>
+                  <option value="Primer Piso" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Primer Piso</option>
                 </Field>
                 <ErrorMessage name="ubicacion" component="span" className="text-red-500 text-sm" />
               </div>
@@ -144,7 +132,7 @@ export default function SalasEditForm({ sala, onSubmit, onCancel }) {
                     <p className="text-sm text-blue-800">
                       <strong>Cambios detectados:</strong> 
                       {vipSeats.length > currentVipSeats.length && " Se agregarán asientos VIP"}
-                      {vipSeats.length < currentVipSeats.length && " Se quitarán asientos VIP"}
+                      {vipSeats.length < currentVipSeats.length && " Se eliminarán asientos VIP"}
                       {vipSeats.length === currentVipSeats.length && " Se modificarán asientos VIP"}
                     </p>
                   </div>
@@ -164,7 +152,7 @@ export default function SalasEditForm({ sala, onSubmit, onCancel }) {
                 <Button 
                   type="submit" 
                   disabled={isSubmitting} 
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                  className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-sm"
                 >
                   {isSubmitting ? "Guardando..." : "Guardar Cambios"}
                 </Button>
