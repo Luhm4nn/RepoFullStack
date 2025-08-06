@@ -1,27 +1,94 @@
-import { getSalas } from "../api/Salas.api";
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Button } from "flowbite-react";
+import { getSalas, updateSala, deleteSala, getAsientosBySala } from "../api/Salas.api";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadCell,
+  TableRow,
+  Button,
+  Modal,
+  ModalBody,
+  ModalHeader,
+} from "flowbite-react";
+
 import { useEffect, useState } from "react";
+import SalasEditForm from "./SalasEditForm";
 
 function SalasList() {
   const [salas, setSalas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editingModal, setEditingModal] = useState(false);
+  const [selectedSala, setSelectedSala] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [salaToDelete, setSalaToDelete] = useState(null);
 
   useEffect(() => {
-    const fetchSalas = async () => {
-      try {
-        const data = await getSalas();
-        setSalas(data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching salas:", error);
-        setError(error.message);
-        setLoading(false);
-      }
-    };
-
     fetchSalas();
   }, []);
+
+  const fetchSalas = async () => {
+    try {
+      setLoading(true);
+      const data = await getSalas();
+      setSalas(data);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching salas:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (sala) => {
+    setSelectedSala(sala);
+    setEditingModal(true);
+  };
+
+  const handleEditSubmit = async (data, salaId) => {
+    try {
+      await updateSala(salaId, data);
+      setEditingModal(false);
+      setSelectedSala(null);
+      await fetchSalas(); // Refrescar la lista
+      // Podrías agregar un toast de éxito aquí
+      console.log("Sala actualizada exitosamente");
+    } catch (error) {
+      console.error("Error updating sala:", error);
+      // Podrías agregar un toast de error aquí
+      alert("Error al actualizar la sala: " + error.message);
+    }
+  };
+
+  const handleDelete = (sala) => {
+    setSalaToDelete(sala);
+    setDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteSala(salaToDelete.idSala);
+      setDeleteModal(false);
+      setSalaToDelete(null);
+      await fetchSalas(); // Refrescar la lista
+      console.log("Sala eliminada exitosamente");
+    } catch (error) {
+      console.error("Error deleting sala:", error);
+      alert("Error al eliminar la sala: " + error.message);
+    }
+  };
+
+  const closeEditModal = () => {
+    setEditingModal(false);
+    setSelectedSala(null);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModal(false);
+    setSalaToDelete(null);
+  };
 
   if (loading) {
     return <div className="text-center p-4">Cargando Salas...</div>;
@@ -32,7 +99,7 @@ function SalasList() {
       <div className="text-center p-4">
         <p className="text-white text-xl">No se encontraron Salas cargadas.</p>
         <button 
-          onClick={() => window.location.reload()} 
+          onClick={fetchSalas} 
           className="mt-2 px-4 py-2 w-full sm:w-auto bg-gradient-to-r from-orange-500 to-red-600 hover:bg-gradient-to-r hover:from-orange-600 hover:to-red-700 text-white rounded transition-colors text-sm"
         >
           Reintentar
@@ -43,6 +110,59 @@ function SalasList() {
 
   return (
     <div className="w-full">
+      {/* Modal de Edición */}
+      <Modal show={editingModal} onClose={closeEditModal} size="4xl">
+        <ModalBody className="p-0">
+          {selectedSala && (
+            <SalasEditForm
+              sala={selectedSala}
+              onSubmit={handleEditSubmit}
+              onCancel={closeEditModal}
+            />
+          )}
+        </ModalBody>
+      </Modal>
+
+
+
+      {/* Modal de Confirmación de Eliminación */}
+      <Modal show={deleteModal} onClose={closeDeleteModal} size="md">
+        <ModalHeader>
+          <span className="text-red-600">Confirmar Eliminación</span>
+        </ModalHeader>
+        <ModalBody>
+          {salaToDelete && (
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                ¿Estás seguro de que quieres eliminar la Sala {salaToDelete.idSala}?
+              </h3>
+              <p className="mb-5 text-sm text-gray-400">
+                Esta acción eliminará todos los asientos asociados y no se puede deshacer.
+              </p>
+              <div className="flex justify-center gap-4">
+                <Button
+                  color="failure"
+                  onClick={confirmDelete}
+                >
+                  Sí, eliminar
+                </Button>
+                <Button
+                  color="gray"
+                  onClick={closeDeleteModal}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          )}
+        </ModalBody>
+      </Modal>
+
       <div className="hidden md:block overflow-x-auto">
         <Table hoverable>
           <TableHead>
@@ -81,13 +201,21 @@ function SalasList() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button size="sm" className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-sm">
+                      <Button 
+                        size="sm" 
+                        className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-sm"
+                        onClick={() => handleEdit(sala)}
+                      >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
                           <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                         </svg>
                         Editar
                       </Button>
-                      <Button size="sm" className="w-full sm:w-auto bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-sm">
+                      <Button 
+                        size="sm" 
+                        className="w-full sm:w-auto bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-sm"
+                        onClick={() => handleDelete(sala)}
+                      >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 mr-1">
                           <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                         </svg>
@@ -103,7 +231,6 @@ function SalasList() {
       </div>
 
       {/* Responsive view para mobile */}
-
       <div className="md:hidden space-y-4">
         {salas.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
@@ -143,13 +270,21 @@ function SalasList() {
               </div>
 
               <div className="flex flex-col gap-2 pt-2">
-                <Button size="sm" className="w-full bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-sm">
+                <Button 
+                  size="sm" 
+                  className="w-full bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-sm"
+                  onClick={() => handleEdit(sala)}
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                   </svg>
                   Editar Sala
                 </Button>
-                <Button size="sm" className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-sm">
+                <Button 
+                  size="sm" 
+                  className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-sm"
+                  onClick={() => handleDelete(sala)}
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                   </svg>

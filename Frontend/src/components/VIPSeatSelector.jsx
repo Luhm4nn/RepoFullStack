@@ -1,11 +1,22 @@
 import { useState, useEffect } from 'react';
 
-const VIPSeatSelector = ({ filas = 10, asientosPorFila = 12, onVIPSeatsChange }) => {
+const VIPSeatSelector = ({ 
+  filas = 10, 
+  asientosPorFila = 12, 
+  initialVipSeats = [], 
+  onVIPSeatsChange 
+}) => {
   const [vipSeats, setVipSeats] = useState(new Set());
   
   const rows = Array.from({ length: parseInt(filas) || 10 }, (_, i) => 
     String.fromCharCode(65 + i) // A, B, C, D...
   );
+
+  useEffect(() => {
+    if (initialVipSeats && initialVipSeats.length > 0) {
+      setVipSeats(new Set(initialVipSeats));
+    }
+  }, [initialVipSeats]);
 
   const getSeatId = (row, seatNum) => `${row}${seatNum}`;
 
@@ -56,8 +67,20 @@ const VIPSeatSelector = ({ filas = 10, asientosPorFila = 12, onVIPSeatsChange })
     }
   };
 
+  const resetToInitial = () => {
+    setVipSeats(new Set(initialVipSeats));
+    if (onVIPSeatsChange) {
+      onVIPSeatsChange([...initialVipSeats]);
+    }
+  };
+
   const getVIPCount = () => vipSeats.size;
   const getTotalSeats = () => (parseInt(filas) || 10) * (parseInt(asientosPorFila) || 12);
+  const hasChanges = () => {
+    const current = [...vipSeats].sort();
+    const initial = [...initialVipSeats].sort();
+    return JSON.stringify(current) !== JSON.stringify(initial);
+  };
 
   return (
     <div className="bg-slate-700/40 border border-slate-700 rounded-lg p-4 space-y-4">
@@ -90,8 +113,7 @@ const VIPSeatSelector = ({ filas = 10, asientosPorFila = 12, onVIPSeatsChange })
                     : someRowVIP
                     ? "bg-yellow-400/50 text-yellow-200 border border-yellow-400/50"
                     : "bg-slate-700 text-gray-300 hover:bg-slate-600"
-                }`
-                }
+                }`}
               >
                 {row}
               </button>
@@ -100,13 +122,14 @@ const VIPSeatSelector = ({ filas = 10, asientosPorFila = 12, onVIPSeatsChange })
                 {Array.from({ length: seatsPerRow }, (_, i) => i + 1).map((seatNum) => {
                   const seatId = getSeatId(row, seatNum);
                   const isVIP = vipSeats.has(seatId);
+                  const wasInitiallyVIP = initialVipSeats.includes(seatId);
 
                   return (
                     <button
-                      type ="button"
+                      type="button"
                       key={seatNum}
                       onClick={() => toggleVIPSeat(seatId)}
-                      className={`w-7 h-7 rounded-t-lg text-xs font-mono transition-all duration-200 ${
+                      className={`w-7 h-7 rounded-t-lg text-xs font-mono transition-all duration-200 relative ${
                         isVIP
                           ? "bg-yellow-400 text-black shadow-lg shadow-yellow-500/30 font-bold"
                           : "bg-slate-600 text-gray-300 hover:bg-slate-500"
@@ -140,14 +163,36 @@ const VIPSeatSelector = ({ filas = 10, asientosPorFila = 12, onVIPSeatsChange })
         </div>
 
         <div className="flex items-center justify-between text-sm text-gray-400">
-          <span>Asientos VIP: {getVIPCount()}/{getTotalSeats()}</span>
-          <button
-            onClick={clearAllVIP}
-            type="button"
-            className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-600 hover:bg-gradient-to-r hover:from-orange-600 hover:to-red-700 text-white rounded text-xs transition-colors"
-          >
-            Limpiar VIP
-          </button>
+          <div className="flex flex-col gap-1">
+            <span>Asientos VIP: {getVIPCount()}/{getTotalSeats()}</span>
+            {initialVipSeats.length > 0 && (
+              <span className="text-xs">
+                Iniciales: {initialVipSeats.length} 
+                {hasChanges() && (
+                  <span className="text-blue-400 ml-1">(modificado)</span>
+                )}
+              </span>
+            )}
+          </div>
+          
+          <div className="flex gap-2">
+            {initialVipSeats.length > 0 && hasChanges() && (
+              <button
+                onClick={resetToInitial}
+                type="button"
+                className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded text-xs transition-colors"
+              >
+                Restaurar
+              </button>
+            )}
+            <button
+              onClick={clearAllVIP}
+              type="button"
+              className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-600 hover:bg-gradient-to-r hover:from-orange-600 hover:to-red-700 text-white rounded text-xs transition-colors"
+            >
+              Limpiar VIP
+            </button>
+          </div>
         </div>
       </div>
     </div>

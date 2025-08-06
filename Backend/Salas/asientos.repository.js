@@ -95,4 +95,40 @@ async function updateOne(idSala_filaAsiento_nroAsiento, data) {
   return updatedAsiento;
 }
 
-export { getOne, getAll, createManyForSala, createOne, deleteOne, updateOne };
+async function updateManyForSala(idSala, vipSeats = []) {
+  await prisma.asiento.updateMany({
+    where: {
+      idSala: parseInt(idSala, 10),
+    },
+    data: {
+      tipo: "Normal",
+    },
+  });
+
+  const updatedVipSeats = []
+
+  if (vipSeats.length > 0) {
+   
+    for (const seat of vipSeats) {
+    const filaAsiento = seat.charAt(0); 
+    const nroAsiento = parseInt(seat.slice(1), 10);
+
+    await prisma.asiento.update({
+      where: {
+        idSala_filaAsiento_nroAsiento: {
+              idSala: parseInt(idSala, 10),
+              filaAsiento: filaAsiento,
+              nroAsiento: nroAsiento,
+      }},
+      data: {
+        tipo: "VIP",
+      },
+    });
+    updatedVipSeats.push(seat);
+  }
+}
+return updatedVipSeats;
+}
+          
+
+export { getOne, getAll, createManyForSala, createOne, deleteOne, updateOne, updateManyForSala };
