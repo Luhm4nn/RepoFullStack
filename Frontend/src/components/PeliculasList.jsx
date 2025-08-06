@@ -2,13 +2,14 @@ import { getPeliculas } from "../api/Peliculas.api";
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Button } from "flowbite-react";
 import { useEffect, useState } from "react";
 import ModalPeliculas from "./ModalPeliculas";
-import ModalEliminarPeliculas from "./ModalEliminarPeliculas";
+import ModalDeletePeliculas from "./ModalDeletePeliculas";
 
 function PeliculasList({ refreshTrigger }) {
   const [peliculas, setPeliculas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [peliculaToEdit, setPeliculaToEdit] = useState(null);
+  const [peliculaToDelete, setPeliculaToDelete] = useState(null); // ✅ Estado agregado
 
   useEffect(() => {
     const fetchPeliculas = async () => {
@@ -44,8 +45,7 @@ function PeliculasList({ refreshTrigger }) {
     setPeliculaToDelete(null);
   };
 
-  const handleRefresh = () => {
-    // Refrescar la lista después de eliminar
+  const handleEditSuccess = () => {
     const fetchPeliculas = async () => {
       try {
         const data = await getPeliculas();
@@ -58,11 +58,17 @@ function PeliculasList({ refreshTrigger }) {
     setPeliculaToEdit(null);
   };
 
-  const handleDelete = (id) => {
-    if (confirm('¿Estás seguro de que quieres eliminar esta película?')) {
-      // Aquí implementarías la funcionalidad de eliminar
-      console.log('Eliminar película con ID:', id);
-    }
+  const handleRefresh = () => {
+    const fetchPeliculas = async () => {
+      try {
+        const data = await getPeliculas();
+        setPeliculas(data);
+      } catch (error) {
+        console.error("Error refreshing peliculas:", error);
+      }
+    };
+    fetchPeliculas();
+    setPeliculaToDelete(null);
   };
 
   if (loading) {
@@ -94,7 +100,7 @@ function PeliculasList({ refreshTrigger }) {
               <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Género</TableHeadCell>
               <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">MPAA</TableHeadCell>
               <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Duración</TableHeadCell>
-              <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Año</TableHeadCell>
+              <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Fecha de Estreno</TableHeadCell>
               <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Acciones</TableHeadCell>
             </TableRow>
           </TableHead>
@@ -131,7 +137,7 @@ function PeliculasList({ refreshTrigger }) {
                         ✏️ Editar
                       </Button>
                       <Button 
-                        onClick={() => handleDelete(pelicula.idPelicula)} 
+                        onClick={() => handleDelete(pelicula)} // ✅ Pasar objeto completo
                         size="xs" 
                         className="!bg-red-600 hover:!bg-red-700"
                       >
@@ -150,14 +156,14 @@ function PeliculasList({ refreshTrigger }) {
       {peliculaToEdit && (
         <ModalPeliculas 
           peliculaToEdit={peliculaToEdit}
-          onSuccess={handleEditSuccess}
+          onSuccess={handleEditSuccess} // ✅ Función ahora existe
           onClose={handleCloseEdit}
         />
       )}
 
       {/* Modal de eliminación */}
       {peliculaToDelete && (
-        <ModalEliminarPeliculas 
+        <ModalDeletePeliculas 
           pelicula={peliculaToDelete}
           onSuccess={handleRefresh}
           onClose={handleCloseDelete}

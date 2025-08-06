@@ -4,8 +4,6 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { createPelicula, updatePelicula } from "../api/Peliculas.api";
 import peliculaSchema from "../validations/PeliculasSchema.js";
 import { formatToISO8601 } from "../utils/dateFormater.js";
-import FormDatePicker from "./FormDatePicker";
-
 
 function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
   const [showModal, setShowModal] = useState(false);
@@ -24,12 +22,13 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
       onClose();
     }
   };
+
   const formatDateForInput = (dateString) => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return "";
-  return date.toISOString().split('T')[0]; // YYYY-MM-DD para el input
-};
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    return date.toISOString().split('T')[0]; // YYYY-MM-DD para el input
+  };
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     try {
@@ -39,7 +38,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
       const cleanData = {
         ...values,
         duracion: parseInt(values.duracion),
-        fechaEstreno: formatToISO8601(values.fechaEstreno) || null,
+        fechaEstreno: values.fechaEstreno ? formatToISO8601(values.fechaEstreno) : null,
         sinopsis: values.sinopsis || null,
         trailerURL: values.trailerURL || null,
         portada: values.portada || null,
@@ -114,7 +113,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
 
           {/* Centered content */}
           <div className="relative bg-slate-800 rounded-xl shadow-2xl p-8 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-            {/* SSimple header */}
+            {/* Simple header */}
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-white">
                 {isEditing ? "✏️ Editar Película" : "🎬 Añadir Nueva Película"}
@@ -140,7 +139,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-white font-medium mb-2">
-                        Título de la Película *
+                         Título de la Película *
                       </label>
                       <Field
                         as={TextInput}
@@ -153,7 +152,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
 
                     <div>
                       <label className="block text-white font-medium mb-2">
-                        Director de la Película *
+                         Director de la Película *
                       </label>
                       <Field
                         as={TextInput}
@@ -166,27 +165,27 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
 
                     <div>
                       <label className="block text-white font-medium mb-2">
-                        Género Cinematográfico *
+                         Género Cinematográfico *
                       </label>
                       <Field as={Select} name="generoPelicula" disabled={isSubmitting}>
-                        <option value="">Selecciona el género principal</option>
-                        <option value="Accion">Acción</option>
-                        <option value="Drama">Drama</option>
-                        <option value="Comedia">Comedia</option>
-                        <option value="Terror">Terror</option>
-                        <option value="Ciencia Ficcion">Ciencia Ficción</option>
-                        <option value="Romance">Romance</option>
-                        <option value="Thriller">Thriller</option>
-                        <option value="Aventura">Aventura</option>
-                        <option value="Animacion">Animación</option>
-                        <option value="Documental">Documental</option>
+                        <option value=""> Selecciona el género principal</option>
+                        <option value="Accion"> Acción</option>
+                        <option value="Drama"> Drama</option>
+                        <option value="Comedia"> Comedia</option>
+                        <option value="Terror"> Terror</option>
+                        <option value="Ciencia Ficcion"> Ciencia Ficción</option>
+                        <option value="Romance"> Romance</option>
+                        <option value="Thriller"> Thriller</option>
+                        <option value="Aventura"> Aventura</option>
+                        <option value="Animacion"> Animación</option>
+                        <option value="Documental"> Documental</option>
                       </Field>
                       <ErrorMessage name="generoPelicula" component="div" className="text-red-400 text-sm mt-1" />
                     </div>
 
                     <div>
                       <label className="block text-white font-medium mb-2">
-                        Duración en Minutos *
+                         Duración en Minutos *
                       </label>
                       <Field
                         as={TextInput}
@@ -200,23 +199,23 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
 
                     <div>
                       <label className="block text-white font-medium mb-2">
-                        Fecha de Estreno
+                         Fecha de Estreno
                       </label>
-                      <FormDatePicker
+                      <Field
+                        as={TextInput}
                         name="fechaEstreno"
-                        placeholder="Selecciona la fecha de estreno"
+                        type="date"
                         disabled={isSubmitting}
                       />
-        
                       <ErrorMessage name="fechaEstreno" component="div" className="text-red-400 text-sm mt-1" />
                     </div>
 
                     <div>
                       <label className="block text-white font-medium mb-2">
-                        Clasificación por Edad (MPAA)
+                         Clasificación por Edad (MPAA)
                       </label>
                       <Field as={Select} name="MPAA" disabled={isSubmitting}>
-                        <option value="">Selecciona la clasificación</option>
+                        <option value=""> Selecciona la clasificación</option>
                         <option value="G">G - Apto para toda la familia</option>
                         <option value="PG">PG - Se recomienda supervisión parental</option>
                         <option value="PG-13">PG-13 - Mayores de 13 años</option>
@@ -230,12 +229,12 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                   {/* Sinopsis */}
                   <div>
                     <label className="block text-white font-medium mb-2">
-                      Sinopsis / Descripción de la Película
+                       Sinopsis / Descripción de la Película
                     </label>
                     <Field
                       as={Textarea}
                       name="sinopsis"
-                      placeholder="Ej: Un épico relato de superhéroes que enfrentan su mayor amenaza. Los Avengers deben reunirse una vez más para salvar el universo de la destrucción total..."
+                      placeholder="Ej: Un épico relato de superhéroes que enfrentan su mayor amenaza..."
                       rows={4}
                       disabled={isSubmitting}
                     />
@@ -246,7 +245,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-white font-medium mb-2">
-                        URL del Trailer (YouTube)
+                         URL del Trailer (YouTube)
                       </label>
                       <Field
                         as={TextInput}
@@ -259,7 +258,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
 
                     <div>
                       <label className="block text-white font-medium mb-2">
-                        URL del Póster / Imagen
+                         URL del Póster / Imagen
                       </label>
                       <Field
                         as={TextInput}
@@ -275,12 +274,11 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                   <div className="flex gap-4 pt-6 justify-center border-t border-gray-600">
                     <Button 
                       type="button" 
-                      color="gray" 
                       onClick={handleClose}
                       disabled={isSubmitting}
-                      className="px-8"
+                      className="px-8 !bg-red-600 hover:!bg-red-700"
                     >
-                      Cancelar
+                     Cancelar
                     </Button>
                     <Button 
                       type="submit" 
