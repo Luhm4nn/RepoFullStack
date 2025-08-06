@@ -167,10 +167,7 @@ const VIPSeatSelector = ({
             <span>Asientos VIP: {getVIPCount()}/{getTotalSeats()}</span>
             {initialVipSeats.length > 0 && (
               <span className="text-xs">
-                Iniciales: {initialVipSeats.length} 
-                {hasChanges() && (
-                  <span className="text-blue-400 ml-1">(modificado)</span>
-                )}
+                Iniciales: {initialVipSeats.length}
               </span>
             )}
           </div>
@@ -180,7 +177,7 @@ const VIPSeatSelector = ({
               <button
                 onClick={resetToInitial}
                 type="button"
-                className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded text-xs transition-colors"
+                className="px-3 py-1 bg-slate-600/80 hover:bg-white/10 text-white rounded text-xs transition-colors"
               >
                 Restaurar
               </button>
