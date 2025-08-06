@@ -8,7 +8,8 @@ CREATE TABLE `tarifa` (
 CREATE TABLE `sala` (
   `idSala` int NOT NULL AUTO_INCREMENT,
   `ubicacion` varchar(45) NOT NULL,
-  `capacidad` int DEFAULT NULL,
+  `filas` int NOT NULL,
+  `asientosPorFila` int NOT NULL,
   PRIMARY KEY (`idSala`)
 );
 CREATE TABLE `cliente` (
@@ -46,7 +47,7 @@ CREATE TABLE `asiento` (
   `idTarifa` int DEFAULT NULL,
   PRIMARY KEY (`idSala`,`filaAsiento`,`nroAsiento`),
   CONSTRAINT `asiento_ibfk_1` FOREIGN KEY (`idTarifa`) REFERENCES `tarifa` (`idtarifa`),
-  CONSTRAINT `asiento_ibfk_2` FOREIGN KEY (`idSala`) REFERENCES `sala` (`idSala`)
+  CONSTRAINT `asiento_ibfk_2` FOREIGN KEY (`idSala`) REFERENCES `sala` (`idSala`) ON DELETE CASCADE
 );
 
 CREATE TABLE `funcion` (
