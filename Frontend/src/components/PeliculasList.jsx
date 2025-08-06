@@ -2,14 +2,13 @@ import { getPeliculas } from "../api/Peliculas.api";
 import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Button } from "flowbite-react";
 import { useEffect, useState } from "react";
 import ModalPeliculas from "./ModalPeliculas";
-import ModalDeletePeliculas from "./ModalDeletePeliculas";
+import ModalEliminarPeliculas from "./ModalEliminarPeliculas";
 
 function PeliculasList({ refreshTrigger }) {
   const [peliculas, setPeliculas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [peliculaToEdit, setPeliculaToEdit] = useState(null);
-  const [peliculaToDelete, setPeliculaToDelete] = useState(null);
 
   useEffect(() => {
     const fetchPeliculas = async () => {
@@ -46,6 +45,7 @@ function PeliculasList({ refreshTrigger }) {
   };
 
   const handleRefresh = () => {
+    // Refrescar la lista después de eliminar
     const fetchPeliculas = async () => {
       try {
         const data = await getPeliculas();
@@ -55,7 +55,14 @@ function PeliculasList({ refreshTrigger }) {
       }
     };
     fetchPeliculas();
-    setPeliculaToDelete(null);
+    setPeliculaToEdit(null);
+  };
+
+  const handleDelete = (id) => {
+    if (confirm('¿Estás seguro de que quieres eliminar esta película?')) {
+      // Aquí implementarías la funcionalidad de eliminar
+      console.log('Eliminar película con ID:', id);
+    }
   };
 
   if (loading) {
@@ -124,7 +131,7 @@ function PeliculasList({ refreshTrigger }) {
                         ✏️ Editar
                       </Button>
                       <Button 
-                        onClick={() => handleDelete(pelicula)} 
+                        onClick={() => handleDelete(pelicula.idPelicula)} 
                         size="xs" 
                         className="!bg-red-600 hover:!bg-red-700"
                       >
@@ -143,14 +150,14 @@ function PeliculasList({ refreshTrigger }) {
       {peliculaToEdit && (
         <ModalPeliculas 
           peliculaToEdit={peliculaToEdit}
-          onSuccess={handleRefresh}
+          onSuccess={handleEditSuccess}
           onClose={handleCloseEdit}
         />
       )}
 
       {/* Modal de eliminación */}
       {peliculaToDelete && (
-        <ModalDeletePeliculas 
+        <ModalEliminarPeliculas 
           pelicula={peliculaToDelete}
           onSuccess={handleRefresh}
           onClose={handleCloseDelete}
