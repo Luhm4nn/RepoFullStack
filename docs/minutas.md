@@ -85,3 +85,24 @@ Este documento contiene un registro de las reuniones realizadas para la planific
 
 - Diego: Gestionar Peliculas Front, Footer.
 - Emiliano: Gestionar Salas Front, Navbar.
+
+---
+
+## 📅 Reunión 5 - 09/08/2025
+
+**Participantes:** Emiliano, Diego
+**Objetivos:**
+
+- Planificar la continuacion del desarrollo Frontend.
+- Tratar de cerrar las ideas para la parte del admin.
+
+**Decisiones tomadas:**
+
+- Se acordó continuar con Tarifas y Popiedades Pages.
+- Se acordó hacer las secciones informativas.
+- Se acordó dejar para lo último por comodida la sección de Funciones.
+
+**Próximas tareas:**
+
+- Diego: Tarifas y Propiedades Front.
+- Emiliano: Terminos y condiciones, informativas y secciones secundarias.
