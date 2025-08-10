@@ -11,6 +11,7 @@ import Terminos from "./pages/Terminos"
 import Privacity from "./pages/Privacity"
 import AboutMe from "./pages/AboutMe"
 import FAQ from "./pages/FAQ"
+import ScrollToTop from "./components/ScrollToTop"
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
     <>
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 font-montserrat">
       <AdminNavbar  />
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="*" element={<NotFound />} />

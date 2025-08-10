@@ -14,7 +14,7 @@ model asiento {
   tipo            String            @db.VarChar(45)
   idTarifa        Int?
   tarifa          tarifa?           @relation(fields: [idTarifa], references: [idTarifa], onDelete: NoAction, onUpdate: NoAction, map: "asiento_ibfk_1")
-  sala            sala              @relation(fields: [idSala], references: [idSala], onDelete: NoAction, onUpdate: NoAction, map: "asiento_ibfk_2")
+  sala            sala              @relation(fields: [idSala], references: [idSala], onDelete: Cascade, onUpdate: NoAction, map: "asiento_ibfk_2")
   asiento_reserva asiento_reserva[]
 
   @@id([idSala, filaAsiento, nroAsiento])
