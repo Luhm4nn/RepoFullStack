@@ -112,7 +112,7 @@ function FAQ() {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-2xl mx-auto p-6">
       <div className="bg-slate-800/70 p-6 rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold text-center mb-8 text-purple-200">
          Preguntas Frecuentes
