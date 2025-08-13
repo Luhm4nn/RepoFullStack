@@ -2,19 +2,39 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, TextInput, Textarea } from "flowbite-react";
 import tarifasSchema from "../validations/TarifasSchema";
 
-export default function TarifaForm({ onSubmit, onCancel }) {
+export default function TarifaForm({ onSubmit, onCancel, initialData = null, isEditing = false }) {
+  // Verificar si es una de las primeras dos tarifas del sistema
+  const isSystemTarifa = initialData && initialData.idTarifa <= 2;
+
+  // Valores iniciales: usar datos de la tarifa a editar o valores vacíos
+  const initialValues = initialData ? {
+    descripcionTarifa: initialData.descripcionTarifa || '',
+    precio: initialData.precio || '',
+  } : {
+    descripcionTarifa: '',
+    precio: '',
+  };
   return (
     <div className="bg-slate-800 border-slate-700 p-4 md:p-6 overflow-hidden scrollbar-none rounded-lg shadow-lg">
-      <h2 className="text-2xl text-white font-bold mb-4">Agregar Nueva Tarifa</h2>
+      <h2 className="text-2xl text-white font-bold mb-4">
+        {isEditing ? 'Editar Tarifa' : 'Agregar Nueva Tarifa'}
+      </h2>
+      
+      {/* Mensaje informativo para tarifas del sistema */}
+      {isSystemTarifa && (
+        <div className="mb-4 p-3 bg-blue-900/50 border border-blue-600 rounded-lg">
+          <p className="text-blue-200 text-sm">
+            <span className="font-medium">Tarifa del sistema:</span> Solo puedes modificar el precio, la descripción no se puede cambiar.
+          </p>
+        </div>
+      )}
       
       <Formik
-        initialValues={{ 
-          descripcionTarifa: '',
-          precio: '',
-        }}
+        initialValues={initialValues}
         validationSchema={tarifasSchema}
+        enableReinitialize={true} // Importante: permite que los valores se actualicen cuando cambie initialData
         onSubmit={(values, { resetForm, setSubmitting }) => {
-          // Agregar la fecha actual al momento del envío
+          // Siempre agregar la fecha actual al momento del envío (tanto para crear como para editar)
           const dataWithDate = {
             ...values,
             fechaDesde: new Date().toISOString()
@@ -37,9 +57,16 @@ export default function TarifaForm({ onSubmit, onCancel }) {
                   type="text"
                   placeholder="Ej: Tarifa General, Tarifa Estudiantes, etc."
                   color
-                  className="bg-slate-700 hover:bg-white/10 text-white"
+                  className={`${isSystemTarifa ? 'bg-gray-600 cursor-not-allowed' : 'bg-slate-700 hover:bg-white/10'} text-white`}
+                  disabled={isSystemTarifa}
+                  readOnly={isSystemTarifa}
                 />
                 <ErrorMessage name="descripcionTarifa" component="span" className="text-red-500 text-sm" />
+                {isSystemTarifa && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    Esta es una tarifa del sistema y su descripción no puede modificarse.
+                  </p>
+                )}
               </div>
 
               {/* Precio */}
@@ -56,7 +83,10 @@ export default function TarifaForm({ onSubmit, onCancel }) {
                 />
                 <ErrorMessage name="precio" component="span" className="text-red-500 text-sm" />
                 <p className="text-xs text-gray-400 mt-1">
-                  Ingresa el precio en pesos argentinos. La fecha de vigencia será la fecha actual.
+                  {isEditing ? 
+                    "Ingresa el nuevo precio. La fecha de vigencia se actualizará a la fecha actual." :
+                    "Ingresa el precio en pesos argentinos. La fecha de vigencia será la fecha actual."
+                  }
                 </p>
               </div>
 
@@ -76,7 +106,10 @@ export default function TarifaForm({ onSubmit, onCancel }) {
                   color 
                   className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                 >
-                  {isSubmitting ? "Guardando..." : "Guardar Tarifa"}
+                  {isSubmitting 
+                    ? (isEditing ? "Actualizando..." : "Guardando...") 
+                    : (isEditing ? "Actualizar Tarifa" : "Guardar Tarifa")
+                  }
                 </Button>
               </div>
             </div>

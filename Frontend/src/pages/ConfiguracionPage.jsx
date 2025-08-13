@@ -19,16 +19,10 @@ function ConfiguracionPage() {
           {/* Parámetros */}
           <ParametrosList key={refreshList} />
           
-          {/* Placeholder para Tarifas (próximo paso) */}
+          {/* Tarifas */}
           <TarifasList key={refreshList} />
 
-        {/* Placeholder para Configuración de Notificaciones (próximo paso) */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 mt-8">
-          <h3 className="text-xl font-semibold text-white mb-4">Configuración de Notificaciones</h3>
-          <div className="text-center py-8 text-gray-400">
-            Próximamente...
-          </div>
-        </div>
+    
       </div>
         </div>
       </div>
