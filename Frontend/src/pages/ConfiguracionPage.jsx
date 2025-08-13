@@ -11,7 +11,7 @@ function ConfiguracionPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">Configuración del Sistema</h1>
           <span className="text-gray-300 block mb-3 mt-1">
-            Gestiona parámetros y tarifas del cine
+            Gestiona parámetros del sistema y tarifas del cine
           </span>
         </div>
 
