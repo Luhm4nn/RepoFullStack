@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom"
+import { Routes, Route, Navigate } from "react-router-dom"
 import MainPage from "./pages/MainPage"
 import NotFound from "./pages/NotFound"
 import AdminNavbar from "./components/AdminNavbar"
@@ -22,7 +22,8 @@ function App() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<MainPage />} />
-        <Route path="*" element={<NotFound />} />
+        <Route path="/NotFound" element={<NotFound />} />
+        <Route path="*" element={<Navigate to="/NotFound" replace />} />
         <Route path="/Peliculas" element={<PeliculasPage />} />
         <Route path="/Configuracion" element={<ConfiguracionPage />} />
         <Route path="/Funciones" element={<FuncionesPage />} />
