@@ -36,12 +36,13 @@ async function createManyForSala(idSala, filas, asientosPorFila, vipSeats = []) 
 
     for(let nroAsiento = 1; nroAsiento <= asientosPorFila; nroAsiento++) {
       const tipo = vipSeats.includes(`${filaLetter}${nroAsiento}`) ? "VIP" : "Normal";
+      const idTarifa = tipo === "VIP" ? 2 : 1;
       asientosToCreate.push({
         idSala: parseInt(idSala, 10),
         filaAsiento: filaLetter,
         nroAsiento: nroAsiento,
         tipo: tipo,
-        idTarifa: null, //Luego codear la parte de las tarifas (para vip o normal activa)
+        idTarifa: idTarifa,
       });
     }
   }
@@ -102,6 +103,7 @@ async function updateManyForSala(idSala, vipSeats = []) {
     },
     data: {
       tipo: "Normal",
+      idTarifa: 1,
     },
   });
 
@@ -122,6 +124,7 @@ async function updateManyForSala(idSala, vipSeats = []) {
       }},
       data: {
         tipo: "VIP",
+        idTarifa: 2,
       },
     });
     updatedVipSeats.push(seat);

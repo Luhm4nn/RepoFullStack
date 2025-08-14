@@ -5,6 +5,12 @@ CREATE TABLE `tarifa` (
   `fechaDesde` date NOT NULL,
   PRIMARY KEY (`idTarifa`)
 );
+
+INSERT INTO `tarifa` (`precio`, `descripcionTarifa`, `fechaDesde`)
+VALUES 
+  (11000.00, 'Tarifa Normal', CURDATE()),
+  (16000.00, 'Tarifa VIP', CURDATE());
+
 CREATE TABLE `sala` (
   `idSala` int NOT NULL AUTO_INCREMENT,
   `ubicacion` varchar(45) NOT NULL,
@@ -26,6 +32,12 @@ CREATE TABLE `parametro` (
   `valor` int NOT NULL,
   PRIMARY KEY (`idParametro`)
 );
+
+INSERT INTO `parametro` (`descripcionParametro`, `valor`)
+VALUES 
+  ('Tiempo de Limpieza', 30),
+  ('Tiempo máximo de reserva', 15);
+
 CREATE TABLE `pelicula` (
   `idPelicula` int NOT NULL AUTO_INCREMENT,
   `nombrePelicula` varchar(45) NOT NULL,
