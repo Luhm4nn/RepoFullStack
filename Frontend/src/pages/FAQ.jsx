@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Card } from "flowbite-react";
 
 function FAQ() {
   const [openPanel, setOpenPanel] = useState(null);
@@ -112,43 +113,49 @@ function FAQ() {
   ];
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="bg-slate-800/70 p-6 rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold text-center mb-8 text-purple-200">
-         Preguntas Frecuentes
-      </h1>
-      <div className="space-y-3">
-        {faqs.map((faq) => (
-          <div key={faq.id} className="border border-slate-600 rounded-lg overflow-hidden bg-slate-800/30 backdrop-blur-sm">
-            <button
-              onClick={() => togglePanel(faq.id)}
-              className="w-full px-6 py-4 text-left bg-slate-800 hover:bg-slate-700 text-white font-medium flex justify-between items-center transition-all duration-200 focus:ring-2 focus:ring-purple-500"
-            >
-              <span className="text-lg">{faq.title}</span>
-              <svg
-                className={`w-5 h-5 transform transition-transform duration-200 text-purple-400 ${
-                  openPanel === faq.id ? "rotate-180" : ""
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            <div 
-              className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                openPanel === faq.id ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-              }`}
-            >
-              <div className="px-6 py-4 bg-slate-800/50">
-                {faq.content}
+    <div className="flex flex-col min-h-screen items-center justify-center p-6">
+      <Card className="max-w-2xl w-full bg-slate-800/70 shadow-2xl border-0 py-8 px-6">
+        <div className="flex flex-col items-center gap-4">
+          <h1 className="text-3xl font-bold text-purple-200 mb-2 text-center">
+            Preguntas Frecuentes
+          </h1>
+          <p className="text-gray-300 text-center mb-4">
+            Aquí encontrarás respuestas a las dudas más comunes sobre <span className="font-semibold text-purple-400">Cutzy Cinema</span> y el proceso de reserva.
+          </p>
+          <div className="space-y-3 w-full">
+            {faqs.map((faq) => (
+              <div key={faq.id} className="border border-slate-600 rounded-lg overflow-hidden bg-slate-800/30 backdrop-blur-sm">
+                <button
+                  onClick={() => togglePanel(faq.id)}
+                  className="w-full px-6 py-4 text-left bg-slate-800 hover:bg-slate-700 text-white font-medium flex justify-between items-center transition-all duration-200 focus:ring-2 focus:ring-purple-500"
+                >
+                  <span className="text-lg">{faq.title}</span>
+                  <svg
+                    className={`w-5 h-5 transform transition-transform duration-200 text-purple-400 ${
+                      openPanel === faq.id ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div
+                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                    openPanel === faq.id ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                  }`}
+                >
+                  <div className="px-6 py-4 bg-slate-800/50">{faq.content}</div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
-      </div>
+          <p className="text-xs text-gray-500 mt-6 text-center">
+            Última actualización: Agosto 2025 &mdash; Cutzy Cinema
+          </p>
+        </div>
+      </Card>
     </div>
   );
 }
