@@ -23,19 +23,24 @@ export const createFuncion = async (funcion) => {
   }
 }
 
-export const updateFuncion = async (id, funcion) => {
+export const updateFuncion = async (idSala, fechaHoraFuncion, funcion) => {
   try {
-    const response = await axios.put(`${VITE_API_URL}/Funcion/${id}`, funcion);
+    const url = `${VITE_API_URL}/Funcion/${idSala}/${fechaHoraFuncion}`;
+    console.log('Calling updateFuncion with URL:', url);
+    console.log('Data to send:', funcion);
+    
+    const response = await axios.put(url, funcion);
     return response.data;
   } catch (error) {
     console.error("Error updating funcion:", error);
+    console.error("Error response:", error.response?.data);
     throw error;
   }
 }
 
-export const deleteFuncion = async (id) => {
+export const deleteFuncion = async (idSala, fechaHoraFuncion) => {
   try {
-    const response = await axios.delete(`${VITE_API_URL}/Funcion/${id}`);
+    const response = await axios.delete(`${VITE_API_URL}/Funcion/${idSala}/${fechaHoraFuncion}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting funcion:", error);

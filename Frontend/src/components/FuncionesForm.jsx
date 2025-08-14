@@ -30,6 +30,33 @@ export default function FuncionesForm({ onSubmit }) {
     }
   };
 
+  // Función para formatear fecha y hora evitando problemas de zona horaria
+  const formatearFechaHora = (fechaHoraString) => {
+    if (!fechaHoraString) return null;
+    
+    // Extraer fecha y hora por separado
+    const [fecha, hora] = fechaHoraString.split('T');
+    const [year, month, day] = fecha.split('-');
+    const [hours, minutes] = hora.split(':');
+    
+    // Crear fecha local sin conversión automática de zona horaria
+    const fechaLocal = new Date(year, month - 1, day, hours, minutes);
+    
+    if (isNaN(fechaLocal.getTime())) {
+      return null;
+    }
+    
+    // Formatear manualmente para evitar conversión UTC
+    const yearStr = fechaLocal.getFullYear();
+    const monthStr = String(fechaLocal.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(fechaLocal.getDate()).padStart(2, '0');
+    const hoursStr = String(fechaLocal.getHours()).padStart(2, '0');
+    const minutesStr = String(fechaLocal.getMinutes()).padStart(2, '0');
+    const secondsStr = String(fechaLocal.getSeconds()).padStart(2, '0');
+    
+    return `${yearStr}-${monthStr}-${dayStr}T${hoursStr}:${minutesStr}:${secondsStr}.000Z`;
+  };
+
   // Función para obtener la fecha y hora actual en formato datetime-local
   const getCurrentDateTime = () => {
     const now = new Date();
@@ -62,7 +89,15 @@ export default function FuncionesForm({ onSubmit }) {
         }}
         validationSchema={funcionesSchema}
         onSubmit={(values, { resetForm, setSubmitting }) => {
-          onSubmit(values); 
+          // Usar el formateador personalizado para evitar problemas de zona horaria
+          const fechaHoraFormateada = formatearFechaHora(values.fechaHoraFuncion);
+          
+          const valuesFormatted = {
+            ...values,
+            fechaHoraFuncion: fechaHoraFormateada
+          };
+          
+          onSubmit(valuesFormatted); 
           resetForm(); 
           setSubmitting(false);
         }}

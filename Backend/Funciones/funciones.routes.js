@@ -13,19 +13,19 @@ const router = Router();
 router.get("/Funciones", asyncHandler(getFunciones));
 
 router.get(
-  "/Funcion/:idSala/:fechaFuncion/:horaInicioFuncion",
+  "/Funcion/:idSala/:fechaHoraFuncion",
   asyncHandler(getFuncion)
 );
 
 router.post("/Funcion", asyncHandler(createFuncion));
 
 router.put(
-  "/Funcion/:idSala/:fechaFuncion/:horaInicioFuncion",
+  "/Funcion/:idSala/:fechaHoraFuncion",
   asyncHandler(updateFuncion)
 );
 
 router.delete(
-  "/Funcion/:idSala/:fechaFuncion/:horaInicioFuncion",
+  "/Funcion/:idSala/:fechaHoraFuncion",
   asyncHandler(deleteFuncion)
 );
 

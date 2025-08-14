@@ -35,10 +35,17 @@ export const deleteFuncion = async (req, res) => {
 
 export const updateFuncion = async (req, res) => {
   const funcion = await getOne(req.params);
-  if (funcion.estado === "Privada") {
+  
+  // Permitir cambio de estado entre Privada y Publica
+  if (req.body.estado && (req.body.estado === 'Privada' || req.body.estado === 'Publica')) {
+    const updatedFuncion = await updateOne(req.params, req.body);
+    res.status(200).json(updatedFuncion);
+  } 
+  // Para otros cambios, solo permitir si la función está privada
+  else if (funcion.estado === "Privada") {
     const updatedFuncion = await updateOne(req.params, req.body);
     res.status(200).json(updatedFuncion);
   } else {
-    res.status(403).json({ message: "No se puede actualizar una función pública." });
+    res.status(403).json({ message: "No se puede actualizar una función pública, excepto para cambiar su estado." });
   }
 };
