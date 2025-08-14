@@ -49,6 +49,7 @@ model funcion {
   idSala           Int
   fechaHoraFuncion DateTime  @db.DateTime(0)
   idPelicula       Int
+  estado           String    @db.VarChar(45)
   pelicula         pelicula  @relation(fields: [idPelicula], references: [idPelicula], onDelete: NoAction, onUpdate: NoAction, map: "funcion_ibfk_1")
   sala             sala      @relation(fields: [idSala], references: [idSala], onDelete: NoAction, onUpdate: NoAction, map: "funcion_ibfk_2")
   reserva          reserva[]
@@ -104,7 +105,7 @@ model sala {
 
 model tarifa {
   idTarifa          Int       @id @default(autoincrement())
-  precio            Decimal   @db.Decimal(5, 2)
+  precio            Decimal   @db.Decimal(8, 2)
   descripcionTarifa String    @db.VarChar(45)
   fechaDesde        DateTime  @db.Date
   asiento           asiento[]

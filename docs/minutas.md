@@ -106,3 +106,6 @@ Este documento contiene un registro de las reuniones realizadas para la planific
 
 - Diego: Tarifas y Propiedades Front.
 - Emiliano: Terminos y condiciones, informativas y secciones secundarias.
+- Emiliano, Diego: Funciones Page (dejamos para lo último para poder utilizar la info de las otras Pages)
+
+---

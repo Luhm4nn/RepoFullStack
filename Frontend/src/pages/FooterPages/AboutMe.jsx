@@ -1,5 +1,5 @@
 import { Card } from "flowbite-react";
-import cutzyLogo from "../assets/cutzy-logo-blanco.png";
+import cutzyLogo from "../../assets/cutzy-logo-blanco.png";
 
 function AboutMe() {
   return (

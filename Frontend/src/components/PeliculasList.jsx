@@ -1,5 +1,13 @@
 import { getPeliculas } from "../api/Peliculas.api";
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Button } from "flowbite-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadCell,
+  TableRow,
+  Button,
+} from "flowbite-react";
 import { useEffect, useState } from "react";
 import ModalPeliculas from "./ModalPeliculas";
 import ModalDeletePeliculas from "./ModalDeletePeliculas";
@@ -9,26 +17,27 @@ function PeliculasList({ refreshTrigger }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [peliculaToEdit, setPeliculaToEdit] = useState(null);
-  const [peliculaToDelete, setPeliculaToDelete] = useState(null); // ✅ Estado agregado
+  const [peliculaToDelete, setPeliculaToDelete] = useState(null);
 
   useEffect(() => {
-    const fetchPeliculas = async () => {
-      try {
-        const data = await getPeliculas();
-        setPeliculas(data); 
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching peliculas:", error);
-        setError(error.message);
-        setLoading(false);
-      }
-    };
-
     fetchPeliculas();
   }, [refreshTrigger]);
 
+  const fetchPeliculas = async () => {
+    try {
+      setLoading(true);
+      const data = await getPeliculas();
+      setPeliculas(data);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching peliculas:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleEdit = (pelicula) => {
-    console.log('Editando película:', pelicula);
     setPeliculaToEdit(pelicula);
   };
 
@@ -37,7 +46,6 @@ function PeliculasList({ refreshTrigger }) {
   };
 
   const handleDelete = (pelicula) => {
-    console.log('Preparando eliminar película:', pelicula);
     setPeliculaToDelete(pelicula);
   };
 
@@ -46,42 +54,26 @@ function PeliculasList({ refreshTrigger }) {
   };
 
   const handleEditSuccess = () => {
-    const fetchPeliculas = async () => {
-      try {
-        const data = await getPeliculas();
-        setPeliculas(data);
-      } catch (error) {
-        console.error("Error refreshing peliculas:", error);
-      }
-    };
     fetchPeliculas();
     setPeliculaToEdit(null);
   };
 
   const handleRefresh = () => {
-    const fetchPeliculas = async () => {
-      try {
-        const data = await getPeliculas();
-        setPeliculas(data);
-      } catch (error) {
-        console.error("Error refreshing peliculas:", error);
-      }
-    };
     fetchPeliculas();
     setPeliculaToDelete(null);
   };
 
   if (loading) {
-    return <div className="text-center p-4 text-gray-200">Cargando películas...</div>;
+    return <div className="text-center p-4">Cargando Películas...</div>;
   }
 
   if (error) {
     return (
       <div className="text-center p-4">
-        <p className="text-red-500">Error: {error}</p>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+        <p className="text-white text-xl">No se encontraron Películas cargadas.</p>
+        <button
+          onClick={fetchPeliculas}
+          className="mt-2 px-4 py-2 w-full sm:w-auto bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded transition-colors text-sm"
         >
           Reintentar
         </button>
@@ -90,58 +82,69 @@ function PeliculasList({ refreshTrigger }) {
   }
 
   return (
-    <>
-      <div className="overflow-x-auto">
+    <div className="w-full">
+      {/* Vista escritorio */}
+      <div className="hidden md:block overflow-x-auto">
         <Table hoverable>
           <TableHead>
-            <TableRow className="!bg-slate-800/50 !text-white">
-              <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Título</TableHeadCell>
-              <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Director</TableHeadCell>
-              <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Género</TableHeadCell>
-              <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">MPAA</TableHeadCell>
-              <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Duración</TableHeadCell>
-              <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Fecha de Estreno</TableHeadCell>
-              <TableHeadCell className="!bg-slate-800/50 !text-white !border-slate-700">Acciones</TableHeadCell>
+            <TableRow className="bg-slate-800/50 text-white pointer-events-none border-slate-700">
+              <TableHeadCell className="bg-slate-800/50 text-white">Título</TableHeadCell>
+              <TableHeadCell className="bg-slate-800/50 text-white">Director</TableHeadCell>
+              <TableHeadCell className="bg-slate-800/50 text-white">Género</TableHeadCell>
+              <TableHeadCell className="bg-slate-800/50 text-white">MPAA</TableHeadCell>
+              <TableHeadCell className="bg-slate-800/50 text-white">Duración</TableHeadCell>
+              <TableHeadCell className="bg-slate-800/50 text-white">Estreno</TableHeadCell>
+              <TableHeadCell className="bg-slate-800/50 text-white">Acciones</TableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody className="divide-y">
             {peliculas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-4 text-gray-200">
+                <TableCell colSpan={7} className="text-center py-4">
                   No hay películas registradas
                 </TableCell>
               </TableRow>
             ) : (
               peliculas.map((pelicula) => (
-                <TableRow key={pelicula.idPelicula} className="bg-slate-800/50 hover:!bg-white/10">
-                  <TableCell className="whitespace-nowrap font-medium !text-gray-200">
-                    {pelicula.nombrePelicula || 'Sin título'}
+                <TableRow
+                  key={pelicula.idPelicula}
+                  className="bg-slate-800/50 hover:bg-white/10 text-gray-300 border-slate-700"
+                >
+                  <TableCell className="whitespace-nowrap font-medium text-white">
+                    {pelicula.nombrePelicula || "Sin título"}
                   </TableCell>
-                  <TableCell className="!text-gray-200">{pelicula.director || 'Sin director'}</TableCell>
-                  <TableCell className="!text-gray-200">{pelicula.generoPelicula || 'Sin género'}</TableCell>
-                  <TableCell className="!text-gray-200">{pelicula.MPAA || 'Sin clasificación'}</TableCell>
-                  <TableCell className="!text-gray-200">{pelicula.duracion ? `${pelicula.duracion} min` : 'N/A'}</TableCell>
-                  <TableCell className="!text-gray-200">
-                    {pelicula.fechaEstreno && pelicula.fechaEstreno !== null ? 
-                      new Date(pelicula.fechaEstreno).getFullYear() : 
-                      'Sin fecha'
-                    }
+                  <TableCell>{pelicula.director || "Sin director"}</TableCell>
+                  <TableCell>{pelicula.generoPelicula || "Sin género"}</TableCell>
+                  <TableCell>{pelicula.MPAA || "Sin clasificación"}</TableCell>
+                  <TableCell>
+                    {pelicula.duracion ? `${pelicula.duracion} min` : "N/A"}
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
-                      <Button 
-                        onClick={() => handleEdit(pelicula)} 
-                        size="xs" 
-                        className="!bg-blue-600 hover:!bg-blue-700"
+                    {pelicula.fechaEstreno
+                      ? new Date(pelicula.fechaEstreno).getFullYear()
+                      : "Sin fecha"}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-sm"
+                        onClick={() => handleEdit(pelicula)}
                       >
-                        ✏️ Editar
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5 mr-1">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l .8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                        </svg>
+                        Editar
                       </Button>
-                      <Button 
-                        onClick={() => handleDelete(pelicula)} // ✅ Pasar objeto completo
-                        size="xs" 
-                        className="!bg-red-600 hover:!bg-red-700"
+                      <Button
+                        size="sm"
+                        className="w-full sm:w-auto bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-sm"
+                        onClick={() => handleDelete(pelicula)}
                       >
-                        🗑️ Eliminar
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5 mr-1">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                        </svg>
+                        Eliminar
                       </Button>
                     </div>
                   </TableCell>
@@ -152,24 +155,110 @@ function PeliculasList({ refreshTrigger }) {
         </Table>
       </div>
 
-      {/* Modal de edición */}
+      {/* Vista móvil */}
+      <div className="md:hidden space-y-4">
+        {peliculas.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            No hay películas registradas
+          </div>
+        ) : (
+          peliculas.map((pelicula) => (
+            <div
+              key={pelicula.idPelicula}
+              className="bg-slate-800/50 rounded-lg border border-slate-700 p-4 space-y-3"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15l-.75 18H5.25L4.5 3Z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="font-medium text-white text-sm">
+                    {pelicula.nombrePelicula || "Sin título"}
+                  </div>
+                  <div className="text-gray-400 text-xs">
+                    {pelicula.director || "Sin director"}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-sm text-gray-300">
+                <div className="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-8.954-4.477a.75.75 0 0 0-.692 0L2.25 7.5m18 0v9a.75.75 0 0 1-.75.75h-4.5m5.25-9L12 12.75m0 0L3.75 7.5m8.25 5.25v9" />
+                  </svg>
+                  <span>{pelicula.generoPelicula || "Sin género"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                  <span>{pelicula.MPAA || "Sin clasificación"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                  <span>{pelicula.duracion ? `${pelicula.duracion} min` : "N/A"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5A2.25 2.25 0 0 1 5.25 5.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75" />
+                  </svg>
+                  <span>
+                    {pelicula.fechaEstreno
+                      ? new Date(pelicula.fechaEstreno).getFullYear()
+                      : "Sin fecha"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 pt-2">
+                <Button
+                  size="sm"
+                  className="w-full bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-sm"
+                  onClick={() => handleEdit(pelicula)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l .8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                  </svg>
+                  Editar Película
+                </Button>
+                <Button
+                  size="sm"
+                  className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-sm"
+                  onClick={() => handleDelete(pelicula)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                  </svg>
+                  Eliminar Película
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Modal edición */}
       {peliculaToEdit && (
-        <ModalPeliculas 
+        <ModalPeliculas
           peliculaToEdit={peliculaToEdit}
-          onSuccess={handleEditSuccess} // ✅ Función ahora existe
+          onSuccess={handleEditSuccess}
           onClose={handleCloseEdit}
         />
       )}
 
-      {/* Modal de eliminación */}
+      {/* Modal eliminación */}
       {peliculaToDelete && (
-        <ModalDeletePeliculas 
+        <ModalDeletePeliculas
           pelicula={peliculaToDelete}
           onSuccess={handleRefresh}
           onClose={handleCloseDelete}
         />
       )}
-    </>
+    </div>
   );
 }
 

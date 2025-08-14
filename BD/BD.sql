@@ -1,6 +1,6 @@
 CREATE TABLE `tarifa` (
   `idTarifa` int NOT NULL AUTO_INCREMENT,
-  `precio` decimal(5,2) NOT NULL,
+  `precio` decimal(8,2) NOT NULL,
   `descripcionTarifa` varchar(45) NOT NULL,
   `fechaDesde` date NOT NULL,
   PRIMARY KEY (`idTarifa`)
@@ -66,6 +66,7 @@ CREATE TABLE `funcion` (
   `idSala` int NOT NULL,
   `fechaHoraFuncion` datetime NOT NULL,
   `idPelicula` int NOT NULL,
+  `estado` varchar(45) NOT NULL,
   PRIMARY KEY (`idSala`,`fechaHoraFuncion`),
   CONSTRAINT `funcion_ibfk_1` FOREIGN KEY (`idPelicula`) REFERENCES `pelicula` (`idPelicula`),
   CONSTRAINT `funcion_ibfk_2` FOREIGN KEY (`idSala`) REFERENCES `sala` (`idSala`)

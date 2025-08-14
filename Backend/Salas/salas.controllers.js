@@ -12,11 +12,6 @@ import {createManyForSala, updateManyForSala} from "./asientos.repository.js";
 
 export const getSalas = async (req, res) => {
   const salas = await getAll();
-  if (!salas || salas.length === 0) {
-    const error = new Error("No existen salas cargadas aún.");
-    error.status = 404;
-    throw error;
-  }
   res.json(salas);
 };
 

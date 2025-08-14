@@ -25,12 +25,12 @@ async function getOne(idSala_fechaHoraFuncion) {
 }
 
 async function createOne(data) {
-  const { idSala, idPelicula, fechaHoraFuncion } = data;
   const newFuncion = await prisma.funcion.create({
     data: {
-      fechaHoraFuncion: new Date(fechaHoraFuncion),
-      idSala: parseInt(idSala, 10),
-      idPelicula: parseInt(idPelicula, 10),
+      fechaHoraFuncion: new Date(data.fechaHoraFuncion),
+      idSala: parseInt(data.idSala, 10),
+      idPelicula: parseInt(data.idPelicula, 10),
+      estado: "Privada"
     },
   });
   return newFuncion;

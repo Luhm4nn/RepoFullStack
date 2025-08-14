@@ -12,6 +12,16 @@ export const getPeliculas = async () => {
   }
 };
 
+export const getPelicula = async (id) =>{
+  try {
+    const response = await axios.get(`${VITE_API_URL}/Pelicula/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching pelicula:", error);
+    throw error;
+  }
+}
+
 export const createPelicula = async (pelicula) => {
   try {
     const response = await axios.post(`${VITE_API_URL}/Pelicula`, pelicula);
