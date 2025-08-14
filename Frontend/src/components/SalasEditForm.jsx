@@ -3,6 +3,7 @@ import { Button, Label, Select } from "flowbite-react";
 import VIPSeatSelector from "./VIPSeatSelector";
 import { useState, useEffect } from "react";
 import salasEditSchema from "../validations/SalasEditSchema";
+import { getAsientosBySala } from "../api/Salas.api";
 
 export default function SalasEditForm({ sala, onSubmit, onCancel }) {
   const [vipSeats, setVipSeats] = useState([]);
@@ -13,7 +14,6 @@ export default function SalasEditForm({ sala, onSubmit, onCancel }) {
     const fetchCurrentVipSeats = async () => {
       try {
         // Importar la función de la API
-        const { getAsientosBySala } = await import("../api/Salas.api");
         const asientos = await getAsientosBySala(sala.idSala);
         
         const vipSeatsFromDb = asientos
