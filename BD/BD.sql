@@ -1,3 +1,10 @@
+
+DROP DATABASE IF EXISTS `tp-dsw`;
+
+CREATE DATABASE `tp-dsw`;
+
+USE `tp-dsw`;
+
 CREATE TABLE `tarifa` (
   `idTarifa` int NOT NULL AUTO_INCREMENT,
   `precio` decimal(8,2) NOT NULL,
@@ -18,6 +25,7 @@ CREATE TABLE `sala` (
   `asientosPorFila` int NOT NULL,
   PRIMARY KEY (`idSala`)
 );
+
 CREATE TABLE `cliente` (
   `DNI` int NOT NULL,
   `nombreCliente` varchar(45) NOT NULL,
@@ -26,6 +34,7 @@ CREATE TABLE `cliente` (
   `telefono` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`DNI`)
 );
+
 CREATE TABLE `parametro` (
   `idParametro` int NOT NULL AUTO_INCREMENT,
   `descripcionParametro` varchar(45) NOT NULL,
@@ -51,6 +60,7 @@ CREATE TABLE `pelicula` (
   `MPAA` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`idPelicula`)
 );
+
 CREATE TABLE `asiento` (
   `idSala` int NOT NULL,
   `filaAsiento` varchar(2) NOT NULL,
@@ -58,7 +68,7 @@ CREATE TABLE `asiento` (
   `tipo` varchar(45) NOT NULL,
   `idTarifa` int DEFAULT NULL,
   PRIMARY KEY (`idSala`,`filaAsiento`,`nroAsiento`),
-  CONSTRAINT `asiento_ibfk_1` FOREIGN KEY (`idTarifa`) REFERENCES `tarifa` (`idtarifa`),
+  CONSTRAINT `asiento_ibfk_1` FOREIGN KEY (`idTarifa`) REFERENCES `tarifa` (`idTarifa`),
   CONSTRAINT `asiento_ibfk_2` FOREIGN KEY (`idSala`) REFERENCES `sala` (`idSala`) ON DELETE CASCADE
 );
 
@@ -71,6 +81,7 @@ CREATE TABLE `funcion` (
   CONSTRAINT `funcion_ibfk_1` FOREIGN KEY (`idPelicula`) REFERENCES `pelicula` (`idPelicula`),
   CONSTRAINT `funcion_ibfk_2` FOREIGN KEY (`idSala`) REFERENCES `sala` (`idSala`)
 );
+
 CREATE TABLE `reserva` (
   `idSala` int NOT NULL,
   `fechaHoraFuncion` datetime NOT NULL,
@@ -83,7 +94,8 @@ CREATE TABLE `reserva` (
   CONSTRAINT `reserva_ibfk_1` FOREIGN KEY (`DNI`) REFERENCES `cliente` (`DNI`),
   CONSTRAINT `reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaHoraFuncion`) REFERENCES `funcion` (`idSala`, `fechaHoraFuncion`)
 );
-CREATE TABLE `asiento-reserva` (
+
+CREATE TABLE `asiento_reserva` (
   `idSala` int NOT NULL,
   `filaAsiento` varchar(2) NOT NULL,
   `nroAsiento` int NOT NULL,
@@ -91,8 +103,6 @@ CREATE TABLE `asiento-reserva` (
   `DNI` int NOT NULL,
   `fechaHoraReserva` datetime NOT NULL,
   PRIMARY KEY (`idSala`,`filaAsiento`,`nroAsiento`,`fechaHoraFuncion`),
-  CONSTRAINT `asiento-reserva_ibfk_1` FOREIGN KEY (`idSala`, `filaAsiento`, `nroAsiento`) REFERENCES `asiento` (`idSala`, `filaAsiento`, `nroAsiento`),
-  CONSTRAINT `asiento-reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaHoraFuncion`, `DNI`, `fechaHoraReserva`) REFERENCES `reserva` (`idSala`, `fechaHoraFuncion`, `DNI`, `fechaHoraReserva`)
+  CONSTRAINT `asiento_reserva_ibfk_1` FOREIGN KEY (`idSala`, `filaAsiento`, `nroAsiento`) REFERENCES `asiento` (`idSala`, `filaAsiento`, `nroAsiento`),
+  CONSTRAINT `asiento_reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaHoraFuncion`, `DNI`, `fechaHoraReserva`) REFERENCES `reserva` (`idSala`, `fechaHoraFuncion`, `DNI`, `fechaHoraReserva`)
 );
-
-

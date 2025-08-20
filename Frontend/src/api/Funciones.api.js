@@ -1,4 +1,5 @@
 import axios from "axios";
+import {formatToISO8601} from "../utils/dateFormater.js";
 
 const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
@@ -25,10 +26,7 @@ export const createFuncion = async (funcion) => {
 
 export const updateFuncion = async (idSala, fechaHoraFuncion, funcion) => {
   try {
-    const url = `${VITE_API_URL}/Funcion/${idSala}/${fechaHoraFuncion}`;
-    console.log('Calling updateFuncion with URL:', url);
-    console.log('Data to send:', funcion);
-    
+    const url = `${VITE_API_URL}/Funcion/${idSala}/${formatToISO8601(fechaHoraFuncion)}`;
     const response = await axios.put(url, funcion);
     return response.data;
   } catch (error) {

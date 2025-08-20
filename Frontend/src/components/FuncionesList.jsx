@@ -196,8 +196,8 @@ function FuncionesList() {
                          <Button 
                          size="sm" 
                          className={`w-full sm:w-auto text-sm ${
-                           funcion.estado === 'Privada' 
-                             ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' 
+                           funcion.estado === 'Privada'
+                             ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
                              : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
                          }`}
                          onClick={() => {
@@ -257,7 +257,7 @@ function FuncionesList() {
         </Table>
       </div>
 
-      {/* Responsive view para mobile */}
+      {/* view para mobile */}
       <div className="md:hidden space-y-4">
         {funciones.length === 0 ? (
           <div className="text-center py-8 text-gray-400">

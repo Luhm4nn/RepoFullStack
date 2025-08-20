@@ -15,7 +15,7 @@ async function getAll() {
 async function getOne(idSala_fechaHoraFuncion) {
   const funcion = await prisma.funcion.findUnique({
     where: {
-      idSala_fechaFuncion_horaInicioFuncion: {
+      idSala_fechaHoraFuncion: {
         idSala: parseInt(idSala_fechaHoraFuncion.idSala, 10),
         fechaHoraFuncion: idSala_fechaHoraFuncion.fechaHoraFuncion,
       },
