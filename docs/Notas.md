@@ -19,7 +19,6 @@
 - Funciones list me aparezca porcentaje de ocupacion de la sala para esa funcion
 - detalle de ganancia por funcion
 
-
 ## Otras cosas
 - ValiBot para el back
 - Dachboard
