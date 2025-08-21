@@ -5,7 +5,7 @@ import { getSalas } from "../api/Salas.api";
 import { getPeliculas } from "../api/Peliculas.api";
 import funcionesSchema from "../validations/FuncionesSchema";
 
-export default function FuncionesForm({ onSubmit }) {
+export default function FuncionesForm({ onSubmit, initialValues, isEditing = false, isSubmitting = false, onCancel }) {
   const [salas, setSalas] = useState([]);
   const [peliculas, setPeliculas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,6 +69,39 @@ export default function FuncionesForm({ onSubmit }) {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
+  // Función para convertir fecha UTC a formato datetime-local
+  const convertToDateTimeLocal = (utcString) => {
+    if (!utcString) return getCurrentDateTime();
+    
+    const date = new Date(utcString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  // Preparar valores iniciales
+  const getInitialValues = () => {
+    if (isEditing && initialValues) {
+      return {
+        idSala: String(initialValues.idSala || ''),
+        idPelicula: String(initialValues.idPelicula || ''),
+        fechaHoraFuncion: convertToDateTimeLocal(initialValues.fechaHoraFuncion),
+        estado: initialValues.estado || 'Privada'
+      };
+    }
+    
+    return { 
+      idSala: '',
+      idPelicula: '',
+      fechaHoraFuncion: getCurrentDateTime(),
+      estado: 'Privada'
+    };
+  };
+
   if (loading) {
     return (
       <div className="bg-slate-800 border-slate-700 p-4 md:p-6 rounded-lg shadow-lg">
@@ -79,15 +112,14 @@ export default function FuncionesForm({ onSubmit }) {
 
   return (
     <div className="bg-slate-800 border-slate-700 p-4 md:p-6 overflow-hidden scrollbar-none rounded-lg shadow-lg">
-      <h2 className="text-2xl text-white font-bold mb-4">Agregar Nueva Función</h2>
+      <h2 className="text-2xl text-white font-bold mb-4">
+        {isEditing ? 'Editar Función' : 'Agregar Nueva Función'}
+      </h2>
       
       <Formik
-        initialValues={{ 
-          idSala: '',
-          idPelicula: '',
-          fechaHoraFuncion: getCurrentDateTime(),
-        }}
+        initialValues={getInitialValues()}
         validationSchema={funcionesSchema}
+        enableReinitialize={true}
         onSubmit={(values, { resetForm, setSubmitting }) => {
           // Usar el formateador personalizado para evitar problemas de zona horaria
           const fechaHoraFormateada = formatearFechaHora(values.fechaHoraFuncion);
@@ -98,7 +130,9 @@ export default function FuncionesForm({ onSubmit }) {
           };
           
           onSubmit(valuesFormatted); 
-          resetForm(); 
+          if (!isEditing) {
+            resetForm(); 
+          }
           setSubmitting(false);
         }}
       >
@@ -153,13 +187,36 @@ export default function FuncionesForm({ onSubmit }) {
                 <ErrorMessage name="fechaHoraFuncion" component="span" className="text-red-500 text-sm" />
               </div>
 
+              {/* Estado - Solo en modo edición */}
+              {isEditing && (
+                <div>
+                  <Label htmlFor="estado" value="Estado" />
+                  <Field as={Select} name="estado" className="bg-slate-700 hover:bg-white/10 text-white">
+                    <option value="Privada" className="bg-slate-700 border-slate-600 hover:bg-white/10 text-white">Privada</option>
+                    <option value="Publica" className="bg-slate-700 border-slate-600 hover:bg-white/10 text-white">Pública</option>
+                  </Field>
+                  <ErrorMessage name="estado" component="span" className="text-red-500 text-sm" />
+                </div>
+              )}
+
             {/* Botones */}
             <div className="flex flex-col sm:flex-row sm:justify-end gap-4 pt-4">
-              <Button type="button" color className="text-white bg-slate-700 hover:bg-white/10" onClick={() => window.location.reload()}>
+              <Button 
+                type="button" 
+                color 
+                className="text-white bg-slate-700 hover:bg-white/10" 
+                onClick={onCancel || (() => window.location.reload())}
+                disabled={isSubmitting}
+              >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isSubmitting} color className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white">
-                {isSubmitting ? "Guardando..." : "Guardar Función"}
+              <Button 
+                type="submit" 
+                disabled={isSubmitting} 
+                color 
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+              >
+                {isSubmitting ? "Guardando..." : (isEditing ? "Actualizar Función" : "Guardar Función")}
               </Button>
             </div>
             </div>

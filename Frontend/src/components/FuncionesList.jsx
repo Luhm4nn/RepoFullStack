@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import formatearFecha from "../utils/formatearFecha";
 import ModalDeleteFuncion from "./ModalDeleteFuncion";
 import ModalPublishFuncion from "./ModalPublishFuncion";
+import ModalEditFuncion from "./ModalEditFuncion";
 
 function FuncionesList() {
   const [funciones, setFunciones] = useState([]);
@@ -23,6 +24,8 @@ function FuncionesList() {
   const [showModalPublish, setShowModalPublish] = useState(false);
   const [funcionToPublish, setFuncionToPublish] = useState(null);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [funcionToEdit, setFuncionToEdit] = useState(null);
 
   useEffect(() => {
     fetchFunciones();
@@ -95,6 +98,13 @@ function FuncionesList() {
     } finally {
       setIsPublishing(false);
     }
+  };
+
+  // Handler para edición exitosa
+  const handleEditSuccess = async () => {
+    await fetchFunciones();
+    setShowEditModal(false);
+    setFuncionToEdit(null);
   };
 
   // Handler para eliminar función
@@ -212,7 +222,10 @@ function FuncionesList() {
                               ? 'bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600' 
                               : '!bg-gray-400 !hover:bg-gray-400 cursor-not-allowed'
                           }`}
-                          onClick={() => funcion.estado === 'Privada' ? console.log('Editar función:', funcion) : null}
+                          onClick={() => funcion.estado === 'Privada' ? (() => {
+                            setFuncionToEdit(funcion);
+                            setShowEditModal(true);
+                          })() : null}
                           disabled={funcion.estado !== 'Privada'}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
@@ -336,7 +349,7 @@ function FuncionesList() {
                         ? 'bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600' 
                         : '!bg-gray-400 !hover:bg-gray-400 cursor-not-allowed'
                     }`}
-                    onClick={() => funcion.estado === 'Privada' ? console.log('Editar función:', funcion) : null}
+                    onClick={() => funcion.estado === 'Privada' ? a : null}
                     disabled={funcion.estado !== 'Privada'}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-4 mr-2">
@@ -395,6 +408,20 @@ function FuncionesList() {
               setFuncionToPublish(null); 
             }}
             isPublishing={isPublishing}
+          />
+        </div>
+      )}
+
+      {/* Modal para editar función */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <ModalEditFuncion
+            funcion={funcionToEdit}
+            onSuccess={handleEditSuccess}
+            onCancel={() => { 
+              setShowEditModal(false); 
+              setFuncionToEdit(null); 
+            }}
           />
         </div>
       )}

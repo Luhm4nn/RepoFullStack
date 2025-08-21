@@ -15,19 +15,6 @@ const funcionesSchema = Yup.object().shape({
       const ahora = new Date();
       return fechaFuncion > ahora;
     })
-    .test('hora-valida', 'La hora debe estar entre las 08:00 y las 23:59', function(value) {
-      if (!value) return false;
-      const fecha = new Date(value);
-      const horas = fecha.getHours();
-      const minutos = fecha.getMinutes();
-      
-      // Verificar que esté entre 8:00 y 23:59
-      if (horas < 8) return false;
-      if (horas > 23) return false;
-      if (horas === 23 && minutos > 59) return false;
-      
-      return true;
-    })
 });
 
 export default funcionesSchema;
