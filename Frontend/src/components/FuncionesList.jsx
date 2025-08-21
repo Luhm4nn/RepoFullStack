@@ -59,37 +59,28 @@ function FuncionesList() {
     }
     
     return {
-      fecha: formatearFecha(dateTimeString), // Usar el formateador existente
-      hora: `${hours}:${minutes}` // Mostrar hora tal como viene
+      fecha: formatearFecha(dateTimeString),
+      hora: `${hours}:${minutes}`
     };
   };
   const handlePublishFuncion = async () => {
     if (!funcionToPublish) return;
     setIsPublishing(true);
     try {
-      // Determinar el nuevo estado basado en el estado actual
+      //determinates new state based on the current state
       const nuevoEstado = funcionToPublish.estado === 'Privada' ? 'Publica' : 'Privada';
       
-      // Crear el objeto de actualización con solo el campo que necesita cambiar
       const funcionActualizada = {
         ...funcionToPublish,
         estado: nuevoEstado
       };
       
-      // Actualizar en el backend usando los parámetros separados
       const idSala = funcionToPublish.idSala;
       const fechaHoraFuncion = funcionToPublish.fechaHoraFuncion;
       
-      console.log('Actualizando función con:', { idSala, fechaHoraFuncion, nuevoEstado });
-      console.log('Función original:', funcionToPublish);
-      console.log('Función actualizada:', funcionActualizada);
-      
       await updateFuncion(idSala, fechaHoraFuncion, funcionActualizada);
-      
-      // Refrescar la lista
       await fetchFunciones();
       
-      // Cerrar modal
       setShowModalPublish(false);
       setFuncionToPublish(null);
       
@@ -219,7 +210,7 @@ function FuncionesList() {
                           className={`w-full sm:w-auto text-sm ${
                             funcion.estado === 'Privada' 
                               ? 'bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600' 
-                              : 'bg-gray-400 cursor-not-allowed'
+                              : '!bg-gray-400 !hover:bg-gray-400 cursor-not-allowed'
                           }`}
                           onClick={() => funcion.estado === 'Privada' ? console.log('Editar función:', funcion) : null}
                           disabled={funcion.estado !== 'Privada'}
@@ -234,7 +225,7 @@ function FuncionesList() {
                           className={`w-full sm:w-auto text-sm ${
                             funcion.estado === 'Privada' 
                               ? 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700' 
-                              : 'bg-gray-400 cursor-not-allowed'
+                              : '!bg-gray-400 !hover:bg-gray-400 cursor-not-allowed'
                           }`}
                           onClick={() => funcion.estado === 'Privada' ? (() => {
                             setFuncionToDelete(funcion);
@@ -343,7 +334,7 @@ function FuncionesList() {
                     className={`w-full text-sm ${
                       funcion.estado === 'Privada' 
                         ? 'bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600' 
-                        : 'bg-gray-400 cursor-not-allowed'
+                        : '!bg-gray-400 !hover:bg-gray-400 cursor-not-allowed'
                     }`}
                     onClick={() => funcion.estado === 'Privada' ? console.log('Editar función:', funcion) : null}
                     disabled={funcion.estado !== 'Privada'}
@@ -358,7 +349,7 @@ function FuncionesList() {
                     className={`w-full text-sm ${
                       funcion.estado === 'Privada' 
                         ? 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700' 
-                        : 'bg-gray-400 cursor-not-allowed'
+                        : '!bg-gray-400 !hover:bg-gray-400 cursor-not-allowed'
                     }`}
                     onClick={() => funcion.estado === 'Privada' ? (() => {
                       setFuncionToDelete(funcion);

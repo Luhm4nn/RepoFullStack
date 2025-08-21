@@ -96,8 +96,8 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
       {!isEditing && (
         <Button 
           onClick={() => setShowModal(true)}
-               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-          >
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white !rounded-lg"
+        >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               fill="none" 
@@ -286,14 +286,14 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                       type="button" 
                       onClick={handleClose}
                       disabled={isSubmitting}
-                      className="px-8 !bg-red-600 hover:!bg-red-700"
+                      className="px-8 !bg-red-600 hover:!bg-red-700 !rounded-lg"
                     >
                      Cancelar
                     </Button>
                     <Button 
                       type="submit" 
                       disabled={isSubmitting}
-                      className="!bg-gradient-to-r from-purple-600 to-blue-600 hover:!from-purple-700 hover:!to-blue-700 px-8"
+                      className="!bg-gradient-to-r from-purple-600 to-blue-600 hover:!from-purple-700 hover:!to-blue-700 px-8 !rounded-lg"
                     >
                       {isSubmitting ? "Guardando..." : (isEditing ? "Actualizar Película" : "Crear Película")}
                     </Button>

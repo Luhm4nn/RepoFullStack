@@ -60,6 +60,7 @@ async function updateOne(idSala_fechaHoraFuncion, data) {
       idSala: parseInt(data.idSala, 10),
       fechaHoraFuncion: new Date(data.fechaHoraFuncion),
       idPelicula: parseInt(data.idPelicula, 10),
+      estado: data.estado || "Privada",
     },
   });
   return updatedFuncion;
