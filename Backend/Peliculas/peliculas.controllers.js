@@ -11,7 +11,9 @@ import {
 export const getPeliculas = async (req, res) => {
   const peliculas = await getAll();
   if (!peliculas || peliculas.length === 0) {
-    console.log("No existen películas cargadas aún.");
+    const error = new Error("No existen películas cargadas aún.");
+    error.status = 404;
+    throw error;
   }
   res.json(peliculas);
 };
@@ -19,7 +21,9 @@ export const getPeliculas = async (req, res) => {
 export const getPelicula = async (req, res, next) => {
   const pelicula = await getOne(req.params.id);
   if (!pelicula) {
-    console.log("No existe la película solicitada.");
+    const error = new Error("Película no encontrada.");
+    error.status = 404;
+    throw error;
   }
   res.json(pelicula);
 };
@@ -31,12 +35,7 @@ export const createPelicula = async (req, res) => {
 
 export const deletePelicula = async (req, res, next) => {
   const deletedPelicula = await deleteOne(req.params.id);
-  res
-    .status(200)
-    .json({
-      message:
-        "Pelicula eliminada correctamente." + deletedPelicula.nombrePelicula,
-    });
+  res.status(200).json({ message: "Pelicula eliminada correctamente." });
 };
 
 export const updatePelicula = async (req, res) => {
