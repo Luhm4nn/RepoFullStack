@@ -39,7 +39,7 @@ export const errorHandler = (err, req, res, next) => {
   }
   // Assign the error properties to the appError object
   const status = appError.status || 500;
-  const message = appError.message || "Internal Server Error";
+  const message = appError.message || "Error interno del servidor";
   // finally, send the error response
   res.status(status).json({
     error: {

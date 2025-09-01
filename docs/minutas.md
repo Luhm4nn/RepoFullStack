@@ -46,7 +46,7 @@ Este documento contiene un registro de las reuniones realizadas para la planific
 
 ---
 
-## 📅 Reunión 3 - /08/2025
+## 📅 Reunión 3 - 01/08/2025
 
 **Participantes:** Emiliano, Diego
 **Objetivos:**
@@ -59,7 +59,53 @@ Este documento contiene un registro de las reuniones realizadas para la planific
 - Usar Axios para consumir la API.
 - Usar Tailwind para la estética.
 - Crear documentación.
+- Una vez comprendido como encarar el Front definir tareas individuales para cada uno.
 
 **Próximas tareas:**
 
 - Emiliano, Diego: Iniciar Creación de FrontEnd con la perspectiva del admin.
+
+---
+
+## 📅 Reunión 4 - 02/08/2025
+
+**Participantes:** Emiliano, Diego
+**Objetivos:**
+
+- Planificar desarrollo Frontend.
+- Determinar estética de la página.
+
+**Decisiones tomadas:**
+
+- Se acordó la paleta de colores para la página.
+- Se utilizará la librería de componentes de Flowbite.
+- Se utilizará la libreria de iconos de HeroIcons.
+
+**Próximas tareas:**
+
+- Diego: Gestionar Peliculas Front, Footer.
+- Emiliano: Gestionar Salas Front, Navbar.
+
+---
+
+## 📅 Reunión 5 - 09/08/2025
+
+**Participantes:** Emiliano, Diego
+**Objetivos:**
+
+- Planificar la continuacion del desarrollo Frontend.
+- Tratar de cerrar las ideas para la parte del admin.
+
+**Decisiones tomadas:**
+
+- Se acordó continuar con Tarifas y Popiedades Pages.
+- Se acordó hacer las secciones informativas.
+- Se acordó dejar para lo último por comodida la sección de Funciones.
+
+**Próximas tareas:**
+
+- Diego: Tarifas y Propiedades Front.
+- Emiliano: Terminos y condiciones, informativas y secciones secundarias.
+- Emiliano, Diego: Funciones Page (dejamos para lo último para poder utilizar la info de las otras Pages)
+
+---

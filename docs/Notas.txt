@@ -1,1 +1,0 @@
-- Eliminar capacidad de Sala: porque usamos _ count en el repository.
