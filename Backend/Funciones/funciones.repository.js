@@ -15,7 +15,7 @@ async function getAll() {
 async function getOne(idSala_fechaHoraFuncion) {
   const funcion = await prisma.funcion.findUnique({
     where: {
-      idSala_fechaHoraFuncion: {
+      idSala_fechaFuncion_horaInicioFuncion: {
         idSala: parseInt(idSala_fechaHoraFuncion.idSala, 10),
         fechaHoraFuncion: idSala_fechaHoraFuncion.fechaHoraFuncion,
       },
@@ -25,12 +25,12 @@ async function getOne(idSala_fechaHoraFuncion) {
 }
 
 async function createOne(data) {
+  const { idSala, idPelicula, fechaHoraFuncion } = data;
   const newFuncion = await prisma.funcion.create({
     data: {
-      fechaHoraFuncion: new Date(data.fechaHoraFuncion),
-      idSala: parseInt(data.idSala, 10),
-      idPelicula: parseInt(data.idPelicula, 10),
-      estado: "Privada"
+      fechaHoraFuncion: new Date(fechaHoraFuncion),
+      idSala: parseInt(idSala, 10),
+      idPelicula: parseInt(idPelicula, 10),
     },
   });
   return newFuncion;
@@ -60,7 +60,6 @@ async function updateOne(idSala_fechaHoraFuncion, data) {
       idSala: parseInt(data.idSala, 10),
       fechaHoraFuncion: new Date(data.fechaHoraFuncion),
       idPelicula: parseInt(data.idPelicula, 10),
-      estado: data.estado || "Privada",
     },
   });
   return updatedFuncion;

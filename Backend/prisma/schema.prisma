@@ -14,11 +14,26 @@ model asiento {
   tipo            String            @db.VarChar(45)
   idTarifa        Int?
   tarifa          tarifa?           @relation(fields: [idTarifa], references: [idTarifa], onDelete: NoAction, onUpdate: NoAction, map: "asiento_ibfk_1")
-  sala            sala              @relation(fields: [idSala], references: [idSala], onDelete: Cascade, onUpdate: NoAction, map: "asiento_ibfk_2")
+  sala            sala              @relation(fields: [idSala], references: [idSala], onDelete: NoAction, onUpdate: NoAction, map: "asiento_ibfk_2")
   asiento_reserva asiento_reserva[]
 
   @@id([idSala, filaAsiento, nroAsiento])
   @@index([idTarifa], map: "asiento_ibfk_1")
+}
+
+model asiento_reserva {
+  idSala           Int
+  filaAsiento      String   @db.VarChar(2)
+  nroAsiento       Int
+  fechaHoraFuncion DateTime @db.DateTime(0)
+  DNI              Int
+  fechaHoraReserva DateTime @db.DateTime(0)
+  asiento          asiento  @relation(fields: [idSala, filaAsiento, nroAsiento], references: [idSala, filaAsiento, nroAsiento], onDelete: NoAction, onUpdate: NoAction, map: "asiento-reserva_ibfk_1")
+  reserva          reserva  @relation(fields: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], references: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], onDelete: NoAction, onUpdate: NoAction, map: "asiento-reserva_ibfk_2")
+
+  @@id([idSala, filaAsiento, nroAsiento, fechaHoraFuncion])
+  @@index([idSala, fechaHoraFuncion, DNI, fechaHoraReserva], map: "asiento-reserva_ibfk_2")
+  @@map("asiento-reserva")
 }
 
 model cliente {
@@ -34,7 +49,6 @@ model funcion {
   idSala           Int
   fechaHoraFuncion DateTime  @db.DateTime(0)
   idPelicula       Int
-  estado           String    @db.VarChar(45)
   pelicula         pelicula  @relation(fields: [idPelicula], references: [idPelicula], onDelete: NoAction, onUpdate: NoAction, map: "funcion_ibfk_1")
   sala             sala      @relation(fields: [idSala], references: [idSala], onDelete: NoAction, onUpdate: NoAction, map: "funcion_ibfk_2")
   reserva          reserva[]
@@ -80,32 +94,17 @@ model reserva {
 }
 
 model sala {
-  idSala          Int       @id @default(autoincrement())
-  ubicacion       String    @db.VarChar(45)
-  filas           Int
-  asientosPorFila Int
-  asiento         asiento[]
-  funcion         funcion[]
+  idSala    Int       @id @default(autoincrement())
+  ubicacion String    @db.VarChar(45)
+  capacidad Int?
+  asiento   asiento[]
+  funcion   funcion[]
 }
 
 model tarifa {
   idTarifa          Int       @id @default(autoincrement())
-  precio            Decimal   @db.Decimal(8, 2)
+  precio            Decimal   @db.Decimal(5, 2)
   descripcionTarifa String    @db.VarChar(45)
   fechaDesde        DateTime  @db.Date
   asiento           asiento[]
-}
-
-model asiento_reserva {
-  idSala           Int
-  filaAsiento      String   @db.VarChar(2)
-  nroAsiento       Int
-  fechaHoraFuncion DateTime @db.DateTime(0)
-  DNI              Int
-  fechaHoraReserva DateTime @db.DateTime(0)
-  asiento          asiento  @relation(fields: [idSala, filaAsiento, nroAsiento], references: [idSala, filaAsiento, nroAsiento], onDelete: NoAction, onUpdate: NoAction, map: "asiento_reserva_ibfk_1")
-  reserva          reserva  @relation(fields: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], references: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], onDelete: NoAction, onUpdate: NoAction, map: "asiento_reserva_ibfk_2")
-
-  @@id([idSala, filaAsiento, nroAsiento, fechaHoraFuncion])
-  @@index([idSala, fechaHoraFuncion, DNI, fechaHoraReserva], map: "asiento_reserva_ibfk_2")
 }

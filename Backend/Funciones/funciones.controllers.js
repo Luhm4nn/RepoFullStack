@@ -10,6 +10,11 @@ import {
 
 export const getFunciones = async (req, res) => {
   const funciones = await getAll();
+  if (!funciones || funciones.length === 0) {
+    const error = new Error("No existen funciones cargadas aún.");
+    error.status = 404;
+    throw error;
+  }
   res.json(funciones);
 };
 
@@ -34,16 +39,6 @@ export const deleteFuncion = async (req, res) => {
 };
 
 export const updateFuncion = async (req, res) => {
-  const funcion = await getOne(req.params);
-  
-  if (req.body.estado && (req.body.estado === 'Privada' || req.body.estado === 'Publica')) {
-    const updatedFuncion = await updateOne(req.params, req.body);
-    res.status(200).json(updatedFuncion);
-  } 
-    else if (funcion.estado === "Privada") {
-    const updatedFuncion = await updateOne(req.params, req.body);
-    res.status(200).json(updatedFuncion);
-  } else {
-    res.status(403).json({ message: "No se puede actualizar una función pública, excepto para cambiar su estado." });
-  }
+  const updatedFuncion = await updateOne(req.params, req.body);
+  res.status(200).json(updatedFuncion);
 };
