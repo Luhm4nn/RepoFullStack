@@ -13,7 +13,7 @@ function PeliculasPage() {
     <div className="flex flex-col min-h-screen">
       <div className="container mx-auto p-6">
         <h1 className="text-3xl text-gray-200 font-bold">Gestión de Películas</h1>
-        <span className="text-gray-300 mt-1 mb-5 block">
+        <span className="text-gray-300 mt-1 mb-3 block">
           Aquí puedes gestionar las películas del cine.
         </span>
         

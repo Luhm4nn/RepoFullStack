@@ -12,6 +12,16 @@ export const getSalas = async () => {
   }
 }
 
+export const getSala = async (id) => {
+  try {
+    const response = await axios.get(`${VITE_API_URL}/Sala/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching sala:", error);
+    throw error;
+  }
+};
+
 export const createSala = async (sala) => {
   try {
     const response = await axios.post(`${VITE_API_URL}/Sala`, sala);

@@ -7,9 +7,20 @@
 - 
 
 
-- Main Page 
---- Peliculas --> Ver Peliculas, Crear Peliculas, etc
---- Salas
---- Funciones
---- Reportes --> Clintes actuales, informes de ventas, otros informes
---- Configuracion --> Parametros, Tarifas, alguna cosa mas
+## Funciones Page
+- Create basico hecho
+- Edit basico
+- Delete basico
+- No se puede crear una misma funcion en una misma sala para un horario ocupado (tener en  cuenta los parametros y la duracion de la pelicula)
+- Falta que aparezcan solo las activas (no se pasaron de fecha)
+- Si creo una funcion que esta privada y pasa la fecha de la funcion no me deberia dejar publicarla
+- Filtrado por sala y por pelicula
+- ver detalle por funcion, que me diga reservas actuales y asientos con mapita
+- Funciones list me aparezca porcentaje de ocupacion de la sala para esa funcion
+- detalle de ganancia por funcion
+
+## Otras cosas
+- ValiBot para el back
+- Dachboard
+- Unificacion de estilos
+- Cerrar admin (en general)
