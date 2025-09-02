@@ -1,6 +1,6 @@
 import { useState } from "react";
-import PeliculasList from "../components/PeliculasList";
-import ModalPeliculas from "../components/ModalPeliculas";
+import PeliculasList from "../components/Peliculas/PeliculasList";
+import ModalPeliculas from "../components/Peliculas/ModalPeliculas";
 
 function PeliculasPage() {
   const [refreshList, setRefreshList] = useState(0);

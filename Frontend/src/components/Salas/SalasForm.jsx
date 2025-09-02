@@ -1,6 +1,6 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, TextInput, Textarea, Select } from "flowbite-react";
-import salasSchema from "../validations/SalasSchema";
+import salaSchema from "../../validations/SalasSchema.js";
 import VIPSeatSelector from "./VIPSeatSelector";
 import { useState } from "react";
 

@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button, TextInput, Select, Textarea } from "flowbite-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { createPelicula, updatePelicula } from "../api/Peliculas.api";
-import peliculaSchema from "../validations/PeliculasSchema.js";
-import { formatToISO8601 } from "../utils/dateFormater.js";
+import { createPelicula, updatePelicula } from "../../api/Peliculas.api";
+import peliculaSchema from "../../validations/PeliculasSchema.js";
+import { formatToISO8601 } from "../../utils/dateFormater.js";
 
 function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
   const [showModal, setShowModal] = useState(false);

@@ -1,4 +1,4 @@
-import { getPeliculas } from "../api/Peliculas.api";
+import { getPeliculas } from "../../api/Peliculas.api";
 import {
   Table,
   TableBody,

@@ -1,17 +1,17 @@
 import { Routes, Route, Navigate } from "react-router-dom"
 import MainPage from "./pages/MainPage"
 import NotFound from "./pages/NotFound"
-import AdminNavbar from "./components/AdminNavbar"
+import AdminNavbar from "./components/Shared/AdminNavbar"
 import PeliculasPage from "./pages/PeliculasPage"
 import ConfiguracionPage from "./pages/ConfiguracionPage"
 import FuncionesPage from "./pages/FuncionesPage"
 import SalasPage from "./pages/SalasPage"
-import FooterComp from "./components/FooterComp"
+import FooterComp from "./components/Shared/FooterComp"
 import Terminos from "./pages/FooterPages/Terminos"
 import Privacity from "./pages/FooterPages/Privacity"
 import AboutMe from "./pages/FooterPages/AboutMe"
 import FAQ from "./pages/FooterPages/FAQ"
-import ScrollToTop from "./components/ScrollToTop"
+import ScrollToTop from "./components/Shared/ScrollToTop"
 
 
 function App() {

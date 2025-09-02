@@ -1,4 +1,4 @@
-import { getSalas, updateSala, deleteSala, getAsientosBySala } from "../api/Salas.api";
+import { getSalas, updateSala, deleteSala, getAsientosBySala } from "../../api/Salas.api";
 import {
   Table,
   TableBody,

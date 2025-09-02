@@ -1,4 +1,4 @@
-import { getFunciones, deleteFuncion, updateFuncion } from "../api/Funciones.api";
+import { getFunciones, deleteFuncion, updateFuncion } from "../../api/Funciones.api";
 import {
   Table,
   TableBody,
@@ -9,7 +9,7 @@ import {
   Button,
 } from "flowbite-react";
 import { useEffect, useState } from "react";
-import formatearFecha from "../utils/formatearFecha";
+import formatearFecha from "../../utils/formatearFecha";
 import ModalDeleteFuncion from "./ModalDeleteFuncion";
 import ModalPublishFuncion from "./ModalPublishFuncion";
 

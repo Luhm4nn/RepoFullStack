@@ -18,8 +18,8 @@ export const createFuncion = async (funcion) => {
     const response = await axios.post(`${VITE_API_URL}/Funcion`, funcion);
     return response.data;
   } catch (error) {
-    console.log(response.data);
     console.error("Error creating funcion:", error);
+    console.error("Error response:", error.response?.data);
     throw error;
   }
 }

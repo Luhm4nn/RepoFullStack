@@ -1,6 +1,6 @@
 import { Button } from "flowbite-react";
-import { formatearPrecio } from "../utils/formatearPrecio";
-import formatearFecha from "../utils/formatearFecha";
+import { formatearPrecio } from "../../utils/formatearPrecio";
+import formatearFecha from "../../utils/formatearFecha";
 
 function TarifaDelete({ tarifa, onConfirm, onCancel, isDeleting = false }) {
   // Validación de seguridad

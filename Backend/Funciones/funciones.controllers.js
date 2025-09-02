@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "./funciones.repository.js";
+} from "./funciones.service.js";
 
 // Controllers for Funciones
 
@@ -25,6 +25,12 @@ export const getFuncion = async (req, res, next) => {
 
 export const createFuncion = async (req, res) => {
   const newFuncion = await createOne(req.body);
+  if (newFuncion.name === "Solapamiento") {
+    return res.status(newFuncion.status).json({ 
+      message: newFuncion.message,
+      errorCode: "SOLAPAMIENTO_FUNCIONES" 
+    });
+  }
   res.status(201).json(newFuncion);
 };
 
@@ -35,14 +41,12 @@ export const deleteFuncion = async (req, res) => {
 
 export const updateFuncion = async (req, res) => {
   const funcion = await getOne(req.params);
-  
-  // Permitir cambio de estado entre Privada y Publica
+
+  // allows changes only when estado = "Privada", else can only change estado
   if (req.body.estado && (req.body.estado === 'Privada' || req.body.estado === 'Publica')) {
     const updatedFuncion = await updateOne(req.params, req.body);
     res.status(200).json(updatedFuncion);
-  } 
-  // Para otros cambios, solo permitir si la función está privada
-  else if (funcion.estado === "Privada") {
+  } else if (funcion.estado === "Privada") {
     const updatedFuncion = await updateOne(req.params, req.body);
     res.status(200).json(updatedFuncion);
   } else {

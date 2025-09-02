@@ -2,8 +2,8 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, Select } from "flowbite-react";
 import VIPSeatSelector from "./VIPSeatSelector";
 import { useState, useEffect } from "react";
-import salasEditSchema from "../validations/SalasEditSchema";
-import { getAsientosBySala } from "../api/Salas.api";
+import salaSchema from "../../validations/SalasSchema.js";
+import { getAsientosBySala } from "../../api/Salas.api";
 
 export default function SalasEditForm({ sala, onSubmit, onCancel }) {
   const [vipSeats, setVipSeats] = useState([]);

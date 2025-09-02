@@ -1,4 +1,4 @@
-import { getParametros, createParametro, updateParametro, deleteParametro } from "../api/Parametros.api";
+import { getParametros, createParametro, updateParametro, deleteParametro } from "../../api/Parametros.api";
 import { Card, Button, Modal, ModalBody, ModalHeader, } from "flowbite-react";
 import { useEffect, useState } from "react";
 import ParametrosForm from "./ParametroForm";

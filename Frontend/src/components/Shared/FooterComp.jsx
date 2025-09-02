@@ -1,6 +1,6 @@
 import {Link} from 'react-router-dom';
 import { useState } from 'react';
-import cutzyLogo from '../assets/cutzy-logo-blanco.png';
+import cutzyLogo from '../../assets/cutzy-logo-blanco.png';
 
 export default function FooterComp() {
   return (

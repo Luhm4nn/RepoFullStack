@@ -1,8 +1,8 @@
-import { getTarifas, createTarifa, updateTarifa, deleteTarifa } from "../api/Tarifas.api";
+import { getTarifas, createTarifa, updateTarifa, deleteTarifa } from "../../api/Tarifas.api";
 import { Card, Button, Modal, ModalBody, ModalHeader } from "flowbite-react";
 import { useEffect, useState } from "react";
-import formatearFecha from "../utils/formatearFecha";
-import { formatearPrecio } from "../utils/formatearPrecio";
+import formatearFecha from "../../utils/formatearFecha";
+import { formatearPrecio } from "../../utils/formatearPrecio";
 import TarifaForm from "./TarifaForm";
 import TarifaDelete from "./TarifaDelete";
 

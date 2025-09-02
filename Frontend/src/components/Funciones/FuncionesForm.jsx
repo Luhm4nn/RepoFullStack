@@ -1,9 +1,9 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, Select } from "flowbite-react";
 import { useState, useEffect } from "react";
-import { getSalas } from "../api/Salas.api";
-import { getPeliculas } from "../api/Peliculas.api";
-import funcionesSchema from "../validations/FuncionesSchema";
+import { getSalas } from "../../api/Salas.api";
+import { getPeliculas } from "../../api/Peliculas.api";
+import funcionesSchema from "../../validations/FuncionesSchema";
 
 export default function FuncionesForm({ onSubmit }) {
   const [salas, setSalas] = useState([]);
