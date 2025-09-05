@@ -9,7 +9,7 @@ import {
   Button,
 } from "flowbite-react";
 import { useEffect, useState } from "react";
-import formatearFecha from "../../utils/formatearFecha";
+import { formatDateTime } from "../../utils/dateFormater";
 import ModalDeleteFuncion from "./ModalDeleteFuncion";
 import ModalPublishFuncion from "./ModalPublishFuncion";
 
@@ -42,54 +42,24 @@ function FuncionesList() {
   }
 };
 
-  // Función para formatear fecha y hora
-  const formatDateTime = (dateTimeString) => {
-    if (!dateTimeString) return { fecha: 'Sin fecha', hora: 'Sin hora' };
-    
-    // Usar la misma lógica que formatearFecha para evitar problemas de zona horaria
-    const [fechaParte, horaParte] = dateTimeString.split('T');
-    const [year, month, day] = fechaParte.split('-');
-    const [hours, minutes] = horaParte.substring(0, 5).split(':'); // Solo tomar HH:mm
-    
-    // Crear fecha local sin conversión automática
-    const fechaLocal = new Date(year, month - 1, day, hours, minutes);
-    
-    if (isNaN(fechaLocal.getTime())) {
-      return { fecha: 'Fecha inválida', hora: 'Hora inválida' };
-    }
-    
-    return {
-      fecha: formatearFecha(dateTimeString), // Usar el formateador existente
-      hora: `${hours}:${minutes}` // Mostrar hora tal como viene
-    };
-  };
+  // Handler para publicar/privatizar función
   const handlePublishFuncion = async () => {
     if (!funcionToPublish) return;
     setIsPublishing(true);
     try {
       // Determinar el nuevo estado basado en el estado actual
       const nuevoEstado = funcionToPublish.estado === 'Privada' ? 'Publica' : 'Privada';
-      
-      // Crear el objeto de actualización con solo el campo que necesita cambiar
       const funcionActualizada = {
         ...funcionToPublish,
         estado: nuevoEstado
       };
-      
-      // Actualizar en el backend usando los parámetros separados
       const idSala = funcionToPublish.idSala;
       const fechaHoraFuncion = funcionToPublish.fechaHoraFuncion;
       
-      console.log('Actualizando función con:', { idSala, fechaHoraFuncion, nuevoEstado });
-      console.log('Función original:', funcionToPublish);
-      console.log('Función actualizada:', funcionActualizada);
-      
       await updateFuncion(idSala, fechaHoraFuncion, funcionActualizada);
       
-      // Refrescar la lista
       await fetchFunciones();
       
-      // Cerrar modal
       setShowModalPublish(false);
       setFuncionToPublish(null);
       
@@ -111,12 +81,9 @@ function FuncionesList() {
     if (!funcionToDelete) return;
     setIsDeleting(true);
     try {
-      // Extraer los parámetros necesarios para el endpoint
       const idSala = funcionToDelete.idSala;
       const fechaHoraFuncion = funcionToDelete.fechaHoraFuncion;
-      
-      console.log('Eliminando función con:', { idSala, fechaHoraFuncion });
-      
+
       await deleteFuncion(idSala, fechaHoraFuncion);
       await fetchFunciones();
       setShowDeleteModal(false);

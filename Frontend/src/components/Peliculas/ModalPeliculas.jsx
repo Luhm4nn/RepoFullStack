@@ -3,7 +3,7 @@ import { Button, TextInput, Select, Textarea } from "flowbite-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { createPelicula, updatePelicula } from "../../api/Peliculas.api";
 import peliculaSchema from "../../validations/PeliculasSchema.js";
-import { formatToISO8601 } from "../../utils/dateFormater.js";
+import { dateFormaterBackend } from "../../utils/dateFormater.js";
 
 function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
   const [showModal, setShowModal] = useState(false);
@@ -38,7 +38,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
       const cleanData = {
         ...values,
         duracion: parseInt(values.duracion),
-        fechaEstreno: values.fechaEstreno ? formatToISO8601(values.fechaEstreno) : null,
+        fechaEstreno: values.fechaEstreno ? dateFormaterBackend(values.fechaEstreno) : null,
         sinopsis: values.sinopsis || null,
         trailerURL: values.trailerURL || null,
         portada: values.portada || null,

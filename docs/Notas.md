@@ -8,10 +8,8 @@
 
 
 ## Funciones Page
-- Create basico hecho
+
 - Edit basico
-- Delete basico
-- No se puede crear una misma funcion en una misma sala para un horario ocupado (tener en  cuenta los parametros y la duracion de la pelicula)
 - Falta que aparezcan solo las activas (no se pasaron de fecha)
 - Si creo una funcion que esta privada y pasa la fecha de la funcion no me deberia dejar publicarla
 - Filtrado por sala y por pelicula

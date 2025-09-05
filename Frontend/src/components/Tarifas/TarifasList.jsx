@@ -1,7 +1,7 @@
 import { getTarifas, createTarifa, updateTarifa, deleteTarifa } from "../../api/Tarifas.api";
 import { Card, Button, Modal, ModalBody, ModalHeader } from "flowbite-react";
 import { useEffect, useState } from "react";
-import formatearFecha from "../../utils/formatearFecha";
+import { formatDate } from "../../utils/dateFormater";
 import { formatearPrecio } from "../../utils/formatearPrecio";
 import TarifaForm from "./TarifaForm";
 import TarifaDelete from "./TarifaDelete";
@@ -212,7 +212,7 @@ function TarifasList() {
                         {formatearPrecio(tar.precio)}
                       </p>
                       <span className="text-xs text-gray-400">
-                        {"Fecha de Vigencia: " + formatearFecha(tar.fechaDesde)}
+                        {"Fecha de Vigencia: " + formatDate(tar.fechaDesde)}
                       </span>
                     </div>
                     <div className="flex gap-2 ml-4">

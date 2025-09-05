@@ -1,6 +1,6 @@
 import { Button } from "flowbite-react";
 import { formatearPrecio } from "../../utils/formatearPrecio";
-import formatearFecha from "../../utils/formatearFecha";
+import { formatDate } from "../../utils/dateFormater";
 
 function TarifaDelete({ tarifa, onConfirm, onCancel, isDeleting = false }) {
   // Validación de seguridad
@@ -29,7 +29,7 @@ function TarifaDelete({ tarifa, onConfirm, onCancel, isDeleting = false }) {
           Precio: <span className="font-semibold text-green-400">{formatearPrecio(tarifa.precio)}</span>
         </p>
         <p className="text-gray-300 text-center text-xs">
-          Vigencia: {formatearFecha(tarifa.fechaDesde)}
+          Vigencia: {formatDate(tarifa.fechaDesde)}
         </p>
       </div>
       
