@@ -1,6 +1,6 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, TextInput, Textarea } from "flowbite-react";
-import tarifaSchema from "../../validations/TarifasSchema.js";
+import tarifasSchema from "../../validations/TarifasSchema.js";
 
 export default function TarifaForm({ onSubmit, onCancel, initialData = null, isEditing = false }) {
   // Verificar si es una de las primeras dos tarifas del sistema

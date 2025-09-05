@@ -17,10 +17,10 @@ function ConfiguracionPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Parámetros */}
-          <ParametrosList key={refreshList} />
+          <ParametrosList key={`parametros-${refreshList}`} />
           
           {/* Tarifas */}
-          <TarifasList key={refreshList} />
+          <TarifasList key={`tarifas-${refreshList}`} />
 
     
       </div>
