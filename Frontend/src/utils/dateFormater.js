@@ -46,3 +46,62 @@ export const formatDateTime = (dateTimeString) => {
     hora: `${hours}:${minutes}` 
   };
 };
+
+// Format datetime-local input string to ISO format for backend
+export const formatDateTimeForBackend = (fechaHoraString) => {
+  if (!fechaHoraString) return null;
+  
+  // Extraer fecha y hora por separado
+  const [fecha, hora] = fechaHoraString.split('T');
+  const [year, month, day] = fecha.split('-');
+  const [hours, minutes] = hora.split(':');
+  
+  // Crear fecha local sin conversión automática de zona horaria
+  const fechaLocal = new Date(year, month - 1, day, hours, minutes);
+  
+  if (isNaN(fechaLocal.getTime())) {
+    return null;
+  }
+  
+  // Formatear manualmente para evitar conversión UTC
+  const yearStr = fechaLocal.getFullYear();
+  const monthStr = String(fechaLocal.getMonth() + 1).padStart(2, '0');
+  const dayStr = String(fechaLocal.getDate()).padStart(2, '0');
+  const hoursStr = String(fechaLocal.getHours()).padStart(2, '0');
+  const minutesStr = String(fechaLocal.getMinutes()).padStart(2, '0');
+  const secondsStr = String(fechaLocal.getSeconds()).padStart(2, '0');
+  
+  return `${yearStr}-${monthStr}-${dayStr}T${hoursStr}:${minutesStr}:${secondsStr}.000Z`;
+};
+
+// Get current datetime in datetime-local format
+export const getCurrentDateTime = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
+// Format date from ISO string to datetime-local input format
+export const formatDateForInput = (fechaHoraString) => {
+  if (!fechaHoraString) return getCurrentDateTime();
+  
+  // Extraer fecha y hora por separado
+  const [fecha, hora] = fechaHoraString.split('T');
+  const [year, month, day] = fecha.split('-');
+  const [hours, minutes] = hora.split(':');
+  
+  return `${year}-${month}-${day}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+};
+
+// Format date from ISO string to date input format (YYYY-MM-DD)
+export const formatDateForDateInput = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "";
+  return date.toISOString().split('T')[0]; 
+};

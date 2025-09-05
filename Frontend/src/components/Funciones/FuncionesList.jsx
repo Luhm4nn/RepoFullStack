@@ -7,11 +7,15 @@ import {
   TableHeadCell,
   TableRow,
   Button,
+  Modal,
+  ModalBody,
 } from "flowbite-react";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatDateTime } from "../../utils/dateFormater";
 import ModalDeleteFuncion from "./ModalDeleteFuncion";
 import ModalPublishFuncion from "./ModalPublishFuncion";
+import FuncionesForm from "./FuncionesForm";
 
 function FuncionesList() {
   const [funciones, setFunciones] = useState([]);
@@ -23,6 +27,10 @@ function FuncionesList() {
   const [showModalPublish, setShowModalPublish] = useState(false);
   const [funcionToPublish, setFuncionToPublish] = useState(null);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [funcionToEdit, setFuncionToEdit] = useState(null);
+  const [mostrarModalError, setMostrarModalError] = useState(false);
+  const [mensajeError, setMensajeError] = useState("");
 
   useEffect(() => {
     fetchFunciones();
@@ -93,6 +101,38 @@ function FuncionesList() {
       alert('Error eliminando función');
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleEditFuncion = (funcion) => {
+    setFuncionToEdit(funcion);
+    setShowEditModal(true);
+  };
+
+  // Handler para el submit del formulario de edición
+  const handleEditSubmit = async (funcionActualizada) => {
+    if (!funcionToEdit) return;
+    
+    try {
+      const idSalaOriginal = funcionToEdit.idSala;
+      const fechaHoraOriginal = funcionToEdit.fechaHoraFuncion;
+      
+      await updateFuncion(idSalaOriginal, fechaHoraOriginal, funcionActualizada);
+      await fetchFunciones();
+      setShowEditModal(false);
+      setFuncionToEdit(null);
+    } catch (error) {
+      console.error('Error actualizando función:', error);
+      
+      const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
+      
+      // Si hay error de solapamiento, mostrar el modal específico
+      if (error.response?.data?.errorCode === 'SOLAPAMIENTO_FUNCIONES') {
+        setMensajeError(errorMessage);
+        setMostrarModalError(true);
+      } else {
+        alert(`Error actualizando función: ${errorMessage}`);
+      }
     }
   };
 
@@ -188,7 +228,7 @@ function FuncionesList() {
                               ? 'bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600' 
                               : 'bg-gray-400 cursor-not-allowed'
                           }`}
-                          onClick={() => funcion.estado === 'Privada' ? console.log('Editar función:', funcion) : null}
+                          onClick={() => funcion.estado === 'Privada' ? handleEditFuncion(funcion) : null}
                           disabled={funcion.estado !== 'Privada'}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
@@ -312,7 +352,7 @@ function FuncionesList() {
                         ? 'bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600' 
                         : 'bg-gray-400 cursor-not-allowed'
                     }`}
-                    onClick={() => funcion.estado === 'Privada' ? console.log('Editar función:', funcion) : null}
+                    onClick={() => funcion.estado === 'Privada' ? handleEditFuncion(funcion) : null}
                     disabled={funcion.estado !== 'Privada'}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-4 mr-2">
@@ -373,6 +413,54 @@ function FuncionesList() {
             isPublishing={isPublishing}
           />
         </div>
+      )}
+
+      {/* Modal para editar función */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-slate-800 border border-slate-700 rounded-lg shadow-lg max-w-2xl mx-4 w-full max-h-[90vh] overflow-auto">
+            <FuncionesForm 
+              onSubmit={handleEditSubmit}
+              funcionToEdit={funcionToEdit}
+              isEditing={true}
+              onCancel={() => {
+                setShowEditModal(false);
+                setFuncionToEdit(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Error para Solapamientos */}
+      {mostrarModalError && createPortal(
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-slate-800 border border-slate-700 p-6 rounded-lg shadow-lg max-w-md mx-4 w-full">
+            <h2 className="text-2xl text-white font-bold mb-4 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 text-orange-500">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+              </svg>
+               Conflicto de Horarios
+            </h2>
+            <div className="mb-4 p-3 bg-slate-700/50 rounded-lg">
+              <p className="text-gray-300 text-center text-sm">
+                {mensajeError}
+              </p>
+            </div>
+            <p className="mb-5 text-sm text-gray-300 text-center">
+              Por favor, selecciona un horario diferente que no se solape con otras funciones.
+            </p>
+            <div className="flex justify-center">
+              <Button 
+                onClick={() => setMostrarModalError(false)}
+                className="w-full sm:w-auto text-white bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-sm"
+              >
+                Entendido
+              </Button>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

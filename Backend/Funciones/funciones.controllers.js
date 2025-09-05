@@ -25,7 +25,7 @@ export const getFuncion = async (req, res, next) => {
 
 export const createFuncion = async (req, res) => {
   const newFuncion = await createOne(req.body);
-  if (newFuncion.name === "Solapamiento") {
+  if (newFuncion && newFuncion.name === "Solapamiento") {
     return res.status(newFuncion.status).json({ 
       message: newFuncion.message,
       errorCode: "SOLAPAMIENTO_FUNCIONES" 
@@ -45,9 +45,23 @@ export const updateFuncion = async (req, res) => {
   // allows changes only when estado = "Privada", else can only change estado
   if (req.body.estado && (req.body.estado === 'Privada' || req.body.estado === 'Publica')) {
     const updatedFuncion = await updateOne(req.params, req.body);
+    // Verificar si hay error de solapamiento
+    if (updatedFuncion && updatedFuncion.name === "Solapamiento") {
+      return res.status(updatedFuncion.status).json({ 
+        message: updatedFuncion.message,
+        errorCode: "SOLAPAMIENTO_FUNCIONES" 
+      });
+    }
     res.status(200).json(updatedFuncion);
   } else if (funcion.estado === "Privada") {
     const updatedFuncion = await updateOne(req.params, req.body);
+    // Verificar si hay error de solapamiento
+    if (updatedFuncion && updatedFuncion.name === "Solapamiento") {
+      return res.status(updatedFuncion.status).json({ 
+        message: updatedFuncion.message,
+        errorCode: "SOLAPAMIENTO_FUNCIONES" 
+      });
+    }
     res.status(200).json(updatedFuncion);
   } else {
     res.status(403).json({ message: "No se puede actualizar una función pública, excepto para cambiar su estado." });

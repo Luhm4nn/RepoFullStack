@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Button, Modal, ModalBody } from "flowbite-react";
 import FuncionesList from "../components/Funciones/FuncionesList";
 import FuncionesForm from "../components/Funciones/FuncionesForm";
@@ -12,18 +13,25 @@ function FuncionesPage() {
 
   const handleSubmit = async (values) => {
     try {
+      console.log("Creando función con valores:", values);
       await createFuncion(values);
       setMostrarFormulario(false);
       setRefreshList(prev => prev + 1);
       
     } catch (error) {
       console.error('Error al crear función:', error);
+      console.error('Error response:', error.response);
+      console.error('Error response data:', error.response?.data);
       
       // Verificar si es error de solapamiento
       const errorCode = error.response?.data?.errorCode;
       const errorMessage = error.response?.data?.message || error.message;
       
+      console.log('Error code:', errorCode);
+      console.log('Error message:', errorMessage);
+      
       if (errorCode === "SOLAPAMIENTO_FUNCIONES") {
+        console.log('Mostrando modal de solapamiento...');
         setMensajeError(errorMessage);
         setMostrarModalError(true);
       } else {
@@ -34,6 +42,12 @@ function FuncionesPage() {
 
   const closeModal = () => {
     setMostrarFormulario(false);
+    setMostrarModalError(false); // También cerrar el modal de error cuando se cierre el formulario
+  };
+
+  const openFormulario = () => {
+    setMostrarModalError(false); // Cerrar modal de error antes de abrir formulario
+    setMostrarFormulario(true);
   };
 
   return (
@@ -46,7 +60,7 @@ function FuncionesPage() {
         
         <div className="mb-6">
           <Button 
-            onClick={() => setMostrarFormulario(true)}
+            onClick={openFormulario}
             className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
           >
             <svg 
@@ -83,19 +97,9 @@ function FuncionesPage() {
         <FuncionesList key={refreshList} />
 
         {/* Modal de Error para Solapamientos */}
-        <Modal 
-          show={mostrarModalError} 
-          onClose={() => setMostrarModalError(false)}
-          size="md"
-          theme={{
-            content: {
-              base: "relative h-full w-full p-4 flex items-center justify-center min-h-screen",
-              inner: "relative rounded-lg bg-slate-800 shadow flex flex-col max-h-[90vh] w-full max-w-md mx-auto"
-            }
-          }}
-        >
-          <ModalBody className="p-0">
-            <div className="bg-slate-800 border-slate-700 p-6 rounded-lg shadow-lg">
+        {mostrarModalError && createPortal(
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-slate-800 border border-slate-700 p-6 rounded-lg shadow-lg max-w-md mx-4 w-full">
               <h2 className="text-2xl text-white font-bold mb-4 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 text-orange-500">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
@@ -119,8 +123,9 @@ function FuncionesPage() {
                 </Button>
               </div>
             </div>
-          </ModalBody>
-        </Modal>
+          </div>,
+          document.body
+        )}
       </div>
     </div>
   );
