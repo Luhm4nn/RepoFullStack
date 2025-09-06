@@ -35,6 +35,9 @@ function SalasList() {
     try {
       setLoading(true);
       const data = await getSalas();
+      data.sort((a, b) => 
+      a.nombreSala.localeCompare(b.nombreSala)
+    );
       setSalas(data);
       setError(null);
     } catch (error) {
@@ -171,9 +174,9 @@ function SalasList() {
               </TableRow>
             ) : (
               salas.map((sala) => (
-                <TableRow key={sala.idSala} className="bg-slate-800/50 hover:bg-white/10 text-gray-300 border-slate-700">
+                <TableRow key={sala.nombreSala} className="bg-slate-800/50 hover:bg-white/10 text-gray-300 border-slate-700">
                   <TableCell className="whitespace-nowrap font-medium text-white">
-                    {sala.idSala || 'Sin ID'}
+                    {sala.nombreSala || 'Sin Nombre'}
                   </TableCell>
                   <TableCell>{sala.ubicacion || 'Sin ubicación'}</TableCell>
                   <TableCell>

@@ -20,6 +20,7 @@ VALUES
 
 CREATE TABLE `sala` (
   `idSala` int NOT NULL AUTO_INCREMENT,
+  `nombreSala` varchar(45) NOT NULL UNIQUE,
   `ubicacion` varchar(45) NOT NULL,
   `filas` int NOT NULL,
   `asientosPorFila` int NOT NULL,

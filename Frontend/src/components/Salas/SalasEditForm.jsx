@@ -46,11 +46,12 @@ export default function SalasEditForm({ sala, onSubmit, onCancel }) {
   return (
     <div className="bg-slate-800 border-slate-700 p-4 md:p-6 overflow-hidden scrollbar-none rounded-lg shadow-lg">
       <h2 className="text-2xl text-white font-bold mb-4">
-        Editar Sala {sala.idSala}
+        Editar Sala {sala.nombreSala}
       </h2>
       
       <Formik
-        initialValues={{ 
+        initialValues={{
+          nombreSala: sala.nombreSala || '',
           ubicacion: sala.ubicacion || '',
         }}
         validationSchema={salasEditSchema}

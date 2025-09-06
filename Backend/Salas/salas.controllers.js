@@ -20,6 +20,13 @@ export const getSala = async (req, res) => {
   res.json(sala);
 };
 
+export const checkNombreSala = async (req, res) => {
+  const { nombreSala } = req.params;
+  const salas = await getAll();
+  const exists = salas.some(sala => sala.nombreSala === nombreSala);
+  res.json({ exists });
+};
+
 export const getAsientos = async (req, res) => {
   const { id } = req.params;
   const asientos = await asientosRepository.getAll(id);

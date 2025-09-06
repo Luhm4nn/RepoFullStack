@@ -22,6 +22,16 @@ export const getSala = async (id) => {
   }
 };
 
+export const checkSalaExists = async (nombreSala) => {
+  try {
+    const response = await axios.get(`${VITE_API_URL}/Sala/check/${nombreSala}`);
+    return response.data.exists;
+  } catch (error) {
+    console.error("Error checking sala:", error);
+    return false;
+  }
+};
+
 export const createSala = async (sala) => {
   try {
     const response = await axios.post(`${VITE_API_URL}/Sala`, sala);
