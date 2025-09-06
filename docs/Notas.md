@@ -9,7 +9,6 @@
 
 ## Funciones Page
 
-- Edit basico
 - Falta que aparezcan solo las activas (no se pasaron de fecha)
 - Si creo una funcion que esta privada y pasa la fecha de la funcion no me deberia dejar publicarla
 - Filtrado por sala y por pelicula
@@ -19,6 +18,6 @@
 
 ## Otras cosas
 - ValiBot para el back
-- Dachboard
+- Dasshboard
 - Unificacion de estilos
 - Cerrar admin (en general)
