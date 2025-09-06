@@ -51,7 +51,6 @@ export default function SalasEditForm({ sala, onSubmit, onCancel }) {
       
       <Formik
         initialValues={{
-          nombreSala: sala.nombreSala || '',
           ubicacion: sala.ubicacion || '',
         }}
         validationSchema={salasEditSchema}
