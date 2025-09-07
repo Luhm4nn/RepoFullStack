@@ -53,9 +53,7 @@ export default function FuncionesForm({ onSubmit, funcionToEdit = null, isEditin
         }}
         validationSchema={funcionesSchema}
         onSubmit={(values, { resetForm, setSubmitting }) => {
-          // Usar el formateador centralizado para evitar problemas de zona horaria
-          const fechaHoraFormateada = formatDateTimeForBackend(values.fechaHoraFuncion);
-          
+          const fechaHoraFormateada = formatDateTimeForBackend(values.fechaHoraFuncion);          
           const valuesFormatted = {
             ...values,
             fechaHoraFuncion: fechaHoraFormateada
