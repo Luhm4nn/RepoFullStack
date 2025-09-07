@@ -79,4 +79,17 @@ async function getFuncionesBySala(idSala) {
   return funciones;
 }
 
-export { getAllDB, getOneDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala };
+async function getFuncionesByPelicula(idPelicula) {
+  const funciones = await prisma.funcion.findMany({
+    where: {
+      idPelicula: parseInt(idPelicula, 10),
+    },
+    include: {
+      sala: true,
+      pelicula: true,
+    },
+  });
+  return funciones;
+}
+
+export { getAllDB, getOneDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala, getFuncionesByPelicula };

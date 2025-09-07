@@ -19,7 +19,6 @@ export const createFuncion = async (funcion) => {
     return response.data;
   } catch (error) {
     console.error("Error creating funcion:", error);
-    console.error("Error response:", error.response?.data);
     throw error;
   }
 }
@@ -31,7 +30,6 @@ export const updateFuncion = async (idSala, fechaHoraFuncion, funcion) => {
     return response.data;
   } catch (error) {
     console.error("Error updating funcion:", error);
-    console.error("Error response:", error.response?.data);
     throw error;
   }
 }

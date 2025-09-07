@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ERROR_CODES } from '../constants/errorCodes';
 
 // Custom hook to manage a unified error modal
 
@@ -30,8 +31,8 @@ export const useErrorModal = () => {
   const handleApiError = (apiError) => {
     const errorCode = apiError.response?.data?.errorCode;
     const errorMessage = apiError.response?.data?.message || apiError.message || 'Error desconocido';
-    
-    if (errorCode === 'SOLAPAMIENTO_FUNCIONES' || errorCode === 'FECHA_ESTRENO_INVALIDA') {
+
+    if (ERROR_CODES.includes(errorCode)) {
       showError(errorCode, errorMessage);
       return true; 
     }

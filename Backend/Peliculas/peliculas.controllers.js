@@ -41,5 +41,13 @@ export const deletePelicula = async (req, res) => {
 
 export const updatePelicula = async (req, res) => {
   const updatedPelicula = await updateOne(req.params.id, req.body);
-  res.status(200).json(updatedPelicula);
+  if (updatedPelicula) {
+    if (updatedPelicula.name === "FECHA_ESTRENO") {
+       return res.status(updatedPelicula.status).json({
+          message: updatedPelicula.message,
+          errorCode: updatedPelicula.name
+        });
+    }
+    res.status(200).json(updatedPelicula);
+  }
 };

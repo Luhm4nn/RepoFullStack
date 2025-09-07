@@ -6,8 +6,8 @@ import {
     updateOne as updateOneDB 
 } from './asientos.repository.js';
 
-export const getAll = async () => {
-    const asientos = await getAllDB();
+export const getAll = async (idSala) => {
+    const asientos = await getAllDB(idSala);
     return asientos;
 };
 

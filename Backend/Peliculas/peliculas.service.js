@@ -5,6 +5,9 @@ import {
     deleteOne as deleteOneDB, 
     updateOne as updateOneDB 
 } from './peliculas.repository.js';
+import { getFuncionesByPeliculaId } from '../Funciones/funciones.service.js';
+import { formatDateForBackendMessage, formatDateTimeForBackendMessage } from '../utils/dateFormater.js';
+
 
 export const getAll = async () => {
     const peliculas = await getAllDB();
@@ -17,7 +20,7 @@ export const getOne = async (id) => {
 };
 
 export const createOne = async (data) => {
-    // TODO: Implementar validaciones de negocio aquí
+    // TODO: Implementar validaciones de negocio aquí (Valibot)
     // Ejemplo: validar fechas de estreno, duración positiva, géneros válidos, etc.
     
     const newPelicula = await createOneDB(data);
@@ -39,10 +42,28 @@ export const updateOne = async (id, data) => {
         error.status = 404;
         throw error;
     }
-    
-    // TODO: Implementar validaciones de negocio aquí
-    // Ejemplo: validar cambios de fecha de estreno vs funciones existentes, etc.
-    
+    const errorValidations = await validationsEstreno({ id, ...data });
+    if(errorValidations){
+        return errorValidations;
+    }
     const updatedPelicula = await updateOneDB(id, data);
     return updatedPelicula;
 };
+
+async function validationsEstreno (data) {
+    const fechaNueva = new Date(data.fechaEstreno);
+    const funciones = await getFuncionesByPeliculaId(data.id);
+    if (funciones && funciones.length > 0) {
+        for (const funcion of funciones) {
+            if (new Date(funcion.fechaHoraFuncion) < fechaNueva) {
+                const fechaEstrenoFormateada = formatDateForBackendMessage(fechaNueva);
+                const fechaFuncionFormateada = formatDateTimeForBackendMessage(funcion.fechaHoraFuncion);
+                const error = new Error(`No se puede cambiar la fecha de estreno al ${fechaEstrenoFormateada} porque ya hay funciones programadas anteriormente.`);
+                error.status = 400;
+                error.name = "FECHA_ESTRENO";
+                return error;
+            }
+        }
+    }
+    return null;
+}

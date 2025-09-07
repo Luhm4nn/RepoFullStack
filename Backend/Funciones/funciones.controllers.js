@@ -25,16 +25,16 @@ export const getFuncion = async (req, res, next) => {
 
 export const createFuncion = async (req, res) => {
   const newFuncion = await createOne(req.body);
-  if (newFuncion && newFuncion.name === "Solapamiento") {
+  if (newFuncion && newFuncion.name === "SOLAPAMIENTO_FUNCIONES") {
     return res.status(newFuncion.status).json({ 
       message: newFuncion.message,
-      errorCode: "SOLAPAMIENTO_FUNCIONES" 
+      errorCode: newFuncion.name 
     });
   }
-  if (newFuncion && newFuncion.name === "FechaEstreno") {
+  if (newFuncion && newFuncion.name === "FECHA_ESTRENO_INVALIDA") {
     return res.status(newFuncion.status).json({ 
       message: newFuncion.message,
-      errorCode: "FECHA_ESTRENO_INVALIDA" 
+      errorCode: newFuncion.name
     });
   }
   res.status(201).json(newFuncion);
@@ -58,15 +58,15 @@ export const updateFuncion = async (req, res) => {
 
     //handle overlap and estreno error
     if (updatedFuncion) {
-      if (updatedFuncion.name === "Solapamiento") {
+      if (updatedFuncion.name === "SOLAPAMIENTO_FUNCIONES") {
         return res.status(updatedFuncion.status).json({
           message: updatedFuncion.message,
-          errorCode: "SOLAPAMIENTO_FUNCIONES"
+          errorCode: updatedFuncion.name
         });
-      } else if (updatedFuncion.name === "FechaEstreno") {
+      } else if (updatedFuncion.name === "FECHA_ESTRENO_INVALIDA") {
         return res.status(updatedFuncion.status).json({
           message: updatedFuncion.message,
-          errorCode: "FECHA_ESTRENO_INVALIDA"
+          errorCode: updatedFuncion.name
         });
       }
     }

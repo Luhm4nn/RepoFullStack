@@ -1,6 +1,8 @@
-import {getOneDB, getAllDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala} from './funciones.repository.js';
+import {getOneDB, getAllDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala, getFuncionesByPelicula} from './funciones.repository.js';
 import { getOne as getParametroRepository } from '../Parametros/parametros.repository.js';
-import { getOne as getPeliculaRepository } from '../Peliculas/peliculas.repository.js';   
+import { getOne as getPeliculaRepository } from '../Peliculas/peliculas.repository.js';
+import { formatDateForBackendMessage } from '../utils/dateFormater.js';   
+
 
 export const getAll = async () => {
     const funciones = await getAllDB();
@@ -28,6 +30,11 @@ export const createOne = async (data) => {
 export const deleteOne = async (id) => {
     const deletedFuncion = await deleteOneDB(id);
     return deletedFuncion;
+};
+
+export const getFuncionesByPeliculaId = async (idPelicula) => {
+    const funciones = await getFuncionesByPelicula(idPelicula);
+    return funciones;
 };
 
 export const updateOne = async (id, data) => {
@@ -73,9 +80,10 @@ const verificarFechaDeEstreno = async (nuevaFuncion, funcionExistente = null) =>
     fechaFinNueva.setMinutes(fechaFinNueva.getMinutes() + parseInt(pelicula.duracion, 10));
 
     if (fechaFinNueva < fechaEstreno) {
-        const error = new Error("La función no puede programarse antes del estreno de la película.");
+        const fechaEstrenoFormateada = formatDateForBackendMessage(fechaEstreno);
+        const error = new Error(`La película "${pelicula.nombrePelicula}" se estrena el ${fechaEstrenoFormateada}. La función no puede programarse antes del estreno de la película.`);
         error.status = 400;
-        error.name = "FechaEstreno";
+        error.name = "FECHA_ESTRENO_INVALIDA";
         return error;
     }
 
@@ -121,34 +129,18 @@ const verificarSolapamientos = async (nuevaFuncion, funcionExistente = null) => 
         const finExistenteMasLimpieza = new Date(fechaExistenteFin.getTime() + (tiempoLimpieza * 60000));
         const finNuevaMasLimpieza = new Date(nuevaFechaFin.getTime() + (tiempoLimpieza * 60000));
         
-        console.log("=== Verificando solapamiento ===");
-        console.log("Nueva función:");
-        console.log("  Inicio:", nuevaFechaInicio);
-        console.log("  Fin:", nuevaFechaFin);
-        console.log("  Fin + limpieza:", finNuevaMasLimpieza);
-        console.log("Función existente:");
-        console.log("  Inicio:", fechaExistenteInicio);
-        console.log("  Fin:", fechaExistenteFin);
-        console.log("  Fin + limpieza:", finExistenteMasLimpieza);
-        console.log("Duración nueva película:", duracionNuevaPelicula, "min");
-        console.log("Duración película existente:", duracionExistente, "min");
-        console.log("Tiempo de limpieza:", tiempoLimpieza, "min");
-        
         // Verificar si hay solapamiento
         const haySolapamiento = (
             (nuevaFechaInicio < finExistenteMasLimpieza && nuevaFechaFin > fechaExistenteInicio) ||
             (fechaExistenteInicio < finNuevaMasLimpieza && fechaExistenteFin > nuevaFechaInicio)
-        );
-        
-        console.log("¿Hay solapamiento?", haySolapamiento);
-        console.log("================================");
+        );        
         
         if (haySolapamiento) {
             const error = new Error(
                 `La función se solapa con otra función existente. Se requieren ${tiempoLimpieza} minutos de tiempo de limpieza entre funciones.`
             );
             error.status = 409;
-            error.name = "Solapamiento";
+            error.name = "SOLAPAMIENTO_FUNCIONES";
             return error;
         }
     }
