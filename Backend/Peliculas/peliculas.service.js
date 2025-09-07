@@ -57,7 +57,6 @@ async function validationsEstreno (data) {
         for (const funcion of funciones) {
             if (new Date(funcion.fechaHoraFuncion) < fechaNueva) {
                 const fechaEstrenoFormateada = formatDateForBackendMessage(fechaNueva);
-                const fechaFuncionFormateada = formatDateTimeForBackendMessage(funcion.fechaHoraFuncion);
                 const error = new Error(`No se puede cambiar la fecha de estreno al ${fechaEstrenoFormateada} porque ya hay funciones programadas anteriormente.`);
                 error.status = 400;
                 error.name = "FECHA_ESTRENO";
