@@ -25,10 +25,16 @@ export const getFuncion = async (req, res, next) => {
 
 export const createFuncion = async (req, res) => {
   const newFuncion = await createOne(req.body);
-  if (newFuncion && newFuncion.name === "Solapamiento") {
+  if (newFuncion && newFuncion.name === "SOLAPAMIENTO_FUNCIONES") {
     return res.status(newFuncion.status).json({ 
       message: newFuncion.message,
-      errorCode: "SOLAPAMIENTO_FUNCIONES" 
+      errorCode: newFuncion.name 
+    });
+  }
+  if (newFuncion && newFuncion.name === "FECHA_ESTRENO_INVALIDA") {
+    return res.status(newFuncion.status).json({ 
+      message: newFuncion.message,
+      errorCode: newFuncion.name
     });
   }
   res.status(201).json(newFuncion);
@@ -45,22 +51,24 @@ export const updateFuncion = async (req, res) => {
   // allows changes only when estado = "Privada", else can only change estado
   if (req.body.estado && (req.body.estado === 'Privada' || req.body.estado === 'Publica')) {
     const updatedFuncion = await updateOne(req.params, req.body);
-    // Verificar si hay error de solapamiento
-    if (updatedFuncion && updatedFuncion.name === "Solapamiento") {
-      return res.status(updatedFuncion.status).json({ 
-        message: updatedFuncion.message,
-        errorCode: "SOLAPAMIENTO_FUNCIONES" 
-      });
-    }
     res.status(200).json(updatedFuncion);
-  } else if (funcion.estado === "Privada") {
+  } 
+  else if (funcion.estado === "Privada") {
     const updatedFuncion = await updateOne(req.params, req.body);
-    // Verificar si hay error de solapamiento
-    if (updatedFuncion && updatedFuncion.name === "Solapamiento") {
-      return res.status(updatedFuncion.status).json({ 
-        message: updatedFuncion.message,
-        errorCode: "SOLAPAMIENTO_FUNCIONES" 
-      });
+
+    //handle overlap and estreno error
+    if (updatedFuncion) {
+      if (updatedFuncion.name === "SOLAPAMIENTO_FUNCIONES") {
+        return res.status(updatedFuncion.status).json({
+          message: updatedFuncion.message,
+          errorCode: updatedFuncion.name
+        });
+      } else if (updatedFuncion.name === "FECHA_ESTRENO_INVALIDA") {
+        return res.status(updatedFuncion.status).json({
+          message: updatedFuncion.message,
+          errorCode: updatedFuncion.name
+        });
+      }
     }
     res.status(200).json(updatedFuncion);
   } else {

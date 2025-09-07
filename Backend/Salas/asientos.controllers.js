@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "./asientos.repository.js";
+} from "./asientos.service.js";
 
 // Controllers for Asientos
 

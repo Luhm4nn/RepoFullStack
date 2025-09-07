@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "./clientes.repository.js";
+} from "./clientes.service.js";
 
 // Controllers for Clientes
 

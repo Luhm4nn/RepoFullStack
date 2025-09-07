@@ -11,26 +11,30 @@ import {
   ModalBody,
 } from "flowbite-react";
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { formatDateTime } from "../../utils/dateFormater";
 import ModalDeleteFuncion from "./ModalDeleteFuncion";
 import ModalPublishFuncion from "./ModalPublishFuncion";
 import FuncionesForm from "./FuncionesForm";
+import ErrorModal from "../Shared/ErrorModal";
+import { useErrorModal } from "../../hooks/useErrorModal";
 
 function FuncionesList() {
   const [funciones, setFunciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [funcionToDelete, setFuncionToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  
   const [showModalPublish, setShowModalPublish] = useState(false);
   const [funcionToPublish, setFuncionToPublish] = useState(null);
   const [isPublishing, setIsPublishing] = useState(false);
+  
   const [showEditModal, setShowEditModal] = useState(false);
   const [funcionToEdit, setFuncionToEdit] = useState(null);
-  const [mostrarModalError, setMostrarModalError] = useState(false);
-  const [mensajeError, setMensajeError] = useState("");
+  
+  const { error: modalError, handleApiError, hideError } = useErrorModal();
 
   useEffect(() => {
     fetchFunciones();
@@ -72,13 +76,12 @@ function FuncionesList() {
       setFuncionToPublish(null);
       
     } catch (error) {
-      console.error('Error cambiando estado de función:', error);
-      console.error('Error response:', error.response);
-      console.error('Error data:', error.response?.data);
-      console.error('Error status:', error.response?.status);
-      
-      const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
-      alert(`Error cambiando estado de función: ${errorMessage}`);
+      console.error('Error publicando función:', error);
+      const wasHandled = handleApiError(error);
+      if (!wasHandled) {
+        const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
+        alert(`Error publicando función: ${errorMessage}`);
+      }
     } finally {
       setIsPublishing(false);
     }
@@ -123,14 +126,9 @@ function FuncionesList() {
       setFuncionToEdit(null);
     } catch (error) {
       console.error('Error actualizando función:', error);
-      
-      const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
-      
-      // Si hay error de solapamiento, mostrar el modal específico
-      if (error.response?.data?.errorCode === 'SOLAPAMIENTO_FUNCIONES') {
-        setMensajeError(errorMessage);
-        setMostrarModalError(true);
-      } else {
+      const wasHandled = handleApiError(error);
+      if (!wasHandled) {
+        const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
         alert(`Error actualizando función: ${errorMessage}`);
       }
     }
@@ -188,7 +186,7 @@ function FuncionesList() {
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 flex-shrink-0">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15l-.75 18H5.25L4.5 3Z" />
                         </svg>
-                        <span>Sala {funcion.sala?.idSala} - {funcion.sala?.ubicacion || 'Sin ubicación'}</span>
+                        <span>{funcion.sala?.nombreSala} - {funcion.sala?.ubicacion || 'Sin ubicación'}</span>
                       </div>
                     </TableCell>
                     <TableCell>{fecha}</TableCell>
@@ -226,7 +224,7 @@ function FuncionesList() {
                           className={`w-full sm:w-auto text-sm ${
                             funcion.estado === 'Privada' 
                               ? 'bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600' 
-                              : 'bg-gray-400 cursor-not-allowed'
+                              : 'bg-gray-500 text-gray-300 cursor-not-allowed'
                           }`}
                           onClick={() => funcion.estado === 'Privada' ? handleEditFuncion(funcion) : null}
                           disabled={funcion.estado !== 'Privada'}
@@ -241,7 +239,7 @@ function FuncionesList() {
                           className={`w-full sm:w-auto text-sm ${
                             funcion.estado === 'Privada' 
                               ? 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700' 
-                              : 'bg-gray-400 cursor-not-allowed'
+                              : 'bg-gray-500 text-gray-300 cursor-not-allowed'
                           }`}
                           onClick={() => funcion.estado === 'Privada' ? (() => {
                             setFuncionToDelete(funcion);
@@ -249,7 +247,7 @@ function FuncionesList() {
                           })() : null}
                           disabled={funcion.estado !== 'Privada'}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 mr-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
                             <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                           </svg>
                           Eliminar
@@ -285,10 +283,10 @@ function FuncionesList() {
                     </div>
                     <div>
                       <div className="font-medium text-white text-sm">
-                        {funcion.nombrePelicula || 'Sin película'}
+                        {funcion.pelicula?.nombrePelicula || 'Sin película'}
                       </div>
                       <div className="text-gray-400 text-xs">
-                        Sala {funcion.idSala} - {funcion.ubicacion || 'Sin ubicación'}
+                        {funcion.sala?.nombreSala} - {funcion.sala?.ubicacion || 'Sin ubicación'}
                       </div>
                     </div>
                   </div>
@@ -306,21 +304,20 @@ function FuncionesList() {
                   
                   <div className="flex items-center gap-2 text-gray-300">
                     <div className="w-6 h-6 bg-slate-700 rounded flex items-center justify-center flex-shrink-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 text-white">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                       </svg>
                     </div>
                     <span>{hora}</span>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2 text-gray-300 text-sm">
+                <div className="flex items-center gap-2 text-sm">
                   <div className="w-6 h-6 bg-slate-700 rounded flex items-center justify-center flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-4 mr-2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 text-white">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.745 3.745 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
                     </svg>
                   </div>
-                  <span>Duración: {funcion.duracion} minutos</span>
+                  <span className={`font-bold ${funcion.estado === 'Privada' ? 'text-red-500' : funcion.estado === 'Publica' ? 'text-green-500' : ''}`}>{funcion.estado}</span>
                 </div>
 
                 <div className="flex flex-col gap-2 pt-2">
@@ -328,7 +325,7 @@ function FuncionesList() {
                     size="sm" 
                     className={`w-full text-sm ${
                       funcion.estado === 'Privada' 
-                        ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' 
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700' 
                         : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
                     }`}
                     onClick={() => {
@@ -336,36 +333,36 @@ function FuncionesList() {
                       setShowModalPublish(true);
                     }}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-4 mr-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-2 text-white">
                       {funcion.estado === 'Privada' ? (
                         <path strokeLinecap="round" strokeLinejoin="round" d="m15 11.25-3-3m0 0-3 3m3-3v7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                       ) : (
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 1-4.243-4.243m4.242 4.242L9.88 9.88" />
                       )}
                     </svg>
-                    {funcion.estado === 'Privada' ? 'Publicar Función' : 'Privatizar Función'}
+                    {funcion.estado === 'Privada' ? 'Publicar' : 'Privatizar'}
                   </Button>                  
                   <Button 
                     size="sm" 
                     className={`w-full text-sm ${
                       funcion.estado === 'Privada' 
                         ? 'bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600' 
-                        : 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-gray-500 text-gray-300 cursor-not-allowed'
                     }`}
                     onClick={() => funcion.estado === 'Privada' ? handleEditFuncion(funcion) : null}
                     disabled={funcion.estado !== 'Privada'}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-4 mr-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l .8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                     </svg>
-                    Editar Función
+                    Editar
                   </Button>
                   <Button 
                     size="sm" 
                     className={`w-full text-sm ${
                       funcion.estado === 'Privada' 
                         ? 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700' 
-                        : 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-gray-500 text-gray-300 cursor-not-allowed'
                     }`}
                     onClick={() => funcion.estado === 'Privada' ? (() => {
                       setFuncionToDelete(funcion);
@@ -376,7 +373,7 @@ function FuncionesList() {
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                     </svg>
-                    Eliminar Función
+                    Eliminar
                   </Button>
                 </div>
               </div>
@@ -417,8 +414,17 @@ function FuncionesList() {
 
       {/* Modal para editar función */}
       {showEditModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-slate-800 border border-slate-700 rounded-lg shadow-lg max-w-2xl mx-4 w-full max-h-[90vh] overflow-auto">
+        <Modal show={showEditModal} onClose={() => {
+          setShowEditModal(false);
+          setFuncionToEdit(null);
+        }} size="xl"
+        theme={{
+          content: {
+            base: "relative h-full w-full p-4 flex items-center justify-center min-h-screen",
+            inner: "relative rounded-lg bg-slate-800 shadow flex flex-col max-h-[90vh] w-full max-w-md mx-auto"
+          }
+        }}>
+          <ModalBody className="p-0">
             <FuncionesForm 
               onSubmit={handleEditSubmit}
               funcionToEdit={funcionToEdit}
@@ -428,40 +434,12 @@ function FuncionesList() {
                 setFuncionToEdit(null);
               }}
             />
-          </div>
-        </div>
+          </ModalBody>
+        </Modal>
       )}
 
-      {/* Modal de Error para Solapamientos */}
-      {mostrarModalError && createPortal(
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-slate-800 border border-slate-700 p-6 rounded-lg shadow-lg max-w-md mx-4 w-full">
-            <h2 className="text-2xl text-white font-bold mb-4 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 text-orange-500">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-              </svg>
-               Conflicto de Horarios
-            </h2>
-            <div className="mb-4 p-3 bg-slate-700/50 rounded-lg">
-              <p className="text-gray-300 text-center text-sm">
-                {mensajeError}
-              </p>
-            </div>
-            <p className="mb-5 text-sm text-gray-300 text-center">
-              Por favor, selecciona un horario diferente que no se solape con otras funciones.
-            </p>
-            <div className="flex justify-center">
-              <Button 
-                onClick={() => setMostrarModalError(false)}
-                className="w-full sm:w-auto text-white bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-sm"
-              >
-                Entendido
-              </Button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+      {/* Modal de Error Unificado */}
+      <ErrorModal error={modalError} onClose={hideError} />
     </div>
   );
 }
