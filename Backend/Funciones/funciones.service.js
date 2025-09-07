@@ -1,4 +1,4 @@
-import {getOneDB, getAllDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala, getFuncionesByPelicula} from './funciones.repository.js';
+import {getOneDB, getAllDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala, getFuncionesByPelicula, getActiveFuncionesBD, getInactiveFuncionesBD} from './funciones.repository.js';
 import { getOne as getParametroRepository } from '../Parametros/parametros.repository.js';
 import { getOne as getPeliculaRepository } from '../Peliculas/peliculas.repository.js';
 import { formatDateForBackendMessage } from '../utils/dateFormater.js';   
@@ -12,6 +12,16 @@ export const getAll = async () => {
 export const getOne = async (id) => {
     const funcion = await getOneDB(id);
     return funcion;
+};
+
+export const getActiveFunciones = async () => {
+    const funciones = await getActiveFuncionesBD();
+    return funciones;
+};
+
+export const getInactiveFunciones = async () => {
+    const funciones = await getInactiveFuncionesBD();
+    return funciones;
 };
 
 export const createOne = async (data) => {
@@ -44,8 +54,7 @@ export const updateOne = async (id, data) => {
         error.status = 404;
         throw error;
     }
-    
-    // if Date, Sala or Pelicula is being changed, check for overlaps
+     // if Date, Sala or Pelicula is being changed, check for overlaps
     if (data.fechaHoraFuncion || data.idSala || data.idPelicula) {
         const datosParaValidar = {
             idSala: data.idSala || funcionExistente.idSala,
@@ -66,6 +75,8 @@ export const updateOne = async (id, data) => {
     return updatedFuncion;
 };
 
+
+// validation functions
 
 const verificarFechaDeEstreno = async (nuevaFuncion, funcionExistente = null) => {
     const pelicula = await getPeliculaRepository(nuevaFuncion.idPelicula);

@@ -92,4 +92,26 @@ async function getFuncionesByPelicula(idPelicula) {
   return funciones;
 }
 
-export { getAllDB, getOneDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala, getFuncionesByPelicula };
+async function getInactiveFuncionesBD() {
+  const funciones = await prisma.funcion.findMany({
+    where: { estado: 'Inactiva' },
+    include: {
+      sala: true,
+      pelicula: true,
+    },
+  });
+  return funciones;
+}
+
+async function getActiveFuncionesBD() {
+  const funciones = await prisma.funcion.findMany({
+    where: { estado: { not: 'Inactiva' } },
+    include: {
+      sala: true,
+      pelicula: true,
+    },
+  });
+  return funciones;
+}
+
+export { getAllDB, getOneDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala, getFuncionesByPelicula, getInactiveFuncionesBD, getActiveFuncionesBD };

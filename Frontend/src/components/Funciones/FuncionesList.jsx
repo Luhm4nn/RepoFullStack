@@ -1,4 +1,4 @@
-import { getFunciones, deleteFuncion, updateFuncion } from "../../api/Funciones.api";
+import { getFuncionesActivas, getFuncionesInactivas, deleteFuncion, updateFuncion } from "../../api/Funciones.api";
 import {
   Table,
   TableBody,
@@ -23,6 +23,8 @@ function FuncionesList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
+  const [mostrandoActivas, setMostrandoActivas] = useState(true);
+  
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [funcionToDelete, setFuncionToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -38,12 +40,12 @@ function FuncionesList() {
 
   useEffect(() => {
     fetchFunciones();
-  }, []);
+  }, [mostrandoActivas]); //Refresh when filter changes
 
  const fetchFunciones = async () => {
   try {
     setLoading(true);
-    const funcionesData = await getFunciones();
+    const funcionesData = mostrandoActivas ? await getFuncionesActivas() : await getFuncionesInactivas();
     setFunciones(funcionesData);
     setError(null);
   } catch (error) {
@@ -154,6 +156,26 @@ function FuncionesList() {
 
   return (
     <div className="w-full">
+      {/* Header con botón de filtro */}
+      <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <h2 className="text-xl font-semibold text-white">
+          {mostrandoActivas ? 'Funciones Activas' : 'Funciones Finalizadas'}
+        </h2>
+        <Button
+          onClick={() => setMostrandoActivas(!mostrandoActivas)}
+          className={`text-sm ${
+            mostrandoActivas 
+              ? '!bg-slate-600 hover:!bg-slate-700' 
+              : '!bg-orange-600 hover:!bg-orange-700'
+          }`}
+        >
+          {mostrandoActivas 
+            ? ' Ver Finalizadas' 
+            : ' Ver Activas'
+          }
+        </Button>
+      </div>
+      
       <div className="hidden md:block overflow-x-auto">
         <Table hoverable>
           <TableHead>
@@ -170,7 +192,10 @@ function FuncionesList() {
             {funciones.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-4">
-                  No hay funciones registradas
+                  {mostrandoActivas 
+                    ? 'No hay funciones activas registradas' 
+                    : 'No hay funciones finalizadas'
+                  }
                 </TableCell>
               </TableRow>
             ) : (
@@ -266,7 +291,10 @@ function FuncionesList() {
       <div className="md:hidden space-y-4">
         {funciones.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
-            No hay funciones registradas
+            {mostrandoActivas 
+              ? 'No hay funciones activas registradas' 
+              : 'No hay funciones finalizadas'
+            }
           </div>
         ) : (
           funciones.map((funcion) => {

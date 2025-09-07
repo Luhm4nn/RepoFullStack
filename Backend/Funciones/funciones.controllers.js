@@ -4,12 +4,43 @@ import {
   createOne,
   deleteOne,
   updateOne,
+  getActiveFunciones as getActiveFuncionesService,
+  getInactiveFunciones as getInactiveFuncionesService
 } from "./funciones.service.js";
 
 // Controllers for Funciones
 
 export const getFunciones = async (req, res) => {
-  const funciones = await getAll();
+  const { estado } = req.query;
+  
+  let funciones;
+  
+  switch (estado?.toLowerCase()) {
+    case 'activas':
+      funciones = await getActiveFuncionesService();
+      break;
+    case 'inactivas':
+      funciones = await getInactiveFuncionesService();
+      break;
+    case 'todas':
+      funciones = await getAll();
+      break;
+    default:
+      // default to 'activas' if no valid estado is provided
+      funciones = await getActiveFuncionesService();
+      break;
+  }
+  
+  res.json(funciones);
+};
+
+export const getActiveFuncionesEndpoint = async (req, res) => {
+  const funciones = await getActiveFuncionesService();
+  res.json(funciones);
+};
+
+export const getInactiveFuncionesEndpoint = async (req, res) => {
+  const funciones = await getInactiveFuncionesService();
   res.json(funciones);
 };
 
