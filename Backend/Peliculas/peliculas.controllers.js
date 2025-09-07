@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "./peliculas.repository.js";
+} from "./peliculas.service.js";
 
 // Controllers for Peliculas
 
@@ -19,7 +19,9 @@ export const getPeliculas = async (req, res) => {
 export const getPelicula = async (req, res, next) => {
   const pelicula = await getOne(req.params.id);
   if (!pelicula) {
-    console.log("No existe la película solicitada.");
+    const error = new Error("Película no encontrada.");
+    error.status = 404;
+    throw error;
   }
   res.json(pelicula);
 };
@@ -29,14 +31,12 @@ export const createPelicula = async (req, res) => {
   res.status(201).json(newPelicula);
 };
 
-export const deletePelicula = async (req, res, next) => {
+export const deletePelicula = async (req, res) => {
   const deletedPelicula = await deleteOne(req.params.id);
-  res
-    .status(200)
-    .json({
-      message:
-        "Pelicula eliminada correctamente." + deletedPelicula.nombrePelicula,
-    });
+  res.status(200).json({ 
+    message: "Película eliminada correctamente.",
+    pelicula: deletedPelicula 
+  });
 };
 
 export const updatePelicula = async (req, res) => {

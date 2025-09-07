@@ -31,6 +31,7 @@ function FuncionesList() {
   const [funcionToEdit, setFuncionToEdit] = useState(null);
   const [mostrarModalError, setMostrarModalError] = useState(false);
   const [mensajeError, setMensajeError] = useState("");
+  const [tipoError, setTipoError] = useState("");
 
   useEffect(() => {
     fetchFunciones();
@@ -124,10 +125,16 @@ function FuncionesList() {
     } catch (error) {
       console.error('Error actualizando función:', error);
       
+      const errorCode = error.response?.data?.errorCode;
       const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
       
-      // Si hay error de solapamiento, mostrar el modal específico
-      if (error.response?.data?.errorCode === 'SOLAPAMIENTO_FUNCIONES') {
+      // Manejar errores de validación con modal unificado
+      if (errorCode === 'SOLAPAMIENTO_FUNCIONES') {
+        setTipoError("SOLAPAMIENTO_FUNCIONES");
+        setMensajeError(errorMessage);
+        setMostrarModalError(true);
+      } else if (errorCode === 'FECHA_ESTRENO_INVALIDA') {
+        setTipoError("FECHA_ESTRENO_INVALIDA");
         setMensajeError(errorMessage);
         setMostrarModalError(true);
       } else {
@@ -188,7 +195,7 @@ function FuncionesList() {
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 flex-shrink-0">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15l-.75 18H5.25L4.5 3Z" />
                         </svg>
-                        <span>Sala {funcion.sala?.idSala} - {funcion.sala?.ubicacion || 'Sin ubicación'}</span>
+                        <span>{funcion.sala?.nombreSala} - {funcion.sala?.ubicacion || 'Sin ubicación'}</span>
                       </div>
                     </TableCell>
                     <TableCell>{fecha}</TableCell>
@@ -432,7 +439,7 @@ function FuncionesList() {
         </div>
       )}
 
-      {/* Modal de Error para Solapamientos */}
+      {/* Modal de Error para Solapamientos y Fecha de Estreno */}
       {mostrarModalError && createPortal(
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-slate-800 border border-slate-700 p-6 rounded-lg shadow-lg max-w-md mx-4 w-full">
@@ -440,7 +447,7 @@ function FuncionesList() {
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 text-orange-500">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
               </svg>
-               Conflicto de Horarios
+              {tipoError === "FECHA_ESTRENO_INVALIDA" ? "Fecha de Estreno Inválida" : "Conflicto de Horarios"}
             </h2>
             <div className="mb-4 p-3 bg-slate-700/50 rounded-lg">
               <p className="text-gray-300 text-center text-sm">
@@ -448,11 +455,16 @@ function FuncionesList() {
               </p>
             </div>
             <p className="mb-5 text-sm text-gray-300 text-center">
-              Por favor, selecciona un horario diferente que no se solape con otras funciones.
+              {tipoError === "FECHA_ESTRENO_INVALIDA"
+                ? "No puedes programar una función antes del estreno de la película."
+                : "Por favor, selecciona un horario diferente que no se solape con otras funciones."}
             </p>
             <div className="flex justify-center">
               <Button 
-                onClick={() => setMostrarModalError(false)}
+                onClick={() => {
+                  setMostrarModalError(false);
+                  setTipoError("");
+                }}
                 className="w-full sm:w-auto text-white bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-sm"
               >
                 Entendido

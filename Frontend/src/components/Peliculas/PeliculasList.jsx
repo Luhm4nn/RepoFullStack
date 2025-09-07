@@ -9,6 +9,7 @@ import {
   Button,
 } from "flowbite-react";
 import { useEffect, useState } from "react";
+import { formatDate } from "../../utils/dateFormater";
 import ModalPeliculas from "./ModalPeliculas";
 import ModalDeletePeliculas from "./ModalDeletePeliculas";
 
@@ -121,7 +122,7 @@ function PeliculasList({ refreshTrigger }) {
                   </TableCell>
                   <TableCell>
                     {pelicula.fechaEstreno
-                      ? new Date(pelicula.fechaEstreno).getFullYear()
+                      ? formatDate(pelicula.fechaEstreno)
                       : "Sin fecha"}
                   </TableCell>
                   <TableCell>
@@ -208,7 +209,7 @@ function PeliculasList({ refreshTrigger }) {
                   </svg>
                   <span>
                     {pelicula.fechaEstreno
-                      ? new Date(pelicula.fechaEstreno).getFullYear()
+                      ? formatDate(pelicula.fechaEstreno)
                       : "Sin fecha"}
                   </span>
                 </div>

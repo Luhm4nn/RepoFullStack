@@ -14,8 +14,12 @@ export const getOne = async (id) => {
 
 export const createOne = async (data) => {
     const solapamiento = await verificarSolapamientos(data);
+    const estrenoProblem = await verificarFechaDeEstreno(data);
     if (solapamiento) {
         return solapamiento;
+    }
+    if (estrenoProblem) {
+        return estrenoProblem;
     }
     const newFuncion = await createOneDB(data);
     return newFuncion;
@@ -34,23 +38,48 @@ export const updateOne = async (id, data) => {
         throw error;
     }
     
-    // Si se está cambiando la fecha/hora o la sala, verificar solapamientos
+    // if Date, Sala or Pelicula is being changed, check for overlaps
     if (data.fechaHoraFuncion || data.idSala || data.idPelicula) {
         const datosParaValidar = {
             idSala: data.idSala || funcionExistente.idSala,
             fechaHoraFuncion: data.fechaHoraFuncion || funcionExistente.fechaHoraFuncion,
             idPelicula: data.idPelicula || funcionExistente.idPelicula
         };
-        console.log("Función existente:", funcionExistente);
-        console.log("Datos para validar solapamientos:", datosParaValidar);
         const solapamiento = await verificarSolapamientos(datosParaValidar, funcionExistente);
+        const estrenoProblem = await verificarFechaDeEstreno(datosParaValidar, funcionExistente);
         if (solapamiento) {
             return solapamiento;
+        }
+        if (estrenoProblem) {
+            return estrenoProblem;
         }
     }
     
     const updatedFuncion = await updateOneDB(id, data);
     return updatedFuncion;
+};
+
+
+const verificarFechaDeEstreno = async (nuevaFuncion, funcionExistente = null) => {
+    const pelicula = await getPeliculaRepository(nuevaFuncion.idPelicula);
+    if (!pelicula) {
+        const error = new Error("Película no encontrada.");
+        error.status = 404;
+        throw error;
+    }
+
+    const fechaEstreno = new Date(pelicula.fechaEstreno);
+    const fechaFinNueva = new Date(nuevaFuncion.fechaHoraFuncion);
+    fechaFinNueva.setMinutes(fechaFinNueva.getMinutes() + parseInt(pelicula.duracion, 10));
+
+    if (fechaFinNueva < fechaEstreno) {
+        const error = new Error("La función no puede programarse antes del estreno de la película.");
+        error.status = 400;
+        error.name = "FechaEstreno";
+        return error;
+    }
+
+    return null;
 };
 
 const verificarSolapamientos = async (nuevaFuncion, funcionExistente = null) => {

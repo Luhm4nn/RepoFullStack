@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "./salas.repository.js";
+} from "./salas.service.js";
 
 import {createManyForSala, updateManyForSala} from "./asientos.repository.js";
 

@@ -31,6 +31,12 @@ export const createFuncion = async (req, res) => {
       errorCode: "SOLAPAMIENTO_FUNCIONES" 
     });
   }
+  if (newFuncion && newFuncion.name === "FechaEstreno") {
+    return res.status(newFuncion.status).json({ 
+      message: newFuncion.message,
+      errorCode: "FECHA_ESTRENO_INVALIDA" 
+    });
+  }
   res.status(201).json(newFuncion);
 };
 
@@ -45,22 +51,24 @@ export const updateFuncion = async (req, res) => {
   // allows changes only when estado = "Privada", else can only change estado
   if (req.body.estado && (req.body.estado === 'Privada' || req.body.estado === 'Publica')) {
     const updatedFuncion = await updateOne(req.params, req.body);
-    // Verificar si hay error de solapamiento
-    if (updatedFuncion && updatedFuncion.name === "Solapamiento") {
-      return res.status(updatedFuncion.status).json({ 
-        message: updatedFuncion.message,
-        errorCode: "SOLAPAMIENTO_FUNCIONES" 
-      });
-    }
     res.status(200).json(updatedFuncion);
-  } else if (funcion.estado === "Privada") {
+  } 
+  else if (funcion.estado === "Privada") {
     const updatedFuncion = await updateOne(req.params, req.body);
-    // Verificar si hay error de solapamiento
-    if (updatedFuncion && updatedFuncion.name === "Solapamiento") {
-      return res.status(updatedFuncion.status).json({ 
-        message: updatedFuncion.message,
-        errorCode: "SOLAPAMIENTO_FUNCIONES" 
-      });
+
+    //handle overlap and estreno error
+    if (updatedFuncion) {
+      if (updatedFuncion.name === "Solapamiento") {
+        return res.status(updatedFuncion.status).json({
+          message: updatedFuncion.message,
+          errorCode: "SOLAPAMIENTO_FUNCIONES"
+        });
+      } else if (updatedFuncion.name === "FechaEstreno") {
+        return res.status(updatedFuncion.status).json({
+          message: updatedFuncion.message,
+          errorCode: "FECHA_ESTRENO_INVALIDA"
+        });
+      }
     }
     res.status(200).json(updatedFuncion);
   } else {
