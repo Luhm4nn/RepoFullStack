@@ -2,15 +2,24 @@ import cron from "node-cron";
 import prisma from "../prisma/prisma.js";
 
 export const iniciarCronFunciones = () => {
-  // Corre cada 1 minuto para verificar funciones finalizadas
-  cron.schedule("*/1 * * * *", async () => {
+  // Corre cada 5 minutos para verificar funciones finalizadas
+  cron.schedule("*/5 * * * *", async () => {
     try {
       const ahora = new Date();
       console.log(`[${ahora.toISOString()}] Verificando funciones finalizadas...`);
 
+      // date range filter
+      const hace24Horas = new Date(ahora.getTime() - (24 * 60 * 60 * 1000)); 
+      const dentro24Horas = new Date(ahora.getTime() + (24 * 60 * 60 * 1000)); 
+
+     
       const funciones = await prisma.funcion.findMany({
         where: { 
-          estado: { not: "Inactiva" }
+          estado: { not: "Inactiva" },
+          fechaHoraFuncion: {
+            gte: hace24Horas,   
+            lte: dentro24Horas   
+          }
         },
         include: {
           pelicula: true 
@@ -24,6 +33,7 @@ export const iniciarCronFunciones = () => {
           funcion.fechaHoraFuncion.getTime() + (funcion.pelicula.duracion * 60000)
         );
 
+        // if pelicula ended changes estado to Inactiva
         if (ahora > fechaFin) {
           await prisma.funcion.update({
             where: {
@@ -42,6 +52,8 @@ export const iniciarCronFunciones = () => {
 
       if (funcionesActualizadas > 0) {
         console.log(`🎬 ${funcionesActualizadas} función(es) marcada(s) como Inactiva`);
+      } else {
+        console.log(`✨ No hay funciones para actualizar (revisadas ${funciones.length} funciones en rango)`);
       }
       
     } catch (error) {
