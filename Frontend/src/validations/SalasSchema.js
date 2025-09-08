@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { checkSalaExists } from "../api/Salas.api";
+import { getSala } from "../api/Salas.api";
 
 const salasSchema = Yup.object().shape({
   nombreSala: Yup.string()
@@ -7,10 +7,10 @@ const salasSchema = Yup.object().shape({
     .max(45, "Máximo 45 caracteres")
     .required("El nombre de la sala es requerido")
     .test("unique", "El nombre de sala ya existe", async function (value) {
-      if (!value) return true;
-      const exists = await checkSalaExists(value);
-      return !exists;
-    }),
+    if (!value) return true;
+    const sala = await getSala(value);
+    return !sala;
+  }),
 
   ubicacion: Yup.string()
     .oneOf(["Ala Derecha", "Ala Izquierda", "Planta Baja", "Sótano", "Primer Piso"], "Ubicación inválida")
