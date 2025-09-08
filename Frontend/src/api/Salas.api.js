@@ -12,6 +12,33 @@ export const getSalas = async () => {
   }
 }
 
+// ✨ NUEVA: Búsqueda de salas con debounce
+export const searchSalas = async (query, limit = 5) => {
+  try {
+    if (!query || query.length < 2) {
+      return [];
+    }
+    
+    // Por ahora usamos la API existente y filtramos en frontend
+    // TODO: Implementar endpoint /Salas/search en backend
+    const response = await axios.get(`${VITE_API_URL}/Salas`);
+    const salas = response.data;
+    
+    // Filtrado client-side (temporal hasta que tengamos /search en backend)
+    const filteredSalas = salas
+      .filter(sala => 
+        sala.nombreSala && 
+        sala.nombreSala.toLowerCase().includes(query.toLowerCase())
+      )
+      .slice(0, limit);
+      
+    return filteredSalas;
+  } catch (error) {
+    console.error("Error searching salas:", error);
+    throw error;
+  }
+};
+
 export const getSala = async (id) => {
   try {
     const response = await axios.get(`${VITE_API_URL}/Sala/${id}`);

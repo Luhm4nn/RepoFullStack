@@ -1,6 +1,3 @@
-import { getFuncionesActivas, getFuncionesInactivas, deleteFuncion, updateFuncion } from "../../api/Funciones.api";
-import { getPeliculas } from "../../api/Peliculas.api";
-import { getSalas } from "../../api/Salas.api";
 import {
   Table,
   TableBody,
@@ -19,275 +16,102 @@ import ModalDeleteFuncion from "./ModalDeleteFuncion";
 import ModalPublishFuncion from "./ModalPublishFuncion";
 import FuncionesForm from "./FuncionesForm";
 import ErrorModal from "../Shared/ErrorModal";
-import { useErrorModal } from "../../hooks/useErrorModal";
+import FuncionesInlineFilters from "./FuncionesInlineFilters";
+
+// Custom hooks
+import { useFuncionesFetch } from "./hooks/useFuncionesFetch";
+import { useFuncionesFilter } from "./hooks/useFuncionesFilter";
+import { useFuncionesModals } from "./hooks/useFuncionesModals";
 
 function FuncionesList() {
-  const [funciones, setFunciones] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
   const [mostrandoActivas, setMostrandoActivas] = useState(true);
   
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [funcionToDelete, setFuncionToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  
-  const [showModalPublish, setShowModalPublish] = useState(false);
-  const [funcionToPublish, setFuncionToPublish] = useState(null);
-  const [isPublishing, setIsPublishing] = useState(false);
-  
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [funcionToEdit, setFuncionToEdit] = useState(null);
-  
-  // Inline filter states
-  const [funcionesSinFiltrar, setFuncionesSinFiltrar] = useState([]);
-  const [peliculas, setPeliculas] = useState([]);
-  const [salas, setSalas] = useState([]);
-  const [filtros, setFiltros] = useState({
-    pelicula: '',
-    sala: '',
-    fechaDesde: '',
-    fechaHasta: ''
-  });
-  const [peliculasSugeridas, setPeliculasSugeridas] = useState([]);
-  const [salasSugeridas, setSalasSugeridas] = useState([]);
-  const [mostrarSugerenciasPeliculas, setMostrarSugerenciasPeliculas] = useState(false);
-  const [mostrarSugerenciasSalas, setMostrarSugerenciasSalas] = useState(false);
-  
-  const { error: modalError, handleApiError, hideError } = useErrorModal();
+  // Custom hooks
+  const {
+    funciones,
+    setFunciones,
+    funcionesSinFiltrar,
+    peliculas,
+    salas,
+    loading,
+    error,
+    modalError,
+    hideError,
+    fetchFunciones,
+    handleDeleteFuncion,
+    handleUpdateFuncion,
+    handlePublishFuncion
+  } = useFuncionesFetch(mostrandoActivas);
 
-  useEffect(() => {
-    fetchFunciones();
-    loadPeliculasYSalas();
-  }, [mostrandoActivas]); //Refresh when filter changes
+  const filterHook = useFuncionesFilter(funcionesSinFiltrar, setFunciones);
 
-  const loadPeliculasYSalas = async () => {
-    try {
-      const [peliculasData, salasData] = await Promise.all([
-        getPeliculas(),
-        getSalas()
-      ]);
-      setPeliculas(peliculasData);
-      setSalas(salasData);
-    } catch (error) {
-      console.error('Error loading movies and rooms:', error);
-    }
-  };
+  const {
+    showDeleteModal,
+    funcionToDelete,
+    isDeleting,
+    setIsDeleting,
+    openDeleteModal,
+    closeDeleteModal,
+    showModalPublish,
+    funcionToPublish,
+    isPublishing,
+    setIsPublishing,
+    openPublishModal,
+    closePublishModal,
+    showEditModal,
+    funcionToEdit,
+    openEditModal,
+    closeEditModal
+  } = useFuncionesModals();
 
- const fetchFunciones = async () => {
-  try {
-    setLoading(true);
-    const funcionesData = mostrandoActivas ? await getFuncionesActivas() : await getFuncionesInactivas();
-    setFunciones(funcionesData);
-    setFuncionesSinFiltrar(funcionesData);
-    setError(null);
-  } catch (error) {
-    console.error("Error fetching functions:", error);
-    setError(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
-  // Handler to publish/unpublish function
-  const handlePublishFuncion = async () => {
-    if (!funcionToPublish) return;
-    setIsPublishing(true);
-    try {
-      // Determine new state based on current state
-      const nuevoEstado = funcionToPublish.estado === 'Privada' ? 'Publica' : 'Privada';
-      const funcionActualizada = {
-        ...funcionToPublish,
-        estado: nuevoEstado
-      };
-      const idSala = funcionToPublish.idSala;
-      const fechaHoraFuncion = funcionToPublish.fechaHoraFuncion;
-      
-      await updateFuncion(idSala, fechaHoraFuncion, funcionActualizada);
-      
-      await fetchFunciones();
-      
-      setShowModalPublish(false);
-      setFuncionToPublish(null);
-      
-    } catch (error) {
-      console.error('Error publicando función:', error);
-      const wasHandled = handleApiError(error);
-      if (!wasHandled) {
-        const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
-        alert(`Error publicando función: ${errorMessage}`);
-      }
-    } finally {
-      setIsPublishing(false);
-    }
-  };
-
-  // Handler to delete function
-  const handleDeleteFuncion = async () => {
+  // Event handlers that use the hooks
+  const handleDeleteClick = async () => {
     if (!funcionToDelete) return;
     setIsDeleting(true);
-    try {
-      const idSala = funcionToDelete.idSala;
-      const fechaHoraFuncion = funcionToDelete.fechaHoraFuncion;
-
-      await deleteFuncion(idSala, fechaHoraFuncion);
-      await fetchFunciones();
-      setShowDeleteModal(false);
-      setFuncionToDelete(null);
-    } catch (error) {
-      console.error('Error eliminando función:', error);
-      alert('Error eliminando función');
-    } finally {
+    
+    const result = await handleDeleteFuncion(funcionToDelete);
+    if (result.success) {
+      closeDeleteModal();
+    } else {
+      alert(result.error);
       setIsDeleting(false);
     }
   };
 
-  const handleEditFuncion = (funcion) => {
-    setFuncionToEdit(funcion);
-    setShowEditModal(true);
+  const handlePublishClick = async () => {
+    if (!funcionToPublish) return;
+    setIsPublishing(true);
+    
+    const result = await handlePublishFuncion(funcionToPublish);
+    if (result.success) {
+      closePublishModal();
+    } else {
+      if (result.error) {
+        alert(result.error);
+      }
+      setIsPublishing(false);
+    }
   };
 
-  // Handler for edit form submission
   const handleEditSubmit = async (funcionActualizada) => {
     if (!funcionToEdit) return;
     
-    try {
-      const idSalaOriginal = funcionToEdit.idSala;
-      const fechaHoraOriginal = funcionToEdit.fechaHoraFuncion;
-      
-      await updateFuncion(idSalaOriginal, fechaHoraOriginal, funcionActualizada);
-      await fetchFunciones();
-      setShowEditModal(false);
-      setFuncionToEdit(null);
-    } catch (error) {
-      console.error('Error actualizando función:', error);
-      const wasHandled = handleApiError(error);
-      if (!wasHandled) {
-        const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
-        alert(`Error actualizando función: ${errorMessage}`);
-      }
-    }
-  };
-
-  // Inline filter functions
-  const aplicarFiltros = () => {
-    let funcionesFiltradas = [...funcionesSinFiltrar];
-
-    // Filter by pelicula
-    if (filtros.pelicula.trim()) {
-      const peliculasCoincidentes = peliculas.filter(p => 
-        p && p.nombrePelicula && p.nombrePelicula.toLowerCase().includes(filtros.pelicula.toLowerCase())
-      );
-      if (peliculasCoincidentes.length > 0) {
-        const idsPeliculas = peliculasCoincidentes.map(p => p.idPelicula);
-        funcionesFiltradas = funcionesFiltradas.filter(
-          funcion => idsPeliculas.includes(funcion.idPelicula)
-        );
-      } else {
-        funcionesFiltradas = [];
-      }
-    }
-
-    // Filter by sala
-    if (filtros.sala.trim()) {
-      const salasCoincidentes = salas.filter(s => 
-        s && s.nombreSala && s.nombreSala.toLowerCase().includes(filtros.sala.toLowerCase())
-      );
-      if (salasCoincidentes.length > 0) {
-        const idsSalas = salasCoincidentes.map(s => s.idSala);
-        funcionesFiltradas = funcionesFiltradas.filter(
-          funcion => idsSalas.includes(funcion.idSala)
-        );
-      } else {
-        funcionesFiltradas = [];
-      }
-    }
-
-    // Filter by date from
-    if (filtros.fechaDesde) {
-      const fechaDesde = new Date(filtros.fechaDesde + 'T00:00:00');
-      funcionesFiltradas = funcionesFiltradas.filter(
-        funcion => new Date(funcion.fechaHoraFuncion) >= fechaDesde
-      );
-    }
-
-    // Filter by date to
-    if (filtros.fechaHasta) {
-      const fechaHasta = new Date(filtros.fechaHasta + 'T23:59:59');
-      funcionesFiltradas = funcionesFiltradas.filter(
-        funcion => new Date(funcion.fechaHoraFuncion) <= fechaHasta
-      );
-    }
-
-    setFunciones(funcionesFiltradas);
-  };
-
-  const limpiarFiltros = () => {
-    setFiltros({
-      pelicula: '',
-      sala: '',
-      fechaDesde: '',
-      fechaHasta: ''
-    });
-    setFunciones(funcionesSinFiltrar);
-    setPeliculasSugeridas([]);
-    setSalasSugeridas([]);
-    setMostrarSugerenciasPeliculas(false);
-    setMostrarSugerenciasSalas(false);
-  };
-
-  const handlePeliculaChange = (valor) => {
-    setFiltros(prev => ({ ...prev, pelicula: valor }));
-    
-    if (valor.trim() && peliculas.length > 0) {
-      const sugerencias = peliculas.filter(p => 
-        p && p.nombrePelicula && p.nombrePelicula.toLowerCase().includes(valor.toLowerCase())
-      ).slice(0, 5);
-      setPeliculasSugeridas(sugerencias);
-      setMostrarSugerenciasPeliculas(true);
+    const result = await handleUpdateFuncion(funcionToEdit, funcionActualizada);
+    if (result.success) {
+      closeEditModal();
     } else {
-      setPeliculasSugeridas([]);
-      setMostrarSugerenciasPeliculas(false);
-    }
-  };
-
-  const handleSalaChange = (valor) => {
-    setFiltros(prev => ({ ...prev, sala: valor }));
-    
-    if (valor.trim() && salas.length > 0) {
-      const sugerencias = salas.filter(s => 
-        s && s.nombreSala && s.nombreSala.toLowerCase().includes(valor.toLowerCase())
-      ).slice(0, 5);
-      setSalasSugeridas(sugerencias);
-      setMostrarSugerenciasSalas(true);
-    } else {
-      setSalasSugeridas([]);
-      setMostrarSugerenciasSalas(false);
-    }
-  };
-
-  const seleccionarPelicula = (pelicula) => {
-    if (pelicula && pelicula.nombrePelicula) {
-      setFiltros(prev => ({ ...prev, pelicula: pelicula.nombrePelicula }));
-      setMostrarSugerenciasPeliculas(false);
-      setPeliculasSugeridas([]);
-    }
-  };
-
-  const seleccionarSala = (sala) => {
-    if (sala && sala.nombreSala) {
-      setFiltros(prev => ({ ...prev, sala: sala.nombreSala }));
-      setMostrarSugerenciasSalas(false);
-      setSalasSugeridas([]);
+      if (result.error) {
+        alert(result.error);
+      }
     }
   };
 
   // Apply filters when they change
   useEffect(() => {
     if (funcionesSinFiltrar.length > 0) {
-      aplicarFiltros();
+      filterHook.aplicarFiltros();
     }
-  }, [filtros, funcionesSinFiltrar]);
+  }, [filterHook.filtros, funcionesSinFiltrar, filterHook.aplicarFiltros]);
 
   if (loading) {
     return <div className="text-center p-4">Cargando Funciones...</div>;
@@ -330,142 +154,7 @@ function FuncionesList() {
       </div>
 
       {/* Inline filters */}
-      <div className="mb-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {/* Pelicula filter */}
-          <div className="relative">
-            <label className="text-sm font-medium text-white mb-1 flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/>
-              </svg>
-              Película
-            </label>
-            <div className="relative">
-              <TextInput
-                type="text"
-                placeholder="Buscar película..."
-                value={filtros.pelicula}
-                onChange={(e) => handlePeliculaChange(e.target.value)}
-                className="pr-8"
-                onBlur={() => {
-                  setTimeout(() => setMostrarSugerenciasPeliculas(false), 200);
-                }}
-                onFocus={() => {
-                  if (peliculasSugeridas.length > 0) {
-                    setMostrarSugerenciasPeliculas(true);
-                  }
-                }}
-              />
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              {mostrarSugerenciasPeliculas && peliculasSugeridas.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-slate-800 border border-slate-600 rounded-md mt-1 z-50 shadow-lg">
-                  {peliculasSugeridas.map((pelicula) => (
-                    <div
-                      key={pelicula.idPelicula}
-                      className="px-3 py-2 hover:bg-slate-700 cursor-pointer text-white text-sm"
-                      onClick={() => seleccionarPelicula(pelicula)}
-                    >
-                      {pelicula.nombrePelicula}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Sala filter */}
-          <div className="relative">
-            <label className="text-sm font-medium text-white mb-1 flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-              </svg>
-              Sala
-            </label>
-            <div className="relative">
-              <TextInput
-                type="text"
-                placeholder="Buscar sala..."
-                value={filtros.sala}
-                onChange={(e) => handleSalaChange(e.target.value)}
-                className="pr-8"
-                onBlur={() => {
-                  setTimeout(() => setMostrarSugerenciasSalas(false), 200);
-                }}
-                onFocus={() => {
-                  if (salasSugeridas.length > 0) {
-                    setMostrarSugerenciasSalas(true);
-                  }
-                }}
-              />
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              {mostrarSugerenciasSalas && salasSugeridas.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-slate-800 border border-slate-600 rounded-md mt-1 z-50 shadow-lg">
-                  {salasSugeridas.map((sala) => (
-                    <div
-                      key={sala.idSala}
-                      className="px-3 py-2 hover:bg-slate-700 cursor-pointer text-white text-sm"
-                      onClick={() => seleccionarSala(sala)}
-                    >
-                      {sala.nombreSala}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Date from */}
-          <div>
-            <label className="text-sm font-medium text-white mb-1 flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              Desde
-            </label>
-            <TextInput
-              type="date"
-              value={filtros.fechaDesde}
-              onChange={(e) => setFiltros(prev => ({ ...prev, fechaDesde: e.target.value }))}
-            />
-          </div>
-
-          {/* Date to */}
-          <div>
-            <label className="text-sm font-medium text-white mb-1 flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              Hasta
-            </label>
-            <TextInput
-              type="date"
-              value={filtros.fechaHasta}
-              onChange={(e) => setFiltros(prev => ({ ...prev, fechaHasta: e.target.value }))}
-            />
-          </div>
-
-          {/* Clear button */}
-          <div className="flex items-end">
-            <Button
-              onClick={limpiarFiltros}
-              className="w-full !bg-slate-500 hover:!bg-slate-600 text-white"
-            >
-              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd"></path>
-              </svg>
-              Limpiar
-            </Button>
-          </div>
-        </div>
-      </div>
+      <FuncionesInlineFilters filterHook={filterHook} />
       
       <div className="hidden md:block overflow-x-auto">
         <Table hoverable>
@@ -522,10 +211,7 @@ function FuncionesList() {
                                 ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
                                 : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
                             }`}
-                            onClick={() => {
-                              setFuncionToPublish(funcion);
-                              setShowModalPublish(true);
-                            }}
+                            onClick={() => openPublishModal(funcion)}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
                               {funcion.estado === 'Privada' ? (
@@ -542,7 +228,7 @@ function FuncionesList() {
                           <Button 
                             size="sm" 
                             className="w-full sm:w-auto text-sm bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600"
-                            onClick={() => handleEditFuncion(funcion)}
+                            onClick={() => openEditModal(funcion)}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
@@ -555,10 +241,7 @@ function FuncionesList() {
                           <Button 
                             size="sm" 
                             className="w-full sm:w-auto text-sm bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
-                            onClick={() => {
-                              setFuncionToDelete(funcion);
-                              setShowDeleteModal(true);
-                            }}
+                            onClick={() => openDeleteModal(funcion)}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -646,10 +329,7 @@ function FuncionesList() {
                           ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700' 
                           : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
                       }`}
-                      onClick={() => {
-                        setFuncionToPublish(funcion);
-                        setShowModalPublish(true);
-                      }}
+                      onClick={() => openPublishModal(funcion)}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-2 text-white">
                         {funcion.estado === 'Privada' ? (
@@ -666,7 +346,7 @@ function FuncionesList() {
                     <Button 
                       size="sm" 
                       className="w-full text-sm bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600"
-                      onClick={() => handleEditFuncion(funcion)}
+                      onClick={() => openEditModal(funcion)}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l .8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
@@ -679,10 +359,7 @@ function FuncionesList() {
                     <Button 
                       size="sm" 
                       className="w-full text-sm bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
-                      onClick={() => {
-                        setFuncionToDelete(funcion);
-                        setShowDeleteModal(true);
-                      }}
+                      onClick={() => openDeleteModal(funcion)}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -702,11 +379,8 @@ function FuncionesList() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <ModalDeleteFuncion
             funcion={funcionToDelete}
-            onConfirm={handleDeleteFuncion}
-            onCancel={() => { 
-              setShowDeleteModal(false); 
-              setFuncionToDelete(null); 
-            }}
+            onConfirm={handleDeleteClick}
+            onCancel={closeDeleteModal}
             isDeleting={isDeleting}
           />
         </div>
@@ -717,11 +391,8 @@ function FuncionesList() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <ModalPublishFuncion
             funcion={funcionToPublish}
-            onConfirm={handlePublishFuncion}
-            onCancel={() => { 
-              setShowModalPublish(false); 
-              setFuncionToPublish(null); 
-            }}
+            onConfirm={handlePublishClick}
+            onCancel={closePublishModal}
             isPublishing={isPublishing}
           />
         </div>
@@ -729,10 +400,7 @@ function FuncionesList() {
 
       {/* Edit modal */}
       {showEditModal && (
-        <Modal show={showEditModal} onClose={() => {
-          setShowEditModal(false);
-          setFuncionToEdit(null);
-        }} size="xl"
+        <Modal show={showEditModal} onClose={closeEditModal} size="xl"
         theme={{
           content: {
             base: "relative h-full w-full p-4 flex items-center justify-center min-h-screen",
@@ -744,10 +412,7 @@ function FuncionesList() {
               onSubmit={handleEditSubmit}
               funcionToEdit={funcionToEdit}
               isEditing={true}
-              onCancel={() => {
-                setShowEditModal(false);
-                setFuncionToEdit(null);
-              }}
+              onCancel={closeEditModal}
             />
           </ModalBody>
         </Modal>
