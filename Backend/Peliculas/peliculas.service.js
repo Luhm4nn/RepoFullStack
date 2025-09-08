@@ -28,7 +28,19 @@ export const createOne = async (data) => {
 };
 
 export const deleteOne = async (id) => {
-    // TODO: Implementar validaciones de negocio aquí
+    const peliculaExistente = await getOneDB(id);
+    
+    // Si tiene póster en Cloudinary se elimina también
+    if (peliculaExistente?.portadaPublicId) {
+        try {
+            await cloudinary.uploader.destroy(peliculaExistente.portadaPublicId);
+            console.log('Póster eliminado de Cloudinary:', peliculaExistente.portadaPublicId);
+        } catch (error) {
+            console.error('Error eliminando póster de Cloudinary:', error);
+        }
+    }
+    
+    // Implementar validaciones de negocio aquí
     // Ejemplo: verificar que no tenga funciones programadas antes de eliminar
     
     const deletedPelicula = await deleteOneDB(id);
@@ -42,10 +54,22 @@ export const updateOne = async (id, data) => {
         error.status = 404;
         throw error;
     }
+
     const errorValidations = await validationsEstreno({ id, ...data });
     if(errorValidations){
         return errorValidations;
     }
+
+    // Si se subió un nuevo póster y existe uno anterior, eliminar el anterior
+    if (data.portada && peliculaExistente.portadaPublicId) {
+        try {
+            await cloudinary.uploader.destroy(peliculaExistente.portadaPublicId);
+            console.log('Póster anterior eliminado de Cloudinary:', peliculaExistente.portadaPublicId);
+        } catch (error) {
+            console.error('Error eliminando póster anterior de Cloudinary:', error);
+        }
+    }
+    
     const updatedPelicula = await updateOneDB(id, data);
     return updatedPelicula;
 };

@@ -57,7 +57,8 @@ CREATE TABLE `pelicula` (
   `fechaEstreno` date DEFAULT NULL,
   `sinopsis` varchar(500) DEFAULT NULL,
   `trailerURL` varchar(200) DEFAULT NULL,
-  `portada` blob,
+  `portada` varchar(500) DEFAULT NULL,
+  `portadaPublicId` varchar(255) DEFAULT NULL,
   `MPAA` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`idPelicula`)
 );
