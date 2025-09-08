@@ -77,32 +77,22 @@ export const deleteFuncion = async (req, res) => {
 };
 
 export const updateFuncion = async (req, res) => {
-  const funcion = await getOne(req.params);
-
-  // allows changes only when estado = "Privada", else can only change estado
-  if (req.body.estado && (req.body.estado === 'Privada' || req.body.estado === 'Publica')) {
-    const updatedFuncion = await updateOne(req.params, req.body);
-    res.status(200).json(updatedFuncion);
-  } 
-  else if (funcion.estado === "Privada") {
-    const updatedFuncion = await updateOne(req.params, req.body);
-
-    //handle overlap and estreno error
-    if (updatedFuncion) {
-      if (updatedFuncion.name === "SOLAPAMIENTO_FUNCIONES") {
-        return res.status(updatedFuncion.status).json({
-          message: updatedFuncion.message,
-          errorCode: updatedFuncion.name
-        });
-      } else if (updatedFuncion.name === "FECHA_ESTRENO_INVALIDA") {
-        return res.status(updatedFuncion.status).json({
-          message: updatedFuncion.message,
-          errorCode: updatedFuncion.name
-        });
-      }
+  const updatedFuncion = await updateOne(req.params, req.body);
+  
+  //handle overlap and estreno error
+  if (updatedFuncion) {
+    if (updatedFuncion.name === "SOLAPAMIENTO_FUNCIONES") {
+      return res.status(updatedFuncion.status).json({
+        message: updatedFuncion.message,
+        errorCode: updatedFuncion.name
+      });
+    } else if (updatedFuncion.name === "FECHA_ESTRENO_INVALIDA") {
+      return res.status(updatedFuncion.status).json({
+        message: updatedFuncion.message,
+        errorCode: updatedFuncion.name
+      });
     }
-    res.status(200).json(updatedFuncion);
-  } else {
-    res.status(403).json({ message: "No se puede actualizar una función pública, excepto para cambiar su estado." });
   }
+  
+  res.status(200).json(updatedFuncion);
 };

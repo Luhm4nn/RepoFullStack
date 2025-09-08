@@ -36,7 +36,7 @@ app.use(asientoReservasRoutes);
 
 app.use(errorHandler);
 
-// Iniciar cron jobs
+
 iniciarCronFunciones();
 
 app.listen(PORT, () => {
