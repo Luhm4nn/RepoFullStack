@@ -15,6 +15,7 @@ import { formatDateTime } from "../../utils/dateFormater";
 import ModalDeleteFuncion from "./ModalDeleteFuncion";
 import ModalPublishFuncion from "./ModalPublishFuncion";
 import FuncionesForm from "./FuncionesForm";
+import FiltroModal from "./FiltroModal";
 import ErrorModal from "../Shared/ErrorModal";
 import { useErrorModal } from "../../hooks/useErrorModal";
 
@@ -36,6 +37,10 @@ function FuncionesList() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [funcionToEdit, setFuncionToEdit] = useState(null);
   
+  // Estados para el filtro
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [funcionesSinFiltrar, setFuncionesSinFiltrar] = useState([]);
+  
   const { error: modalError, handleApiError, hideError } = useErrorModal();
 
   useEffect(() => {
@@ -47,6 +52,7 @@ function FuncionesList() {
     setLoading(true);
     const funcionesData = mostrandoActivas ? await getFuncionesActivas() : await getFuncionesInactivas();
     setFunciones(funcionesData);
+    setFuncionesSinFiltrar(funcionesData); // Guardar copia sin filtrar
     setError(null);
   } catch (error) {
     console.error("Error fetching funciones:", error);
@@ -136,6 +142,17 @@ function FuncionesList() {
     }
   };
 
+  // Handlers para el filtro
+  const handleApplyFilter = (filteredFunciones) => {
+    setFunciones(filteredFunciones);
+    setShowFilterModal(false);
+  };
+
+  const handleClearFilter = () => {
+    setFunciones(funcionesSinFiltrar);
+    setShowFilterModal(false);
+  };
+
   if (loading) {
     return <div className="text-center p-4">Cargando Funciones...</div>;
   }
@@ -161,19 +178,27 @@ function FuncionesList() {
         <h2 className="text-xl font-semibold text-white">
           {mostrandoActivas ? 'Funciones Activas' : 'Funciones Finalizadas'}
         </h2>
-        <Button
-          onClick={() => setMostrandoActivas(!mostrandoActivas)}
-          className={`text-sm ${
-            mostrandoActivas 
-              ? '!bg-slate-600 hover:!bg-slate-700' 
-              : '!bg-orange-600 hover:!bg-orange-700'
-          }`}
-        >
-          {mostrandoActivas 
-            ? ' Ver Finalizadas' 
-            : ' Ver Activas'
-          }
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setShowFilterModal(true)}
+            className="text-sm !bg-blue-600 hover:!bg-blue-700"
+          >
+             Filtrar
+          </Button>
+          <Button
+            onClick={() => setMostrandoActivas(!mostrandoActivas)}
+            className={`text-sm ${
+              mostrandoActivas 
+                ? '!bg-slate-600 hover:!bg-slate-700' 
+                : '!bg-orange-600 hover:!bg-orange-700'
+            }`}
+          >
+            {mostrandoActivas 
+              ? ' Ver Finalizadas' 
+              : ' Ver Activas'
+            }
+          </Button>
+        </div>
       </div>
       
       <div className="hidden md:block overflow-x-auto">
@@ -346,7 +371,7 @@ function FuncionesList() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.745 3.745 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
                     </svg>
                   </div>
-                  <span className={`font-bold ${funcion.estado === 'Privada' ? 'text-red-500' : funcion.estado === 'Publica' ? 'text-green-500' : ''}`}>{funcion.estado}</span>
+                  <span className={`font-bold ${funcion.estado === 'Privada' ? 'text-red-500' : funcion.estado === 'Publica' ? 'text-green-500' : funcion.estado === 'Inactiva' ? 'text-gray-500' : ''}`}>{funcion.estado}</span>
                 </div>
 
                 <div className="flex flex-col gap-2 pt-2">
@@ -467,6 +492,15 @@ function FuncionesList() {
           </ModalBody>
         </Modal>
       )}
+
+      {/* Modal de Filtro */}
+      <FiltroModal
+        show={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        funcionesSinFiltrar={funcionesSinFiltrar}
+        onApplyFilter={handleApplyFilter}
+        onClearFilter={handleClearFilter}
+      />
 
       {/* Modal de Error Unificado */}
       <ErrorModal error={modalError} onClose={hideError} />

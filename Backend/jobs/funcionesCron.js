@@ -3,7 +3,7 @@ import prisma from "../prisma/prisma.js";
 
 export const iniciarCronFunciones = () => {
   // Corre cada 5 minutos para verificar funciones finalizadas
-  cron.schedule("*/5 * * * *", async () => {
+  cron.schedule("*/1 * * * *", async () => {
     try {
       const ahora = new Date();
       console.log(`[${ahora.toISOString()}] Verificando funciones finalizadas...`);
