@@ -10,6 +10,7 @@ import { asientosRoutes } from "./Salas/asientos.routes.js";
 import { funcionesRoutes } from "./Funciones/funciones.routes.js";
 import { reservasRoutes } from "./Funciones/reservas.routes.js";
 import { asientoReservasRoutes } from "./Funciones/asientoreservas.routes.js";
+import { iniciarCronFunciones } from "./jobs/funcionesCron.js";
 import cors from "cors";
 
 const app = express();
@@ -34,6 +35,9 @@ app.use(asientoReservasRoutes);
 
 
 app.use(errorHandler);
+
+// Iniciar cron jobs
+iniciarCronFunciones();
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
