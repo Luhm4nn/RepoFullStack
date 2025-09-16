@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "./clientes.service.js";
+} from "./usuarios.service.js";
 
 // Controllers for Usuarios
 
