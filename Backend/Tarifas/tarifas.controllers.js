@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "./tarifas.repository.js";
+} from "./tarifas.service.js";
 
 // Controllers for Tarifas
 

@@ -4,12 +4,43 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "./funciones.repository.js";
+  getActiveFunciones as getActiveFuncionesService,
+  getInactiveFunciones as getInactiveFuncionesService
+} from "./funciones.service.js";
 
 // Controllers for Funciones
 
 export const getFunciones = async (req, res) => {
-  const funciones = await getAll();
+  const { estado } = req.query;
+  
+  let funciones;
+  
+  switch (estado?.toLowerCase()) {
+    case 'activas':
+      funciones = await getActiveFuncionesService();
+      break;
+    case 'inactivas':
+      funciones = await getInactiveFuncionesService();
+      break;
+    case 'todas':
+      funciones = await getAll();
+      break;
+    default:
+      // default to 'activas' if no valid estado is provided
+      funciones = await getActiveFuncionesService();
+      break;
+  }
+  
+  res.json(funciones);
+};
+
+export const getActiveFuncionesEndpoint = async (req, res) => {
+  const funciones = await getActiveFuncionesService();
+  res.json(funciones);
+};
+
+export const getInactiveFuncionesEndpoint = async (req, res) => {
+  const funciones = await getInactiveFuncionesService();
   res.json(funciones);
 };
 
@@ -25,6 +56,18 @@ export const getFuncion = async (req, res, next) => {
 
 export const createFuncion = async (req, res) => {
   const newFuncion = await createOne(req.body);
+  if (newFuncion && newFuncion.name === "SOLAPAMIENTO_FUNCIONES") {
+    return res.status(newFuncion.status).json({ 
+      message: newFuncion.message,
+      errorCode: newFuncion.name 
+    });
+  }
+  if (newFuncion && newFuncion.name === "FECHA_ESTRENO_INVALIDA") {
+    return res.status(newFuncion.status).json({ 
+      message: newFuncion.message,
+      errorCode: newFuncion.name
+    });
+  }
   res.status(201).json(newFuncion);
 };
 
@@ -34,18 +77,22 @@ export const deleteFuncion = async (req, res) => {
 };
 
 export const updateFuncion = async (req, res) => {
-  const funcion = await getOne(req.params);
+  const updatedFuncion = await updateOne(req.params, req.body);
   
-  // Permitir cambio de estado entre Privada y Publica
-  if (req.body.estado && (req.body.estado === 'Privada' || req.body.estado === 'Publica')) {
-    const updatedFuncion = await updateOne(req.params, req.body);
-    res.status(200).json(updatedFuncion);
-  } 
-  // Para otros cambios, solo permitir si la función está privada
-  else if (funcion.estado === "Privada") {
-    const updatedFuncion = await updateOne(req.params, req.body);
-    res.status(200).json(updatedFuncion);
-  } else {
-    res.status(403).json({ message: "No se puede actualizar una función pública, excepto para cambiar su estado." });
+  //handle overlap and estreno error
+  if (updatedFuncion) {
+    if (updatedFuncion.name === "SOLAPAMIENTO_FUNCIONES") {
+      return res.status(updatedFuncion.status).json({
+        message: updatedFuncion.message,
+        errorCode: updatedFuncion.name
+      });
+    } else if (updatedFuncion.name === "FECHA_ESTRENO_INVALIDA") {
+      return res.status(updatedFuncion.status).json({
+        message: updatedFuncion.message,
+        errorCode: updatedFuncion.name
+      });
+    }
   }
+  
+  res.status(200).json(updatedFuncion);
 };

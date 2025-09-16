@@ -1,4 +1,4 @@
-import { getSalas, updateSala, deleteSala, getAsientosBySala } from "../api/Salas.api";
+import { getSalas, updateSala, deleteSala, getAsientosBySala } from "../../api/Salas.api";
 import {
   Table,
   TableBody,
@@ -35,6 +35,9 @@ function SalasList() {
     try {
       setLoading(true);
       const data = await getSalas();
+      data.sort((a, b) => 
+      a.nombreSala.localeCompare(b.nombreSala)
+    );
       setSalas(data);
       setError(null);
     } catch (error) {
@@ -171,9 +174,9 @@ function SalasList() {
               </TableRow>
             ) : (
               salas.map((sala) => (
-                <TableRow key={sala.idSala} className="bg-slate-800/50 hover:bg-white/10 text-gray-300 border-slate-700">
+                <TableRow key={sala.nombreSala} className="bg-slate-800/50 hover:bg-white/10 text-gray-300 border-slate-700">
                   <TableCell className="whitespace-nowrap font-medium text-white">
-                    {sala.idSala || 'Sin ID'}
+                    {sala.nombreSala || 'Sin Nombre'}
                   </TableCell>
                   <TableCell>{sala.ubicacion || 'Sin ubicación'}</TableCell>
                   <TableCell>
@@ -227,16 +230,16 @@ function SalasList() {
           </div>
         ) : (
           salas.map((sala) => (
-            <div key={sala.idSala} className="bg-slate-800/50 rounded-lg border border-slate-700 p-4 space-y-3">
+            <div key={sala.nombreSala} className="bg-slate-800/50 rounded-lg border border-slate-700 p-4 space-y-3">
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                    {sala.idSala || '?'}
+                    {sala.nombreSala.substring(0, 3) || '?'}
                   </div>
                   <div>
                     <div className="font-medium text-white text-sm">
-                      Sala {sala.idSala || 'Sin ID'}
+                      Sala {sala.nombreSala || 'Sin nombre'}
                     </div>
                     <div className="text-gray-400 text-xs">
                       {sala.ubicacion || 'Sin ubicación'}

@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import logo from '../assets/cutzy-logo-blanco.png';
+import logo from '../../assets/cutzy-logo-blanco.png';
 import {
   Avatar,
   Dropdown,

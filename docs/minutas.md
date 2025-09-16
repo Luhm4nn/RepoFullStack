@@ -109,3 +109,27 @@ Este documento contiene un registro de las reuniones realizadas para la planific
 - Emiliano, Diego: Funciones Page (dejamos para lo último para poder utilizar la info de las otras Pages)
 
 ---
+
+## 📅 Reunión 6 - 06/09/2025
+
+**Participantes:** Emiliano, Diego
+**Objetivos:**
+
+- Planificar la continuacion del desarrollo Frontend.
+- Tratar de cerrar la parte del admin (validaciones y dashboard inicial).
+
+**Decisiones tomadas:**
+
+- Se acordó continuar con validaciones.
+- Se acordó continuar con Funciones.
+- Se acordó implementar Cloudinary para las imagenes.
+- Se acordó implementar valibot en el back
+
+**Próximas tareas:**
+
+- Crear ramas desde validaciones.
+- Diego: Cerrar validaciones de Salas, implementar cloudinary en peliculas, arrancar con dashboard.
+- Emiliano: Cerrar validaciones de Funciones, reporte de funciones que no están activas, filtrado por funciones.
+- Emiliano, Diego: Implementar Valibot.
+
+---

@@ -81,6 +81,7 @@ model reserva {
 
 model sala {
   idSala          Int       @id @default(autoincrement())
+  nombreSala      String    @unique(map: "nombreSala") @db.VarChar(45)
   ubicacion       String    @db.VarChar(45)
   filas           Int
   asientosPorFila Int

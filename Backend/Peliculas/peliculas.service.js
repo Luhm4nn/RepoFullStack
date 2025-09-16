@@ -1,0 +1,68 @@
+import { 
+    getOne as getOneDB, 
+    getAll as getAllDB, 
+    createOne as createOneDB, 
+    deleteOne as deleteOneDB, 
+    updateOne as updateOneDB 
+} from './peliculas.repository.js';
+import { getFuncionesByPeliculaId } from '../Funciones/funciones.service.js';
+import { formatDateForBackendMessage, formatDateTimeForBackendMessage } from '../utils/dateFormater.js';
+
+
+export const getAll = async () => {
+    const peliculas = await getAllDB();
+    return peliculas;
+};
+
+export const getOne = async (id) => {
+    const pelicula = await getOneDB(id);
+    return pelicula;
+};
+
+export const createOne = async (data) => {
+    // TODO: Implementar validaciones de negocio aquí (Valibot)
+    // Ejemplo: validar fechas de estreno, duración positiva, géneros válidos, etc.
+    
+    const newPelicula = await createOneDB(data);
+    return newPelicula;
+};
+
+export const deleteOne = async (id) => {
+    // TODO: Implementar validaciones de negocio aquí
+    // Ejemplo: verificar que no tenga funciones programadas antes de eliminar
+    
+    const deletedPelicula = await deleteOneDB(id);
+    return deletedPelicula;
+};
+
+export const updateOne = async (id, data) => {
+    const peliculaExistente = await getOneDB(id);
+    if (!peliculaExistente) {
+        const error = new Error("Película no encontrada.");
+        error.status = 404;
+        throw error;
+    }
+    const errorValidations = await validationsEstreno({ id, ...data });
+    if(errorValidations){
+        return errorValidations;
+    }
+    const updatedPelicula = await updateOneDB(id, data);
+    return updatedPelicula;
+};
+
+async function validationsEstreno (data) {
+    const fechaNueva = new Date(data.fechaEstreno);
+    const funciones = await getFuncionesByPeliculaId(data.id);
+    if (funciones && funciones.length > 0) {
+        for (const funcion of funciones) {
+            if (new Date(funcion.fechaHoraFuncion) < fechaNueva) {
+                const fechaEstrenoFormateada = formatDateForBackendMessage(fechaNueva);
+                const error = new Error(`No se puede cambiar la fecha de estreno al ${fechaEstrenoFormateada} porque ya hay funciones programadas anteriormente.`);
+                error.status = 400;
+                error.name = "FECHA_ESTRENO";
+                return error;
+            }
+        }
+    }
+    return null;
+}

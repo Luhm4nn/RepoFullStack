@@ -1,6 +1,6 @@
 import { useState } from "react";
-import ParametrosList from "../components/ParametrosList";
-import TarifasList from "../components/TarifasList";
+import ParametrosList from "../components/Parametros/ParametrosList";
+import TarifasList from "../components/Tarifas/TarifasList";
 
 function ConfiguracionPage() {
   const [refreshList, setRefreshList] = useState(0);
@@ -17,10 +17,10 @@ function ConfiguracionPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Parámetros */}
-          <ParametrosList key={refreshList} />
+          <ParametrosList key={`parametros-${refreshList}`} />
           
           {/* Tarifas */}
-          <TarifasList key={refreshList} />
+          <TarifasList key={`tarifas-${refreshList}`} />
 
     
       </div>

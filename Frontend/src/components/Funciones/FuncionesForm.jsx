@@ -1,11 +1,12 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, Select } from "flowbite-react";
 import { useState, useEffect } from "react";
-import { getSalas } from "../api/Salas.api";
-import { getPeliculas } from "../api/Peliculas.api";
-import funcionesSchema from "../validations/FuncionesSchema";
+import { getSalas } from "../../api/Salas.api";
+import { getPeliculas } from "../../api/Peliculas.api";
+import funcionesSchema from "../../validations/FuncionesSchema";
+import { formatDateTimeForBackend, getCurrentDateTime, formatDateForInput } from "../../utils/dateFormater";
 
-export default function FuncionesForm({ onSubmit }) {
+export default function FuncionesForm({ onSubmit, funcionToEdit = null, isEditing = false, onCancel }) {
   const [salas, setSalas] = useState([]);
   const [peliculas, setPeliculas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,45 +31,6 @@ export default function FuncionesForm({ onSubmit }) {
     }
   };
 
-  // Función para formatear fecha y hora evitando problemas de zona horaria
-  const formatearFechaHora = (fechaHoraString) => {
-    if (!fechaHoraString) return null;
-    
-    // Extraer fecha y hora por separado
-    const [fecha, hora] = fechaHoraString.split('T');
-    const [year, month, day] = fecha.split('-');
-    const [hours, minutes] = hora.split(':');
-    
-    // Crear fecha local sin conversión automática de zona horaria
-    const fechaLocal = new Date(year, month - 1, day, hours, minutes);
-    
-    if (isNaN(fechaLocal.getTime())) {
-      return null;
-    }
-    
-    // Formatear manualmente para evitar conversión UTC
-    const yearStr = fechaLocal.getFullYear();
-    const monthStr = String(fechaLocal.getMonth() + 1).padStart(2, '0');
-    const dayStr = String(fechaLocal.getDate()).padStart(2, '0');
-    const hoursStr = String(fechaLocal.getHours()).padStart(2, '0');
-    const minutesStr = String(fechaLocal.getMinutes()).padStart(2, '0');
-    const secondsStr = String(fechaLocal.getSeconds()).padStart(2, '0');
-    
-    return `${yearStr}-${monthStr}-${dayStr}T${hoursStr}:${minutesStr}:${secondsStr}.000Z`;
-  };
-
-  // Función para obtener la fecha y hora actual en formato datetime-local
-  const getCurrentDateTime = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
-
   if (loading) {
     return (
       <div className="bg-slate-800 border-slate-700 p-4 md:p-6 rounded-lg shadow-lg">
@@ -79,26 +41,29 @@ export default function FuncionesForm({ onSubmit }) {
 
   return (
     <div className="bg-slate-800 border-slate-700 p-4 md:p-6 overflow-hidden scrollbar-none rounded-lg shadow-lg">
-      <h2 className="text-2xl text-white font-bold mb-4">Agregar Nueva Función</h2>
+      <h2 className="text-2xl text-white font-bold mb-4">
+        {isEditing ? 'Editar Función' : 'Agregar Nueva Función'}
+      </h2>
       
       <Formik
         initialValues={{ 
-          idSala: '',
-          idPelicula: '',
-          fechaHoraFuncion: getCurrentDateTime(),
+          idSala: funcionToEdit?.idSala || '',
+          idPelicula: funcionToEdit?.idPelicula || '',
+          fechaHoraFuncion: isEditing ? formatDateForInput(funcionToEdit?.fechaHoraFuncion) : getCurrentDateTime(),
         }}
         validationSchema={funcionesSchema}
         onSubmit={(values, { resetForm, setSubmitting }) => {
-          // Usar el formateador personalizado para evitar problemas de zona horaria
-          const fechaHoraFormateada = formatearFechaHora(values.fechaHoraFuncion);
-          
+          const fechaHoraFormateada = formatDateTimeForBackend(values.fechaHoraFuncion);          
           const valuesFormatted = {
             ...values,
             fechaHoraFuncion: fechaHoraFormateada
           };
           
           onSubmit(valuesFormatted); 
-          resetForm(); 
+          
+          if (!isEditing) {
+            resetForm(); 
+          }
           setSubmitting(false);
         }}
       >
@@ -155,11 +120,16 @@ export default function FuncionesForm({ onSubmit }) {
 
             {/* Botones */}
             <div className="flex flex-col sm:flex-row sm:justify-end gap-4 pt-4">
-              <Button type="button" color className="text-white bg-slate-700 hover:bg-white/10" onClick={() => window.location.reload()}>
+              <Button 
+                type="button" 
+                color 
+                className="text-white bg-slate-700 hover:bg-white/10" 
+                onClick={() => isEditing && onCancel ? onCancel() : window.location.reload()}
+              >
                 Cancelar
               </Button>
               <Button type="submit" disabled={isSubmitting} color className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white">
-                {isSubmitting ? "Guardando..." : "Guardar Función"}
+                {isSubmitting ? "Guardando..." : isEditing ? "Actualizar Función" : "Guardar Función"}
               </Button>
             </div>
             </div>

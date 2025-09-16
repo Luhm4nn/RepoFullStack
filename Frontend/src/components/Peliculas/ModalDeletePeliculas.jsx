@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "flowbite-react";
-import { deletePelicula } from "../api/Peliculas.api";
+import { deletePelicula } from "../../api/Peliculas.api";
 
 function ModalDeletePeliculas({ pelicula, onSuccess, onClose }) {
   const [isDeleting, setIsDeleting] = useState(false);

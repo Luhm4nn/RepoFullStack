@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { Button, TextInput, Select, Textarea } from "flowbite-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { createPelicula, updatePelicula } from "../api/Peliculas.api";
-import peliculaSchema from "../validations/PeliculasSchema.js";
-import { formatToISO8601 } from "../utils/dateFormater.js";
+import { createPelicula, updatePelicula } from "../../api/Peliculas.api";
+import peliculaSchema from "../../validations/PeliculasSchema.js";
+import { dateFormaterBackend } from "../../utils/dateFormater.js";
+import { useErrorModal } from "../../hooks/useErrorModal";
+import ErrorModal from "../Shared/ErrorModal";
 
 function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
   const [showModal, setShowModal] = useState(false);
+  const { error, handleApiError, hideError } = useErrorModal();
   const isEditing = !!peliculaToEdit;
 
   // Abre el modal automáticamente si hay una película para editar
@@ -38,7 +41,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
       const cleanData = {
         ...values,
         duracion: parseInt(values.duracion),
-        fechaEstreno: values.fechaEstreno ? formatToISO8601(values.fechaEstreno) : null,
+        fechaEstreno: values.fechaEstreno ? dateFormaterBackend(values.fechaEstreno) : null,
         sinopsis: values.sinopsis || null,
         trailerURL: values.trailerURL || null,
         portada: values.portada || null,
@@ -62,7 +65,14 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
       
     } catch (error) {
       console.error(`Error ${isEditing ? 'actualizando' : 'creando'} película:`, error);
-      alert(`Error al ${isEditing ? 'actualizar' : 'crear'} película: ` + (error.response?.data?.message || error.message));
+      
+      // Intentar manejar el error con el modal personalizado
+      const handled = handleApiError(error);
+      
+      // Si no se pudo manejar con el modal, mostrar alert como fallback
+      if (!handled) {
+        alert(`Error al ${isEditing ? 'actualizar' : 'crear'} película: ` + (error.response?.data?.message || error.message));
+      }
     } finally {
       setSubmitting(false);
     }
@@ -304,6 +314,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
           </div>
         </div>
       )}
+      <ErrorModal error={error} onClose={hideError} />
     </>
   );
 }

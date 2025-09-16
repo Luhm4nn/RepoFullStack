@@ -7,7 +7,7 @@ function SalaDelete({ sala, onConfirm, onCancel }) {
       <h2 className="text-2xl text-white font-bold mb-4">Eliminar Sala</h2>
       
       <h3 className="mb-5 text-lg font-normal text-white text-center">
-        ¿Estás seguro de que quieres eliminar la Sala {sala.idSala}?
+        ¿Estás seguro de que quieres eliminar la Sala {sala.nombreSala}?
       </h3>
       <p className="mb-5 text-sm text-gray-300 text-center">
         Esta acción no se puede deshacer.

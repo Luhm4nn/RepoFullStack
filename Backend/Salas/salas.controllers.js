@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "./salas.repository.js";
+} from "./salas.service.js";
 
 import {createManyForSala, updateManyForSala} from "./asientos.repository.js";
 
@@ -16,7 +16,8 @@ export const getSalas = async (req, res) => {
 };
 
 export const getSala = async (req, res) => {
-  const sala = await getOne(req.params.id);
+  const { param } = req.params;
+  const sala = await getOne(param);
   res.json(sala);
 };
 

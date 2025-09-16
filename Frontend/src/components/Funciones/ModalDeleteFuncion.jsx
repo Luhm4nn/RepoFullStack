@@ -1,11 +1,11 @@
 import { Button } from "flowbite-react";
 
 function ModalDeleteFuncion({ funcion, onConfirm, onCancel, isDeleting = false }) {
-  if (funcion.estado !== "Privada") {
+  if (funcion.estado !== "Privada" && funcion.estado !== "Inactiva") {
     return (
       <div className="bg-slate-800 border-slate-700 p-6 rounded-lg shadow-lg">
         <h2 className="text-2xl text-white font-bold mb-4">Eliminar Función</h2>
-        <p className="text-gray-300 text-center">Solo puedes eliminar funciones en estado <span className="font-bold text-red-500">Privada</span>.</p>
+        <p className="text-gray-300 text-center">Solo puedes eliminar funciones en estado <span className="font-bold text-red-500">Privada</span> o <span className="font-bold text-orange-500">Inactiva</span>.</p>
         <div className="flex justify-center mt-6">
           <Button color className="text-white bg-slate-700 hover:bg-white/10" onClick={onCancel}>
             Cerrar

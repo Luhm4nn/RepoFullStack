@@ -1,27 +1,40 @@
 import { useState } from "react";
 import { Button, Modal, ModalBody } from "flowbite-react";
-import FuncionesList from "../components/FuncionesList";
-import FuncionesForm from "../components/FuncionesForm";
+import FuncionesList from "../components/Funciones/FuncionesList";
+import FuncionesForm from "../components/Funciones/FuncionesForm";
+import ErrorModal from "../components/Shared/ErrorModal";
+import { useErrorModal } from "../hooks/useErrorModal";
 import { createFuncion } from "../api/Funciones.api";
 
 function FuncionesPage() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [refreshList, setRefreshList] = useState(0);
+  const { error, handleApiError, hideError } = useErrorModal();
 
   const handleSubmit = async (values) => {
     try {
       await createFuncion(values);
       setMostrarFormulario(false);
       setRefreshList(prev => prev + 1);
-      
     } catch (error) {
-      console.error('Error al crear función:', error);
-      alert('Error al agregar función');
+      // Usar el hook para manejar errores de validación
+      const wasHandled = handleApiError(error);
+      if (!wasHandled) {
+        // Si no fue un error de validación, mostrar alert tradicional
+        const errorMessage = error.response?.data?.message || error.message;
+        alert(`Error al crear función: ${errorMessage}`);
+      }
     }
   };
 
   const closeModal = () => {
     setMostrarFormulario(false);
+    hideError();
+  };
+
+  const openFormulario = () => {
+    hideError();
+    setMostrarFormulario(true);
   };
 
   return (
@@ -34,7 +47,7 @@ function FuncionesPage() {
         
         <div className="mb-6">
           <Button 
-            onClick={() => setMostrarFormulario(true)}
+            onClick={openFormulario}
             className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
           >
             <svg 
@@ -69,6 +82,9 @@ function FuncionesPage() {
         </Modal>
 
         <FuncionesList key={refreshList} />
+
+        {/* Modal de Error Unificado */}
+        <ErrorModal error={error} onClose={hideError} />
       </div>
     </div>
   );

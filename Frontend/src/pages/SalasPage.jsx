@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Modal, ModalBody } from "flowbite-react";
-import SalasList from "../components/SalasList";
-import SalasForm from "../components/SalasForm";
+import SalasList from "../components/Salas/SalasList";
+import SalasForm from "../components/Salas/SalasForm";
 import { createSala } from "../api/Salas.api";
 
 function SalasPage() {

@@ -1,6 +1,6 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, TextInput, Textarea, Select } from "flowbite-react";
-import salasSchema from "../validations/SalasSchema";
+import salasSchema from "../../validations/SalasSchema.js";
 import VIPSeatSelector from "./VIPSeatSelector";
 import { useState } from "react";
 
@@ -14,6 +14,7 @@ export default function SalasForm({ onSubmit }) {
       
       <Formik
         initialValues={{ 
+          nombreSala: '',
           ubicacion: '',
           filas: '',
           asientosPorFila: '',
@@ -34,6 +35,20 @@ export default function SalasForm({ onSubmit }) {
           <Form className="space-y-4">
             <div className="grid grid-cols-1 gap-4 ">
             
+            {/* Nombre Sala */}
+              <div>
+                <Label htmlFor="nombreSala" value="Nombre de la Sala *" />
+                <Field
+                  as={TextInput}  
+                  name="nombreSala"
+                  type="text"
+                  placeholder="A1"
+                  color
+                  className="bg-slate-700 hover:bg-white/10 text-white"
+                />
+                <ErrorMessage name="nombreSala" component="span" className="text-red-500 text-sm" />
+              </div>
+
             {/* Ubicacion */}
               <div >
                 <Label htmlFor="ubicacion" value="Ubicación *" />

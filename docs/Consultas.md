@@ -1,5 +1,5 @@
 ## Diego Lezcano
-
+  - Como conviene gestionar los registros largos que se muestran en el cliente (paginacion?)
 ## Emiliano Luhmann
 
 ## Resueltas

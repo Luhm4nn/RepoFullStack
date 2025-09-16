@@ -2,7 +2,7 @@ import prisma from "../prisma/prisma.js";
 
 // Repository for Funciones
 
-async function getAll() {
+async function getAllDB() {
   const funciones = await prisma.funcion.findMany({
     include: {
       sala: true,
@@ -12,7 +12,7 @@ async function getAll() {
   return funciones;
 }
 
-async function getOne(idSala_fechaHoraFuncion) {
+async function getOneDB(idSala_fechaHoraFuncion) {
   const funcion = await prisma.funcion.findUnique({
     where: {
       idSala_fechaHoraFuncion: {
@@ -24,7 +24,7 @@ async function getOne(idSala_fechaHoraFuncion) {
   return funcion;
 }
 
-async function createOne(data) {
+async function createOneDB(data) {
   const newFuncion = await prisma.funcion.create({
     data: {
       fechaHoraFuncion: new Date(data.fechaHoraFuncion),
@@ -36,7 +36,7 @@ async function createOne(data) {
   return newFuncion;
 }
 
-async function deleteOne(idSala_fechaHoraFuncion) {
+async function deleteOneDB(idSala_fechaHoraFuncion) {
   const deletedFuncion = await prisma.funcion.delete({
     where: {
       idSala_fechaHoraFuncion: {
@@ -48,7 +48,7 @@ async function deleteOne(idSala_fechaHoraFuncion) {
   return deletedFuncion;
 }
 
-async function updateOne(idSala_fechaHoraFuncion, data) {
+async function updateOneDB(idSala_fechaHoraFuncion, data) {
   const updatedFuncion = await prisma.funcion.update({
     where: {
       idSala_fechaHoraFuncion: {
@@ -60,9 +60,58 @@ async function updateOne(idSala_fechaHoraFuncion, data) {
       idSala: parseInt(data.idSala, 10),
       fechaHoraFuncion: new Date(data.fechaHoraFuncion),
       idPelicula: parseInt(data.idPelicula, 10),
+      estado: data.estado,
     },
   });
   return updatedFuncion;
 }
 
-export { getOne, getAll, createOne, deleteOne, updateOne };
+async function getFuncionesBySala(idSala) {
+  const funciones = await prisma.funcion.findMany({
+    where: {
+      idSala: parseInt(idSala, 10),
+    },
+    include: {
+      sala: true,
+      pelicula: true,
+    },
+  });
+  return funciones;
+}
+
+async function getFuncionesByPelicula(idPelicula) {
+  const funciones = await prisma.funcion.findMany({
+    where: {
+      idPelicula: parseInt(idPelicula, 10),
+    },
+    include: {
+      sala: true,
+      pelicula: true,
+    },
+  });
+  return funciones;
+}
+
+async function getInactiveFuncionesBD() {
+  const funciones = await prisma.funcion.findMany({
+    where: { estado: 'Inactiva' },
+    include: {
+      sala: true,
+      pelicula: true,
+    },
+  });
+  return funciones;
+}
+
+async function getActiveFuncionesBD() {
+  const funciones = await prisma.funcion.findMany({
+    where: { estado: { not: 'Inactiva' } },
+    include: {
+      sala: true,
+      pelicula: true,
+    },
+  });
+  return funciones;
+}
+
+export { getAllDB, getOneDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala, getFuncionesByPelicula, getInactiveFuncionesBD, getActiveFuncionesBD };
