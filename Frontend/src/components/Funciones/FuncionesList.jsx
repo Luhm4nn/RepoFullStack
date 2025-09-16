@@ -1,4 +1,3 @@
-import { getFunciones, deleteFuncion, updateFuncion } from "../../api/Funciones.api";
 import {
   Table,
   TableBody,
@@ -9,6 +8,7 @@ import {
   Button,
   Modal,
   ModalBody,
+  TextInput,
 } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { formatDateTime } from "../../utils/dateFormater";
@@ -16,123 +16,102 @@ import ModalDeleteFuncion from "./ModalDeleteFuncion";
 import ModalPublishFuncion from "./ModalPublishFuncion";
 import FuncionesForm from "./FuncionesForm";
 import ErrorModal from "../Shared/ErrorModal";
-import { useErrorModal } from "../../hooks/useErrorModal";
+import FuncionesInlineFilters from "./FuncionesInlineFilters";
+
+// Custom hooks
+import { useFuncionesFetch } from "./hooks/useFuncionesFetch";
+import { useFuncionesFilter } from "./hooks/useFuncionesFilter";
+import { useFuncionesModals } from "./hooks/useFuncionesModals";
 
 function FuncionesList() {
-  const [funciones, setFunciones] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [mostrandoActivas, setMostrandoActivas] = useState(true);
   
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [funcionToDelete, setFuncionToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  
-  const [showModalPublish, setShowModalPublish] = useState(false);
-  const [funcionToPublish, setFuncionToPublish] = useState(null);
-  const [isPublishing, setIsPublishing] = useState(false);
-  
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [funcionToEdit, setFuncionToEdit] = useState(null);
-  
-  const { error: modalError, handleApiError, hideError } = useErrorModal();
+  // Custom hooks
+  const {
+    funciones,
+    setFunciones,
+    funcionesSinFiltrar,
+    peliculas,
+    salas,
+    loading,
+    error,
+    modalError,
+    hideError,
+    fetchFunciones,
+    handleDeleteFuncion,
+    handleUpdateFuncion,
+    handlePublishFuncion
+  } = useFuncionesFetch(mostrandoActivas);
 
-  useEffect(() => {
-    fetchFunciones();
-  }, []);
+  const filterHook = useFuncionesFilter(funcionesSinFiltrar, setFunciones);
 
- const fetchFunciones = async () => {
-  try {
-    setLoading(true);
-    const funcionesData = await getFunciones();
-    setFunciones(funcionesData);
-    setError(null);
-  } catch (error) {
-    console.error("Error fetching funciones:", error);
-    setError(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
+  const {
+    showDeleteModal,
+    funcionToDelete,
+    isDeleting,
+    setIsDeleting,
+    openDeleteModal,
+    closeDeleteModal,
+    showModalPublish,
+    funcionToPublish,
+    isPublishing,
+    setIsPublishing,
+    openPublishModal,
+    closePublishModal,
+    showEditModal,
+    funcionToEdit,
+    openEditModal,
+    closeEditModal
+  } = useFuncionesModals();
 
-  // Handler para publicar/privatizar función
-  const handlePublishFuncion = async () => {
-    if (!funcionToPublish) return;
-    setIsPublishing(true);
-    try {
-      // Determinar el nuevo estado basado en el estado actual
-      const nuevoEstado = funcionToPublish.estado === 'Privada' ? 'Publica' : 'Privada';
-      const funcionActualizada = {
-        ...funcionToPublish,
-        estado: nuevoEstado
-      };
-      const idSala = funcionToPublish.idSala;
-      const fechaHoraFuncion = funcionToPublish.fechaHoraFuncion;
-      
-      await updateFuncion(idSala, fechaHoraFuncion, funcionActualizada);
-      
-      await fetchFunciones();
-      
-      setShowModalPublish(false);
-      setFuncionToPublish(null);
-      
-    } catch (error) {
-      console.error('Error publicando función:', error);
-      const wasHandled = handleApiError(error);
-      if (!wasHandled) {
-        const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
-        alert(`Error publicando función: ${errorMessage}`);
-      }
-    } finally {
-      setIsPublishing(false);
-    }
-  };
-
-  // Handler para eliminar función
-  const handleDeleteFuncion = async () => {
+  // Event handlers that use the hooks
+  const handleDeleteClick = async () => {
     if (!funcionToDelete) return;
     setIsDeleting(true);
-    try {
-      const idSala = funcionToDelete.idSala;
-      const fechaHoraFuncion = funcionToDelete.fechaHoraFuncion;
-
-      await deleteFuncion(idSala, fechaHoraFuncion);
-      await fetchFunciones();
-      setShowDeleteModal(false);
-      setFuncionToDelete(null);
-    } catch (error) {
-      console.error('Error eliminando función:', error);
-      alert('Error eliminando función');
-    } finally {
+    
+    const result = await handleDeleteFuncion(funcionToDelete);
+    if (result.success) {
+      closeDeleteModal();
+    } else {
+      alert(result.error);
       setIsDeleting(false);
     }
   };
 
-  const handleEditFuncion = (funcion) => {
-    setFuncionToEdit(funcion);
-    setShowEditModal(true);
+  const handlePublishClick = async () => {
+    if (!funcionToPublish) return;
+    setIsPublishing(true);
+    
+    const result = await handlePublishFuncion(funcionToPublish);
+    if (result.success) {
+      closePublishModal();
+    } else {
+      if (result.error) {
+        alert(result.error);
+      }
+      setIsPublishing(false);
+    }
   };
 
-  // Handler para el submit del formulario de edición
   const handleEditSubmit = async (funcionActualizada) => {
     if (!funcionToEdit) return;
     
-    try {
-      const idSalaOriginal = funcionToEdit.idSala;
-      const fechaHoraOriginal = funcionToEdit.fechaHoraFuncion;
-      
-      await updateFuncion(idSalaOriginal, fechaHoraOriginal, funcionActualizada);
-      await fetchFunciones();
-      setShowEditModal(false);
-      setFuncionToEdit(null);
-    } catch (error) {
-      console.error('Error actualizando función:', error);
-      const wasHandled = handleApiError(error);
-      if (!wasHandled) {
-        const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
-        alert(`Error actualizando función: ${errorMessage}`);
+    const result = await handleUpdateFuncion(funcionToEdit, funcionActualizada);
+    if (result.success) {
+      closeEditModal();
+    } else {
+      if (result.error) {
+        alert(result.error);
       }
     }
   };
+
+  // Apply filters when they change
+  useEffect(() => {
+    if (funcionesSinFiltrar.length > 0) {
+      filterHook.aplicarFiltros();
+    }
+  }, [filterHook.filtros, funcionesSinFiltrar, filterHook.aplicarFiltros]);
 
   if (loading) {
     return <div className="text-center p-4">Cargando Funciones...</div>;
@@ -154,6 +133,29 @@ function FuncionesList() {
 
   return (
     <div className="w-full">
+      {/* Header */}
+      <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <h2 className="text-xl font-semibold text-white">
+          {mostrandoActivas ? 'Funciones Activas' : 'Funciones Finalizadas'}
+        </h2>
+        <Button
+          onClick={() => setMostrandoActivas(!mostrandoActivas)}
+          className={`text-sm ${
+            mostrandoActivas 
+              ? '!bg-slate-600 hover:!bg-slate-700' 
+              : '!bg-orange-600 hover:!bg-orange-700'
+          }`}
+        >
+          {mostrandoActivas 
+            ? ' Ver Finalizadas' 
+            : ' Ver Activas'
+          }
+        </Button>
+      </div>
+
+      {/* Inline filters */}
+      <FuncionesInlineFilters filterHook={filterHook} />
+      
       <div className="hidden md:block overflow-x-auto">
         <Table hoverable>
           <TableHead>
@@ -170,7 +172,10 @@ function FuncionesList() {
             {funciones.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-4">
-                  No hay funciones registradas
+                  {mostrandoActivas 
+                    ? 'No hay funciones activas registradas' 
+                    : 'No hay funciones finalizadas'
+                  }
                 </TableCell>
               </TableRow>
             ) : (
@@ -198,60 +203,52 @@ function FuncionesList() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                         <Button 
-                         size="sm" 
-                         className={`w-full sm:w-auto text-sm ${
-                           funcion.estado === 'Privada'
-                             ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
-                             : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
-                         }`}
-                         onClick={() => {
-                           setFuncionToPublish(funcion);
-                           setShowModalPublish(true);
-                         }}
-                       >
-                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
-                           {funcion.estado === 'Privada' ? (
-                             <path strokeLinecap="round" strokeLinejoin="round" d="m15 11.25-3-3m0 0-3 3m3-3v7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                           ) : (
-                             <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 1-4.243-4.243m4.242 4.242L9.88 9.88" />
-                           )}
-                         </svg>
-                         {funcion.estado === 'Privada' ? 'Publicar' : 'Privatizar'}
-                       </Button>       
-                        <Button 
-                          size="sm" 
-                          className={`w-full sm:w-auto text-sm ${
-                            funcion.estado === 'Privada' 
-                              ? 'bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600' 
-                              : 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                          }`}
-                          onClick={() => funcion.estado === 'Privada' ? handleEditFuncion(funcion) : null}
-                          disabled={funcion.estado !== 'Privada'}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                          </svg>
-                          Editar
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          className={`w-full sm:w-auto text-sm ${
-                            funcion.estado === 'Privada' 
-                              ? 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700' 
-                              : 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                          }`}
-                          onClick={() => funcion.estado === 'Privada' ? (() => {
-                            setFuncionToDelete(funcion);
-                            setShowDeleteModal(true);
-                          })() : null}
-                          disabled={funcion.estado !== 'Privada'}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                          </svg>
-                          Eliminar
-                        </Button>
+                        {funcion.estado !== 'Inactiva' && (
+                          <Button 
+                            size="sm" 
+                            className={`w-full sm:w-auto text-sm ${
+                              funcion.estado === 'Privada'
+                                ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
+                                : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
+                            }`}
+                            onClick={() => openPublishModal(funcion)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
+                              {funcion.estado === 'Privada' ? (
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m15 11.25-3-3m0 0-3 3m3-3v7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                              ) : (
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 1-4.243-4.243m4.242 4.242L9.88 9.88" />
+                              )}
+                            </svg>
+                            {funcion.estado === 'Privada' ? 'Publicar' : 'Privatizar'}
+                          </Button>
+                        )}
+                        
+                        {funcion.estado === 'Privada' && (
+                          <Button 
+                            size="sm" 
+                            className="w-full sm:w-auto text-sm bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600"
+                            onClick={() => openEditModal(funcion)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                            </svg>
+                            Editar
+                          </Button>
+                        )}
+
+                        {(funcion.estado === 'Privada' || funcion.estado === 'Inactiva') && (
+                          <Button 
+                            size="sm" 
+                            className="w-full sm:w-auto text-sm bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
+                            onClick={() => openDeleteModal(funcion)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            </svg>
+                            Eliminar
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -262,11 +259,14 @@ function FuncionesList() {
         </Table>
       </div>
 
-      {/* view para mobile */}
+      {/* Mobile view */}
       <div className="md:hidden space-y-4">
         {funciones.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
-            No hay funciones registradas
+            {mostrandoActivas 
+              ? 'No hay funciones activas registradas' 
+              : 'No hay funciones finalizadas'
+            }
           </div>
         ) : (
           funciones.map((funcion) => {
@@ -317,64 +317,56 @@ function FuncionesList() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.745 3.745 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
                     </svg>
                   </div>
-                  <span className={`font-bold ${funcion.estado === 'Privada' ? 'text-red-500' : funcion.estado === 'Publica' ? 'text-green-500' : ''}`}>{funcion.estado}</span>
+                  <span className={`font-bold ${funcion.estado === 'Privada' ? 'text-red-500' : funcion.estado === 'Publica' ? 'text-green-500' : funcion.estado === 'Inactiva' ? 'text-gray-500' : ''}`}>{funcion.estado}</span>
                 </div>
 
                 <div className="flex flex-col gap-2 pt-2">
-                  <Button 
-                    size="sm" 
-                    className={`w-full text-sm ${
-                      funcion.estado === 'Privada' 
-                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700' 
-                        : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
-                    }`}
-                    onClick={() => {
-                      setFuncionToPublish(funcion);
-                      setShowModalPublish(true);
-                    }}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-2 text-white">
-                      {funcion.estado === 'Privada' ? (
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m15 11.25-3-3m0 0-3 3m3-3v7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                      ) : (
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 1-4.243-4.243m4.242 4.242L9.88 9.88" />
-                      )}
-                    </svg>
-                    {funcion.estado === 'Privada' ? 'Publicar' : 'Privatizar'}
-                  </Button>                  
-                  <Button 
-                    size="sm" 
-                    className={`w-full text-sm ${
-                      funcion.estado === 'Privada' 
-                        ? 'bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600' 
-                        : 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                    }`}
-                    onClick={() => funcion.estado === 'Privada' ? handleEditFuncion(funcion) : null}
-                    disabled={funcion.estado !== 'Privada'}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l .8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                    </svg>
-                    Editar
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    className={`w-full text-sm ${
-                      funcion.estado === 'Privada' 
-                        ? 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700' 
-                        : 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                    }`}
-                    onClick={() => funcion.estado === 'Privada' ? (() => {
-                      setFuncionToDelete(funcion);
-                      setShowDeleteModal(true);
-                    })() : null}
-                    disabled={funcion.estado !== 'Privada'}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                    </svg>
-                    Eliminar
-                  </Button>
+                  {funcion.estado !== 'Inactiva' && (
+                    <Button 
+                      size="sm" 
+                      className={`w-full text-sm ${
+                        funcion.estado === 'Privada' 
+                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700' 
+                          : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
+                      }`}
+                      onClick={() => openPublishModal(funcion)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-2 text-white">
+                        {funcion.estado === 'Privada' ? (
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m15 11.25-3-3m0 0-3 3m3-3v7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        ) : (
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 1-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        )}
+                      </svg>
+                      {funcion.estado === 'Privada' ? 'Publicar' : 'Privatizar'}
+                    </Button>
+                  )}
+                  
+                  {funcion.estado === 'Privada' && (
+                    <Button 
+                      size="sm" 
+                      className="w-full text-sm bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600"
+                      onClick={() => openEditModal(funcion)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l .8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                      </svg>
+                      Editar
+                    </Button>
+                  )}
+
+                  {(funcion.estado === 'Privada' || funcion.estado === 'Inactiva') && (
+                    <Button 
+                      size="sm" 
+                      className="w-full text-sm bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
+                      onClick={() => openDeleteModal(funcion)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                      </svg>
+                      Eliminar
+                    </Button>
+                  )}
                 </div>
               </div>
             );
@@ -382,42 +374,33 @@ function FuncionesList() {
         )}
       </div>
 
-      {/* Modal para eliminar función */}
+      {/* Delete modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <ModalDeleteFuncion
             funcion={funcionToDelete}
-            onConfirm={handleDeleteFuncion}
-            onCancel={() => { 
-              setShowDeleteModal(false); 
-              setFuncionToDelete(null); 
-            }}
+            onConfirm={handleDeleteClick}
+            onCancel={closeDeleteModal}
             isDeleting={isDeleting}
           />
         </div>
       )}
 
-      {/* Modal para publicar/privatizar función */}
+      {/* Publish/unpublish modal */}
       {showModalPublish && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <ModalPublishFuncion
             funcion={funcionToPublish}
-            onConfirm={handlePublishFuncion}
-            onCancel={() => { 
-              setShowModalPublish(false); 
-              setFuncionToPublish(null); 
-            }}
+            onConfirm={handlePublishClick}
+            onCancel={closePublishModal}
             isPublishing={isPublishing}
           />
         </div>
       )}
 
-      {/* Modal para editar función */}
+      {/* Edit modal */}
       {showEditModal && (
-        <Modal show={showEditModal} onClose={() => {
-          setShowEditModal(false);
-          setFuncionToEdit(null);
-        }} size="xl"
+        <Modal show={showEditModal} onClose={closeEditModal} size="xl"
         theme={{
           content: {
             base: "relative h-full w-full p-4 flex items-center justify-center min-h-screen",
@@ -429,16 +412,13 @@ function FuncionesList() {
               onSubmit={handleEditSubmit}
               funcionToEdit={funcionToEdit}
               isEditing={true}
-              onCancel={() => {
-                setShowEditModal(false);
-                setFuncionToEdit(null);
-              }}
+              onCancel={closeEditModal}
             />
           </ModalBody>
         </Modal>
       )}
 
-      {/* Modal de Error Unificado */}
+      {/* Error modal */}
       <ErrorModal error={modalError} onClose={hideError} />
     </div>
   );

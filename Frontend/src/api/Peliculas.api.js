@@ -12,6 +12,33 @@ export const getPeliculas = async () => {
   }
 };
 
+// ✨ NUEVA: Búsqueda de películas con debounce
+export const searchPeliculas = async (query, limit = 10) => {
+  try {
+    if (!query || query.length < 2) {
+      return [];
+    }
+    
+    // Por ahora usamos la API existente y filtramos en frontend
+    // TODO: Implementar endpoint /Peliculas/search en backend
+    const response = await axios.get(`${VITE_API_URL}/Peliculas`);
+    const peliculas = response.data;
+    
+    // Filtrado client-side (temporal hasta que tengamos /search en backend)
+    const filteredPeliculas = peliculas
+      .filter(pelicula => 
+        pelicula.nombrePelicula && 
+        pelicula.nombrePelicula.toLowerCase().includes(query.toLowerCase())
+      )
+      .slice(0, limit);
+      
+    return filteredPeliculas;
+  } catch (error) {
+    console.error("Error searching peliculas:", error);
+    throw error;
+  }
+};
+
 export const getPelicula = async (id) =>{
   try {
     const response = await axios.get(`${VITE_API_URL}/Pelicula/${id}`);

@@ -3,14 +3,27 @@ import {dateFormaterBackend} from "../utils/dateFormater.js";
 
 const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
-export const getFunciones = async () => {
+export const getFunciones = async (estado = 'activas') => {
   try {
-    const response = await axios.get(`${VITE_API_URL}/Funciones`);
+    const response = await axios.get(`${VITE_API_URL}/Funciones?estado=${estado}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching funciones:", error);
     throw error;
   }
+}
+
+// Funciones específicas para mejor claridad en el código
+export const getFuncionesActivas = async () => {
+  return getFunciones('activas');
+}
+
+export const getFuncionesInactivas = async () => {
+  return getFunciones('inactivas');
+}
+
+export const getTodasLasFunciones = async () => {
+  return getFunciones('todos');
 }
 
 export const createFuncion = async (funcion) => {
