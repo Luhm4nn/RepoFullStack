@@ -10,3 +10,5 @@ node_modules
 /generated/prisma
 
 /generated/prisma
+
+prisma/schema.prisma
