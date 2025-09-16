@@ -2,7 +2,7 @@ import express from "express";
 import { indexRoutes } from "./index.routes.js";
 import { peliculasRoutes } from "./Peliculas/peliculas.routes.js";
 import { errorHandler } from "./Middlewares/errorHandler.js";
-import { clientesRoutes } from "./Usuario/usuarios.routes.js";
+import { usuariosRoutes } from "./Usuario/usuarios.routes.js";
 import { parametrosRoutes } from "./Parametros/parametros.routes.js";
 import { salasRoutes } from "./Salas/salas.routes.js";
 import { tarifasRoutes } from "./Tarifas/tarifas.routes.js";
@@ -20,6 +20,7 @@ const PORT = process.env.PORT || 4000;
 
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true
 }));
 
 app.use(express.json());
@@ -27,7 +28,7 @@ app.use(cookieParser());
 
 app.use(indexRoutes);
 app.use(peliculasRoutes);
-app.use(clientesRoutes);
+app.use(usuariosRoutes);
 app.use(parametrosRoutes);
 app.use(salasRoutes);
 app.use(tarifasRoutes);
