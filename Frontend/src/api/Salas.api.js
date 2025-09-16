@@ -12,7 +12,7 @@ export const getSalas = async () => {
   }
 }
 
-// ✨ NUEVA: Búsqueda de salas con debounce
+
 export const searchSalas = async (query, limit = 5) => {
   try {
     if (!query || query.length < 2) {
@@ -39,23 +39,13 @@ export const searchSalas = async (query, limit = 5) => {
   }
 };
 
-export const getSala = async (id) => {
+export const getSala = async (param) => {
   try {
-    const response = await axios.get(`${VITE_API_URL}/Sala/${id}`);
+    const response = await axios.get(`${VITE_API_URL}/Sala/${param}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching sala:", error);
     throw error;
-  }
-};
-
-export const checkSalaExists = async (nombreSala) => {
-  try {
-    const response = await axios.get(`${VITE_API_URL}/Sala/check/${nombreSala}`);
-    return response.data.exists;
-  } catch (error) {
-    console.error("Error checking sala:", error);
-    return false;
   }
 };
 

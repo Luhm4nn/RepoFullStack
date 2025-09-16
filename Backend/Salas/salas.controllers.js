@@ -16,15 +16,9 @@ export const getSalas = async (req, res) => {
 };
 
 export const getSala = async (req, res) => {
-  const sala = await getOne(req.params.id);
+  const { param } = req.params;
+  const sala = await getOne(param);
   res.json(sala);
-};
-
-export const checkNombreSala = async (req, res) => {
-  const { nombreSala } = req.params;
-  const salas = await getAll();
-  const exists = salas.some(sala => sala.nombreSala === nombreSala);
-  res.json({ exists });
 };
 
 export const getAsientos = async (req, res) => {

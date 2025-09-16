@@ -5,17 +5,14 @@ import {
   getSala,
   createSala,
   deleteSala,
-  updateSala,
-  checkNombreSala
+  updateSala
 } from "./salas.controllers.js";
 
 const router = Router();
 
 router.get("/Salas", asyncHandler(getSalas));
 
-router.get("/Sala/:id", asyncHandler(getSala));
-
-router.get("/Sala/check/:nombreSala", asyncHandler(checkNombreSala));
+router.get("/Sala/:param", asyncHandler(getSala));
 
 router.post("/Sala", asyncHandler(createSala));
 
