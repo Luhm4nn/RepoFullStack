@@ -2,7 +2,7 @@ import express from "express";
 import { indexRoutes } from "./index.routes.js";
 import { peliculasRoutes } from "./Peliculas/peliculas.routes.js";
 import { errorHandler } from "./Middlewares/errorHandler.js";
-import { clientesRoutes } from "./Clientes/clientes.routes.js";
+import { clientesRoutes } from "./Usuario/clientes.routes.js";
 import { parametrosRoutes } from "./Parametros/parametros.routes.js";
 import { salasRoutes } from "./Salas/salas.routes.js";
 import { tarifasRoutes } from "./Tarifas/tarifas.routes.js";

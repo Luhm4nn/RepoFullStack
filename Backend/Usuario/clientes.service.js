@@ -4,45 +4,45 @@ import {
     createOne as createOneDB, 
     deleteOne as deleteOneDB, 
     updateOne as updateOneDB 
-} from './clientes.repository.js';
+} from './usuarios.repository.js';
 
 export const getAll = async () => {
-    const clientes = await getAllDB();
-    return clientes;
+    const usuarios = await getAllDB();
+    return usuarios;
 };
 
 export const getOne = async (id) => {
-    const cliente = await getOneDB(id);
-    return cliente;
+    const usuario = await getOneDB(id);
+    return usuario;
 };
 
 export const createOne = async (data) => {
     // TODO: Implementar validaciones de negocio aquí
     // Ejemplo: validar formato de email, DNI único, etc.
-    
-    const newCliente = await createOneDB(data);
-    return newCliente;
+
+    const newUsuario = await createOneDB(data);
+    return newUsuario;
 };
 
 export const deleteOne = async (id) => {
     // TODO: Implementar validaciones de negocio aquí
     // Ejemplo: verificar que no tenga reservas activas antes de eliminar
-    
-    const deletedCliente = await deleteOneDB(id);
-    return deletedCliente;
+
+    const deletedUsuario = await deleteOneDB(id);
+    return deletedUsuario;
 };
 
 export const updateOne = async (id, data) => {
-    const clienteExistente = await getOneDB(id);
-    if (!clienteExistente) {
-        const error = new Error("Cliente no encontrado.");
+    const usuarioExistente = await getOneDB(id);
+    if (!usuarioExistente) {
+        const error = new Error("Usuario no encontrado.");
         error.status = 404;
         throw error;
     }
     
     // TODO: Implementar validaciones de negocio aquí
     // Ejemplo: validar cambios de email, verificar unicidad, etc.
-    
-    const updatedCliente = await updateOneDB(id, data);
-    return updatedCliente;
+
+    const updatedUsuario = await updateOneDB(id, data);
+    return updatedUsuario;
 };
