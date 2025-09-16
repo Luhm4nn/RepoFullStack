@@ -1,63 +1,67 @@
 import prisma from "../prisma/prisma.js";
 
-// Repository for Clientes
+// Repository for Usuarios
 
 async function getAll() {
-  const clientes = await prisma.cliente.findMany({
+  const usuarios = await prisma.usuario.findMany({
     include: {
       _count: {
         select: { reserva: true },
       },
     },
   });
-  return clientes;
+  return usuarios;
 }
 
 async function getOne(dni) {
-  const cliente = await prisma.cliente.findUnique({
+  const usuario = await prisma.usuario.findUnique({
     where: {
       DNI: parseInt(dni, 10),
     },
   });
-  return cliente;
+  return usuario;
 }
 
 async function createOne(data) {
-  const newCliente = await prisma.cliente.create({
+  const newUsuario = await prisma.usuario.create({
     data: {
       DNI: data.DNI,
-      nombreCliente: data.nombreCliente,
-      apellidoCliente: data.apellidoCliente,
+      nombre: data.nombre,
+      apellido: data.apellido,
       email: data.email,
+      contrasena: data.contrasena,
+      rol: data.rol,
       telefono: data.telefono,
     },
   });
-  return newCliente;
+  return newUsuario;
 }
 
 async function deleteOne(dni) {
-  const deletedCliente = await prisma.cliente.delete({
+  const deletedUsuario = await prisma.usuario.delete({
     where: {
       DNI: parseInt(dni, 10),
     },
   });
-  return deletedCliente;
+  return deletedUsuario;
 }
 
 async function updateOne(dni, data) {
-  const updatedCliente = await prisma.cliente.update({
+  const updatedUsuario = await prisma.usuario.update({
     where: {
       DNI: parseInt(dni, 10),
     },
     data: {
       DNI: data.DNI,
-      nombreCliente: data.nombreCliente,
-      apellidoCliente: data.apellidoCliente,
+      nombre: data.nombre,
+      apellido: data.apellido,
       email: data.email,
+      contrasena: data.contrasena,
+      rol: data.rol,
       telefono: data.telefono,
     },
   });
-  return updatedCliente;
+  return updatedUsuario;
 }
 
 export { getOne, getAll, createOne, deleteOne, updateOne };

@@ -27,11 +27,13 @@ CREATE TABLE `sala` (
   PRIMARY KEY (`idSala`)
 );
 
-CREATE TABLE `cliente` (
+CREATE TABLE `usuario` (
   `DNI` int NOT NULL,
-  `nombreCliente` varchar(45) NOT NULL,
-  `apellidoCliente` varchar(45) NOT NULL,
+  `nombreUsuario` varchar(45) NOT NULL,
+  `apellidoUsuario` varchar(45) NOT NULL,
   `email` varchar(70) NOT NULL,
+  `contrasena` varchar(255) NOT NULL,
+  `rol` varchar(20) NOT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`DNI`)
 );
@@ -92,7 +94,7 @@ CREATE TABLE `reserva` (
   `estado` varchar(45) NOT NULL,
   `total` decimal(7,2) NOT NULL,
   PRIMARY KEY (`idSala`,`fechaHoraFuncion`,`DNI`,`fechaHoraReserva`),
-  CONSTRAINT `reserva_ibfk_1` FOREIGN KEY (`DNI`) REFERENCES `cliente` (`DNI`),
+  CONSTRAINT `reserva_ibfk_1` FOREIGN KEY (`DNI`) REFERENCES `usuario` (`DNI`),
   CONSTRAINT `reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaHoraFuncion`) REFERENCES `funcion` (`idSala`, `fechaHoraFuncion`)
 );
 
