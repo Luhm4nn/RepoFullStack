@@ -9,6 +9,8 @@ import ErrorModal from "../Shared/ErrorModal";
 
 function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
   const [showModal, setShowModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const { error, handleApiError, hideError } = useErrorModal();
   const isEditing = !!peliculaToEdit;
 
@@ -16,11 +18,17 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
   useEffect(() => {
     if (peliculaToEdit) {
       setShowModal(true);
+      // Si estamos editando y hay una portada existente, mostrarla como preview
+      if (peliculaToEdit.portada) {
+        setPreviewUrl(peliculaToEdit.portada);
+      }
     }
   }, [peliculaToEdit]);
 
   const handleClose = () => {
     setShowModal(false);
+    setSelectedFile(null);
+    setPreviewUrl(null);
     if (onClose) {
       onClose();
     }
@@ -33,26 +41,68 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
     return date.toISOString().split('T')[0]; // YYYY-MM-DD para el input
   };
 
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Validar tipo de archivo
+      if (!file.type.startsWith('image/')) {
+        alert('Solo se permiten archivos de imagen');
+        return;
+      }
+      
+      // Validar tamaño (5MB máximo)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('El archivo debe ser menor a 5MB');
+        return;
+      }
+
+      setSelectedFile(file);
+      
+      // Crear preview URL
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
+    } else {
+      setSelectedFile(null);
+      setPreviewUrl(isEditing && peliculaToEdit.portada ? peliculaToEdit.portada : null);
+    }
+  };
+
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     try {
       console.log(isEditing ? 'Editando película:' : 'Creando película:', values);
       
-      // Limpiar datos antes de enviar
-      const cleanData = {
-        ...values,
-        duracion: parseInt(values.duracion),
-        fechaEstreno: values.fechaEstreno ? dateFormaterBackend(values.fechaEstreno) : null,
-        sinopsis: values.sinopsis || null,
-        trailerURL: values.trailerURL || null,
-        portada: values.portada || null,
-        MPAA: values.MPAA || null
-      };
+      // SIEMPRE crear FormData (aunque no haya archivo)
+      const formData = new FormData();
+      
+      // Agregar todos los campos del formulario (incluso vacíos)
+      Object.keys(values).forEach(key => {
+        if (key === 'duracion') {
+          formData.append(key, parseInt(values[key]) || 0);
+        } else if (key === 'fechaEstreno') {
+          const formattedDate = values[key] ? dateFormaterBackend(values[key]) : '';
+          formData.append(key, formattedDate);
+        } else {
+          // Enviar todos los campos, incluso si están vacíos
+          formData.append(key, values[key] || '');
+        }
+      });
+
+      // Agregar archivo si se seleccionó uno nuevo
+      if (selectedFile) {
+        formData.append('portada', selectedFile);
+      }
+
+      // Debug: mostrar lo que se está enviando
+      console.log('FormData entries:');
+      for (let [key, value] of formData.entries()) {
+        console.log(key, ':', value);
+      }
       
       if (isEditing) {
-        await updatePelicula(peliculaToEdit.idPelicula, cleanData);
+        await updatePelicula(peliculaToEdit.idPelicula, formData);
         console.log('Película actualizada exitosamente');
       } else {
-        await createPelicula(cleanData);
+        await createPelicula(formData);
         console.log('Película creada exitosamente');
       }
       
@@ -87,7 +137,6 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
     fechaEstreno: formatDateForInput(peliculaToEdit.fechaEstreno),
     sinopsis: peliculaToEdit.sinopsis || "",
     trailerURL: peliculaToEdit.trailerURL || "",
-    portada: peliculaToEdit.portada || "",
     MPAA: peliculaToEdit.MPAA || "",
   } : {
     nombrePelicula: "",
@@ -97,7 +146,6 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
     fechaEstreno: "",
     sinopsis: "",
     trailerURL: "",
-    portada: "",
     MPAA: "",
   };
 
@@ -261,7 +309,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                     <ErrorMessage name="sinopsis" component="div" className="text-red-400 text-sm mt-1" />
                   </div>
 
-                  {/* URLs */}
+                  {/* URLs y Upload */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-white font-medium mb-2">
@@ -278,15 +326,46 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
 
                     <div>
                       <label className="block text-white font-medium mb-2">
-                         URL del Póster / Imagen
+                         Póster de la Película
                       </label>
-                      <Field
-                        as={TextInput}
-                        name="portada"
-                        placeholder="Ej: https://image.tmdb.org/t/p/w500/poster.jpg"
-                        disabled={isSubmitting}
-                      />
-                      <ErrorMessage name="portada" component="div" className="text-red-400 text-sm mt-1" />
+                      <div className="space-y-3">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          disabled={isSubmitting}
+                          className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 file:cursor-pointer cursor-pointer border border-gray-600 rounded-lg bg-slate-700 focus:ring-2 focus:ring-purple-500"
+                        />
+                        
+                        {/* Preview de la imagen */}
+                        {previewUrl && (
+                          <div className="relative">
+                            <img 
+                              src={previewUrl} 
+                              alt="Preview del póster" 
+                              className="w-full h-32 object-cover rounded-lg border border-gray-600"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedFile(null);
+                                setPreviewUrl(isEditing && peliculaToEdit.portada ? peliculaToEdit.portada : null);
+                                // Reset file input
+                                const fileInput = document.querySelector('input[type="file"]');
+                                if (fileInput) fileInput.value = '';
+                              }}
+                              className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                              disabled={isSubmitting}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        )}
+                        
+                        <p className="text-gray-400 text-xs">
+                          Formatos: JPG, PNG, WEBP. Máximo 5MB. Se redimensionará automáticamente a 500x750px.
+                        </p>
+                      </div>
                     </div>
                   </div>
 

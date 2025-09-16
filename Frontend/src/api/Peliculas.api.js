@@ -24,7 +24,14 @@ export const getPelicula = async (id) =>{
 
 export const createPelicula = async (pelicula) => {
   try {
-    const response = await axios.post(`${VITE_API_URL}/Pelicula`, pelicula);
+    // Configurar headers para FormData
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    };
+    
+    const response = await axios.post(`${VITE_API_URL}/Pelicula`, pelicula, config);
     return response.data;
   } catch (error) {
     console.error("Error creating pelicula:", error);
@@ -34,7 +41,14 @@ export const createPelicula = async (pelicula) => {
 
 export const updatePelicula = async (id, pelicula) => {
   try {
-    const response = await axios.put(`${VITE_API_URL}/Pelicula/${id}`, pelicula);
+    // Configurar headers para FormData
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    };
+    
+    const response = await axios.put(`${VITE_API_URL}/Pelicula/${id}`, pelicula, config);
     return response.data;
   } catch (error) {
     console.error("Error updating pelicula:", error);

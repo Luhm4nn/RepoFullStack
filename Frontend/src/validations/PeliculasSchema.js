@@ -26,7 +26,7 @@ const peliculaSchema = Yup.object().shape({
 
   trailerURL: Yup.string().url("Debe ser una URL válida").nullable(),
 
-  portada: Yup.string().url("Debe ser una URL válida").nullable(),
+  portada: Yup.mixed().nullable(),
 
   MPAA: Yup.string()
     .oneOf(["G", "PG", "PG-13", "R", "NC-17"], "Clasificación inválida")

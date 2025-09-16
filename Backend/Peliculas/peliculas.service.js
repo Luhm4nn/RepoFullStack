@@ -7,6 +7,7 @@ import {
 } from './peliculas.repository.js';
 import { getFuncionesByPeliculaId } from '../Funciones/funciones.service.js';
 import { formatDateForBackendMessage, formatDateTimeForBackendMessage } from '../utils/dateFormater.js';
+import { cloudinary } from '../config/cloudinary.js';
 
 
 export const getAll = async () => {
@@ -22,8 +23,13 @@ export const getOne = async (id) => {
 export const createOne = async (data) => {
     // TODO: Implementar validaciones de negocio aquí (Valibot)
     // Ejemplo: validar fechas de estreno, duración positiva, géneros válidos, etc.
+
+    const movieDataToCreate = {
+        ...data,
+        duracion: data.duracion ? parseInt(data.duracion, 10) : 0,
+    };
     
-    const newPelicula = await createOneDB(data);
+    const newPelicula = await createOneDB(movieDataToCreate);
     return newPelicula;
 };
 
@@ -69,8 +75,13 @@ export const updateOne = async (id, data) => {
             console.error('Error eliminando póster anterior de Cloudinary:', error);
         }
     }
+
+    const movieDataToUpdate = {
+        ...data,
+        duracion: data.duracion ? parseInt(data.duracion, 10) : 0,
+    };
     
-    const updatedPelicula = await updateOneDB(id, data);
+    const updatedPelicula = await updateOneDB(id, movieDataToUpdate);
     return updatedPelicula;
 };
 

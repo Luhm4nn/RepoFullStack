@@ -13,7 +13,7 @@ console.log('☁️ Cloudinary configured with cloud name:', process.env.CLOUDIN
 const moviePostersStorage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "cuzy/posters",
+    folder: "cutzy/posters",
     allowed_formats: ["jpg", "png", "jpeg", "webp"],
     transformation: [
       { quality: "auto", fetch_format: "auto" },
