@@ -26,7 +26,8 @@ async function createOne(data) {
       fechaEstreno: data.fechaEstreno,
       sinopsis: data.sinopsis,
       trailerURL: data.trailerURL,
-      portada: data.portada,
+      portada: data.portada, // URL de Cloudinary
+      portadaPublicId: data.portadaPublicId, // ID público de Cloudinary (para eliminar)
       MPAA: data.MPAA,
     },
   });
@@ -55,6 +56,7 @@ async function updateOne(id, data) {
       sinopsis: data.sinopsis,
       trailerURL: data.trailerURL,
       portada: data.portada,
+      portadaPublicId: data.portadaPublicId,
       MPAA: data.MPAA,
     },
   });

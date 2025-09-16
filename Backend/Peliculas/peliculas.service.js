@@ -7,6 +7,7 @@ import {
 } from './peliculas.repository.js';
 import { getFuncionesByPeliculaId } from '../Funciones/funciones.service.js';
 import { formatDateForBackendMessage, formatDateTimeForBackendMessage } from '../utils/dateFormater.js';
+import { cloudinary } from '../config/cloudinary.js';
 
 
 export const getAll = async () => {
@@ -22,13 +23,30 @@ export const getOne = async (id) => {
 export const createOne = async (data) => {
     // TODO: Implementar validaciones de negocio aquí (Valibot)
     // Ejemplo: validar fechas de estreno, duración positiva, géneros válidos, etc.
+
+    const movieDataToCreate = {
+        ...data,
+        duracion: data.duracion ? parseInt(data.duracion, 10) : 0,
+    };
     
-    const newPelicula = await createOneDB(data);
+    const newPelicula = await createOneDB(movieDataToCreate);
     return newPelicula;
 };
 
 export const deleteOne = async (id) => {
-    // TODO: Implementar validaciones de negocio aquí
+    const peliculaExistente = await getOneDB(id);
+    
+    // Si tiene póster en Cloudinary se elimina también
+    if (peliculaExistente?.portadaPublicId) {
+        try {
+            await cloudinary.uploader.destroy(peliculaExistente.portadaPublicId);
+            console.log('Póster eliminado de Cloudinary:', peliculaExistente.portadaPublicId);
+        } catch (error) {
+            console.error('Error eliminando póster de Cloudinary:', error);
+        }
+    }
+    
+    // Implementar validaciones de negocio aquí
     // Ejemplo: verificar que no tenga funciones programadas antes de eliminar
     
     const deletedPelicula = await deleteOneDB(id);
@@ -42,11 +60,28 @@ export const updateOne = async (id, data) => {
         error.status = 404;
         throw error;
     }
+
     const errorValidations = await validationsEstreno({ id, ...data });
     if(errorValidations){
         return errorValidations;
     }
-    const updatedPelicula = await updateOneDB(id, data);
+
+    // Si se subió un nuevo póster y existe uno anterior, eliminar el anterior
+    if (data.portada && peliculaExistente.portadaPublicId) {
+        try {
+            await cloudinary.uploader.destroy(peliculaExistente.portadaPublicId);
+            console.log('Póster anterior eliminado de Cloudinary:', peliculaExistente.portadaPublicId);
+        } catch (error) {
+            console.error('Error eliminando póster anterior de Cloudinary:', error);
+        }
+    }
+
+    const movieDataToUpdate = {
+        ...data,
+        duracion: data.duracion ? parseInt(data.duracion, 10) : 0,
+    };
+    
+    const updatedPelicula = await updateOneDB(id, movieDataToUpdate);
     return updatedPelicula;
 };
 

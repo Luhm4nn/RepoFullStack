@@ -18,8 +18,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "multer-storage-cloudinary": "^4.0.0",
     "morgan": "^1.10.0",
     "mysql2": "^3.14.1",
     "node-cron": "^4.2.1"

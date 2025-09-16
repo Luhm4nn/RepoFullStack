@@ -1,7 +1,7 @@
 Backend/prisma/schema.prisma
 Backend/node_modules
 Frontend/node_modules
-/Backend/node_modules
+Backend/node_modules
 Frontend/.env
 Backend/package-lock.json
 Frontend/package-lock.json
