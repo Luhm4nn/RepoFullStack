@@ -9,7 +9,7 @@ export const iniciarCronFunciones = () => {
       console.log(`[${ahora.toISOString()}] Verificando funciones finalizadas...`);
 
       // date range filter
-      const hace24Horas = new Date(ahora.getTime() - (24 * 60 * 60 * 1000)); 
+      const hace100Horas = new Date(ahora.getTime() - (100 * 60 * 60 * 1000)); 
       const dentro24Horas = new Date(ahora.getTime() + (24 * 60 * 60 * 1000)); 
 
      
@@ -17,7 +17,7 @@ export const iniciarCronFunciones = () => {
         where: { 
           estado: { not: "Inactiva" },
           fechaHoraFuncion: {
-            gte: hace24Horas,   
+            gte: hace100Horas,
             lte: dentro24Horas   
           }
         },

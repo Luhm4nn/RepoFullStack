@@ -10,10 +10,9 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // ✨ YA NO CARGAMOS TODAS LAS PELÍCULAS Y SALAS DE UNA VEZ
-  // Estas se cargan dinámicamente cuando el usuario busca
-  const [peliculas, setPeliculas] = useState([]); // Deprecated - mantener para compatibilidad
-  const [salas, setSalas] = useState([]);         // Deprecated - mantener para compatibilidad
+
+  const [peliculas, setPeliculas] = useState([]); 
+  const [salas, setSalas] = useState([]);         
   
   const { error: modalError, handleApiError, hideError } = useErrorModal();
 
@@ -95,8 +94,6 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
 
   useEffect(() => {
     fetchFunciones();
-    // ✨ YA NO LLAMAMOS loadPeliculasYSalas() aquí
-    // Las películas y salas se cargan dinámicamente con las búsquedas
   }, [mostrandoActivas]);
 
   return {
