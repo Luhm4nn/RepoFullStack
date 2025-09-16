@@ -12,6 +12,8 @@ import { reservasRoutes } from "./Funciones/reservas.routes.js";
 import { asientoReservasRoutes } from "./Funciones/asientoreservas.routes.js";
 import { iniciarCronFunciones } from "./jobs/funcionesCron.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import { authRoutes } from "./Auth/auth.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -21,6 +23,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(indexRoutes);
 app.use(peliculasRoutes);
@@ -32,7 +35,7 @@ app.use(asientosRoutes);
 app.use(funcionesRoutes);
 app.use(reservasRoutes);
 app.use(asientoReservasRoutes);
-
+app.use(authRoutes);
 
 app.use(errorHandler);
 
