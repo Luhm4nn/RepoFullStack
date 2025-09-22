@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import cutzyLogo from '../../assets/cutzy-logo-blanco.png'; 
 
 const PublicNavbar = ({ user, isAuthenticated, onLogin, onLogout, currentPath, onNavigate }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -35,11 +36,12 @@ const PublicNavbar = ({ user, isAuthenticated, onLogin, onLogout, currentPath, o
     <nav className="!bg-slate-900 p-5.5 border-b border-slate-800">
       <div className="flex flex-wrap items-center justify-between mx-auto">
         {/* Logo */}
-        <button onClick={() => handleNavigation('/')} className="flex items-center space-x-3">
-          <div className="h-12 w-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded flex items-center justify-center">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V9a1 1 0 00-1.447-.894l-2 1z" />
-            </svg>
+        <button
+          onClick={() => handleNavigation('/')}
+          className="flex items-center space-x-3 group"
+        >
+          <div className="h-14 w-24 bg-gradient-to-r from-purple-600 to-blue-600 rounded flex items-center justify-center border-2 border-slate-800  group-hover:border-white transition-all">
+            <img src={cutzyLogo} alt="Cutzy Logo" style={{ height: 40 }} />
           </div>
         </button>
 
