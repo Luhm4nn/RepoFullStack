@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI } from '../api/login.api.js';
+import { usuariosAPI } from '../api/usuarios.api.js';
 
 const AuthContext = createContext();
 
@@ -9,7 +10,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Verificar autenticación al cargar la app
   useEffect(() => {
     checkAuthStatus();
   }, []);
@@ -23,8 +23,7 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
       }
     } catch (error) {
-      console.error('Error verificando autenticación:', error);
-      // Si hay error, limpiar todo
+  // Error verificando autenticación
       logout();
     } finally {
       setLoading(false);
@@ -42,7 +41,7 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true, user: userData };
     } catch (error) {
-      console.error('Error en login:', error);
+  // Error en login
       return { 
         success: false, 
         error: error.message || 'Error en el login' 
@@ -57,9 +56,8 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       await authAPI.logout();
     } catch (error) {
-      console.error('Error en logout:', error);
+  // Error en logout
     } finally {
-      // Limpiar estado siempre, independientemente del resultado
       setUser(null);
       setToken(null);
       setIsAuthenticated(false);
@@ -72,7 +70,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
-  // Verificar rol del usuario
   const hasRole = (role) => {
     return user?.rol === role;
   };
@@ -85,6 +82,24 @@ export const AuthProvider = ({ children }) => {
     return hasRole('CLIENTE');
   };
 
+  const register = async (userData) => {
+    try {
+      setLoading(true);
+      const result = await usuariosAPI.register(userData);
+      setUser(result.user);
+      setToken(result.token);
+      setIsAuthenticated(true);
+      return { success: true, ...result };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Error en el registro'
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value = {
     user,
     token,
@@ -92,6 +107,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated,
     login,
     logout,
+    register,
     updateUser,
     hasRole,
     isAdmin,
@@ -106,7 +122,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Hook personalizado para usar el contexto
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

@@ -1,11 +1,15 @@
 import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const AdminNavbar = ({ user, onLogout, currentPath, onNavigate }) => {
+
+const AdminNavbar = ({ user, onLogout }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleNavigation = (path) => {
-    if (onNavigate) onNavigate(path);
+    navigate(path);
     setIsMenuOpen(false);
   };
 
@@ -24,13 +28,13 @@ const AdminNavbar = ({ user, onLogout, currentPath, onNavigate }) => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const isActive = (path) => currentPath === path;
+  const isActive = (path) => location.pathname === path;
 
   return (
     <nav className="!bg-slate-900 p-5.5 border-b border-slate-800">
       <div className="flex flex-wrap items-center justify-between mx-auto">
         {/* Logo */}
-        <button onClick={() => handleNavigation('/')} className="flex items-center space-x-3">
+  <button onClick={() => handleNavigation('/')} className="flex items-center space-x-3">
           <div className="h-12 w-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded flex items-center justify-center">
             <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V9a1 1 0 00-1.447-.894l-2 1z" />

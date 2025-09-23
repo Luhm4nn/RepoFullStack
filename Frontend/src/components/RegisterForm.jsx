@@ -14,56 +14,48 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
   const [errors, setErrors] = useState({});
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
-  const [alertType, setAlertType] = useState('error'); // 'error' or 'success'
+  const [alertType, setAlertType] = useState('error');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Validaciones
   const validateForm = () => {
     const newErrors = {};
 
-    // DNI
     if (!formData.DNI.trim()) {
       newErrors.DNI = 'El DNI es requerido';
     } else if (!/^\d{7,8}$/.test(formData.DNI.trim())) {
       newErrors.DNI = 'El DNI debe tener 7 u 8 dígitos';
     }
 
-    // Nombre
     if (!formData.nombreUsuario.trim()) {
       newErrors.nombreUsuario = 'El nombre es requerido';
     } else if (formData.nombreUsuario.trim().length < 2) {
       newErrors.nombreUsuario = 'El nombre debe tener al menos 2 caracteres';
     }
 
-    // Apellido
     if (!formData.apellidoUsuario.trim()) {
       newErrors.apellidoUsuario = 'El apellido es requerido';
     } else if (formData.apellidoUsuario.trim().length < 2) {
       newErrors.apellidoUsuario = 'El apellido debe tener al menos 2 caracteres';
     }
 
-    // Email
     if (!formData.email.trim()) {
       newErrors.email = 'El email es requerido';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'El email no es válido';
     }
 
-    // Password
     if (!formData.contrasena.trim()) {
       newErrors.contrasena = 'La contraseña es requerida';
     } else if (formData.contrasena.length < 6) {
       newErrors.contrasena = 'La contraseña debe tener al menos 6 caracteres';
     }
 
-    // Confirm Password
     if (!formData.confirmPassword.trim()) {
       newErrors.confirmPassword = 'Confirma tu contraseña';
     } else if (formData.contrasena !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
 
-    // Teléfono (opcional pero si se ingresa debe ser válido)
     if (formData.telefono.trim() && !/^\d{8,15}$/.test(formData.telefono.trim())) {
       newErrors.telefono = 'El teléfono debe tener entre 8 y 15 dígitos';
     }
@@ -79,7 +71,6 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
       [name]: value
     }));
 
-    // Limpiar error del campo cuando el usuario empiece a escribir
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -90,48 +81,34 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     setIsSubmitting(true);
     setShowAlert(false);
-
     try {
-      if (onRegister) {
-        // Preparar datos para enviar (sin confirmPassword)
-        const { confirmPassword, ...dataToSend } = formData;
-        const result = await onRegister(dataToSend);
-        
-        if (result.success) {
-          setAlertType('success');
-          setAlertMessage('¡Registro exitoso! Ahora puedes iniciar sesión.');
-          setShowAlert(true);
-          
-          // Limpiar formulario
-          setFormData({
-            DNI: '',
-            nombreUsuario: '',
-            apellidoUsuario: '',
-            email: '',
-            contrasena: '',
-            confirmPassword: '',
-            telefono: ''
-          });
-          
-          // Redirigir al login después de 2 segundos
-          setTimeout(() => {
-            if (onNavigateToLogin) onNavigateToLogin();
-          }, 2000);
-        } else {
-          setAlertType('error');
-          setAlertMessage(result.error || 'Error en el registro');
-          setShowAlert(true);
-        }
+      const { confirmPassword, ...dataToSend } = formData;
+      const result = onRegister ? await onRegister(dataToSend) : { success: false, error: 'No register handler provided' };
+      if (result.success) {
+        setAlertType('success');
+        setAlertMessage('¡Registro exitoso! Ahora puedes iniciar sesión.');
+        setShowAlert(true);
+        setFormData({
+          DNI: '',
+          nombreUsuario: '',
+          apellidoUsuario: '',
+          email: '',
+          contrasena: '',
+          confirmPassword: '',
+          telefono: ''
+        });
+        setTimeout(() => {
+          if (onNavigateToLogin) onNavigateToLogin();
+        }, 2000);
+      } else {
+        setAlertType('error');
+        setAlertMessage(result.error || 'Error en el registro');
+        setShowAlert(true);
       }
     } catch (error) {
-      console.error('Error en submit:', error);
       setAlertType('error');
       setAlertMessage('Error inesperado. Intenta nuevamente.');
       setShowAlert(true);
