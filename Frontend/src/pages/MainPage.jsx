@@ -1,3 +1,4 @@
+import ClaquetaPersonaje from "../components/ClaquetaPersonaje";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Carousel } from "flowbite-react";
@@ -18,6 +19,7 @@ function MainPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col items-center justify-center">
       <div className="w-full max-w-6xl mx-auto flex flex-col items-center py-20 px-4">
+        <ClaquetaPersonaje />
         <h1 className="text-6xl md:text-7xl font-extrabold text-white mb-8 text-center drop-shadow-2xl">
           ¡Bienvenido a <span className="text-purple-400">Cutzy Cinema</span>!
         </h1>
