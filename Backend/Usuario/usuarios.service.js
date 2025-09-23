@@ -5,6 +5,7 @@ import {
     deleteOne as deleteOneDB, 
     updateOne as updateOneDB 
 } from './usuarios.repository.js';
+import bcrypt from "bcryptjs";
 
 export const getAll = async () => {
     const usuarios = await getAllDB();
@@ -17,10 +18,9 @@ export const getOne = async (id) => {
 };
 
 export const createOne = async (data) => {
-    // TODO: Implementar validaciones de negocio aquí
-    // Ejemplo: validar formato de email, DNI único, etc.
-
-    const newUsuario = await createOneDB(data);
+    const hashedPassword = await bcrypt.hash(data.contrasena, 10); 
+    const usuarioData = { ...data, contrasena: hashedPassword };
+    const newUsuario = await createOneDB(usuarioData);
     return newUsuario;
 };
 

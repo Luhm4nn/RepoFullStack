@@ -31,7 +31,7 @@ CREATE TABLE `usuario` (
   `DNI` int NOT NULL,
   `nombreUsuario` varchar(45) NOT NULL,
   `apellidoUsuario` varchar(45) NOT NULL,
-  `email` varchar(70) NOT NULL,
+  `email` varchar(70) NOT NULL UNIQUE,
   `contrasena` varchar(255) NOT NULL,
   `rol` varchar(20) NOT NULL,
   `telefono` varchar(20) DEFAULT NULL,
@@ -59,7 +59,8 @@ CREATE TABLE `pelicula` (
   `fechaEstreno` date DEFAULT NULL,
   `sinopsis` varchar(500) DEFAULT NULL,
   `trailerURL` varchar(200) DEFAULT NULL,
-  `portada` blob,
+  `portada` varchar(255) DEFAULT NULL,
+  `portadaPublicId` varchar(255) DEFAULT NULL,
   `MPAA` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`idPelicula`)
 );
@@ -108,4 +109,11 @@ CREATE TABLE `asiento_reserva` (
   PRIMARY KEY (`idSala`,`filaAsiento`,`nroAsiento`,`fechaHoraFuncion`),
   CONSTRAINT `asiento_reserva_ibfk_1` FOREIGN KEY (`idSala`, `filaAsiento`, `nroAsiento`) REFERENCES `asiento` (`idSala`, `filaAsiento`, `nroAsiento`),
   CONSTRAINT `asiento_reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaHoraFuncion`, `DNI`, `fechaHoraReserva`) REFERENCES `reserva` (`idSala`, `fechaHoraFuncion`, `DNI`, `fechaHoraReserva`)
+);
+
+CREATE TABLE `RefreshToken` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `userId` INT NOT NULL,
+  `token` VARCHAR(191) NOT NULL UNIQUE,
+  CONSTRAINT `RefreshToken_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `usuario` (`DNI`)
 );

@@ -25,9 +25,9 @@ async function getOne(dni) {
 async function createOne(data) {
   const newUsuario = await prisma.usuario.create({
     data: {
-      DNI: data.DNI,
-      nombre: data.nombre,
-      apellido: data.apellido,
+      DNI: parseInt(data.DNI, 10),
+      nombreUsuario: data.nombreUsuario,
+      apellidoUsuario: data.apellidoUsuario,
       email: data.email,
       contrasena: data.contrasena,
       rol: data.rol,
