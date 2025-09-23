@@ -1,24 +1,26 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import AdminNavbar from './components/Shared/AdminNavbar';
-import PublicNavbar from './components/Shared/PublicNavbar';
-import MainPage from './pages/MainPage';
-import NotFound from './pages/NotFound';
-import PeliculasPage from './pages/PeliculasPage';
-import ConfiguracionPage from './pages/ConfiguracionPage';
-import FuncionesPage from './pages/FuncionesPage';
-import SalasPage from './pages/SalasPage';
-import FooterComp from './components/Shared/FooterComp';
-import Terminos from './pages/FooterPages/Terminos';
-import Privacity from './pages/FooterPages/Privacity';
-import AboutMe from './pages/FooterPages/AboutMe';
-import FAQ from './pages/FooterPages/FAQ';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import ReservaPage from './pages/ReservaPage';
-import CarteleraPage from './pages/CarteleraPage';
-import ScrollToTop from './components/Shared/ScrollToTop';
-import { useAuth } from './context/AuthContext';
-import { AdminRoute, AuthenticatedRoute } from './components/ProtectedRoute';
+import AdminNavbar from './modules/shared/components/AdminNavbar';
+import PublicNavbar from './modules/shared/components/PublicNavbar';
+import MainPage from './modules/user/pages/MainPage.jsx';
+import NotFound from './modules/shared/pages/NotFound.jsx';
+import PeliculasPage from './modules/admin/pages/PeliculasPage.jsx';
+import ConfiguracionPage from './modules/admin/pages/ConfiguracionPage.jsx';
+import FuncionesPage from './modules/admin/pages/FuncionesPage.jsx';
+import SalasPage from './modules/admin/pages/SalasPage.jsx';
+import FooterComp from './modules/shared/components/FooterComp';
+import Terminos from './modules/shared/pages/FooterPages/Terminos';
+import Privacity from './modules/shared/pages/FooterPages/Privacity';
+import AboutMe from './modules/shared/pages/FooterPages/AboutMe';
+import FAQ from './modules/shared/pages/FooterPages/FAQ';
+import LoginPage from './modules/shared/pages/LoginPage.jsx';
+import RegisterPage from './modules/user/pages/RegisterPage.jsx';
+import ReservaPage from './modules/user/pages/ReservaPage.jsx';
+import CarteleraPage from './modules/shared/pages/CarteleraPage.jsx';
+import ScrollToTop from './modules/shared/components/ScrollToTop';
+import { useAuth } from './modules/shared/hooks/useAuth.js';
+import ProtectedRoute from './modules/shared/components/ProtectedRoute';
+import { AuthenticatedRoute, AdminRoute } from './modules/shared';
+// Si necesitas AdminRoute y AuthenticatedRoute, exportalos desde ProtectedRoute.jsx
 
 
 function NavbarWrapper() {
