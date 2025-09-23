@@ -69,12 +69,8 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     try {
-      console.log(isEditing ? 'Editando película:' : 'Creando película:', values);
-      
-      // SIEMPRE crear FormData (aunque no haya archivo)
+      // Crear FormData solo con los campos necesarios
       const formData = new FormData();
-      
-      // Agregar todos los campos del formulario (incluso vacíos)
       Object.keys(values).forEach(key => {
         if (key === 'duracion') {
           formData.append(key, parseInt(values[key]) || 0);
@@ -82,41 +78,32 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
           const formattedDate = values[key] ? dateFormaterBackend(values[key]) : '';
           formData.append(key, formattedDate);
         } else {
-          // Enviar todos los campos, incluso si están vacíos
           formData.append(key, values[key] || '');
         }
       });
 
-      // Agregar archivo si se seleccionó uno nuevo
+      // Solo agregar 'portada' si hay archivo nuevo seleccionado
       if (selectedFile) {
         formData.append('portada', selectedFile);
       }
 
-      // Debug: mostrar lo que se está enviando
-      console.log('FormData entries:');
-      for (let [key, value] of formData.entries()) {
-        console.log(key, ':', value);
-      }
-      
+      // Debug opcional
+      // console.log('FormData entries:');
+      // for (let [key, value] of formData.entries()) {
+      //   console.log(key, ':', value);
+      // }
+
       if (isEditing) {
         await updatePelicula(peliculaToEdit.idPelicula, formData);
-        console.log('Película actualizada exitosamente');
       } else {
         await createPelicula(formData);
-        console.log('Película creada exitosamente');
       }
-      
+
       handleClose();
       resetForm();
-      
-      if (onSuccess) {
-        onSuccess();
-      }
-      
+      if (onSuccess) onSuccess();
     } catch (error) {
-      console.error(`Error ${isEditing ? 'actualizando' : 'creando'} película:`, error);
-      
-      // Intentar manejar el error con el modal personalizado
+      // Manejo de error
       const handled = handleApiError(error);
       
       // Si no se pudo manejar con el modal, mostrar alert como fallback

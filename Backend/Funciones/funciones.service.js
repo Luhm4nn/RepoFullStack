@@ -1,4 +1,4 @@
-import {getOneDB, getAllDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala, getFuncionesByPelicula, getActiveFuncionesBD, getInactiveFuncionesBD} from './funciones.repository.js';
+import {getOneDB, getAllDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala, getFuncionesByPelicula, getActiveFuncionesBD, getInactiveFuncionesBD, getFuncionesByPeliculaAndFecha} from './funciones.repository.js';
 import { getOne as getParametroRepository } from '../Parametros/parametros.repository.js';
 import { getOne as getPeliculaRepository } from '../Peliculas/peliculas.repository.js';
 import { formatDateForBackendMessage } from '../utils/dateFormater.js';   
@@ -102,6 +102,11 @@ export const updateOne = async (id, data) => {
     return updatedFuncion;
 };
 
+export const getFuncionesByPeliculaAndFechaService = async (idPelicula, fecha) => {
+    const fechaFormateada = fecha; 
+    const funciones = await getFuncionesByPeliculaAndFecha(idPelicula, fechaFormateada);
+    return funciones;
+};
 
 // validation functions
 

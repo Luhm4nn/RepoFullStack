@@ -56,3 +56,15 @@ export const deleteFuncion = async (idSala, fechaHoraFuncion) => {
     throw error;
   }
 }
+
+export const getFuncionesPorPeliculaYFecha = async (idPelicula, fecha) => {
+  try {
+    const response = await axios.get(`${VITE_API_URL}/Funciones`, {
+      params: { idPelicula, fecha }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching funciones por pelicula y fecha:", error);
+    throw error;
+  }
+};
