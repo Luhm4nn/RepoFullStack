@@ -26,7 +26,8 @@ function CarteleraPage() {
   return (
     <div className="container mx-auto p-6 min-h-[100vh] flex flex-col">
       <h1 className="text-3xl font-bold text-white mb-4">Cartelera</h1>
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 flex-1">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 flex-1 justify-center items-start"
+    style={{gridAutoRows: '1fr', justifyItems: 'center'}}>
         {peliculas.length === 0 ? (
           <div className="col-span-full text-center text-gray-400">
             No hay películas en cartelera.
