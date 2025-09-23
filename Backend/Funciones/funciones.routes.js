@@ -5,6 +5,9 @@ import {
   createFuncion,
   updateFuncion,
   deleteFuncion,
+  getActiveFuncionesEndpoint,
+  getInactiveFuncionesEndpoint,
+ getFuncionesByPeliculaAndFecha,
 } from "./funciones.controllers.js";
 
 import { asyncHandler } from "../Middlewares/asyncHandler.js";
@@ -27,6 +30,21 @@ router.put(
 router.delete(
   "/Funcion/:idSala/:fechaHoraFuncion",
   asyncHandler(deleteFuncion)
+);
+
+router.get(
+  "/Funciones/activas",
+  asyncHandler(getActiveFuncionesEndpoint)
+);
+
+router.get(
+  "/Funciones/inactivas",
+  asyncHandler(getInactiveFuncionesEndpoint)
+);
+
+router.get(
+  "/Funciones/:idPelicula/:fecha",
+  asyncHandler(getFuncionesByPeliculaAndFecha)
 );
 
 export const funcionesRoutes = router;

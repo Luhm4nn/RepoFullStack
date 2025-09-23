@@ -114,4 +114,24 @@ async function getActiveFuncionesBD() {
   return funciones;
 }
 
-export { getAllDB, getOneDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala, getFuncionesByPelicula, getInactiveFuncionesBD, getActiveFuncionesBD };
+
+async function getFuncionesByPeliculaAndFecha(idPelicula, fecha) {
+  const fechaInicio = new Date(fecha + "T00:00:00");
+  const fechaFin = new Date(fecha + "T23:59:59.999");
+  const funciones = await prisma.funcion.findMany({
+    where: {
+      idPelicula: parseInt(idPelicula, 10),
+      fechaHoraFuncion: {
+        gte: fechaInicio,
+        lte: fechaFin,
+      },
+    },
+    include: {
+      sala: true,
+    },
+  });
+  return funciones;
+}
+
+
+export { getAllDB, getOneDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala, getFuncionesByPelicula, getInactiveFuncionesBD, getActiveFuncionesBD, getFuncionesByPeliculaAndFecha };

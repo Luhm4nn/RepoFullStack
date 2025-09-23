@@ -14,6 +14,7 @@ import AboutMe from './pages/FooterPages/AboutMe';
 import FAQ from './pages/FooterPages/FAQ';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ReservaPage from './pages/ReservaPage';
 import CarteleraPage from './pages/CarteleraPage';
 import ScrollToTop from './components/Shared/ScrollToTop';
 import { useAuth } from './context/AuthContext';
@@ -37,7 +38,10 @@ function AppRoutes() {
       <Route path="/" element={<MainPage />} />
       <Route path="/login" element={<LoginPage onLogin={login} user={user} isAuthenticated={isAuthenticated} loading={loading} />} />
       <Route path="/register" element={<RegisterPage onRegister={register} loading={loading} />} />
-      <Route path="/Cartelera" element={<CarteleraPage />} />
+  <Route path="/Cartelera" element={<CarteleraPage />} />
+      <Route path="/MiPerfil" element={<AuthenticatedRoute><div>Mi Perfil Page - Por implementar</div></AuthenticatedRoute>} />
+      <Route path="/MisReservas" element={<AuthenticatedRoute><div>Mis Reservas Page - Por implementar</div></AuthenticatedRoute>} />
+  <Route path="/Reservar/:id" element={<AuthenticatedRoute><ReservaPage /></AuthenticatedRoute>} />
       <Route path="/Peliculas" element={<AdminRoute><PeliculasPage /></AdminRoute>} />
       <Route path="/Salas" element={<AdminRoute><SalasPage /></AdminRoute>} />
       <Route path="/Funciones" element={<AdminRoute><FuncionesPage /></AdminRoute>} />

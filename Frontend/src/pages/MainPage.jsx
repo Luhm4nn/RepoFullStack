@@ -1,13 +1,78 @@
-import { Button } from "flowbite-react";
-
+import ClaquetaPersonaje from "../components/ClaquetaPersonaje";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button, Carousel } from "flowbite-react";
+import { getPeliculas } from "../api/Peliculas.api";
 
 function MainPage() {
-  return (
-    <div className="flex flex-col min-h-screen">
-      <h1 className="bg-red-500">Main Page</h1>
+  const [peliculas, setPeliculas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-      <p className="text-gray-100">Welcome to the main page!</p>
-      <Button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-80 focus:ring-purple-200 dark:focus:ring-purple-800">Click Me</Button>
+  useEffect(() => {
+    getPeliculas().then((data) => {
+      setPeliculas(data);
+      setLoading(false);
+    });
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col items-center justify-center">
+      <div className="w-full max-w-6xl mx-auto flex flex-col items-center py-20 px-4">
+        <ClaquetaPersonaje />
+        <h1 className="text-6xl md:text-7xl font-extrabold text-white mb-8 text-center drop-shadow-2xl">
+          ¡Bienvenido a <span className="text-purple-400">Cutzy Cinema</span>!
+        </h1>
+        <p className="text-2xl md:text-3xl text-gray-200 mb-12 text-center max-w-3xl">
+          Tu lugar para vivir la mejor experiencia de cine. Disfruta de los últimos estrenos, reserva tus asientos y sumérgete en la magia del séptimo arte.
+        </p>
+        <div className="w-full max-w-4xl mb-12">
+          {loading ? (
+            <div className="flex justify-center items-center h-96">
+              <span className="text-white text-2xl">Cargando cartelera...</span>
+            </div>
+          ) : (
+            <Carousel slideInterval={3500} className="rounded-2xl shadow-2xl overflow-hidden h-96">
+              {peliculas.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-96 bg-slate-800">
+                  <span className="text-gray-400 text-2xl">No hay películas en cartelera.</span>
+                </div>
+              ) : (
+                peliculas.map((pelicula) => (
+                  <div key={pelicula.idPelicula} className="relative h-96 flex items-center justify-center bg-black">
+                    <img
+                      src={pelicula.portada || "/placeholder.svg"}
+                      alt={pelicula.nombrePelicula}
+                      className="object-cover w-full h-full opacity-80"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-10">
+                      <h2 className="text-4xl font-bold text-white mb-4 drop-shadow-2xl">
+                        {pelicula.nombrePelicula}
+                      </h2>
+                      <p className="text-gray-200 text-lg line-clamp-2 mb-4">{pelicula.sinopsis}</p>
+                      <span className="text-purple-300 text-lg font-semibold bg-purple-900/40 rounded px-3 py-1 inline-block mb-2">
+                        {pelicula.generoPelicula}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </Carousel>
+          )}
+        </div>
+        <div className="mb-12">
+          <h3 className="text-3xl md:text-4xl font-semibold text-white mb-4 text-center">
+            Descubre qué te espera en nuestra cartelera...
+          </h3>
+        </div>
+        <Button
+          size="xl"
+          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-12 py-6 rounded-2xl text-2xl font-bold shadow-2xl hover:from-purple-700 hover:to-pink-700 focus:ring-4 focus:ring-purple-300"
+          onClick={() => navigate("/cartelera")}
+        >
+          Ver Cartelera
+        </Button>
+      </div>
     </div>
   );
 }

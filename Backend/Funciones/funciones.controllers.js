@@ -1,9 +1,11 @@
+import e from "express";
 import {
   getOne,
   getAll,
   createOne,
   deleteOne,
   updateOne,
+  getFuncionesByPeliculaAndFechaService,
   getActiveFunciones as getActiveFuncionesService,
   getInactiveFunciones as getInactiveFuncionesService
 } from "./funciones.service.js";
@@ -31,6 +33,12 @@ export const getFunciones = async (req, res) => {
       break;
   }
   
+  res.json(funciones);
+};
+
+export const getFuncionesByPeliculaAndFecha = async (req, res) => {
+  const { idPelicula, fecha } = req.params;
+  const funciones = await getFuncionesByPeliculaAndFechaService(idPelicula, fecha);
   res.json(funciones);
 };
 
