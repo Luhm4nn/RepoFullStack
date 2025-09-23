@@ -1,23 +1,28 @@
 import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import cutzyLogo from '../../assets/cutzy-logo-blanco.png'; 
 
-const PublicNavbar = ({ user, isAuthenticated, onLogin, onLogout, currentPath, onNavigate }) => {
+
+const PublicNavbar = ({ user, isAuthenticated, onLogin, onLogout }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleNavigation = (path) => {
-    if (onNavigate) onNavigate(path);
+    navigate(path);
     setIsMenuOpen(false);
   };
 
   const handleLogin = () => {
-    if (onLogin) onLogin();
+    navigate('/login');
     setIsMenuOpen(false);
   };
 
   const handleLogout = async () => {
     if (onLogout) {
       await onLogout();
+      navigate('/');
     }
     setIsDropdownOpen(false);
   };
@@ -30,7 +35,7 @@ const PublicNavbar = ({ user, isAuthenticated, onLogin, onLogout, currentPath, o
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const isActive = (path) => currentPath === path;
+  const isActive = (path) => location.pathname === path;
 
   return (
     <nav className="!bg-slate-900 p-5.5 border-b border-slate-800">
@@ -74,11 +79,9 @@ const PublicNavbar = ({ user, isAuthenticated, onLogin, onLogout, currentPath, o
                     </span>
                   </div>
                   <ul className="py-2">
-                    <li>
                       <button className="block px-4 py-2 text-sm !text-white hover:!bg-white/5 w-full text-left">
                         Mi Perfil
                       </button>
-                    </li>
                     <li>
                       <button className="block px-4 py-2 text-sm !text-white hover:!bg-white/5 w-full text-left">
                         Mis Reservas
@@ -141,9 +144,9 @@ const PublicNavbar = ({ user, isAuthenticated, onLogin, onLogout, currentPath, o
             </li>
             <li>
               <button
-                onClick={() => handleNavigation('/cartelera')}
+                onClick={() => handleNavigation('/Cartelera')}
                 className={`block py-2 px-3 text-xl rounded md:p-0 transition-colors ${
-                  isActive('/cartelera') 
+                  isActive('/Cartelera') 
                     ? '!text-white bg-white/5 md:!bg-transparent' 
                     : 'text-gray-400 hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'
                 }`}

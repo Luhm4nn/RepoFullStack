@@ -1,18 +1,19 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LoginForm from '../components/LoginForm';
 
-const LoginPage = ({ onLogin, onNavigateToRegister, onNavigateHome, user, isAuthenticated, loading }) => {
+const LoginPage = ({ onLogin, user, isAuthenticated, loading }) => {
+  const navigate = useNavigate();
 
-  // Si ya está autenticado, redirigir
   useEffect(() => {
     if (isAuthenticated && user) {
       if (user.rol === 'ADMIN') {
-        // navigate('/admin');
+        navigate('/Peliculas', { replace: true });
       } else {
-        // navigate('/');
+        navigate('/', { replace: true });
       }
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleLogin = async (email, password) => {
     try {
@@ -28,12 +29,13 @@ const LoginPage = ({ onLogin, onNavigateToRegister, onNavigateHome, user, isAuth
     }
   };
 
+
   const handleNavigateToRegister = () => {
-    if (onNavigateToRegister) onNavigateToRegister();
+    navigate('/register');
   };
 
   const handleNavigateHome = () => {
-    if (onNavigateHome) onNavigateHome();
+    navigate('/');
   };
 
   if (loading) {

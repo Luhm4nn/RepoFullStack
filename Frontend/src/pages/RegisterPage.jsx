@@ -1,6 +1,8 @@
 import RegisterForm from '../components/RegisterForm';
+import { useNavigate } from 'react-router-dom';
 
-const RegisterPage = ({ onRegister, onNavigateToLogin, onNavigateHome, loading = false }) => {
+const RegisterPage = ({ onRegister, loading = false }) => {
+  const navigate = useNavigate();
 
   const handleRegister = async (userData) => {
     try {
@@ -16,12 +18,13 @@ const RegisterPage = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
     }
   };
 
+
   const handleNavigateToLogin = () => {
-    if (onNavigateToLogin) onNavigateToLogin();
+    navigate('/login');
   };
 
   const handleNavigateHome = () => {
-    if (onNavigateHome) onNavigateHome();
+    navigate('/');
   };
 
   return (
