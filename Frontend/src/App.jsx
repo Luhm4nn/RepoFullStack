@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import AdminNavbar from './modules/shared/components/AdminNavbar';
 import PublicNavbar from './modules/shared/components/PublicNavbar';
-import MainPage from './modules/user/pages/MainPage.jsx';
 import NotFound from './modules/shared/pages/NotFound.jsx';
 import PeliculasPage from './modules/admin/pages/PeliculasPage.jsx';
 import ConfiguracionPage from './modules/admin/pages/ConfiguracionPage.jsx';
@@ -27,7 +26,7 @@ function NavbarWrapper() {
   const { user, isAuthenticated, logout, loading } = useAuth();
   const location = useLocation();
   if (loading) return null;
-  if (isAuthenticated && user?.rol === 'ADMIN') {
+  if (isAuthenticated && user?.rol && user.rol.trim().toUpperCase() === 'ADMIN') {
     return <AdminNavbar user={user} onLogout={logout} currentPath={location.pathname} />;
   }
   return <PublicNavbar user={user} isAuthenticated={isAuthenticated} onLogout={logout} currentPath={location.pathname} />;
@@ -37,7 +36,7 @@ function AppRoutes() {
   const { user, isAuthenticated, loading, login, logout, register } = useAuth();
   return (
     <Routes>
-      <Route path="/" element={<MainPage />} />
+  <Route path="/" element={<CarteleraPage />} />
       <Route path="/login" element={<LoginPage onLogin={login} user={user} isAuthenticated={isAuthenticated} loading={loading} />} />
       <Route path="/register" element={<RegisterPage onRegister={register} loading={loading} />} />
   <Route path="/Cartelera" element={<CarteleraPage />} />

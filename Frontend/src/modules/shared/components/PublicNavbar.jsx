@@ -139,18 +139,6 @@ const PublicNavbar = ({ user, isAuthenticated, onLogin, onLogout }) => {
                     : 'text-gray-400 hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'
                 }`}
               >
-                Inicio
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleNavigation('/Cartelera')}
-                className={`block py-2 px-3 text-xl rounded md:p-0 transition-colors ${
-                  isActive('/Cartelera') 
-                    ? '!text-white bg-white/5 md:!bg-transparent' 
-                    : 'text-gray-400 hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'
-                }`}
-              >
                 Cartelera
               </button>
             </li>

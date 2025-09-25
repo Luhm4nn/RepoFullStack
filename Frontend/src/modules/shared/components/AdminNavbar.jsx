@@ -107,7 +107,7 @@ const AdminNavbar = ({ user, onLogout }) => {
           </button>
         </div>
 
-        {/* Navigation items */}
+        {/* Only Cartelera button */}
         <div className={`items-center justify-between w-full md:flex md:w-auto md:order-1 ${isMenuOpen ? 'block' : 'hidden'}`}>
           <ul className="flex flex-col p-4 md:p-0 mt-4 md:space-x-8 md:flex-row md:mt-0 md:border-0">
             <li>
@@ -119,55 +119,7 @@ const AdminNavbar = ({ user, onLogout }) => {
                     : 'text-gray-400 hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'
                 }`}
               >
-                Inicio
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleNavigation('/Peliculas')}
-                className={`block py-2 px-3 text-xl rounded md:p-0 transition-colors ${
-                  isActive('/Peliculas') 
-                    ? '!text-white bg-white/5 md:!bg-transparent' 
-                    : 'text-gray-400 hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'
-                }`}
-              >
-                Peliculas
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleNavigation('/Salas')}
-                className={`block py-2 px-3 text-xl rounded md:p-0 transition-colors ${
-                  isActive('/Salas') 
-                    ? '!text-white bg-white/5 md:!bg-transparent' 
-                    : 'text-gray-400 hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'
-                }`}
-              >
-                Salas
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleNavigation('/Funciones')}
-                className={`block py-2 px-3 text-xl rounded md:p-0 transition-colors ${
-                  isActive('/Funciones') 
-                    ? '!text-white bg-white/5 md:!bg-transparent' 
-                    : 'text-gray-400 hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'
-                }`}
-              >
-                Funciones
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleNavigation('/Configuracion')}
-                className={`block py-2 px-3 text-xl rounded md:p-0 transition-colors ${
-                  isActive('/Configuracion') 
-                    ? '!text-white bg-white/5 md:!bg-transparent' 
-                    : 'text-gray-400 hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'
-                }`}
-              >
-                Configuracion
+                Cartelera
               </button>
             </li>
           </ul>

@@ -15,7 +15,6 @@ export { PrivateRoute, RoleRoute, AdminRoute, ClientRoute, AuthenticatedRoute } 
 export { default as PublicNavbar } from './components/PublicNavbar.jsx';
 export { default as RegisterForm } from './components/RegisterForm.jsx';
 export { default as ScrollToTop } from './components/ScrollToTop.jsx';
-export { default as UserNavbar } from './components/UserNavbar.jsx';
 
 // Hooks
 export { default as useErrorModal } from './hooks/useErrorModal';
