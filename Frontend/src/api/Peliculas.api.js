@@ -91,3 +91,13 @@ export const deletePelicula = async (id) => {
     throw error;
   }
 }
+
+export const getPeliculasEnCartelera = async () => {
+  try {
+    const response = await axios.get(`${VITE_API_URL}/Peliculas/cartelera`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching peliculas en cartelera:", error);
+    throw error;
+  }
+}

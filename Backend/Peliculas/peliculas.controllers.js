@@ -1,9 +1,11 @@
+import e from "express";
 import {
   getOne,
   getAll,
   createOne,
   deleteOne,
   updateOne,
+  getAllEnCartelera,
 } from "./peliculas.service.js";
 
 // Controllers for Peliculas
@@ -49,5 +51,16 @@ export const updatePelicula = async (req, res) => {
         });
     }
     res.status(200).json(updatedPelicula);
+  }
+};
+
+export const getPeliculasEnCartelera = async (req, res) => {
+  try {
+  const peliculas = await getAllEnCartelera();
+  res.json(peliculas);
+  }
+  catch (error) {
+    console.error("Error fetching peliculas en cartelera:", error);
+    res.status(500).json({ message: "Error fetching peliculas en cartelera." });
   }
 };
