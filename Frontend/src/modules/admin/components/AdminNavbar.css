@@ -1,4 +1,4 @@
-/* Animación de subrayado deslizante y redondeado para botones de navbar */
+/* Animación de subrayado deslizante para botones de navbar */
 
 .nav-underline {
   position: relative;
@@ -9,7 +9,7 @@
   content: '';
   position: absolute;
   left: 50%;
-  bottom: -9px; /* Más abajo de la palabra */
+  bottom: -9px; 
   transform: translateX(-50%) scaleX(0);
   width: 80%;
   height: 3px;

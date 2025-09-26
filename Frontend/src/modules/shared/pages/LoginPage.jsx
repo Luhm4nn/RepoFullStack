@@ -5,15 +5,15 @@ import LoginForm from '../../shared/components/LoginForm';
 const LoginPage = ({ onLogin, user, isAuthenticated, loading }) => {
 	const navigate = useNavigate();
 
-	useEffect(() => {
-		if (isAuthenticated && user) {
-			if (user.rol === 'ADMIN') {
-				navigate('/Peliculas', { replace: true });
-			} else {
-				navigate('/', { replace: true });
+		useEffect(() => {
+			if (isAuthenticated && user) {
+				if (user.rol === 'ADMIN') {
+					navigate('/Dashboard', { replace: true });
+				} else {
+					navigate('/', { replace: true });
+				}
 			}
-		}
-	}, [isAuthenticated, user, navigate]);
+		}, [isAuthenticated, user, navigate]);
 
 	const handleLogin = async (email, password) => {
 		try {

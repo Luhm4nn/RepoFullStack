@@ -1,8 +1,10 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import AdminNavbar from './modules/shared/components/AdminNavbar';
+import AdminNavbar from './modules/admin/components/AdminNavbar';
 import PublicNavbar from './modules/shared/components/PublicNavbar';
+import { UserNavbar } from './modules/user/components';
 import NotFound from './modules/shared/pages/NotFound.jsx';
 import PeliculasPage from './modules/admin/pages/PeliculasPage.jsx';
+import DashboardPage from './modules/admin/pages/DashboardPage.jsx';
 import ConfiguracionPage from './modules/admin/pages/ConfiguracionPage.jsx';
 import FuncionesPage from './modules/admin/pages/FuncionesPage.jsx';
 import SalasPage from './modules/admin/pages/SalasPage.jsx';
@@ -29,6 +31,9 @@ function NavbarWrapper() {
   if (isAuthenticated && user?.rol && user.rol.trim().toUpperCase() === 'ADMIN') {
     return <AdminNavbar user={user} onLogout={logout} currentPath={location.pathname} />;
   }
+  if (isAuthenticated && user?.rol && user.rol.trim().toUpperCase() === 'CLIENTE') {
+    return <UserNavbar user={user} onLogout={logout} currentPath={location.pathname} />;
+  }
   return <PublicNavbar user={user} isAuthenticated={isAuthenticated} onLogout={logout} currentPath={location.pathname} />;
 }
 
@@ -43,7 +48,8 @@ function AppRoutes() {
       <Route path="/MiPerfil" element={<AuthenticatedRoute><div>Mi Perfil Page - Por implementar</div></AuthenticatedRoute>} />
       <Route path="/MisReservas" element={<AuthenticatedRoute><div>Mis Reservas Page - Por implementar</div></AuthenticatedRoute>} />
   <Route path="/Reservar/:id" element={<AuthenticatedRoute><ReservaPage /></AuthenticatedRoute>} />
-      <Route path="/Peliculas" element={<AdminRoute><PeliculasPage /></AdminRoute>} />
+  <Route path="/Dashboard" element={<AdminRoute><DashboardPage /></AdminRoute>} />
+  <Route path="/Peliculas" element={<AdminRoute><PeliculasPage /></AdminRoute>} />
       <Route path="/Salas" element={<AdminRoute><SalasPage /></AdminRoute>} />
       <Route path="/Funciones" element={<AdminRoute><FuncionesPage /></AdminRoute>} />
       <Route path="/Configuracion" element={<AdminRoute><ConfiguracionPage /></AdminRoute>} />
