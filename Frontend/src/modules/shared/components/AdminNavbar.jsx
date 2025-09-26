@@ -1,3 +1,4 @@
+import cutzyLogoBlanco from '../../../assets/cutzy-logo-blanco.png';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -31,25 +32,23 @@ const AdminNavbar = ({ user, onLogout }) => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="!bg-slate-900 p-5.5 border-b border-slate-800">
-      <div className="flex flex-wrap items-center justify-between mx-auto">
+  <nav className="bg-gradient-to-r from-purple-600 to-pink-600 py-2 px-5 border-b border-slate-800 sticky top-0 z-50">
+  <div className="flex items-center justify-between mx-auto">
         {/* Logo */}
-  <button onClick={() => handleNavigation('/')} className="flex items-center space-x-3">
-          <div className="h-12 w-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded flex items-center justify-center">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V9a1 1 0 00-1.447-.894l-2 1z" />
-            </svg>
+  <button onClick={() => handleNavigation('/')} className="flex items-center space-x-3 group ml-0 md:ml-4 mr-6 cursor-pointer">
+          <div className="h-16 w-32 bg-transparent rounded flex items-center justify-center group-hover:border-purple-600 transition-all">
+            <img src={cutzyLogoBlanco} alt="Cutzy Logo" style={{ height: 56 }} />
           </div>
         </button>
 
         {/* User dropdown */}
-        <div className="flex items-center md:order-2">
+  <div className="flex items-center md:order-2 ml-auto mr-0 md:mr-4">
           <div className="relative">
             <button
               onClick={toggleDropdown}
               className="hover:!ring-2 hover:!ring-white transition-all duration-200 rounded-full"
             >
-              <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-teal-600 rounded-full flex items-center justify-center text-white font-bold">
+              <div className="w-14 h-14 bg-gradient-to-r from-green-600 to-teal-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
                 {user?.nombreUsuario?.charAt(0)}{user?.apellidoUsuario?.charAt(0)}
               </div>
             </button>
@@ -108,20 +107,87 @@ const AdminNavbar = ({ user, onLogout }) => {
         </div>
 
         {/* Only Cartelera button */}
-        <div className={`items-center justify-between w-full md:flex md:w-auto md:order-1 ${isMenuOpen ? 'block' : 'hidden'}`}>
-          <ul className="flex flex-col p-4 md:p-0 mt-4 md:space-x-8 md:flex-row md:mt-0 md:border-0">
-            <li>
+        <div className={`w-full md:w-auto md:order-1 ${isMenuOpen ? 'block' : 'hidden'} md:flex items-center md:justify-start`}>
+          <ul className="flex flex-row p-2 md:p-0 mt-0 space-x-2 md:space-x-4 items-center md:justify-start w-full">
+            <li className="flex items-center">
               <button
                 onClick={() => handleNavigation('/')}
-                className={`block py-2 px-3 text-xl rounded md:p-0 transition-colors ${
+                className={`flex items-center gap-2 py-2 px-3 text-xl rounded md:p-0 transition-colors ${
                   isActive('/') 
                     ? '!text-white !bg-white/5 md:!bg-transparent' 
                     : 'text-gray-400 hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'
                 }`}
               >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75v10.5A2.25 2.25 0 004.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v3m10.5-3v3M2.25 9h19.5" />
+                </svg>
                 Cartelera
               </button>
             </li>
+            <li className="flex items-center">
+              <button
+                onClick={() => handleNavigation('/Peliculas')}
+                className={`flex items-center gap-2 py-2 px-3 text-xl rounded md:p-0 transition-colors ${
+                  isActive('/Peliculas') 
+                    ? '!text-white bg-white/5 md:!bg-transparent' 
+                    : 'text-gray-400 hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 17.25h15m-13.5 0V5.25A2.25 2.25 0 017.5 3h9a2.25 2.25 0 012.25 2.25v12" />
+                </svg>
+                Películas
+              </button>
+            </li>
+            <li className="flex items-center">
+              <button
+                onClick={() => handleNavigation('/Salas')}
+                className={`flex items-center gap-2 py-2 px-3 text-xl rounded md:p-0 transition-colors ${
+                  isActive('/Salas') 
+                    ? '!text-white bg-white/5 md:!bg-transparent' 
+                    : 'text-gray-400 hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75h15m-15 3h15m-15-6h15m-2.25-3v12m-10.5-12v12" />
+                </svg>
+                Salas
+              </button>
+            </li>
+            <li className="flex items-center">
+              <button
+                onClick={() => handleNavigation('/Funciones')}
+                className={`flex items-center gap-2 py-2 px-3 text-xl rounded md:p-0 transition-colors ${
+                  isActive('/Funciones') 
+                    ? '!text-white bg-white/5 md:!bg-transparent' 
+                    : 'text-gray-400 hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
+                  <circle cx="12" cy="12" r="9" />
+                </svg>
+                Funciones
+              </button>
+            </li>
+            <li className="flex items-center">
+              <button
+                onClick={() => handleNavigation('/Configuracion')}
+                className={`flex items-center gap-2 py-2 px-3 text-xl rounded md:p-0 transition-colors ${
+                  isActive('/Configuracion') 
+                    ? '!text-white bg-white/5 md:!bg-transparent' 
+                    : 'text-gray-400 hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
+                  <circle cx="12" cy="12" r="9" />
+                </svg>
+                Configuración
+              </button>
+            </li>
+
           </ul>
         </div>
       </div>
