@@ -3,19 +3,18 @@
 
 
 // Components
-export { default as AdminNavbar } from './components/AdminNavbar.jsx';
+export { default as AdminNavbar } from '../admin/components/AdminNavbar.jsx';
 export { default as ClaquetaPersonaje } from './components/ClaquetaPersonaje.jsx';
 export { default as ErrorModal } from './components/ErrorModal.jsx';
 export { default as FooterComp } from './components/FooterComp.jsx';
-export { default as FuncionesReservaCard } from './components/FuncionesReservaCard.jsx';
+export { default as FuncionesReservaCard } from '../user/components/FuncionesReservaCard.jsx';
 export { default as LoginForm } from './components/LoginForm.jsx';
-export { default as PeliculaCard } from './components/PeliculaCard.jsx';
+export { default as PeliculaCard } from '../user/components/PeliculaCard.jsx';
 export { default as ProtectedRoute } from './components/ProtectedRoute.jsx';
 export { PrivateRoute, RoleRoute, AdminRoute, ClientRoute, AuthenticatedRoute } from './components/ProtectedRoute.jsx';
 export { default as PublicNavbar } from './components/PublicNavbar.jsx';
 export { default as RegisterForm } from './components/RegisterForm.jsx';
 export { default as ScrollToTop } from './components/ScrollToTop.jsx';
-export { default as UserNavbar } from './components/UserNavbar.jsx';
 
 // Hooks
 export { default as useErrorModal } from './hooks/useErrorModal';
