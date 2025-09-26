@@ -1,0 +1,35 @@
+/* Animación de subrayado deslizante y redondeado para botones de navbar */
+
+.nav-underline {
+  position: relative;
+  background: none;
+}
+
+.nav-underline::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -9px; /* Más abajo de la palabra */
+  transform: translateX(-50%) scaleX(0);
+  width: 80%;
+  height: 3px;
+  background: linear-gradient(90deg, #fff 60%, #e0e0ff 100%);
+  border-radius: 8px 8px 8px 8px;
+  opacity: 0.9;
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  z-index: 1;
+}
+
+.nav-underline.active::after,
+.nav-underline:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* Espaciado entre botones */
+.navbar-btn-space {
+  margin-right: 1.2rem;
+}
+
+.navbar-btn-space:last-child {
+  margin-right: 0;
+}
