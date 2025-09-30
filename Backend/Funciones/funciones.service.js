@@ -1,4 +1,14 @@
-import {getOneDB, getAllDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala, getFuncionesByPelicula, getActiveFuncionesBD, getInactiveFuncionesBD, getFuncionesByPeliculaAndFecha} from './funciones.repository.js';
+import {
+    getOneDB, 
+    getAllDB, 
+    createOneDB, 
+    deleteOneDB,
+    updateOneDB, 
+    getFuncionesBySala, 
+    getFuncionesByPelicula, 
+    getActiveFuncionesBD, 
+    getInactiveFuncionesBD, 
+    getFuncionesByPeliculaAndFecha} from './funciones.repository.js';
 import { getOne as getParametroRepository } from '../Parametros/parametros.repository.js';
 import { getOne as getPeliculaRepository } from '../Peliculas/peliculas.repository.js';
 import { formatDateForBackendMessage } from '../utils/dateFormater.js';   

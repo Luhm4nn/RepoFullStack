@@ -41,7 +41,7 @@ const PrivateRoute = ({ children, redirectTo = '/login', fallback = null }) => {
 };
 
 // Componente para rutas que requieren un rol específico
-const RoleRoute = ({ children, allowedRoles = [], redirectTo = '/unauthorized', fallback = null }) => {
+const RoleRoute = ({ children, allowedRoles = [], fallback = null }) => {
   const { user, isAuthenticated, loading } = useAuth();
 
   if (loading) {

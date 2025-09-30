@@ -86,8 +86,6 @@ export const deleteFuncion = async (req, res) => {
 
 export const updateFuncion = async (req, res) => {
   const updatedFuncion = await updateOne(req.params, req.body);
-  
-  //handle overlap and estreno error
   if (updatedFuncion) {
     if (updatedFuncion.name === "SOLAPAMIENTO_FUNCIONES") {
       return res.status(updatedFuncion.status).json({
