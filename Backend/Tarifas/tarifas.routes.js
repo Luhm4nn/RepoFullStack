@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { asyncHandler } from "../Middlewares/asyncHandler.js";
+import { validateBody } from "../Middlewares/validateRequest.js";
+import { tarifasSchema } from "../../../validations/TarifasSchema.js";
 import {
   getTarifas,
   getTarifa,
@@ -14,9 +16,9 @@ router.get("/Tarifas", asyncHandler(getTarifas));
 
 router.get("/Tarifa/:id", asyncHandler(getTarifa));
 
-router.post("/Tarifa", asyncHandler(createTarifa));
+router.post("/Tarifa", validateBody(tarifasSchema), asyncHandler(createTarifa));
 
-router.put("/Tarifa/:id", asyncHandler(updateTarifa));
+router.put("/Tarifa/:id", validateBody(tarifasSchema), asyncHandler(updateTarifa));
 
 router.delete("/Tarifa/:id", asyncHandler(deleteTarifa));
 
