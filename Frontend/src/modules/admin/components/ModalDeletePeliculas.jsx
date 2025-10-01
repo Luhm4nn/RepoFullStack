@@ -65,14 +65,14 @@ function ModalDeletePeliculas({ pelicula, onSuccess, onClose }) {
           {/* Information about película */}
           <div className="bg-slate-700 rounded-lg p-4 mb-6">
             <h4 className="text-white font-semibold text-lg mb-2">
-              🎬 {pelicula.nombrePelicula}
+               {pelicula.nombrePelicula}
             </h4>
             <div className="text-gray-400 text-sm space-y-1">
-              <p> <span className="font-medium">Director:</span> {pelicula.director}</p>
-              <p> <span className="font-medium">Género:</span> {pelicula.generoPelicula}</p>
-              <p> <span className="font-medium">Duración:</span> {pelicula.duracion} min</p>
+              <p> <span className="font-bold">Director:</span> {pelicula.director}</p>
+              <p> <span className="font-bold">Género:</span> {pelicula.generoPelicula}</p>
+              <p> <span className="font-bold">Duración:</span> {pelicula.duracion} min</p>
               {pelicula.fechaEstreno && (
-                <p> <span className="font-medium">Año:</span> {new Date(pelicula.fechaEstreno).getFullYear()}</p>
+                <p> <span className="font-bold">Año:</span> {new Date(pelicula.fechaEstreno).getFullYear()}</p>
               )}
             </div>
           </div>
@@ -104,7 +104,7 @@ function ModalDeletePeliculas({ pelicula, onSuccess, onClose }) {
               </>
             ) : (
               <>
-                🗑️ Eliminar
+                 Eliminar
               </>
             )}
           </Button>

@@ -29,7 +29,7 @@ const UserNavbar = ({ user, onLogout }) => {
 
   return (
     <nav className="bg-gradient-to-r from-indigo-800 via-purple-800 to-pink-700 py-4 px-5 border-b border-slate-800 sticky top-0 z-50">
-      <div className="flex flex-wrap items-center justify-between mx-auto">
+      <div className="flex items-center justify-between mx-auto">
         <button
           type="button"
           onClick={() => handleNavigation('/')}
@@ -75,12 +75,20 @@ const UserNavbar = ({ user, onLogout }) => {
                 </div>
                 <ul className="py-2">
                   <li>
-                    <button type="button" className="block px-4 py-2 text-sm !text-white hover:!bg-white/5 w-full text-left">
+                    <button
+                      type="button"
+                      onClick={() => { handleNavigation('/mi-perfil'); setIsDropdownOpen(false); }}
+                      className="block px-4 py-2 text-sm !text-white hover:!bg-white/5 w-full text-left"
+                    >
                       Mi Perfil
                     </button>
                   </li>
                   <li>
-                    <button type="button" className="block px-4 py-2 text-sm !text-white hover:!bg-white/5 w-full text-left">
+                    <button
+                      type="button"
+                      onClick={() => { handleNavigation('/mis-reservas'); setIsDropdownOpen(false); }}
+                      className="block px-4 py-2 text-sm !text-white hover:!bg-white/5 w-full text-left"
+                    >
                       Mis Reservas
                     </button>
                   </li>
@@ -97,24 +105,45 @@ const UserNavbar = ({ user, onLogout }) => {
               </div>
             )}
           </div>
-          <Drawer open={isMenuOpen} onClose={() => setIsMenuOpen(false)} position="left" className="md:hidden">
-            <DrawerHeader title="Menú" />
-            <DrawerItems>
+          <Drawer
+            open={isMenuOpen}
+            onClose={toggleMenu}
+            position="left"
+            className="md:hidden !bg-gray-900 !text-white"
+          >
+            <DrawerHeader title="Menú" className="!bg-gray-900 !text-white" />
+            <DrawerItems className="!bg-gray-900 !text-white">
               <ul className="flex flex-col gap-2 mt-4">
                 <li>
                   <button
-                    onClick={() => { handleNavigation('/'); setIsMenuOpen(false); }}
-                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/') ? 'active !text-white !bg-white/5' : 'text-white hover:!text-white hover:bg-white/5'}`}
+                    onClick={() => handleNavigation('/')}
+                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'} !bg-gray-900`}
                   >
                     Cartelera
                   </button>
                 </li>
                 <li>
                   <button
-                    onClick={() => { handleNavigation('/mis-reservas'); setIsMenuOpen(false); }}
-                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/mis-reservas') ? 'active !text-white !bg-white/5' : 'text-white hover:!text-white hover:bg-white/5'}`}
+                    onClick={() => handleNavigation('/mi-perfil')}
+                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/mi-perfil') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'} !bg-gray-900`}
+                  >
+                    Mi Perfil
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => handleNavigation('/mis-reservas')}
+                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/mis-reservas') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'} !bg-gray-900`}
                   >
                     Mis Reservas
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left py-2 px-4 text-lg rounded transition-colors text-red-400 hover:text-red-300 hover:bg-red-500/10 !bg-gray-900"
+                  >
+                    Cerrar Sesión
                   </button>
                 </li>
               </ul>
@@ -135,10 +164,28 @@ const UserNavbar = ({ user, onLogout }) => {
             <li className="flex items-center navbar-btn-space">
               <button
                 type="button"
+                onClick={() => handleNavigation('/mi-perfil')}
+                className={`flex items-center gap-2 py-2 px-4 text-xl rounded md:p-0 transition-colors nav-underline cursor-pointer ${isActive('/mi-perfil') ? 'active !text-white bg-white/5 md:!bg-transparent' : 'text-white hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'}`}
+              >
+                Mi Perfil
+              </button>
+            </li>
+            <li className="flex items-center navbar-btn-space">
+              <button
+                type="button"
                 onClick={() => handleNavigation('/mis-reservas')}
                 className={`flex items-center gap-2 py-2 px-4 text-xl rounded md:p-0 transition-colors nav-underline cursor-pointer ${isActive('/mis-reservas') ? 'active !text-white bg-white/5 md:!bg-transparent' : 'text-white hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'}`}
               >
                 Mis Reservas
+              </button>
+            </li>
+            <li className="flex items-center">
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex items-center gap-2 py-2 px-4 text-xl rounded md:p-0 transition-colors nav-underline cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-500/10"
+              >
+                Cerrar Sesión
               </button>
             </li>
           </ul>
