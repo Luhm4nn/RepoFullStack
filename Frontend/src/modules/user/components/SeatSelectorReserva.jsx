@@ -44,10 +44,22 @@ const SeatSelectorReserva = ({
         
         // Obtener asientos ya reservados para esta función
         const reservadosData = await getAsientosReservadosPorFuncion(idSala, fechaHoraFuncion);
-        const reservadosSet = new Set(
-          reservadosData.map(ar => `${ar.filaAsiento}-${ar.nroAsiento}`)
-        );
-        setAsientosReservados(reservadosSet);
+
+console.log('🔍 Debug Asientos Reservados:');
+console.log('fechaHoraFuncion enviada:', fechaHoraFuncion);
+console.log('Asientos reservados recibidos:', reservadosData);
+console.log('Primer asiento reservado (si existe):', reservadosData[0]);
+
+const reservadosSet = new Set(
+  reservadosData.map(ar => {
+    const key = `${ar.filaAsiento}${ar.nroAsiento}`;
+    console.log('Creando key:', key, 'de asiento:', ar);
+    return key;
+  })
+);
+
+console.log('Set de asientos reservados:', reservadosSet);
+setAsientosReservados(reservadosSet);
         
       } catch (err) {
         setError("Error al cargar los asientos");
@@ -198,7 +210,9 @@ const SeatSelectorReserva = ({
             </span>
             <div className="flex gap-1">
               {Array.from({ length: asientosPorFila }, (_, i) => i + 1).map((numero) => {
+                
                 const status = getSeatStatus(fila, numero);
+
                 const asientoInfo = getAsientoInfo(fila, numero);
                 const isClickable = status !== 'reserved' && status !== 'unavailable';
                 

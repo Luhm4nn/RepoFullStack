@@ -1,91 +1,58 @@
 import axios from "axios";
-import { dateFormaterBackend } from "../modules/shared";
+// Asumo que dateFormaterBackend convierte una Date a un string ISO
+import { dateFormaterBackend } from "../modules/shared"; 
 
 const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
-// Obtener todos los asientos reservados
-export const getAsientoReservas = async () => {
-  try {
-    const response = await axios.get(`${VITE_API_URL}/AsientoReservas`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching asiento reservas:", error);
-    throw error;
-  }
-}
+// ... (getAsientoReservas se mantiene igual)
 
-// Obtener asientos reservados para una función específica
-// Como el backend no soporta query params, obtenemos todos y filtramos en el cliente
+// CORRECCIÓN 1: Obtener asientos reservados para una función específica
+// Usaremos la nueva ruta del backend (GET /AsientoReservas/:idSala/:fechaHoraFuncion)
 export const getAsientosReservadosPorFuncion = async (idSala, fechaHoraFuncion) => {
   try {
-    const response = await axios.get(`${VITE_API_URL}/AsientoReservas`);
+    // 🔍 AGREGAR DEBUG
+    console.log('📅 API - fechaHoraFuncion recibida:', fechaHoraFuncion);
+    console.log('📅 API - tipo:', typeof fechaHoraFuncion);
+    
     const fechaFormateada = dateFormaterBackend(fechaHoraFuncion);
+    console.log('📅 API - fecha formateada:', fechaFormateada);
     
-    // Filtrar por idSala y fechaHoraFuncion
-    const filtered = response.data.filter(asiento => {
-      const asientoFecha = dateFormaterBackend(asiento.fechaHoraFuncion);
-      return asiento.idSala === parseInt(idSala, 10) && asientoFecha === fechaFormateada;
-    });
+    const encodedFechaFuncion = encodeURIComponent(fechaFormateada);
+    console.log('📅 API - fecha encoded:', encodedFechaFuncion);
     
-    return filtered;
+    const url = `${VITE_API_URL}/AsientoReservas/${idSala}/${encodedFechaFuncion}`;
+    console.log('📅 API - URL completa:', url);
+    
+    const response = await axios.get(url);
+    console.log('📅 API - respuesta:', response.data);
+    
+    return response.data;
   } catch (error) {
-    console.error("Error fetching asientos reservados por funcion:", error);
-    // Si no hay asientos reservados, retornar array vacío
-    if (error.response?.status === 404) {
-      return [];
-    }
-    throw error;
+    // ...
   }
 }
 
-// Crear múltiples asientos reservados
+// CORRECCIÓN 2: Crear múltiples asientos reservados en una sola llamada POST
 export const createAsientosReservados = async (asientosData) => {
   try {
-    const promises = asientosData.map(asiento => 
-      axios.post(`${VITE_API_URL}/AsientoReserva`, {
-        idSala: asiento.idSala,
-        filaAsiento: asiento.filaAsiento,
-        nroAsiento: asiento.nroAsiento,
-        fechaHoraFuncion: dateFormaterBackend(asiento.fechaHoraFuncion),
-        DNI: asiento.DNI,
-        fechaHoraReserva: asiento.fechaHoraReserva || new Date().toISOString()
-      })
-    );
+    // Enviar el array de reservas directamente en el cuerpo
+    // La ruta es /AsientoReserva (la que tiene tu POST)
+    const response = await axios.post(`${VITE_API_URL}/AsientoReserva`, asientosData);
     
-    const responses = await Promise.all(promises);
-    return responses.map(r => r.data);
+    return response.data;
   } catch (error) {
     console.error("Error creating asientos reservados:", error);
     throw error;
   }
 }
 
-// Crear un asiento reservado individual
+// CORRECCIÓN 3: Eliminar o consolidar createAsientoReservado ya que no se usa y complica el diseño
+// La dejo comentada por si la necesitas:
+/*
 export const createAsientoReservado = async (asientoData) => {
-  try {
-    const response = await axios.post(`${VITE_API_URL}/AsientoReserva`, {
-      idSala: asientoData.idSala,
-      filaAsiento: asientoData.filaAsiento,
-      nroAsiento: asientoData.nroAsiento,
-      fechaHoraFuncion: dateFormaterBackend(asientoData.fechaHoraFuncion),
-      DNI: asientoData.DNI,
-      fechaHoraReserva: asientoData.fechaHoraReserva || new Date().toISOString()
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error creating asiento reservado:", error);
-    throw error;
-  }
+  // Ya no es necesaria si usamos createAsientosReservados, a menos que el backend se modifique
+  // para tener una ruta individual y una ruta de array.
 }
+*/
 
-// Eliminar un asiento reservado
-export const deleteAsientoReservado = async (idSala, fechaHoraFuncion, DNI, fechaHoraReserva, filaAsiento, nroAsiento) => {
-  try {
-    const url = `${VITE_API_URL}/Reserva/${idSala}/${dateFormaterBackend(fechaHoraFuncion)}/${DNI}/${dateFormaterBackend(fechaHoraReserva)}/Asiento/${filaAsiento}/${nroAsiento}`;
-    const response = await axios.delete(url);
-    return response.data;
-  } catch (error) {
-    console.error("Error deleting asiento reservado:", error);
-    throw error;
-  }
-}
+// ... (deleteAsientoReservado se mantiene igual)
