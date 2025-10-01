@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { asyncHandler } from "../Middlewares/asyncHandler.js";
 import { validateBody } from "../Middlewares/validateRequest.js";
-import { tarifasSchema } from "../../../validations/TarifasSchema.js";
+import { tarifasSchema } from "../../Frontend/src/validations/TarifasSchema.js";
 import {
   getTarifas,
   getTarifa,

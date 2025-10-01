@@ -28,7 +28,8 @@
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
     "mysql2": "^3.14.1",
-    "node-cron": "^4.2.1"
+    "node-cron": "^4.2.1",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@prisma/client": "^6.11.1",

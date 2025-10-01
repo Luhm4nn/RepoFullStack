@@ -2,7 +2,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, Select } from "flowbite-react";
 import VIPSeatSelector from "./VIPSeatSelector";
 import { useState, useEffect } from "react";
-import { salasEditSchema } from "../../../../../validations/SalasEditSchema.js";
+import { salasEditSchema } from "../../../validations/SalasEditSchema.js";
 import { getAsientosBySala } from "../../../api/Salas.api.js";
 
 export default function SalasEditForm({ sala, onSubmit, onCancel }) {

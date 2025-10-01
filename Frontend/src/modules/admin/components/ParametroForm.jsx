@@ -1,6 +1,6 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, TextInput, Textarea } from "flowbite-react";
-import { parametrosSchema } from "../../../../../validations/ParametrosSchema.js";
+import { parametrosSchema } from "../../../validations/ParametrosSchema.js";
 
 export default function ParametrosForm({ onSubmit, onCancel, initialData = null, isEditing = false }) {
   // Verificar si es uno de los primeros dos parámetros del sistema

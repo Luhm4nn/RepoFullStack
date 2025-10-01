@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { getSala } from "../Frontend/src/api/Salas.api.js";
+import { getSala } from "../api/Salas.api.js";
 
 const salasSchema = Yup.object().shape({
   nombreSala: Yup.string()

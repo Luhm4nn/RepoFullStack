@@ -8,7 +8,7 @@ import {
 } from "./parametros.controllers.js";
 import { asyncHandler } from "../Middlewares/asyncHandler.js";
 import { validateBody } from "../Middlewares/validateRequest.js";
-import { parametrosSchema } from "../../../validations/ParametrosSchema.js";
+import { parametrosSchema } from "../validations/ParametrosSchema.js";
 const router = Router();
 
 router.get("/Parametros", asyncHandler(getParametros));

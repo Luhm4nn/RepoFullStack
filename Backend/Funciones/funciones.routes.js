@@ -12,7 +12,7 @@ import {
 
 import { asyncHandler } from "../Middlewares/asyncHandler.js";
 import { validateBody } from "../Middlewares/validateRequest.js";
-import { funcionesSchema } from "../../../validations/FuncionesSchema.js";
+import { funcionesSchema } from "../validations/FuncionesSchema.js";
 const router = Router();
 
 router.get("/Funciones", asyncHandler(getFunciones));

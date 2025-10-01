@@ -10,7 +10,7 @@ import {
 import { asyncHandler } from "../Middlewares/asyncHandler.js";
 import { handleMoviePosterUpload } from "../Middlewares/uploadHandler.js";
 import { validateBody } from "../Middlewares/validateRequest.js";
-import { peliculaSchema } from "../../../validations/PeliculasSchema.js";
+import { peliculaSchema } from "../validations/PeliculasSchema.js";
 
 const router = Router();
 

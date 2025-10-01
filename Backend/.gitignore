@@ -11,5 +11,4 @@ node_modules
 
 /generated/prisma
 
-prisma/schema.prisma
 /generated/prisma

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { asyncHandler } from "../Middlewares/asyncHandler.js";
 import { validateBody } from "../Middlewares/validateRequest.js";
-import { salasSchema } from "../../../validations/SalasSchema.js";
+import { salasSchema } from "../validations/SalasSchema.js";
 import {
   getSalas,
   getSala,
