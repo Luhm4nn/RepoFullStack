@@ -58,12 +58,10 @@ function SalasList() {
       await updateSala(salaId, data);
       setEditingModal(false);
       setSelectedSala(null);
-      await fetchSalas(); // Refrescar la lista
-      // Podrías agregar un toast de éxito aquí
+      await fetchSalas();
       console.log("Sala actualizada exitosamente");
     } catch (error) {
       console.error("Error updating sala:", error);
-      // Podrías agregar un toast de error aquí
       alert("Error al actualizar la sala: " + error.message);
     }
   };
@@ -78,7 +76,7 @@ function SalasList() {
       await deleteSala(salaToDelete.idSala);
       setDeleteModal(false);
       setSalaToDelete(null);
-      await fetchSalas(); // Refrescar la lista
+      await fetchSalas();
       console.log("Sala eliminada exitosamente");
     } catch (error) {
       console.error("Error deleting sala:", error);
@@ -116,7 +114,6 @@ function SalasList() {
 
   return (
     <div className="w-full">
-      {/* Modal de Edición */}
       <Modal show={editingModal} onClose={closeEditModal} size="4xl"
       theme={{
           content: {
@@ -135,9 +132,6 @@ function SalasList() {
         </ModalBody>
       </Modal>
 
-
-
-      {/* Modal de Confirmación de Eliminación */}
       <Modal show={deleteModal} onClose={closeDeleteModal} size="sm"
       theme={{
           content: {
@@ -156,7 +150,7 @@ function SalasList() {
 
 
       <div className="hidden md:block overflow-x-auto">
-        <Table hoverable>
+        <Table>
           <TableHead>
             <TableRow className="bg-slate-800/50 text-white pointer-events-none border-slate-700">
               <TableHeadCell className="bg-slate-800/50 text-white">Sala</TableHeadCell>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import cutzyLogoBlanco from '../../../assets/cutzy-logo-blanco.png';
 import '../../admin/components/AdminNavbar.css';
@@ -7,8 +7,20 @@ import { Button as FlowbiteButton, Drawer, DrawerHeader, DrawerItems } from 'flo
 const UserNavbar = ({ user, onLogout }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -29,7 +41,7 @@ const UserNavbar = ({ user, onLogout }) => {
 
   return (
     <nav className="bg-gradient-to-r from-indigo-800 via-purple-800 to-pink-700 py-4 px-5 border-b border-slate-800 sticky top-0 z-50">
-      <div className="flex flex-wrap items-center justify-between mx-auto">
+      <div className="flex items-center justify-between mx-auto">
         <button
           type="button"
           onClick={() => handleNavigation('/')}
@@ -50,7 +62,7 @@ const UserNavbar = ({ user, onLogout }) => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </FlowbiteButton>
-          <div className="relative">
+          <div className="relative" ref={dropdownRef}>
             <button
               type="button"
               onClick={toggleDropdown}
@@ -75,12 +87,20 @@ const UserNavbar = ({ user, onLogout }) => {
                 </div>
                 <ul className="py-2">
                   <li>
-                    <button type="button" className="block px-4 py-2 text-sm !text-white hover:!bg-white/5 w-full text-left">
+                    <button
+                      type="button"
+                      onClick={() => { handleNavigation('/mi-perfil'); setIsDropdownOpen(false); }}
+                      className="block px-4 py-2 text-sm !text-white hover:!bg-white/5 w-full text-left"
+                    >
                       Mi Perfil
                     </button>
                   </li>
                   <li>
-                    <button type="button" className="block px-4 py-2 text-sm !text-white hover:!bg-white/5 w-full text-left">
+                    <button
+                      type="button"
+                      onClick={() => { handleNavigation('/mis-reservas'); setIsDropdownOpen(false); }}
+                      className="block px-4 py-2 text-sm !text-white hover:!bg-white/5 w-full text-left"
+                    >
                       Mis Reservas
                     </button>
                   </li>
@@ -97,22 +117,27 @@ const UserNavbar = ({ user, onLogout }) => {
               </div>
             )}
           </div>
-          <Drawer open={isMenuOpen} onClose={() => setIsMenuOpen(false)} position="left" className="md:hidden">
-            <DrawerHeader title="Menú" />
-            <DrawerItems>
+          <Drawer
+            open={isMenuOpen}
+            onClose={toggleMenu}
+            position="left"
+            className="md:hidden !bg-gray-900 !text-white"
+          >
+            <DrawerHeader title="Menú" className="!bg-gray-900 !text-white" />
+            <DrawerItems className="!bg-gray-900 !text-white">
               <ul className="flex flex-col gap-2 mt-4">
                 <li>
                   <button
-                    onClick={() => { handleNavigation('/'); setIsMenuOpen(false); }}
-                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/') ? 'active !text-white !bg-white/5' : 'text-white hover:!text-white hover:bg-white/5'}`}
+                    onClick={() => handleNavigation('/')}
+                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'} !bg-gray-900`}
                   >
                     Cartelera
                   </button>
                 </li>
                 <li>
                   <button
-                    onClick={() => { handleNavigation('/mis-reservas'); setIsMenuOpen(false); }}
-                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/mis-reservas') ? 'active !text-white !bg-white/5' : 'text-white hover:!text-white hover:bg-white/5'}`}
+                    onClick={() => handleNavigation('/mis-reservas')}
+                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/mis-reservas') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'} !bg-gray-900`}
                   >
                     Mis Reservas
                   </button>

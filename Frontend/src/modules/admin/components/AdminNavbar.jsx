@@ -4,6 +4,7 @@ import './AdminNavbar.css';
 import { Dropdown, Drawer, DrawerHeader, DrawerItems, Button as FlowbiteButton } from 'flowbite-react';
 import { DropdownItem, DropdownDivider, DropdownHeader } from 'flowbite-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+
 const AdminNavbar = ({ user, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -13,7 +14,11 @@ const AdminNavbar = ({ user, onLogout }) => {
     navigate(path);
     setIsMenuOpen(false);
   };
-
+  const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
   const handleLogout = async () => {
     if (onLogout) {
       await onLogout();
@@ -47,9 +52,11 @@ const AdminNavbar = ({ user, onLogout }) => {
             </svg>
           </FlowbiteButton>
           <Dropdown
+            handleClickOutside={handleClickOutside}
             label={
-              <div className="w-14 h-14 bg-gradient-to-r from-green-600 to-teal-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                {user?.nombreUsuario?.charAt(0)}{user?.apellidoUsuario?.charAt(0)}
+              <div className="w-14 h-14 bg-gradient-to-r cursor-pointer from-green-600 to-teal-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                {user?.nombreUsuario?.charAt(0)}
+                {user?.apellidoUsuario?.charAt(0)}
               </div>
             }
             inline
@@ -69,52 +76,67 @@ const AdminNavbar = ({ user, onLogout }) => {
               </span>
             </DropdownHeader>
             <DropdownItem className="!text-white hover:!bg-white/5">Dashboard</DropdownItem>
-            <DropdownItem className="!text-white hover:!bg-white/5">Settings</DropdownItem>
+            <DropdownItem className="!text-white hover:!bg-white/5">Configuraciones</DropdownItem>
             <DropdownDivider />
-            <DropdownItem onClick={handleLogout} className="!text-red-400 hover:!bg-red-500/10">Sign out</DropdownItem>
+            <DropdownItem onClick={handleLogout} className="!text-red-400 hover:!bg-red-500/10">
+              Cerrar Sesión
+            </DropdownItem>
           </Dropdown>
-          <Drawer open={isMenuOpen} onClose={toggleMenu} position="left" className="md:hidden">
-            <DrawerHeader title="Menú" />
-            <DrawerItems>
+          <Drawer
+            open={isMenuOpen}
+            onClose={toggleMenu}
+            position="left"
+            className="md:hidden !bg-gray-900 !text-white"
+          >
+            <DrawerHeader title="Menú" className="!bg-gray-900 !text-white" />
+            <DrawerItems className="!bg-gray-900 !text-white">
               <ul className="flex flex-col gap-2 mt-4">
                 <li>
                   <button
-                    onClick={() => { handleNavigation('/'); toggleMenu(); }}
-                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/') ? 'active !text-white !bg-white/5' : 'text-white hover:!text-white hover:bg-white/5'}`}
+                    onClick={() => { handleNavigation('/') }}
+                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'}`}
                   >
                     Cartelera
                   </button>
                 </li>
                 <li>
                   <button
-                    onClick={() => { handleNavigation('/Peliculas'); toggleMenu(); }}
-                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Peliculas') ? 'active !text-white !bg-white/5' : 'text-white hover:!text-white hover:bg-white/5'}`}
+                    onClick={() => { handleNavigation('/Peliculas') }}
+                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Peliculas') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'} `}
                   >
                     Películas
                   </button>
                 </li>
                 <li>
                   <button
-                    onClick={() => { handleNavigation('/Salas'); toggleMenu(); }}
-                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Salas') ? 'active !text-white !bg-white/5' : 'text-white hover:!text-white hover:bg-white/5'}`}
+                    onClick={() => { handleNavigation('/Salas') }}
+                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Salas') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'} `}
                   >
                     Salas
                   </button>
                 </li>
                 <li>
                   <button
-                    onClick={() => { handleNavigation('/Funciones'); toggleMenu(); }}
-                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Funciones') ? 'active !text-white !bg-white/5' : 'text-white hover:!text-white hover:bg-white/5'}`}
+                    onClick={() => { handleNavigation('/Funciones') }}
+                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Funciones') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'}`}
                   >
                     Funciones
                   </button>
                 </li>
                 <li>
                   <button
-                    onClick={() => { handleNavigation('/Configuracion'); toggleMenu(); }}
-                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Configuracion') ? 'active !text-white !bg-white/5' : 'text-white hover:!text-white hover:bg-white/5'}`}
+                    onClick={() => { handleNavigation('/Configuracion') }}
+                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Configuracion') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'}`}
                   >
                     Configuración
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left py-2 px-4 text-lg rounded transition-colors text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                  >
+                    Cerrar Sesión
                   </button>
                 </li>
               </ul>

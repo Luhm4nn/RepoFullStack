@@ -157,7 +157,7 @@ function FuncionesList() {
       <FuncionesInlineFilters filterHook={filterHook} />
       
       <div className="hidden md:block overflow-x-auto">
-        <Table hoverable>
+        <Table >
           <TableHead>
             <TableRow className="bg-slate-800/50 text-white pointer-events-none border-slate-700">
               <TableHeadCell className="bg-slate-800/50 text-white">Película</TableHeadCell>

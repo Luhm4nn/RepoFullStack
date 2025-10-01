@@ -16,7 +16,10 @@
 - detalle de ganancia por funcion
 
 ## Otras cosas
-- ValiBot para el back
 - Dasshboard
 - Unificacion de estilos
 - Cerrar admin (en general)
+- Ir componente por componente limpiando comentarios, funciones y variables deprecadas/sin usar
+- Modulariazar hooks, constantes (ej: calsificaciones, géneros), estilos (si es posible)
+- Unificar formateadores de fechas (tenemos 11 dateFormaters y a veces ninguno sirve)
+- Modales me deberian bloquear el scroll del fondo
