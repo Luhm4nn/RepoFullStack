@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import cutzyLogoBlanco from '../../../assets/cutzy-logo-blanco.png';
 import '../../admin/components/AdminNavbar.css';
@@ -7,8 +7,20 @@ import { Button as FlowbiteButton, Drawer, DrawerHeader, DrawerItems } from 'flo
 const UserNavbar = ({ user, onLogout }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -50,7 +62,7 @@ const UserNavbar = ({ user, onLogout }) => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </FlowbiteButton>
-          <div className="relative">
+          <div className="relative" ref={dropdownRef}>
             <button
               type="button"
               onClick={toggleDropdown}
@@ -124,26 +136,10 @@ const UserNavbar = ({ user, onLogout }) => {
                 </li>
                 <li>
                   <button
-                    onClick={() => handleNavigation('/mi-perfil')}
-                    className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/mi-perfil') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'} !bg-gray-900`}
-                  >
-                    Mi Perfil
-                  </button>
-                </li>
-                <li>
-                  <button
                     onClick={() => handleNavigation('/mis-reservas')}
                     className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/mis-reservas') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'} !bg-gray-900`}
                   >
                     Mis Reservas
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left py-2 px-4 text-lg rounded transition-colors text-red-400 hover:text-red-300 hover:bg-red-500/10 !bg-gray-900"
-                  >
-                    Cerrar Sesión
                   </button>
                 </li>
               </ul>
@@ -164,28 +160,10 @@ const UserNavbar = ({ user, onLogout }) => {
             <li className="flex items-center navbar-btn-space">
               <button
                 type="button"
-                onClick={() => handleNavigation('/mi-perfil')}
-                className={`flex items-center gap-2 py-2 px-4 text-xl rounded md:p-0 transition-colors nav-underline cursor-pointer ${isActive('/mi-perfil') ? 'active !text-white bg-white/5 md:!bg-transparent' : 'text-white hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'}`}
-              >
-                Mi Perfil
-              </button>
-            </li>
-            <li className="flex items-center navbar-btn-space">
-              <button
-                type="button"
                 onClick={() => handleNavigation('/mis-reservas')}
                 className={`flex items-center gap-2 py-2 px-4 text-xl rounded md:p-0 transition-colors nav-underline cursor-pointer ${isActive('/mis-reservas') ? 'active !text-white bg-white/5 md:!bg-transparent' : 'text-white hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'}`}
               >
                 Mis Reservas
-              </button>
-            </li>
-            <li className="flex items-center">
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex items-center gap-2 py-2 px-4 text-xl rounded md:p-0 transition-colors nav-underline cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-500/10"
-              >
-                Cerrar Sesión
               </button>
             </li>
           </ul>

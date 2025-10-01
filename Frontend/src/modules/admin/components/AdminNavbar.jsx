@@ -14,7 +14,11 @@ const AdminNavbar = ({ user, onLogout }) => {
     navigate(path);
     setIsMenuOpen(false);
   };
-
+  const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
   const handleLogout = async () => {
     if (onLogout) {
       await onLogout();
@@ -48,6 +52,7 @@ const AdminNavbar = ({ user, onLogout }) => {
             </svg>
           </FlowbiteButton>
           <Dropdown
+            handleClickOutside={handleClickOutside}
             label={
               <div className="w-14 h-14 bg-gradient-to-r cursor-pointer from-green-600 to-teal-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
                 {user?.nombreUsuario?.charAt(0)}
