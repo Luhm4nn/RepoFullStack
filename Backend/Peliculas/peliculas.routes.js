@@ -18,9 +18,9 @@ router.get("/Peliculas", asyncHandler(getPeliculas));
 
 router.get("/Pelicula/:id", asyncHandler(getPelicula));
 
-router.post("/Pelicula", validateBody(peliculaSchema), handleMoviePosterUpload, asyncHandler(createPelicula));
+router.post("/Pelicula", handleMoviePosterUpload, validateBody(peliculaSchema), asyncHandler(createPelicula));
 
-router.put("/Pelicula/:id", validateBody(peliculaSchema), handleMoviePosterUpload, asyncHandler(updatePelicula));
+router.put("/Pelicula/:id", handleMoviePosterUpload, validateBody(peliculaSchema), asyncHandler(updatePelicula));
 
 router.delete("/Pelicula/:id", asyncHandler(deletePelicula));
 

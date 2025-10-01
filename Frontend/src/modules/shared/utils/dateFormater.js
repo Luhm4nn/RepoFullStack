@@ -32,46 +32,51 @@ export const formatDate = (fechaString) => {
 export const formatDateTime = (dateTimeString) => {
   if (!dateTimeString) return { fecha: 'Sin fecha', hora: 'Sin hora' };
   
-  const [fechaParte, horaParte] = dateTimeString.split('T');
-  const [year, month, day] = fechaParte.split('-');
-  const [hours, minutes] = horaParte.substring(0, 5).split(':'); 
-  const fechaLocal = new Date(year, month - 1, day, hours, minutes);
+  // CRÍTICO: Crear el objeto Date directamente desde el string ISO.
+  // JavaScript lo interpreta automáticamente como UTC y lo convierte a la hora local.
+  const dateObj = new Date(dateTimeString); 
   
-  if (isNaN(fechaLocal.getTime())) {
+  if (isNaN(dateObj.getTime())) {
     return { fecha: 'Fecha inválida', hora: 'Hora inválida' };
   }
   
+  // Ahora, usa toLocaleTimeString para obtener la hora ajustada a GMT-3
+  const hora = dateObj.toLocaleTimeString('es-LA', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false // O true, según prefieras
+  });
+
+  // Usa toLocaleDateString para la fecha ajustada
+  const fecha = dateObj.toLocaleDateString('es-LA', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+  
   return {
-    fecha: formatDate(dateTimeString), 
-    hora: `${hours}:${minutes}` 
+    fecha: fecha,
+    hora: hora 
   };
 };
+
+
 
 // Format datetime-local input string to ISO format for backend
 export const formatDateTimeForBackend = (fechaHoraString) => {
   if (!fechaHoraString) return null;
   
-  // Extraer fecha y hora por separado
-  const [fecha, hora] = fechaHoraString.split('T');
-  const [year, month, day] = fecha.split('-');
-  const [hours, minutes] = hora.split(':');
-  
-  // Crear fecha local sin conversión automática de zona horaria
-  const fechaLocal = new Date(year, month - 1, day, hours, minutes);
+  // 1. Crea un objeto Date local (Ej: 2025-10-01 10:00:00 GMT-0300)
+  const fechaLocal = new Date(fechaHoraString); 
   
   if (isNaN(fechaLocal.getTime())) {
     return null;
   }
   
-  // Formatear manualmente para evitar conversión UTC
-  const yearStr = fechaLocal.getFullYear();
-  const monthStr = String(fechaLocal.getMonth() + 1).padStart(2, '0');
-  const dayStr = String(fechaLocal.getDate()).padStart(2, '0');
-  const hoursStr = String(fechaLocal.getHours()).padStart(2, '0');
-  const minutesStr = String(fechaLocal.getMinutes()).padStart(2, '0');
-  const secondsStr = String(fechaLocal.getSeconds()).padStart(2, '0');
-  
-  return `${yearStr}-${monthStr}-${dayStr}T${hoursStr}:${minutesStr}:${secondsStr}.000Z`;
+  // 2. toISOString() convierte la hora local a su equivalente en UTC/ISO.
+  //    (Ej: 10:00 AM GMT-3 -> 13:00 PM UTC)
+  //    Esto corrige el problema de "3hs después".
+  return fechaLocal.toISOString(); 
 };
 
 // Get current datetime in datetime-local format

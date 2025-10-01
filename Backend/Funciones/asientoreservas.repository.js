@@ -7,6 +7,25 @@ async function getAll() {
   return asientoreservas;
 }
 
+const cleanDateParam = (dateString) => {
+    const decodedString = decodeURIComponent(dateString); 
+    const newDate = new Date(decodedString);
+    newDate.setMilliseconds(0); 
+    return newDate;
+};
+
+async function getAsientosReservadosPorFuncion(idSala, fechaHoraFuncionString) {
+  const fechaFuncionDate = new Date(fechaHoraFuncionString);
+  fechaFuncionDate.setMilliseconds(0);
+  const reservados = await prisma.asiento_reserva.findMany({
+    where: {
+      idSala: parseInt(idSala, 10),
+      fechaHoraFuncion: fechaFuncionDate,
+    },
+  });
+  return reservados;
+}
+
 async function getOne(idSala_filaAsiento_nroAsiento_fechaHoraFuncion) {
   const asientoreserva = await prisma.asiento_reserva.findUnique({
     where: {
@@ -28,18 +47,22 @@ async function getOne(idSala_filaAsiento_nroAsiento_fechaHoraFuncion) {
   return asientoreserva;
 }
 
-async function createOne(data) {
-  const newAsientoReserva = await prisma.asiento_reserva.create({
-    data: {
-      idSala: parseInt(data.idSala, 10),
-      filaAsiento: data.filaAsiento,
-      nroAsiento: parseInt(data.nroAsiento, 10),
-      fechaHoraFuncion: new Date(data.fechaHoraFuncion),
-      DNI: parseInt(data.DNI, 10),
-      fechaHoraReserva: new Date(data.fechaHoraReserva),
-    },
+async function createMany(reservasArray) {
+  const dataToCreate = reservasArray.map(item => ({
+    idSala: parseInt(item.idSala, 10),
+    filaAsiento: item.filaAsiento,
+    nroAsiento: parseInt(item.nroAsiento, 10),
+    fechaHoraFuncion: new Date(item.fechaHoraFuncion), 
+    DNI: parseInt(item.DNI, 10),
+    fechaHoraReserva: new Date(item.fechaHoraReserva),
+  }));
+
+  const newAsientoReservas = await prisma.asiento_reserva.createMany({
+    data: dataToCreate,
+    skipDuplicates: true,
   });
-  return newAsientoReserva;
+  
+  return newAsientoReservas;
 }
 
 async function deleteOne(idSala_filaAsiento_nroAsiento_fechaHoraFuncion) {
@@ -92,4 +115,4 @@ async function updateOne(idSala_filaAsiento_nroAsiento_fechaHoraFuncion) {
   return updatedReserva;
 }
 
-export { getOne, getAll, createOne, deleteOne, updateOne };
+export { getOne, getAll, createMany, deleteOne, updateOne, getAsientosReservadosPorFuncion, cleanDateParam };

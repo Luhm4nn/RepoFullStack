@@ -12,6 +12,16 @@ export const getTarifas = async () => {
   }
 }
 
+export const getTarifa = async (idTarifa) => {
+  try {
+    const response = await axios.get(`${VITE_API_URL}/Tarifa/${idTarifa}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching tarifa:", error);
+    throw error;
+  }
+}
+
 export const createTarifa = async (tarifa) => {
   try {
     const response = await axios.post(`${VITE_API_URL}/Tarifa`, tarifa);

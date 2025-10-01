@@ -31,6 +31,11 @@ export const createFuncion = async (funcion) => {
     return response.data;
   } catch (error) {
     console.error("Error creating funcion:", error);
+    if (error.response && error.response.data && error.response.data.errors) {
+            console.error("Errores de Validación del Servidor:", error.response.data.errors);
+        } else if (error.response && error.response.data && error.response.data.message) {
+            console.error("Mensaje del Servidor:", error.response.data.message);
+        }
     throw error;
   }
 }

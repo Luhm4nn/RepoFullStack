@@ -35,17 +35,28 @@ async function getOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
   return reserva;
 }
 
+const removeMilliseconds = (date) => {
+    if (!date) return null;
+    const newDate = new Date(date);
+    newDate.setMilliseconds(0); 
+    return newDate;
+};
+
 async function createOne(data) {
-  const fechaHoraReserva = new Date();
+
+  const fechaFuncionDate = removeMilliseconds(data.fechaHoraFuncion); 
+  
+  const fechaReservaDate = data.fechaHoraReserva 
+    ? removeMilliseconds(data.fechaHoraReserva)
+    : removeMilliseconds(new Date());
+
   const newReserva = await prisma.reserva.create({
     data: {
       idSala: parseInt(data.idSala, 10),
-      fechaHoraFuncion: data.fechaHoraFuncion,
+      fechaHoraFuncion: fechaFuncionDate,
       DNI: parseInt(data.DNI, 10),
       estado: "ACTIVA",
-      fechaHoraReserva: data.fechaHoraReserva
-        ? new Date(data.fechaHoraReserva)
-        : new Date(),
+      fechaHoraReserva: fechaReservaDate,
       total: parseFloat(data.total),
     },
   });
