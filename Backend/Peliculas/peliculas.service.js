@@ -3,10 +3,11 @@ import {
     getAll as getAllDB, 
     createOne as createOneDB, 
     deleteOne as deleteOneDB, 
-    updateOne as updateOneDB 
+    updateOne as updateOneDB, 
+    getAllEnCartelera as getAllEnCarteleraDB
 } from './peliculas.repository.js';
 import { getFuncionesByPeliculaId } from '../Funciones/funciones.service.js';
-import { formatDateForBackendMessage, formatDateTimeForBackendMessage } from '../utils/dateFormater.js';
+import { formatDateForBackendMessage } from '../utils/dateFormater.js';
 import { cloudinary } from '../config/cloudinary.js';
 
 
@@ -83,6 +84,11 @@ export const updateOne = async (id, data) => {
     
     const updatedPelicula = await updateOneDB(id, movieDataToUpdate);
     return updatedPelicula;
+};
+
+export const getAllEnCartelera = async () => {
+    const peliculas = await getAllEnCarteleraDB();
+    return peliculas;
 };
 
 async function validationsEstreno (data) {

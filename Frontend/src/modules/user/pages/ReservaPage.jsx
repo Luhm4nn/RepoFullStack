@@ -22,7 +22,6 @@ function ReservaPage() {
       try {
         const data = await getPelicula(id);
         setPelicula(data);
-        console.log('DEBUG pelicula:', data); // <-- debug temporal
       } catch (err) {
         setPelicula(null);
       } finally {

@@ -4,16 +4,15 @@ import { ClaquetaPersonaje } from "../../shared";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Carousel } from "flowbite-react";
-import { getPeliculas } from "../../user";
+import { getPeliculasEnCartelera } from "../../user";
 
 
 function CarteleraPage() {
 	const [peliculas, setPeliculas] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const navigate = useNavigate();
 
 	useEffect(() => {
-		getPeliculas().then((data) => {
+		getPeliculasEnCartelera().then((data) => {
 			setPeliculas(data);
 			setLoading(false);
 		});

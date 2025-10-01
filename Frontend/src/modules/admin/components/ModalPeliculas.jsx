@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button, TextInput, Select, Textarea } from "flowbite-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { createPelicula, updatePelicula } from "../../../api/Peliculas.api";
-import peliculaSchema from "../validations/PeliculasSchema.js";
+import { peliculaSchema } from "../../../../../validations/PeliculasSchema.js";
 import { dateFormaterBackend } from "../../shared/utils/dateFormater.js";
 import useErrorModal from "../../shared/hooks/useErrorModal";
 import ErrorModal from "../../shared/components/ErrorModal.jsx";

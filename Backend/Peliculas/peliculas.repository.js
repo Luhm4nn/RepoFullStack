@@ -63,4 +63,17 @@ async function updateOne(id, data) {
   return updatedPelicula;
 }
 
-export { getOne, getAll, createOne, deleteOne, updateOne };
+async function getAllEnCartelera() {
+  const peliculas = await prisma.pelicula.findMany({
+    where: {
+      funcion: {
+        some: {
+          estado: "Publica",
+        },
+      },
+    },
+  });
+  return peliculas;
+}
+
+export { getOne, getAll, createOne, deleteOne, updateOne, getAllEnCartelera };

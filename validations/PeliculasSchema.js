@@ -1,6 +1,7 @@
 import * as Yup from "yup";
 
-const peliculaSchema = Yup.object().shape({
+// Esquema compartido para películas
+export const peliculaSchema = Yup.object().shape({
   nombrePelicula: Yup.string()
     .min(2, "Muy corto")
     .max(100, "Muy largo")
@@ -32,5 +33,3 @@ const peliculaSchema = Yup.object().shape({
     .oneOf(["G", "PG", "PG-13", "R", "NC-17"], "Clasificación inválida")
     .nullable(),
 });
-
-export default peliculaSchema;

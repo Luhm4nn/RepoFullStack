@@ -13,7 +13,6 @@ export const getFunciones = async (estado = 'activas') => {
   }
 }
 
-// Funciones específicas para mejor claridad en el código
 export const getFuncionesActivas = async () => {
   return getFunciones('activas');
 }

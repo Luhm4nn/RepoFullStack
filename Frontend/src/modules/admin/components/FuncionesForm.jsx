@@ -3,7 +3,7 @@ import { Button, Label, Select } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { getSalas } from "../../../api/Salas.api";
 import { getPeliculas } from "../../../api/Peliculas.api";
-import { funcionesSchema } from "../validations/FuncionesSchema.js";
+import { funcionesSchema } from "../../../../../validations/FuncionesSchema.js";
 import { formatDateTimeForBackend, getCurrentDateTime, formatDateForInput } from "../../shared/utils/dateFormater.js";
 
 export default function FuncionesForm({ onSubmit, funcionToEdit = null, isEditing = false, onCancel }) {
