@@ -48,30 +48,21 @@ async function getOne(idSala_filaAsiento_nroAsiento_fechaHoraFuncion) {
 }
 
 async function createMany(reservasArray) {
-  try {
-    const dataToCreate = reservasArray.map(item => ({
-      idSala: parseInt(item.idSala, 10),
-      filaAsiento: item.filaAsiento,
-      nroAsiento: parseInt(item.nroAsiento, 10),
-      fechaHoraFuncion: new Date(item.fechaHoraFuncion),
-      DNI: parseInt(item.DNI, 10),
-      fechaHoraReserva: new Date(item.fechaHoraReserva),
-    }));
+  const dataToCreate = reservasArray.map(item => ({
+    idSala: parseInt(item.idSala, 10),
+    filaAsiento: item.filaAsiento,
+    nroAsiento: parseInt(item.nroAsiento, 10),
+    fechaHoraFuncion: new Date(item.fechaHoraFuncion), 
+    DNI: parseInt(item.DNI, 10),
+    fechaHoraReserva: new Date(item.fechaHoraReserva),
+  }));
 
-    const newAsientoReservas = await prisma.asiento_reserva.createMany({
-      data: dataToCreate,
-      skipDuplicates: false, // Cambiar a false para que lance error
-    });
-    
-    return newAsientoReservas;
-  } catch (err) {
-    if (err.code === 'P2002') { // Código de Prisma para unique constraint violation
-      const error = new Error("Uno o más asientos ya están reservados.");
-      error.status = 409;
-      throw error;
-    }
-    throw err;
-  }
+  const newAsientoReservas = await prisma.asiento_reserva.createMany({
+    data: dataToCreate,
+    skipDuplicates: true,
+  });
+  
+  return newAsientoReservas;
 }
 
 async function deleteOne(idSala_filaAsiento_nroAsiento_fechaHoraFuncion) {
