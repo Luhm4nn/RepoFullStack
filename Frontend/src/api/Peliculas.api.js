@@ -61,6 +61,9 @@ export const createPelicula = async (pelicula) => {
     return response.data;
   } catch (error) {
     console.error("Error creating pelicula:", error);
+    if (error.response) {
+        console.error("Backend error response:", error.response.data);
+    }
     throw error;
   }
 };

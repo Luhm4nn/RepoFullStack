@@ -51,27 +51,16 @@ export const formatDateTime = (dateTimeString) => {
 export const formatDateTimeForBackend = (fechaHoraString) => {
   if (!fechaHoraString) return null;
   
-  // Extraer fecha y hora por separado
-  const [fecha, hora] = fechaHoraString.split('T');
-  const [year, month, day] = fecha.split('-');
-  const [hours, minutes] = hora.split(':');
-  
-  // Crear fecha local sin conversión automática de zona horaria
-  const fechaLocal = new Date(year, month - 1, day, hours, minutes);
+  // 1. Usa el constructor de Date con el string de 'datetime-local'.
+  // Esto crea un objeto Date con el huso horario local (Ej: 20:00 GMT-3)
+  const fechaLocal = new Date(fechaHoraString); 
   
   if (isNaN(fechaLocal.getTime())) {
     return null;
   }
   
-  // Formatear manualmente para evitar conversión UTC
-  const yearStr = fechaLocal.getFullYear();
-  const monthStr = String(fechaLocal.getMonth() + 1).padStart(2, '0');
-  const dayStr = String(fechaLocal.getDate()).padStart(2, '0');
-  const hoursStr = String(fechaLocal.getHours()).padStart(2, '0');
-  const minutesStr = String(fechaLocal.getMinutes()).padStart(2, '0');
-  const secondsStr = String(fechaLocal.getSeconds()).padStart(2, '0');
-  
-  return `${yearStr}-${monthStr}-${dayStr}T${hoursStr}:${minutesStr}:${secondsStr}.000Z`;
+  // 2. toISOString() convierte la hora local (20:00 GMT-3) a su equivalente en UTC (23:00Z)
+  return fechaLocal.toISOString();
 };
 
 // Get current datetime in datetime-local format

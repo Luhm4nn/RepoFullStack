@@ -1,9 +1,12 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getFuncionesPorPeliculaYFecha } from "../../../api/Funciones.api";
 import { getPelicula } from "../../../api/Peliculas.api";
 import { formatDateTime } from "../../shared";
+import SeatSelectorReserva from "../components/SeatSelectorReserva";
+import { createReserva } from "../../../api/Reservas.api";
+import { createAsientosReservados } from "../../../api/AsientoReservas.api";
+import { authAPI } from "../../../api/login.api";
 
 
 function ReservaPage() {
@@ -16,6 +19,17 @@ function ReservaPage() {
   const [error, setError] = useState(null);
   const [loadingPelicula, setLoadingPelicula] = useState(true);
 
+  // State para la función seleccionada para reservar asientos
+  const [selectedFuncion, setSelectedFuncion] = useState(null);
+  // State para los asientos seleccionados y el total del precio
+  const [selectedSeatsInfo, setSelectedSeatsInfo] = useState({
+    seats: [],
+    total: 0,
+    count: 0
+  });
+  const [reservationLoading, setReservationLoading] = useState(false);
+  const [reservationError, setReservationError] = useState(null);
+
   useEffect(() => {
     const fetchPelicula = async () => {
       setLoadingPelicula(true);
@@ -24,6 +38,7 @@ function ReservaPage() {
         setPelicula(data);
       } catch (err) {
         setPelicula(null);
+        setError("Error al cargar los detalles de la película.");
       } finally {
         setLoadingPelicula(false);
       }
@@ -33,21 +48,96 @@ function ReservaPage() {
 
   const handleFechaChange = (e) => {
     setFecha(e.target.value);
+    setFunciones([]); // Limpiar funciones al cambiar la fecha
+    setSelectedFuncion(null); // Limpiar selección de función
+    setSelectedSeatsInfo({ seats: [], total: 0, count: 0 }); // Limpiar selección de asientos
   };
 
   const handleBuscar = async () => {
-    if (!fecha || !pelicula?.idPelicula) return;
+    if (!fecha || !pelicula?.idPelicula) {
+      setError("Por favor, selecciona una fecha y asegúrate de que la película esté cargada.");
+      return;
+    }
     setLoading(true);
     setError(null);
+    setSelectedFuncion(null); // Limpiar selección de función al buscar nuevas funciones
+    setSelectedSeatsInfo({ seats: [], total: 0, count: 0 }); // Limpiar selección de asientos
     try {
       const data = await getFuncionesPorPeliculaYFecha(pelicula.idPelicula, fecha);
       setFunciones(data);
+      if (data.length === 0) {
+        setError("No hay funciones disponibles para la fecha seleccionada.");
+      }
     } catch (err) {
-      setError("Error al obtener funciones");
+      setError("Error al obtener funciones para la fecha seleccionada.");
+      console.error("Error fetching funciones:", err);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleSelectFuncion = (funcion) => {
+    setSelectedFuncion(funcion);
+    setSelectedSeatsInfo({ seats: [], total: 0, count: 0 }); // Reset seats when a new function is selected
+  };
+
+  const handleSeatsChange = (info) => {
+    setSelectedSeatsInfo(info);
+  };
+
+  const handleConfirmarReserva = async () => {
+    if (!selectedFuncion || selectedSeatsInfo.count === 0) {
+      setReservationError("Por favor, selecciona una función y al menos un asiento.");
+      return;
+    }
+
+    const auth = authAPI.checkAuth();
+    if (!auth || !auth.user || !auth.user.DNI) {
+      setReservationError("Debes iniciar sesión para realizar una reserva.");
+      navigate('/login'); // Redirigir a login
+      return;
+    }
+
+    setReservationLoading(true);
+    setReservationError(null);
+
+    try {
+      const DNI = auth.user.DNI;
+      const fechaHoraReserva = new Date().toISOString();
+
+      // 1. Crear la Reserva principal
+      const reservaData = {
+        idSala: selectedFuncion.idSala,
+        fechaHoraFuncion: selectedFuncion.fechaHoraFuncion,
+        DNI: DNI,
+        total: selectedSeatsInfo.total,
+        fechaHoraReserva: fechaHoraReserva,
+      };
+      const newReserva = await createReserva(reservaData);
+
+      // 2. Crear los Asientos Reservados asociados
+      const asientosParaReservar = selectedSeatsInfo.seats.map(seat => ({
+        idSala: selectedFuncion.idSala,
+        filaAsiento: seat.filaAsiento,
+        nroAsiento: seat.nroAsiento,
+        fechaHoraFuncion: selectedFuncion.fechaHoraFuncion,
+        DNI: DNI,
+        fechaHoraReserva: fechaHoraReserva, // Usar la misma fecha y hora de la reserva principal
+      }));
+
+      await createAsientosReservados(asientosParaReservar);
+
+      alert("Reserva realizada con éxito!");
+      // Opcional: Redirigir al usuario a una página de confirmación o a sus reservas
+      navigate('/mis-reservas');
+    } catch (err) {
+      setReservationError("Error al confirmar la reserva. Inténtalo de nuevo.");
+      console.error("Error confirming reservation:", err);
+    } finally {
+      setReservationLoading(false);
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -131,57 +221,98 @@ function ReservaPage() {
             {/* Showtimes */}
             <div id="funciones" className="bg-slate-800/50 border border-slate-700 rounded-xl shadow p-6">
               <h2 className="text-white text-2xl mb-6">Horarios y Reservas</h2>
-              <div className="mb-6 flex flex-col md:flex-row gap-4 items-center">
-                <label className="block text-white font-medium">Selecciona una fecha:</label>
-                <input
-                  type="date"
-                  value={fecha}
-                  onChange={handleFechaChange}
-                  className="border rounded px-3 py-2 w-48 bg-slate-700 text-white border-gray-600 focus:ring-2 focus:ring-purple-500"
-                />
-                <button
-                  onClick={handleBuscar}
-                  disabled={!fecha || !pelicula?.idPelicula || loading}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded font-semibold disabled:opacity-50"
-                >
-                  Buscar funciones
-                </button>
-              </div>
-              {loading && <p className="mt-4 text-white">Cargando funciones...</p>}
-              {error && <p className="mt-4 text-red-400">{error}</p>}
-              <div className="space-y-6">
-                {funciones.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {funciones.map((funcion, idx) => {
-                      const { fecha: fechaStr, hora } = formatDateTime(funcion.fechaHoraFuncion);
-                      return (
-                        <div key={funcion.idFuncion || idx} className="bg-slate-700/50 border border-slate-600 rounded-lg p-4 flex flex-col gap-2">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="text-2xl font-bold text-purple-400">{hora}</div>
-                            <div className="text-sm text-gray-300 flex items-center gap-1">
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2h5" /></svg>
-                              {funcion.sala?.nombreSala || funcion.sala || funcion.idSala}
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="text-sm text-gray-400 flex items-center gap-1">
-                              <span className="text-green-400">{funcion.asientosDisponibles ?? "-"} disponibles</span>
-                            </div>
-                            <button
-                              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded font-semibold"
-                              // onClick={() => ...}
-                            >
-                              Reservar
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
+              
+              {selectedFuncion ? (
+                // Vista de selección de asientos
+                <div>
+                  <button
+                    onClick={() => setSelectedFuncion(null)}
+                    className="mb-4 flex items-center text-gray-300 hover:text-white bg-transparent border-none cursor-pointer"
+                  >
+                    <span className="w-4 h-4 mr-2 inline-block align-middle">
+                      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                    </span>
+                    Volver a Funciones
+                  </button>
+                  <h3 className="text-xl font-bold text-white mb-4">
+                    Selecciona tus asientos para:{" "}
+                    {formatDateTime(selectedFuncion.fechaHoraFuncion).hora}{" "}
+                    en Sala {selectedFuncion.sala?.nombreSala || selectedFuncion.idSala}
+                  </h3>
+                  <SeatSelectorReserva
+                    idSala={selectedFuncion.idSala}
+                    fechaHoraFuncion={selectedFuncion.fechaHoraFuncion}
+                    onSeatsChange={handleSeatsChange}
+                  />
+                   {reservationError && (
+                    <p className="mt-4 text-red-400 text-center">{reservationError}</p>
+                  )}
+                  <div className="mt-6 text-center">
+                    <button
+                      onClick={handleConfirmarReserva}
+                      disabled={selectedSeatsInfo.count === 0 || reservationLoading}
+                      className="bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-white px-8 py-3 rounded-lg font-semibold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {reservationLoading ? "Confirmando..." : `Confirmar Reserva (${selectedSeatsInfo.count} asientos - $${selectedSeatsInfo.total})`}
+                    </button>
                   </div>
-                ) : (
-                  <p className="text-gray-400">No hay funciones para la fecha seleccionada.</p>
-                )}
-              </div>
+                </div>
+              ) : (
+                // Vista de selección de fecha y funciones
+                <>
+                  <div className="mb-6 flex flex-col md:flex-row gap-4 items-center">
+                    <label className="block text-white font-medium">Selecciona una fecha:</label>
+                    <input
+                      type="date"
+                      value={fecha}
+                      onChange={handleFechaChange}
+                      className="border rounded px-3 py-2 w-48 bg-slate-700 text-white border-gray-600 focus:ring-2 focus:ring-purple-500"
+                    />
+                    <button
+                      onClick={handleBuscar}
+                      disabled={!fecha || loading}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded font-semibold disabled:opacity-50"
+                    >
+                      {loading ? "Buscando..." : "Buscar funciones"}
+                    </button>
+                  </div>
+                  {loading && <p className="mt-4 text-white">Cargando funciones...</p>}
+                  {error && <p className="mt-4 text-red-400">{error}</p>}
+                  <div className="space-y-6">
+                    {funciones.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {funciones.map((funcion, idx) => {
+                          const { fecha: fechaStr, hora } = formatDateTime(funcion.fechaHoraFuncion);
+                          return (
+                            <div key={funcion.idFuncion || idx} className="bg-slate-700/50 border border-slate-600 rounded-lg p-4 flex flex-col gap-2">
+                              <div className="flex items-center gap-3 mb-2">
+                                <div className="text-2xl font-bold text-purple-400">{hora}</div>
+                                <div className="text-sm text-gray-300 flex items-center gap-1">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2h5" /></svg>
+                                  {funcion.sala?.nombreSala || funcion.sala || funcion.idSala}
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <div className="text-sm text-gray-400 flex items-center gap-1">
+                                  <span className="text-green-400">{funcion.asientosDisponibles ?? "-"} disponibles</span>
+                                </div>
+                                <button
+                                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded font-semibold"
+                                  onClick={() => handleSelectFuncion(funcion)}
+                                >
+                                  Seleccionar Asientos
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      !loading && !error && <p className="text-gray-400">Selecciona una fecha para ver las funciones disponibles.</p>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </>
         )}

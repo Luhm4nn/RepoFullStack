@@ -15,7 +15,7 @@ function FuncionesReservaCard({ funcion, onReservar }) {
         </div>
       </div>
       <button
-        onClick={() => onReservar?.(funcion)}
+        onClick={() => onReservar?.(funcion)} // Pass the entire function object
         className="bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-white px-6 py-2 rounded-lg font-semibold shadow-md transition-all"
       >
         Reservar
