@@ -45,7 +45,7 @@ export default function SalasForm({ onSubmit, onCancel }) {
                     type="text"
                     placeholder="A1"
                     color
-                    className="bg-slate-700 hover:bg-white/10 text-white"
+                    className="bg-slate-700 hover:bg-white/10 text-white rounded-lg"
                   />
                   <ErrorMessage name="nombreSala" component="span" className="text-red-500 text-sm" />
                 </div>
@@ -53,7 +53,7 @@ export default function SalasForm({ onSubmit, onCancel }) {
               {/* Ubicacion */}
                 <div >
                   <Label htmlFor="ubicacion" value="Ubicación *" />
-                  <Field as={Select} name="ubicacion" color className="bg-slate-700 hover:bg-white/10 text-white">
+                  <Field as={Select} name="ubicacion" color className="bg-slate-700 hover:bg-white/10 text-white rounded-lg">
                     <option value="" className="bg-slate-700 border-slate-600 hover:bg-white/10 text-white" >Selecciona una ubicación</option>
                     <option value="Ala Derecha" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Ala Derecha</option>
                     <option value="Ala Izquierda" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Ala Izquierda</option>
@@ -73,7 +73,7 @@ export default function SalasForm({ onSubmit, onCancel }) {
                     type="number"
                     placeholder="10"
                     color
-                    className="bg-slate-700 hover:bg-white/10 text-white"
+                    className="bg-slate-700 hover:bg-white/10 text-white rounded-lg"
                   />
                   <ErrorMessage name="filas" component="span" className="text-red-500 text-sm" />
                 </div>
@@ -87,7 +87,7 @@ export default function SalasForm({ onSubmit, onCancel }) {
                     type="number"
                     placeholder="10"
                     color
-                    className="bg-slate-700 hover:bg-white/10 text-white"
+                    className="bg-slate-700 hover:bg-white/10 text-white rounded-lg"
                   />
                   <ErrorMessage name="asientosPorFila" component="span" className="text-red-500 text-sm" />
                 </div>
@@ -106,7 +106,7 @@ export default function SalasForm({ onSubmit, onCancel }) {
                       </div>
 
                       {vipSeats.length > 0 && (
-                        <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200">
+                        <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
                           <p className="text-sm text-yellow-800">
                             <strong>Asientos VIP seleccionados:</strong> {vipSeats.join(', ')}
                           </p>
@@ -121,7 +121,7 @@ export default function SalasForm({ onSubmit, onCancel }) {
                 <Button
                   type="button"
                   color
-                  className="text-white bg-slate-700 hover:bg-white/10"
+                  className="text-white bg-slate-700 hover:bg-white/10 rounded-lg"
                   onClick={onCancel ? onCancel : () => window.location.reload()}
                 >
                   Cancelar
@@ -130,7 +130,7 @@ export default function SalasForm({ onSubmit, onCancel }) {
                   type="submit"
                   disabled={isSubmitting}
                   color
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg"
                 >
                   {isSubmitting ? "Guardando..." : "Guardar Sala"}
                 </Button>
