@@ -116,16 +116,12 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
     MPAA: "",
   };
 
-  const inputClass = "bg-gray-700 text-white border-gray-600 placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500";
-  const selectClass = "bg-gray-700 text-white border-gray-600 focus:ring-purple-500 focus:border-purple-500";
-  const textareaClass = "bg-gray-700 text-white border-gray-600 placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500";
-
   return (
     <>
       {!isEditing && (
         <Button
           onClick={() => setShowModal(true)}
-          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -143,22 +139,18 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={handleClose}
-          />
-          <div className="relative bg-slate-800 rounded-xl shadow-2xl p-8 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white">
-                {isEditing ? "Editar Película" : "Añadir Nueva Película"}
-              </h2>
-              <button
-                onClick={handleClose}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl font-light"
-              >
-                ×
-              </button>
-            </div>
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+          <div className="relative bg-slate-800 border border-slate-700 p-4 md:p-6 overflow-hidden scrollbar-none rounded-lg shadow-lg z-10 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl text-white font-bold mb-4">
+              {isEditing ? "Editar Película" : "Añadir Nueva Película"}
+            </h2>
+            <button
+              onClick={handleClose}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-3xl font-light"
+            >
+              ×
+            </button>
+            
             <Formik
               initialValues={initialValues}
               onSubmit={handleSubmit}
@@ -166,8 +158,8 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
               enableReinitialize={true}
             >
               {({ isSubmitting }) => (
-                <Form className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Form className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-white font-medium mb-2">
                         Título de la Película *
@@ -178,9 +170,9 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                         placeholder="Avengers: Endgame, El Padrino, Titanic"
                         disabled={isSubmitting}
                         color
-                        className={inputClass}
+                        className="bg-slate-700 hover:bg-white/10 text-white rounded-lg"
                       />
-                      <ErrorMessage name="nombrePelicula" component="div" className="text-red-400 text-sm mt-1" />
+                      <ErrorMessage name="nombrePelicula" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
                     <div>
                       <label className="block text-white font-medium mb-2">
@@ -192,28 +184,28 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                         placeholder="Ej: Christopher Nolan, Steven Spielberg"
                         disabled={isSubmitting}
                         color
-                        className={inputClass}
+                        className="bg-slate-700 hover:bg-white/10 text-white rounded-lg"
                       />
-                      <ErrorMessage name="director" component="div" className="text-red-400 text-sm mt-1" />
+                      <ErrorMessage name="director" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
                     <div>
                       <label className="block text-white font-medium mb-2">
                         Género Cinematográfico *
                       </label>
-                      <Field as={Select} name="generoPelicula" disabled={isSubmitting} color className={selectClass}>
-                        <option value="">Selecciona el género principal</option>
-                        <option value="Accion">Acción</option>
-                        <option value="Drama">Drama</option>
-                        <option value="Comedia">Comedia</option>
-                        <option value="Terror">Terror</option>
-                        <option value="Ciencia Ficcion">Ciencia Ficción</option>
-                        <option value="Romance">Romance</option>
-                        <option value="Thriller">Thriller</option>
-                        <option value="Aventura">Aventura</option>
-                        <option value="Animacion">Animación</option>
-                        <option value="Documental">Documental</option>
+                      <Field as={Select} name="generoPelicula" disabled={isSubmitting} color className="bg-slate-700 hover:bg-white/10 text-white rounded-lg">
+                        <option value="" className="bg-slate-700 border-slate-600 hover:bg-white/10 text-white">Selecciona el género principal</option>
+                        <option value="Accion" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Acción</option>
+                        <option value="Drama" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Drama</option>
+                        <option value="Comedia" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Comedia</option>
+                        <option value="Terror" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Terror</option>
+                        <option value="Ciencia Ficcion" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Ciencia Ficción</option>
+                        <option value="Romance" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Romance</option>
+                        <option value="Thriller" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Thriller</option>
+                        <option value="Aventura" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Aventura</option>
+                        <option value="Animacion" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Animación</option>
+                        <option value="Documental" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Documental</option>
                       </Field>
-                      <ErrorMessage name="generoPelicula" component="div" className="text-red-400 text-sm mt-1" />
+                      <ErrorMessage name="generoPelicula" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
                     <div>
                       <label className="block text-white font-medium mb-2">
@@ -226,9 +218,9 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                         placeholder="Ej: 120 (2 horas), 90 (1.5 horas)"
                         disabled={isSubmitting}
                         color
-                        className={inputClass}
+                        className="bg-slate-700 hover:bg-white/10 text-white rounded-lg"
                       />
-                      <ErrorMessage name="duracion" component="div" className="text-red-400 text-sm mt-1" />
+                      <ErrorMessage name="duracion" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
                     <div>
                       <label className="block text-white font-medium mb-2">
@@ -240,23 +232,23 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                         type="date"
                         disabled={isSubmitting}
                         color
-                        className={inputClass}
+                        className="bg-slate-700 hover:bg-white/10 text-white rounded-lg"
                       />
-                      <ErrorMessage name="fechaEstreno" component="div" className="text-red-400 text-sm mt-1" />
+                      <ErrorMessage name="fechaEstreno" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
                     <div>
                       <label className="block text-white font-medium mb-2">
                         Clasificación por Edad (MPAA)
                       </label>
-                      <Field as={Select} name="MPAA" disabled={isSubmitting} color className={selectClass}>
-                        <option value="">Selecciona la clasificación</option>
-                        <option value="G">G - Apto para toda la familia</option>
-                        <option value="PG">PG - Se recomienda supervisión parental</option>
-                        <option value="PG-13">PG-13 - Mayores de 13 años</option>
-                        <option value="R">R - Restringida (menores acompañados)</option>
-                        <option value="NC-17">NC-17 - Solo para adultos (+18)</option>
+                      <Field as={Select} name="MPAA" disabled={isSubmitting} color className="bg-slate-700 hover:bg-white/10 text-white rounded-lg">
+                        <option value="" className="bg-slate-700 border-slate-600 hover:bg-white/10 text-white">Selecciona la clasificación</option>
+                        <option value="G" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">G - Apto para toda la familia</option>
+                        <option value="PG" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">PG - Se recomienda supervisión parental</option>
+                        <option value="PG-13" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">PG-13 - Mayores de 13 años</option>
+                        <option value="R" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">R - Restringida (menores acompañados)</option>
+                        <option value="NC-17" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">NC-17 - Solo para adultos (+18)</option>
                       </Field>
-                      <ErrorMessage name="MPAA" component="div" className="text-red-400 text-sm mt-1" />
+                      <ErrorMessage name="MPAA" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
                   </div>
                   <div>
@@ -270,11 +262,11 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                       rows={4}
                       disabled={isSubmitting}
                       color
-                      className={textareaClass}
+                      className="bg-slate-700 hover:bg-white/10 text-white rounded-lg"
                     />
-                    <ErrorMessage name="sinopsis" component="div" className="text-red-400 text-sm mt-1" />
+                    <ErrorMessage name="sinopsis" component="div" className="text-red-500 text-sm mt-1" />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-white font-medium mb-2">
                         URL del Trailer (YouTube)
@@ -285,9 +277,9 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                         placeholder="Ej: https://youtube.com/watch?v=TcMBFSGVi1c"
                         disabled={isSubmitting}
                         color
-                        className={inputClass}
+                        className="bg-slate-700 hover:bg-white/10 text-white rounded-lg"
                       />
-                      <ErrorMessage name="trailerURL" component="div" className="text-red-400 text-sm mt-1" />
+                      <ErrorMessage name="trailerURL" component="div" className="text-red-500 text-sm mt-1" />
                     </div>
                     <div>
                       <label className="block text-white font-medium mb-2">
@@ -299,15 +291,14 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                           accept="image/*"
                           onChange={handleFileChange}
                           disabled={isSubmitting}
-                          color
-                          className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 file:cursor-pointer cursor-pointer border border-gray-600 rounded-lg bg-gray-700 focus:ring-2 focus:ring-purple-500"
+                          className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 file:cursor-pointer cursor-pointer border border-slate-600 rounded-lg bg-slate-700 focus:ring-2 focus:ring-purple-500"
                         />
                         {previewUrl && (
                           <div className="relative">
                             <img
                               src={previewUrl}
                               alt="Preview del póster"
-                              className="w-full h-32 object-cover rounded-lg border border-gray-600"
+                              className="w-full h-32 object-cover rounded-lg border border-slate-600"
                             />
                             <button
                               type="button"
@@ -330,19 +321,21 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-4 pt-6 justify-center border-t border-gray-600">
+                  <div className="flex flex-col sm:flex-row sm:justify-end gap-4 pt-4">
                     <Button
                       type="button"
                       onClick={handleClose}
                       disabled={isSubmitting}
-                      className="px-8 !bg-red-600 hover:!bg-red-700"
+                      color
+                      className="text-white bg-slate-700 hover:bg-white/10 rounded-lg"
                     >
                       Cancelar
                     </Button>
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="!bg-gradient-to-r from-purple-600 to-blue-600 hover:!from-purple-700 hover:!to-blue-700 px-8"
+                      color
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg"
                     >
                       {isSubmitting ? "Guardando..." : (isEditing ? "Actualizar Película" : "Crear Película")}
                     </Button>

@@ -2,10 +2,10 @@ import { Button } from "flowbite-react";
 
 function SalaDelete({ sala, onConfirm, onCancel, isDeleting = false }) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 sm:p-6 z-50">
-      <div className="fixed inset-0 backdrop-blur-sm !bg-black/30"></div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
       
-      <div className="bg-slate-800 border border-slate-700 p-6 sm:p-8 rounded-xl shadow-xl max-w-md w-full mx-4 relative">
+      <div className="relative bg-slate-800 border border-slate-700 p-4 md:p-6 overflow-hidden scrollbar-none rounded-lg shadow-lg z-10 w-full max-w-lg mx-4">
         <h2 className="text-xl sm:text-2xl text-white font-bold mb-6 text-center">
           Eliminar Sala
         </h2>
@@ -34,7 +34,7 @@ function SalaDelete({ sala, onConfirm, onCancel, isDeleting = false }) {
         <div className="flex flex-col sm:flex-row justify-center gap-4 px-6">
           <Button
             color
-            className="w-full sm:w-auto text-white bg-slate-700 hover:bg-white/10"
+            className="w-full sm:w-auto text-white bg-slate-700 hover:bg-white/10 rounded-lg"
             onClick={onCancel}
             disabled={isDeleting}
           >
@@ -42,7 +42,7 @@ function SalaDelete({ sala, onConfirm, onCancel, isDeleting = false }) {
           </Button>
           <Button
             type="submit"
-            className="w-full sm:w-auto text-white text-sm bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
+            className="w-full sm:w-auto text-white text-sm bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 rounded-lg"
             onClick={onConfirm}
             disabled={isDeleting}
           >
