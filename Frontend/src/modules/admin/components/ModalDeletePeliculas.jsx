@@ -2,9 +2,8 @@ import { Button } from "flowbite-react";
 
 function ModalDeletePeliculas({ pelicula, onSuccess, onClose, isDeleting = false }) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 sm:p-6 z-50">
-      <div className="fixed inset-0 backdrop-blur-sm !bg-black/30"></div>
-      
+    <div className="fixed inset-0 flex items-center justify-center p-4 sm:p-6 z-50 ">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm"></div>
       <div className="bg-slate-800 border border-slate-700 p-6 sm:p-8 rounded-xl shadow-xl max-w-md w-full mx-4 relative">
         <h2 className="text-xl sm:text-2xl text-white font-bold mb-6 text-center">
           Eliminar Película
