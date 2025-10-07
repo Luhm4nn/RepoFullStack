@@ -1,14 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { cancelReserva } from "../../../api/Reservas.api";
-import { formatDateTime } from "../../shared";
+import { formatDateTime } from "../../shared/utils/dateFormater";
+import DetalleReservaModal from "./DetalleReservaModal";
 
 function MisReservasList({ reservas, onReservaActualizada }) {
   const [cancellingId, setCancellingId] = useState(null);
-
-  useEffect(() => {
-
-
-  }, [reservas]);
+  const [reservaSeleccionada, setReservaSeleccionada] = useState(null);
 
   const handleCancelar = async (reserva) => {
     const ahora = new Date();
@@ -207,6 +204,12 @@ function MisReservasList({ reservas, onReservaActualizada }) {
                 {/* Acciones */}
                 <div className="flex items-center justify-end pt-4 border-t border-slate-700">
                   <div className="flex gap-3">
+                    <button
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all"
+                      onClick={() => setReservaSeleccionada(reserva)}
+                    >
+                      Ver Detalles
+                    </button>
                     {reserva.estado === "ACTIVA" && !funcionPasada && (
                       <button
                         onClick={() => handleCancelar(reserva)}
@@ -216,17 +219,6 @@ function MisReservasList({ reservas, onReservaActualizada }) {
                         {isCancelling ? "Cancelando..." : "Cancelar Reserva"}
                       </button>
                     )}
-                    {reserva.estado === "ACTIVA" && !funcionPasada && (
-                      <button
-                        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all"
-                        onClick={() => {
-                          // Aquí podrías generar un código QR o mostrar detalles
-                          alert("Ver detalles de la reserva (por implementar)");
-                        }}
-                      >
-                        Ver Detalles
-                      </button>
-                    )}
                   </div>
                 </div>
               </div>
@@ -234,6 +226,18 @@ function MisReservasList({ reservas, onReservaActualizada }) {
           </div>
         );
       })}
+
+      {/* Modal de detalles */}
+      {reservaSeleccionada && (
+        <DetalleReservaModal
+          reserva={reservaSeleccionada}
+          onClose={() => setReservaSeleccionada(null)}
+          onCancelar={() => {
+            handleCancelar(reservaSeleccionada);
+            setReservaSeleccionada(null);
+          }}
+        />
+      )}
     </div>
   );
 }
