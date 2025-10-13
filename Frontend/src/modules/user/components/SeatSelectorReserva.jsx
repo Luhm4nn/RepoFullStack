@@ -45,20 +45,13 @@ const SeatSelectorReserva = ({
         // Obtener asientos ya reservados para esta función
         const reservadosData = await getAsientosReservadosPorFuncion(idSala, fechaHoraFuncion);
 
-console.log('🔍 Debug Asientos Reservados:');
-console.log('fechaHoraFuncion enviada:', fechaHoraFuncion);
-console.log('Asientos reservados recibidos:', reservadosData);
-console.log('Primer asiento reservado (si existe):', reservadosData[0]);
 
 const reservadosSet = new Set(
   reservadosData.map(ar => {
     const key = `${ar.filaAsiento}${ar.nroAsiento}`;
-    console.log('Creando key:', key, 'de asiento:', ar);
     return key;
   })
 );
-
-console.log('Set de asientos reservados:', reservadosSet);
 setAsientosReservados(reservadosSet);
         
       } catch (err) {
@@ -71,14 +64,13 @@ setAsientosReservados(reservadosSet);
     
     if (idSala && fechaHoraFuncion) {
       fetchData();
-      // Clear selection when function changes
       setSelectedSeats(new Set());
       setTotalPrice(0);
       if (onSeatsChange) {
         onSeatsChange({ seats: [], total: 0, count: 0 });
       }
     }
-  }, [idSala, fechaHoraFuncion]); // Dependencias para recargar asientos al cambiar sala o función
+  }, [idSala, fechaHoraFuncion]);
 
   const getSeatId = (fila, numero) => `${fila}${numero}`;
   
