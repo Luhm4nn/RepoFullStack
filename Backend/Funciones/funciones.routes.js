@@ -7,13 +7,18 @@ import {
   deleteFuncion,
   getActiveFuncionesEndpoint,
   getInactiveFuncionesEndpoint,
- getFuncionesByPeliculaAndFecha,
+  getFuncionesByPeliculaAndFecha,
+  getFuncionesSemana
 } from "./funciones.controllers.js";
 
 import { asyncHandler } from "../Middlewares/asyncHandler.js";
 import { validateBody } from "../Middlewares/validateRequest.js";
 import { funcionesSchema } from "../validations/FuncionesSchema.js";
 const router = Router();
+
+
+router.get("/Funciones/:idPelicula/semana", asyncHandler(getFuncionesSemana));
+
 
 router.get("/Funciones", asyncHandler(getFunciones));
 
@@ -44,6 +49,7 @@ router.get(
   "/Funciones/inactivas",
   asyncHandler(getInactiveFuncionesEndpoint)
 );
+
 
 router.get(
   "/Funciones/:idPelicula/:fecha",

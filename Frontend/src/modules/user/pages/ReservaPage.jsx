@@ -7,7 +7,7 @@ import SeatSelectorReserva from "../components/SeatSelectorReserva";
 import { createReserva } from "../../../api/Reservas.api";
 import { createAsientosReservados } from "../../../api/AsientoReservas.api";
 import { authAPI } from "../../../api/login.api";
-
+import SeleccionFuncion from "../components/SeleccionFuncion";
 
 function ReservaPage() {
   const navigate = useNavigate();
@@ -78,7 +78,7 @@ function ReservaPage() {
 
   const handleSelectFuncion = (funcion) => {
     setSelectedFuncion(funcion);
-    setSelectedSeatsInfo({ seats: [], total: 0, count: 0 }); // Reset seats when a new function is selected
+    setSelectedSeatsInfo({ seats: [], total: 0, count: 0 });
   };
 
   const handleSeatsChange = (info) => {
@@ -94,7 +94,7 @@ function ReservaPage() {
     const auth = authAPI.checkAuth();
     if (!auth || !auth.user || !auth.user.DNI) {
       setReservationError("Debes iniciar sesión para realizar una reserva.");
-      navigate('/login'); // Redirigir a login
+      navigate('/login');
       return;
     }
 
@@ -105,7 +105,6 @@ function ReservaPage() {
       const DNI = auth.user.DNI;
       const fechaHoraReserva = new Date().toISOString();
 
-      // 1. Crear la Reserva principal
       const reservaData = {
         idSala: selectedFuncion.idSala,
         fechaHoraFuncion: selectedFuncion.fechaHoraFuncion,
@@ -114,21 +113,18 @@ function ReservaPage() {
         fechaHoraReserva: fechaHoraReserva,
       };
       const newReserva = await createReserva(reservaData);
-
-      // 2. Crear los Asientos Reservados asociados
       const asientosParaReservar = selectedSeatsInfo.seats.map(seat => ({
         idSala: selectedFuncion.idSala,
         filaAsiento: seat.filaAsiento,
         nroAsiento: seat.nroAsiento,
         fechaHoraFuncion: selectedFuncion.fechaHoraFuncion,
         DNI: DNI,
-        fechaHoraReserva: fechaHoraReserva, // Usar la misma fecha y hora de la reserva principal
+        fechaHoraReserva: fechaHoraReserva,
       }));
 
       await createAsientosReservados(asientosParaReservar);
 
       alert("Reserva realizada con éxito!");
-      // Opcional: Redirigir al usuario a una página de confirmación o a sus reservas
       navigate('/MisReservas');
     } catch (err) {
       setReservationError("Error al confirmar la reserva. Inténtalo de nuevo.");
@@ -137,7 +133,6 @@ function ReservaPage() {
       setReservationLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -223,7 +218,6 @@ function ReservaPage() {
               <h2 className="text-white text-2xl mb-6">Horarios y Reservas</h2>
               
               {selectedFuncion ? (
-                // Vista de selección de asientos
                 <div>
                   <button
                     onClick={() => setSelectedFuncion(null)}
@@ -258,60 +252,17 @@ function ReservaPage() {
                   </div>
                 </div>
               ) : (
-                // Vista de selección de fecha y funciones
-                <>
-                  <div className="mb-6 flex flex-col md:flex-row gap-4 items-center">
-                    <label className="block text-white font-medium">Selecciona una fecha:</label>
-                    <input
-                      type="date"
-                      value={fecha}
-                      onChange={handleFechaChange}
-                      className="border rounded px-3 py-2 w-48 bg-slate-700 text-white border-gray-600 focus:ring-2 focus:ring-purple-500"
-                    />
-                    <button
-                      onClick={handleBuscar}
-                      disabled={!fecha || loading}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded font-semibold disabled:opacity-50"
-                    >
-                      {loading ? "Buscando..." : "Buscar funciones"}
-                    </button>
-                  </div>
-                  {loading && <p className="mt-4 text-white">Cargando funciones...</p>}
-                  {error && <p className="mt-4 text-red-400">{error}</p>}
-                  <div className="space-y-6">
-                    {funciones.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {funciones.map((funcion, idx) => {
-                          const { fecha: fechaStr, hora } = formatDateTime(funcion.fechaHoraFuncion);
-                          return (
-                            <div key={funcion.idFuncion || idx} className="bg-slate-700/50 border border-slate-600 rounded-lg p-4 flex flex-col gap-2">
-                              <div className="flex items-center gap-3 mb-2">
-                                <div className="text-2xl font-bold text-purple-400">{hora}</div>
-                                <div className="text-sm text-gray-300 flex items-center gap-1">
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2h5" /></svg>
-                                  {funcion.sala?.nombreSala || funcion.sala || funcion.idSala}
-                                </div>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <div className="text-sm text-gray-400 flex items-center gap-1">
-                                  <span className="text-green-400">{funcion.asientosDisponibles ?? "-"} disponibles</span>
-                                </div>
-                                <button
-                                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded font-semibold"
-                                  onClick={() => handleSelectFuncion(funcion)}
-                                >
-                                  Seleccionar Asientos
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      !loading && !error && <p className="text-gray-400">Selecciona una fecha para ver las funciones disponibles.</p>
-                    )}
-                  </div>
-                </>
+                <SeleccionFuncion
+                  funciones={funciones}
+                  loading={loading}
+                  error={error}
+                  fecha={fecha}
+                  onFechaChange={handleFechaChange}
+                  onBuscar={handleBuscar}
+                  onSelectFuncion={handleSelectFuncion}
+                  idPelicula={pelicula.idPelicula}
+
+                />
               )}
             </div>
           </>

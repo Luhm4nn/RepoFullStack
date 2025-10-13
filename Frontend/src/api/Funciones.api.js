@@ -70,3 +70,13 @@ export const getFuncionesPorPeliculaYFecha = async (idPelicula, fecha) => {
     throw error;
   }
 };
+
+export const getFuncionesSemana = async (idPelicula) => {
+  try {
+    const response = await axios.get(`${VITE_API_URL}/Funciones/${idPelicula}/semana`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching funciones por semana:", error);
+    throw error;
+  }
+};
