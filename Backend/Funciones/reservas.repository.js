@@ -83,26 +83,44 @@ async function deleteOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
 }
 
 async function cancellOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
-  const cancelledReserva = await prisma.reserva.update({
-    where: {
-      idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
-        idSala: parseInt(
-          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala,
-          10
-        ),
-        fechaHoraFuncion:
-          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
-        DNI: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.DNI, 10),
-        fechaHoraReserva:
-          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
+  // Usar una transacción para asegurar que ambas operaciones se completen
+  const result = await prisma.$transaction(async (tx) => {
+    // 1. Cancelar la reserva
+    const cancelledReserva = await tx.reserva.update({
+      where: {
+        idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
+          idSala: parseInt(
+            idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala,
+            10
+          ),
+          fechaHoraFuncion:
+            idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
+          DNI: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.DNI, 10),
+          fechaHoraReserva:
+            idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
+        },
       },
-    },
-    data: {
-      estado: "CANCELADA",
-      fechaHoraCancelacion: new Date(),
-    },
+      data: {
+        estado: "CANCELADA",
+        fechaHoraCancelacion: new Date(),
+      },
+    });
+
+    // 2. Eliminar todos los asientos reservados asociados a esta reserva
+    await tx.asiento_reserva.deleteMany({
+      where: {
+        idSala: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala, 10),
+        fechaHoraFuncion: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
+        DNI: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.DNI, 10),
+        fechaHoraReserva: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
+      },
+    });
+
+    return cancelledReserva;
   });
-  return cancelledReserva;
+
+  return result;
 }
+
 
 export { getOne, getAll, createOne, deleteOne, cancellOne };
