@@ -16,6 +16,7 @@ import FAQ from './modules/shared/pages/FooterPages/FAQ';
 import LoginPage from './modules/shared/pages/LoginPage.jsx';
 import RegisterPage from './modules/user/pages/RegisterPage.jsx';
 import ReservaPage from './modules/user/pages/ReservaPage.jsx';
+import MisReservasPage from './modules/user/pages/MisReservasPage.jsx';
 import CarteleraPage from './modules/shared/pages/CarteleraPage.jsx';
 import ScrollToTop from './modules/shared/components/ScrollToTop';
 import { useAuth } from './modules/shared/hooks/useAuth.js';
@@ -46,7 +47,7 @@ function AppRoutes() {
       <Route path="/register" element={<RegisterPage onRegister={register} loading={loading} />} />
   <Route path="/Cartelera" element={<CarteleraPage />} />
       <Route path="/MiPerfil" element={<AuthenticatedRoute><div>Mi Perfil Page - Por implementar</div></AuthenticatedRoute>} />
-      <Route path="/MisReservas" element={<AuthenticatedRoute><div>Mis Reservas Page - Por implementar</div></AuthenticatedRoute>} />
+      <Route path="/MisReservas" element={<AuthenticatedRoute><div><MisReservasPage/></div></AuthenticatedRoute>} />
   <Route path="/Reservar/:id" element={<AuthenticatedRoute><ReservaPage /></AuthenticatedRoute>} />
   <Route path="/Dashboard" element={<AdminRoute><DashboardPage /></AdminRoute>} />
   <Route path="/Peliculas" element={<AdminRoute><PeliculasPage /></AdminRoute>} />

@@ -129,7 +129,7 @@ function ReservaPage() {
 
       alert("Reserva realizada con éxito!");
       // Opcional: Redirigir al usuario a una página de confirmación o a sus reservas
-      navigate('/mis-reservas');
+      navigate('/MisReservas');
     } catch (err) {
       setReservationError("Error al confirmar la reserva. Inténtalo de nuevo.");
       console.error("Error confirming reservation:", err);
