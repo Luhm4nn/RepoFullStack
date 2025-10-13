@@ -8,7 +8,7 @@ import {
     getFuncionesByPelicula, 
     getActiveFuncionesBD, 
     getInactiveFuncionesBD, 
-    getFuncionesByPeliculaAndFecha} from './funciones.repository.js';
+    getFuncionesSemanaDB } from './funciones.repository.js';
 import { getOne as getParametroRepository } from '../Parametros/parametros.repository.js';
 import { getOne as getPeliculaRepository } from '../Peliculas/peliculas.repository.js';
 import { formatDateForBackendMessage } from '../utils/dateFormater.js';   
@@ -113,11 +113,21 @@ export const updateOne = async (id, data) => {
 };
 
 export const getFuncionesByPeliculaAndFechaService = async (idPelicula, fecha) => {
+    if (fecha === 'semana') {
+        const hoy = new Date();
+        const sieteDiasDespues = new Date();
+        sieteDiasDespues.setDate(hoy.getDate() + 7);
+        const funciones = await getFuncionesSemanaDB(
+            idPelicula,
+            hoy,
+            sieteDiasDespues
+        );
+        return funciones;
+    }
     const fechaFormateada = fecha; 
     const funciones = await getFuncionesByPeliculaAndFecha(idPelicula, fechaFormateada);
     return funciones;
 };
-
 // validation functions
 
 const verificarFechaDeEstreno = async (nuevaFuncion, funcionExistente = null) => {

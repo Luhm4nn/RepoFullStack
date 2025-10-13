@@ -12,6 +12,12 @@ import {
 
 // Controllers for Funciones
 
+export const getFuncionesSemana = async (req, res) => {
+  const { idPelicula } = req.params;
+  const funciones = await getFuncionesByPeliculaAndFechaService(idPelicula, 'semana');
+  res.json(funciones);
+};
+
 export const getFunciones = async (req, res) => {
   const { estado } = req.query;
   
