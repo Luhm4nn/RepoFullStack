@@ -22,6 +22,9 @@ import ScrollToTop from './modules/shared/components/ScrollToTop';
 import { useAuth } from './modules/shared/hooks/useAuth.js';
 import ProtectedRoute from './modules/shared/components/ProtectedRoute';
 import { AuthenticatedRoute, AdminRoute } from './modules/shared';
+import ReservaSuccessPage from './modules/user/pages/ReservaSuccessPage.jsx';
+import ReservaFailurePage from './modules/user/pages/ReservaFailurePage.jsx';
+import ReservaPendingPage from './modules/user/pages/ReservaPendingPage.jsx';
 // Si necesitas AdminRoute y AuthenticatedRoute, exportalos desde ProtectedRoute.jsx
 
 
@@ -47,6 +50,9 @@ function AppRoutes() {
       <Route path="/register" element={<RegisterPage onRegister={register} loading={loading} />} />
   <Route path="/Cartelera" element={<CarteleraPage />} />
       <Route path="/MiPerfil" element={<AuthenticatedRoute><div>Mi Perfil Page - Por implementar</div></AuthenticatedRoute>} />
+      <Route path="/reserva/success" element={<ReservaSuccessPage />} />
+      <Route path="/reserva/failure" element={<ReservaFailurePage />} />
+      <Route path="/reserva/pending" element={<ReservaPendingPage />} />
       <Route path="/MisReservas" element={<AuthenticatedRoute><div><MisReservasPage/></div></AuthenticatedRoute>} />
   <Route path="/Reservar/:id" element={<AuthenticatedRoute><ReservaPage /></AuthenticatedRoute>} />
   <Route path="/Dashboard" element={<AdminRoute><DashboardPage /></AdminRoute>} />

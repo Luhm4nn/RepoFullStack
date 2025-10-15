@@ -17,6 +17,16 @@ const SeatSelectorReserva = ({
   const [filas, setFilas] = useState([]);
   const [asientosPorFila, setAsientosPorFila] = useState(0);
 
+  // Efecto para resetear selección cuando cambia la función
+  useEffect(() => {
+    setSelectedSeats(new Set());
+    setTotalPrice(0);
+    if (onSeatsChange) {
+      onSeatsChange({ seats: [], total: 0, count: 0 });
+    }
+  }, [idSala, fechaHoraFuncion]);
+
+  // Efecto para cargar datos de asientos
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -44,22 +54,12 @@ const SeatSelectorReserva = ({
         
         // Obtener asientos ya reservados para esta función
         const reservadosData = await getAsientosReservadosPorFuncion(idSala, fechaHoraFuncion);
-
-console.log('🔍 Debug Asientos Reservados:');
-console.log('fechaHoraFuncion enviada:', fechaHoraFuncion);
-console.log('Asientos reservados recibidos:', reservadosData);
-console.log('Primer asiento reservado (si existe):', reservadosData[0]);
-
-const reservadosSet = new Set(
-  reservadosData.map(ar => {
-    const key = `${ar.filaAsiento}${ar.nroAsiento}`;
-    console.log('Creando key:', key, 'de asiento:', ar);
-    return key;
-  })
-);
-
-console.log('Set de asientos reservados:', reservadosSet);
-setAsientosReservados(reservadosSet);
+        
+        const reservadosSet = new Set(
+          reservadosData.map(ar => `${ar.filaAsiento}${ar.nroAsiento}`)
+        );
+        
+        setAsientosReservados(reservadosSet);
         
       } catch (err) {
         setError("Error al cargar los asientos");
@@ -71,14 +71,8 @@ setAsientosReservados(reservadosSet);
     
     if (idSala && fechaHoraFuncion) {
       fetchData();
-      // Clear selection when function changes
-      setSelectedSeats(new Set());
-      setTotalPrice(0);
-      if (onSeatsChange) {
-        onSeatsChange({ seats: [], total: 0, count: 0 });
-      }
     }
-  }, [idSala, fechaHoraFuncion]); // Dependencias para recargar asientos al cambiar sala o función
+  }, [idSala, fechaHoraFuncion]);
 
   const getSeatId = (fila, numero) => `${fila}${numero}`;
   
@@ -114,15 +108,15 @@ setAsientosReservados(reservadosSet);
       const selectedAsientos = [];
       
       newSelected.forEach(id => {
-    const f = id.charAt(0);
-    const n = id.slice(1);
-    const asiento = getAsientoInfo(f, parseInt(n));
-    if (asiento) {
-        selectedAsientos.push(asiento);
-        const precio = parseFloat(asiento.tarifa?.precio) || 0; 
-    total += precio;
-    }
-    });
+        const f = id.charAt(0);
+        const n = id.slice(1);
+        const asiento = getAsientoInfo(f, parseInt(n));
+        if (asiento) {
+          selectedAsientos.push(asiento);
+          const precio = parseFloat(asiento.tarifa?.precio) || 0; 
+          total += precio;
+        }
+      });
       
       setTotalPrice(total);
       
@@ -210,14 +204,12 @@ setAsientosReservados(reservadosSet);
             </span>
             <div className="flex gap-1">
               {Array.from({ length: asientosPorFila }, (_, i) => i + 1).map((numero) => {
-                
                 const status = getSeatStatus(fila, numero);
-
                 const asientoInfo = getAsientoInfo(fila, numero);
                 const isClickable = status !== 'reserved' && status !== 'unavailable';
                 
                 if (!asientoInfo) {
-                  return <div key={numero} className="w-8 h-8" />; // Espacio vacío
+                  return <div key={numero} className="w-8 h-8" />;
                 }
                 
                 return (
