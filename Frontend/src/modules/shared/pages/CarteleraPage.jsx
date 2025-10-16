@@ -21,31 +21,31 @@ function CarteleraPage() {
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col items-center justify-center">
 			<div className="w-full max-w-6xl mx-auto flex flex-col items-center py-20 px-4">
-				<ClaquetaPersonaje />
 				<h1 className="text-6xl md:text-7xl font-extrabold text-white mb-8 text-center drop-shadow-2xl">
 					¡Bienvenido a <span className="text-purple-400">Cutzy Cinema</span>!
 				</h1>
 				<p className="text-2xl md:text-3xl text-gray-200 mb-12 text-center max-w-3xl">
 					Tu lugar para vivir la mejor experiencia de cine. Disfruta de los últimos estrenos, reserva tus asientos y sumérgete en la magia del séptimo arte.
 				</p>
-				<div className="w-full max-w-4xl mb-12">
+				<div className="w-full max-w-6xl mb-12 !scrollbar-hide">
 					{loading ? (
-						<div className="flex justify-center items-center h-96">
+						<div className="flex justify-center items-center h-154">
 							<span className="text-white text-2xl">Cargando cartelera...</span>
 						</div>
 					) : (
-						<Carousel slideInterval={3500} className="rounded-2xl shadow-2xl overflow-hidden h-96">
+						<Carousel slideInterval={3500} className="rounded-2xl shadow-2xl overflow-hidden h-154 !scrollbar-hide">
 							{peliculas.length === 0 ? (
 								<div className="flex flex-col items-center justify-center h-96 bg-slate-800">
 									<span className="text-gray-400 text-2xl">No hay películas en cartelera.</span>
 								</div>
 							) : (
 								peliculas.map((pelicula) => (
-									<div key={pelicula.idPelicula} className="relative h-96 flex items-center justify-center bg-black">
+									<div key={pelicula.idPelicula} className="!scrollbar-hide relative h-154 flex items-center justify-center bg-black">
+										
 										<img
 											src={pelicula.portada || "/placeholder.svg"}
 											alt={pelicula.nombrePelicula}
-											className="object-cover w-full h-full opacity-80"
+											className="object-cover w-full h-full opacity-80 "
 										/>
 										<div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-10">
 											<h2 className="text-4xl font-bold text-white mb-4 drop-shadow-2xl">
