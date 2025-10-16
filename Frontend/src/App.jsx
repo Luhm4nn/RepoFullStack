@@ -22,6 +22,7 @@ import ScrollToTop from './modules/shared/components/ScrollToTop';
 import { useAuth } from './modules/shared/hooks/useAuth.js';
 import ProtectedRoute from './modules/shared/components/ProtectedRoute';
 import { AuthenticatedRoute, AdminRoute } from './modules/shared';
+import MiPerfilPage from './modules/user/pages/MiPerfilPage.jsx';
 // Si necesitas AdminRoute y AuthenticatedRoute, exportalos desde ProtectedRoute.jsx
 
 
@@ -46,7 +47,7 @@ function AppRoutes() {
       <Route path="/login" element={<LoginPage onLogin={login} user={user} isAuthenticated={isAuthenticated} loading={loading} />} />
       <Route path="/register" element={<RegisterPage onRegister={register} loading={loading} />} />
   <Route path="/Cartelera" element={<CarteleraPage />} />
-      <Route path="/MiPerfil" element={<AuthenticatedRoute><div>Mi Perfil Page - Por implementar</div></AuthenticatedRoute>} />
+      <Route path="/MiPerfil" element={<AuthenticatedRoute><MiPerfilPage /></AuthenticatedRoute>} />
       <Route path="/MisReservas" element={<AuthenticatedRoute><div><MisReservasPage/></div></AuthenticatedRoute>} />
   <Route path="/Reservar/:id" element={<AuthenticatedRoute><ReservaPage /></AuthenticatedRoute>} />
   <Route path="/Dashboard" element={<AdminRoute><DashboardPage /></AdminRoute>} />
