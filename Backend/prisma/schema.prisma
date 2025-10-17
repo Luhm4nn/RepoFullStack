@@ -13,8 +13,13 @@ model asiento {
   nroAsiento      Int
   tipo            String
   idTarifa        Int?
+<<<<<<< Updated upstream
   sala            sala              @relation(fields: [idSala], references: [idSala], onDelete: Cascade, onUpdate: NoAction)
   tarifa          tarifa?           @relation(fields: [idTarifa], references: [idTarifa], onDelete: NoAction, onUpdate: NoAction)
+=======
+  tarifa          tarifa?           @relation(fields: [idTarifa], references: [idTarifa], onDelete: NoAction, onUpdate: NoAction)
+  sala            sala              @relation(fields: [idSala], references: [idSala], onDelete: Cascade, onUpdate: NoAction)
+>>>>>>> Stashed changes
   asiento_reserva asiento_reserva[]
 
   @@id([idSala, filaAsiento, nroAsiento])
@@ -28,8 +33,13 @@ model asiento_reserva {
   fechaHoraFuncion DateTime
   DNI              Int
   fechaHoraReserva DateTime
+<<<<<<< Updated upstream
   reserva          reserva  @relation(fields: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], references: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], onDelete: NoAction, onUpdate: NoAction)
   asiento          asiento  @relation(fields: [idSala, filaAsiento, nroAsiento], references: [idSala, filaAsiento, nroAsiento], onDelete: NoAction, onUpdate: NoAction)
+=======
+  asiento          asiento  @relation(fields: [idSala, filaAsiento, nroAsiento], references: [idSala, filaAsiento, nroAsiento], onDelete: NoAction, onUpdate: NoAction)
+  reserva          reserva  @relation(fields: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], references: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], onDelete: NoAction, onUpdate: NoAction)
+>>>>>>> Stashed changes
 
   @@id([idSala, filaAsiento, nroAsiento, fechaHoraFuncion])
   @@index([idSala, fechaHoraFuncion, DNI, fechaHoraReserva])
@@ -87,8 +97,13 @@ model reserva {
   estado               String
   total                Decimal
   asiento_reserva      asiento_reserva[]
+<<<<<<< Updated upstream
   usuario              usuario           @relation(fields: [DNI], references: [DNI], onDelete: NoAction, onUpdate: NoAction)
   funcion              funcion           @relation(fields: [idSala, fechaHoraFuncion], references: [idSala, fechaHoraFuncion], onDelete: NoAction, onUpdate: NoAction)
+=======
+  usuario              usuario @relation(fields: [DNI], references: [DNI], onDelete: NoAction, onUpdate: NoAction)
+  funcion              funcion @relation(fields: [idSala, fechaHoraFuncion], references: [idSala, fechaHoraFuncion], onDelete: NoAction, onUpdate: NoAction)
+>>>>>>> Stashed changes
 
   @@id([idSala, fechaHoraFuncion, DNI, fechaHoraReserva])
   @@index([DNI])

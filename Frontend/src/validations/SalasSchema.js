@@ -1,16 +1,11 @@
 import * as Yup from "yup";
-import { getSala } from "../api/Salas.api.js";
 
+// Schema para crear salas (requiere todos los campos)
 const salasSchema = Yup.object().shape({
   nombreSala: Yup.string()
     .min(1, "Mínimo 1 caracter")
     .max(45, "Máximo 45 caracteres")
-    .required("El nombre de la sala es requerido")
-    .test("unique", "El nombre de sala ya existe", async function (value) {
-    if (!value) return true;
-    const sala = await getSala(value);
-    return !sala;
-  }),
+    .required("El nombre de la sala es requerido"),
 
   ubicacion: Yup.string()
     .oneOf(["Ala Derecha", "Ala Izquierda", "Planta Baja", "Sótano", "Primer Piso"], "Ubicación inválida")
@@ -28,9 +23,27 @@ const salasSchema = Yup.object().shape({
     .integer("Debe ser un número entero")
     .min(1, "Mínimo 1 asiento por fila")
     .max(25, "Máximo 25 asientos por fila")
-    .required("La cantidad de asientos por fila"),
+    .required("La cantidad de asientos por fila es requerida"),
+
+  vipSeats: Yup.array()
+    .of(Yup.string())
+    .default([])
+    .notRequired()
 });
 
+// Schema para actualizar salas (solo nombre, ubicación y vipSeats son opcionales)
+const salasUpdateSchema = Yup.object().shape({
+  nombreSala: Yup.string()
+    .min(1, "Mínimo 1 caracter")
+    .max(45, "Máximo 45 caracteres"),
+
+  ubicacion: Yup.string()
+    .oneOf(["Ala Derecha", "Ala Izquierda", "Planta Baja", "Sótano", "Primer Piso"], "Ubicación inválida"),
+
+  vipSeats: Yup.array()
+    .of(Yup.string())
+    .default([])
+});
 
 export default salasSchema;
-export { salasSchema };
+export { salasSchema, salasUpdateSchema };
