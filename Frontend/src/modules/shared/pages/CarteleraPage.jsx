@@ -61,23 +61,23 @@ function CarteleraPage() {
 						</Carousel>
 					)}
 				</div>
-						<div className="mb-12">
-							<h3 className="text-3xl md:text-4xl font-semibold text-white mb-4 text-center">
-								Descubre qué te espera en nuestra cartelera...
-							</h3>
+				<div className="mb-12">
+					<h3 className="text-3xl md:text-4xl font-semibold text-white mb-4 text-center">
+						Descubre qué te espera en nuestra cartelera...
+					</h3>
+				</div>
+				{/* Cartelera grid */}
+				<div className="w-full max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-8">
+					{peliculas.length === 0 ? (
+						<div className="col-span-full text-center text-gray-400">
+							No hay películas en cartelera.
 						</div>
-						{/* Cartelera grid */}
-						<div className="w-full max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-8">
-							{peliculas.length === 0 ? (
-								<div className="col-span-full text-center text-gray-400">
-									No hay películas en cartelera.
-								</div>
-							) : (
-								peliculas.map((pelicula) => (
-									<PeliculaCard key={pelicula.idPelicula} pelicula={pelicula} />
-								))
-							)}
-						</div>
+					) : (
+						peliculas.map((pelicula) => (
+							<PeliculaCard key={pelicula.idPelicula} pelicula={pelicula} />
+						))
+					)}
+				</div>
 			</div>
 		</div>
 	);
