@@ -137,7 +137,7 @@ PORT=4000
 Crea un archivo `.env` en la carpeta `Frontend/` con:
 
 ```env
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=http://localhost:4000
 ```
 
 ### Configuración de la Base de Datos
