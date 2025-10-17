@@ -19,7 +19,7 @@ function ModalPublishFuncion({ funcion, onConfirm, onCancel, isPublishing = fals
           </p>
           <div className="space-y-3">
             <p className="text-gray-300 text-center text-sm">
-              Sala: <span className="font-semibold text-purple-400">{funcion.sala?.ubicacion || 'Sin ubicación'}</span>
+              Sala: <span className="font-semibold text-purple-400">{funcion.sala?.nombreSala || 'Sin ubicación'}</span>
             </p>
             <p className="text-gray-300 text-center text-sm">
               Fecha: <span className="font-semibold text-purple-400">{new Date(funcion.fechaHoraFuncion).toLocaleString('es-ES')}</span>
