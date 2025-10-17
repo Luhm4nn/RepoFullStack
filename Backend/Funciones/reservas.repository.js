@@ -36,31 +36,96 @@ async function getOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
 }
 
 const removeMilliseconds = (date) => {
-    if (!date) return null;
+  if (!date) return null;
+  
+  // Si ya es un objeto Date
+  if (date instanceof Date) {
     const newDate = new Date(date);
     newDate.setMilliseconds(0); 
     return newDate;
+  }
+  
+  // Si es un string
+  const newDate = new Date(date);
+  newDate.setMilliseconds(0); 
+  return newDate;
 };
 
 async function createOne(data) {
+  console.log('📥 createOne reserva recibió:', data);
 
-  const fechaFuncionDate = removeMilliseconds(data.fechaHoraFuncion); 
-  
+  // Validar datos requeridos
+  if (!data.idSala || !data.fechaHoraFuncion || !data.DNI || !data.total) {
+    const error = new Error('Faltan datos requeridos para crear la reserva');
+    error.details = {
+      idSala: !!data.idSala,
+      fechaHoraFuncion: !!data.fechaHoraFuncion,
+      DNI: !!data.DNI,
+      total: !!data.total
+    };
+    console.error('Validación falló:', error.details);
+    throw error;
+  }
+
+  // Parsear y validar números
+  const idSala = parseInt(data.idSala, 10);
+  const DNI = parseInt(data.DNI, 10);
+  const total = parseFloat(data.total);
+
+  if (isNaN(idSala) || isNaN(DNI) || isNaN(total)) {
+    const error = new Error('Datos numéricos inválidos');
+    error.details = {
+      idSala: data.idSala,
+      DNI: data.DNI,
+      total: data.total
+    };
+    console.error('Conversión numérica falló:', error.details);
+    throw error;
+  }
+
+  // Procesar fechas
+  const fechaFuncionDate = removeMilliseconds(data.fechaHoraFuncion);
   const fechaReservaDate = data.fechaHoraReserva 
     ? removeMilliseconds(data.fechaHoraReserva)
     : removeMilliseconds(new Date());
 
-  const newReserva = await prisma.reserva.create({
-    data: {
-      idSala: parseInt(data.idSala, 10),
-      fechaHoraFuncion: fechaFuncionDate,
-      DNI: parseInt(data.DNI, 10),
-      estado: "ACTIVA",
-      fechaHoraReserva: fechaReservaDate,
-      total: parseFloat(data.total),
-    },
+  if (!fechaFuncionDate || !fechaReservaDate) {
+    const error = new Error('Fechas inválidas');
+    error.details = {
+      fechaHoraFuncion: data.fechaHoraFuncion,
+      fechaHoraReserva: data.fechaHoraReserva
+    };
+    console.error('Procesamiento de fechas falló:', error.details);
+    throw error;
+  }
+
+  const reservaData = {
+    idSala,
+    fechaHoraFuncion: fechaFuncionDate,
+    DNI,
+    estado: "ACTIVA",
+    fechaHoraReserva: fechaReservaDate,
+    total,
+  };
+
+  console.log('📤 Datos procesados para crear reserva:', {
+    ...reservaData,
+    fechaHoraFuncion: reservaData.fechaHoraFuncion.toISOString(),
+    fechaHoraReserva: reservaData.fechaHoraReserva.toISOString()
   });
-  return newReserva;
+
+  try {
+    const newReserva = await prisma.reserva.create({
+      data: reservaData,
+    });
+    
+    console.log('Reserva creada exitosamente:', newReserva);
+    return newReserva;
+  } catch (error) {
+    console.error('Código de error:', error.code);
+    console.error('Meta:', error.meta);
+    throw error;
+  }
 }
 
 async function deleteOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
@@ -85,7 +150,7 @@ async function deleteOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
 async function cancellOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
   // Usar una transacción para asegurar que ambas operaciones se completen
   const result = await prisma.$transaction(async (tx) => {
-    // 1. Cancelar la reserva
+    
     const cancelledReserva = await tx.reserva.update({
       where: {
         idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
@@ -106,7 +171,6 @@ async function cancellOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
       },
     });
 
-    // 2. Eliminar todos los asientos reservados asociados a esta reserva
     await tx.asiento_reserva.deleteMany({
       where: {
         idSala: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala, 10),
@@ -121,6 +185,5 @@ async function cancellOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
 
   return result;
 }
-
 
 export { getOne, getAll, createOne, deleteOne, cancellOne };

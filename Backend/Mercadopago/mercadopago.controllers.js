@@ -70,39 +70,67 @@ export const handleWebhook = async (req, res) => {
       if (result.status === 'approved') {
         const metadata = result.metadata;
 
+        console.log('Metadata completo:', JSON.stringify(metadata, null, 2));
+
         // Parsear asientos del metadata
         const asientos = JSON.parse(metadata.asientos);
 
-        // Construir reservaData accediendo correctamente al metadata
+        // Convertir las fechas a objetos Date y remover milisegundos
+        const fechaFuncionDate = new Date(metadata.fecha_hora_funcion);
+        fechaFuncionDate.setMilliseconds(0);
+        
+        const fechaReservaDate = new Date(metadata.fecha_hora_reserva);
+        fechaReservaDate.setMilliseconds(0);
+
+        // Construir reservaData con fechas como Date objects
         const reservaData = {
           idSala: parseInt(metadata.id_sala, 10),
-          fechaHoraFuncion: metadata.fecha_hora_funcion,
+          fechaHoraFuncion: fechaFuncionDate,
           DNI: parseInt(metadata.dni, 10),
-          fechaHoraReserva: metadata.fecha_hora_reserva,
-          total: result.transaction_amount
+          fechaHoraReserva: fechaReservaDate,
+          total: parseFloat(result.transaction_amount)
         };
 
-        console.log('Creando reserva:', reservaData);
-        const reservaCreada = await createReserva(reservaData);
-
-        // Crear los asientos reservados usando los mismos valores
-        const asientosData = asientos.map(asiento => ({
-          idSala: parseInt(metadata.id_sala, 10),
-          filaAsiento: asiento.filaAsiento,
-          nroAsiento: parseInt(asiento.nroAsiento, 10),
-          fechaHoraFuncion: metadata.fecha_hora_funcion,
-          DNI: parseInt(metadata.dni, 10),
-          fechaHoraReserva: metadata.fecha_hora_reserva
-        }));
-
-        console.log('Creando asientos reservados:', asientosData.length);
-        await createAsientosReservados(asientosData);
-
-        console.log('Reserva completada exitosamente:', {
-          reserva: reservaCreada,
-          asientos: asientosData.length,
-          paymentId: result.id
+        console.log('Creando reserva con datos:', {
+          ...reservaData,
+          fechaHoraFuncion: reservaData.fechaHoraFuncion.toISOString(),
+          fechaHoraReserva: reservaData.fechaHoraReserva.toISOString()
         });
+
+        try {
+          const reservaCreada = await createReserva(reservaData);
+          console.log('✅ Reserva creada exitosamente:', reservaCreada);
+
+          // Crear los asientos reservados usando los mismos valores
+          const asientosData = asientos.map(asiento => ({
+            idSala: parseInt(metadata.id_sala, 10),
+            filaAsiento: asiento.filaAsiento,
+            nroAsiento: parseInt(asiento.nroAsiento, 10),
+            fechaHoraFuncion: fechaFuncionDate,
+            DNI: parseInt(metadata.dni, 10),
+            fechaHoraReserva: fechaReservaDate
+          }));
+
+          console.log('Intentando crear asientos reservados:', {
+            cantidad: asientosData.length,
+            primerosAsientos: asientosData.slice(0, 2)
+          });
+
+          const asientosCreados = await createAsientosReservados(asientosData);
+          
+          console.log('✅ Asientos reservados creados:', asientosCreados);
+
+          console.log('🎉 Reserva completada exitosamente:', {
+            reserva: reservaCreada,
+            asientosCount: asientosData.length,
+            paymentId: result.id
+          });
+
+        } catch (createError) {
+          console.error('❌ Error al crear reserva/asientos:', createError);
+          console.error('Stack:', createError.stack);
+          throw createError;
+        }
 
       } else {
         console.log(`Pago recibido con estado: ${result.status}`);
