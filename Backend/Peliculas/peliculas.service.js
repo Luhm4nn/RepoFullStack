@@ -22,9 +22,6 @@ export const getOne = async (id) => {
 };
 
 export const createOne = async (data) => {
-    // TODO: Implementar validaciones de negocio aquí (Valibot)
-    // Ejemplo: validar fechas de estreno, duración positiva, géneros válidos, etc.
-
     const movieDataToCreate = {
         ...data,
         duracion: data.duracion ? parseInt(data.duracion, 10) : 0,
@@ -46,10 +43,6 @@ export const deleteOne = async (id) => {
             console.error('Error eliminando póster de Cloudinary:', error);
         }
     }
-    
-    // Implementar validaciones de negocio aquí
-    // Ejemplo: verificar que no tenga funciones programadas antes de eliminar
-    
     const deletedPelicula = await deleteOneDB(id);
     return deletedPelicula;
 };
