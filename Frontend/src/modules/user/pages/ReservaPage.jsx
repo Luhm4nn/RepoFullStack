@@ -211,45 +211,13 @@ function ReservaPage() {
                 Ver Trailer
               </button>
             </div>
+
             {/* Showtimes */}
             <div id="funciones" className="bg-slate-800/50 border border-slate-700 rounded-xl shadow p-6">
               <h2 className="text-white text-2xl mb-6">Horarios y Reservas</h2>
               
-              {selectedFuncion ? (
-                <div>
-                  <button
-                    onClick={() => setSelectedFuncion(null)}
-                    className="mb-4 flex items-center text-gray-300 hover:text-white bg-transparent border-none cursor-pointer"
-                  >
-                    <span className="w-4 h-4 mr-2 inline-block align-middle">
-                      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-                    </span>
-                    Volver a Funciones
-                  </button>
-                  <h3 className="text-xl font-bold text-white mb-4">
-                    Selecciona tus asientos para:{" "}
-                    {formatDateTime(selectedFuncion.fechaHoraFuncion).hora}{" "}
-                    en Sala {selectedFuncion.sala?.nombreSala || selectedFuncion.idSala}
-                  </h3>
-                  <SeatSelectorReserva
-                    idSala={selectedFuncion.idSala}
-                    fechaHoraFuncion={selectedFuncion.fechaHoraFuncion}
-                    onSeatsChange={handleSeatsChange}
-                  />
-                   {reservationError && (
-                    <p className="mt-4 text-red-400 text-center">{reservationError}</p>
-                  )}
-                  <div className="mt-6 text-center">
-                    <button
-                      onClick={handleConfirmarReserva}
-                      disabled={selectedSeatsInfo.count === 0 || reservationLoading}
-                      className="bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-white px-8 py-3 rounded-lg font-semibold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {reservationLoading ? "Confirmando..." : `Confirmar Reserva (${selectedSeatsInfo.count} asientos - $${selectedSeatsInfo.total})`}
-                    </button>
-                  </div>
-                </div>
-              ) : (
+              {/* Step 1: Selección de función */}
+              {step === 1 && (
                 <SeleccionFuncion
                   funciones={funciones}
                   loading={loading}
@@ -259,7 +227,6 @@ function ReservaPage() {
                   onBuscar={handleBuscar}
                   onSelectFuncion={handleSelectFuncion}
                   idPelicula={pelicula.idPelicula}
-
                 />
               )}
 
