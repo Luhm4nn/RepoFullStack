@@ -4,8 +4,7 @@ import { getFuncionesPorPeliculaYFecha } from "../../../api/Funciones.api";
 import { getPelicula } from "../../../api/Peliculas.api";
 import { formatDateTime } from "../../shared";
 import SeatSelectorReserva from "../components/SeatSelectorReserva";
-import { createReserva } from "../../../api/Reservas.api";
-import { createAsientosReservados } from "../../../api/AsientoReservas.api";
+import PaymentStep from "../components/PaymentStep";
 import { authAPI } from "../../../api/login.api";
 import SeleccionFuncion from "../components/SeleccionFuncion";
 
@@ -19,16 +18,15 @@ function ReservaPage() {
   const [error, setError] = useState(null);
   const [loadingPelicula, setLoadingPelicula] = useState(true);
 
-  // State para la función seleccionada para reservar asientos
+  // State para el flujo de reserva
+  const [step, setStep] = useState(1); // 1: selección función, 2: selección asientos, 3: pago
   const [selectedFuncion, setSelectedFuncion] = useState(null);
-  // State para los asientos seleccionados y el total del precio
   const [selectedSeatsInfo, setSelectedSeatsInfo] = useState({
     seats: [],
     total: 0,
     count: 0
   });
-  const [reservationLoading, setReservationLoading] = useState(false);
-  const [reservationError, setReservationError] = useState(null);
+  const [userDNI, setUserDNI] = useState(null);
 
   useEffect(() => {
     const fetchPelicula = async () => {
@@ -44,13 +42,20 @@ function ReservaPage() {
       }
     };
     fetchPelicula();
+
+    // Verificar autenticación
+    const auth = authAPI.checkAuth();
+    if (auth && auth.user && auth.user.DNI) {
+      setUserDNI(auth.user.DNI);
+    }
   }, [id]);
 
   const handleFechaChange = (e) => {
     setFecha(e.target.value);
-    setFunciones([]); // Limpiar funciones al cambiar la fecha
-    setSelectedFuncion(null); // Limpiar selección de función
-    setSelectedSeatsInfo({ seats: [], total: 0, count: 0 }); // Limpiar selección de asientos
+    setFunciones([]);
+    setSelectedFuncion(null);
+    setSelectedSeatsInfo({ seats: [], total: 0, count: 0 });
+    setStep(1);
   };
 
   const handleBuscar = async () => {
@@ -60,8 +65,10 @@ function ReservaPage() {
     }
     setLoading(true);
     setError(null);
-    setSelectedFuncion(null); // Limpiar selección de función al buscar nuevas funciones
-    setSelectedSeatsInfo({ seats: [], total: 0, count: 0 }); // Limpiar selección de asientos
+    setSelectedFuncion(null);
+    setSelectedSeatsInfo({ seats: [], total: 0, count: 0 });
+    setStep(1);
+    
     try {
       const data = await getFuncionesPorPeliculaYFecha(pelicula.idPelicula, fecha);
       setFunciones(data);
@@ -77,61 +84,42 @@ function ReservaPage() {
   };
 
   const handleSelectFuncion = (funcion) => {
+    if (!userDNI) {
+      alert("Debes iniciar sesión para realizar una reserva.");
+      navigate('/login');
+      return;
+    }
     setSelectedFuncion(funcion);
     setSelectedSeatsInfo({ seats: [], total: 0, count: 0 });
+    setStep(2);
   };
 
   const handleSeatsChange = (info) => {
     setSelectedSeatsInfo(info);
   };
 
-  const handleConfirmarReserva = async () => {
-    if (!selectedFuncion || selectedSeatsInfo.count === 0) {
-      setReservationError("Por favor, selecciona una función y al menos un asiento.");
+  const handleProcederAlPago = () => {
+    if (selectedSeatsInfo.count === 0) {
+      alert("Debes seleccionar al menos un asiento");
       return;
     }
+    setStep(3);
+  };
 
-    const auth = authAPI.checkAuth();
-    if (!auth || !auth.user || !auth.user.DNI) {
-      setReservationError("Debes iniciar sesión para realizar una reserva.");
-      navigate('/login');
-      return;
-    }
+  const handlePaymentSuccess = () => {
+    // El webhook del backend ya creó la reserva cuando el pago fue aprobado
+    alert("¡Pago exitoso! Tu reserva ha sido confirmada.");
+    navigate('/MisReservas');
+  };
 
-    setReservationLoading(true);
-    setReservationError(null);
+  const handleBackToSeats = () => {
+    setStep(2);
+  };
 
-    try {
-      const DNI = auth.user.DNI;
-      const fechaHoraReserva = new Date().toISOString();
-
-      const reservaData = {
-        idSala: selectedFuncion.idSala,
-        fechaHoraFuncion: selectedFuncion.fechaHoraFuncion,
-        DNI: DNI,
-        total: selectedSeatsInfo.total,
-        fechaHoraReserva: fechaHoraReserva,
-      };
-      const newReserva = await createReserva(reservaData);
-      const asientosParaReservar = selectedSeatsInfo.seats.map(seat => ({
-        idSala: selectedFuncion.idSala,
-        filaAsiento: seat.filaAsiento,
-        nroAsiento: seat.nroAsiento,
-        fechaHoraFuncion: selectedFuncion.fechaHoraFuncion,
-        DNI: DNI,
-        fechaHoraReserva: fechaHoraReserva,
-      }));
-
-      await createAsientosReservados(asientosParaReservar);
-
-      alert("Reserva realizada con éxito!");
-      navigate('/MisReservas');
-    } catch (err) {
-      setReservationError("Error al confirmar la reserva. Inténtalo de nuevo.");
-      console.error("Error confirming reservation:", err);
-    } finally {
-      setReservationLoading(false);
-    }
+  const handleBackToFunctions = () => {
+    setSelectedFuncion(null);
+    setSelectedSeatsInfo({ seats: [], total: 0, count: 0 });
+    setStep(1);
   };
 
   return (
@@ -142,9 +130,9 @@ function ReservaPage() {
           onClick={() => navigate(-1)}
           className="mb-6 flex items-center text-gray-300 hover:text-white bg-transparent border-none cursor-pointer"
         >
-          <span className="w-4 h-4 mr-2 inline-block align-middle">
-            <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-          </span>
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
           Volver a Cartelera
         </button>
 
@@ -159,8 +147,8 @@ function ReservaPage() {
           </div>
         ) : (
           <>
+            {/* Movie Info Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-              {/* Movie Poster */}
               <div className="lg:col-span-1">
                 <div className="relative">
                   <img
@@ -170,19 +158,24 @@ function ReservaPage() {
                   />
                 </div>
               </div>
-              {/* Movie Info */}
               <div className="lg:col-span-2">
                 <div className="space-y-6">
                   <div>
                     <h1 className="text-4xl font-bold text-white mb-4">{pelicula.nombrePelicula}</h1>
                     <div className="flex flex-wrap items-center gap-4 mb-4">
-                      <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded px-2 py-1 text-xs font-semibold">{pelicula.MPAA}</span>
+                      <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded px-2 py-1 text-xs font-semibold">
+                        {pelicula.MPAA}
+                      </span>
                       <span className="text-gray-300">{pelicula.generoPelicula}</span>
                       <span className="flex items-center gap-1 text-gray-300">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3" /></svg>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3" />
+                        </svg>
                         {pelicula.duracion} min
                       </span>
-                      <span className="text-gray-300">{pelicula.fechaEstreno ? new Date(pelicula.fechaEstreno).getFullYear() : ""}</span>
+                      <span className="text-gray-300">
+                        {pelicula.fechaEstreno ? new Date(pelicula.fechaEstreno).getFullYear() : ""}
+                      </span>
                     </div>
                   </div>
                   <div>
@@ -196,10 +189,15 @@ function ReservaPage() {
                 </div>
               </div>
             </div>
-            {/* Botón Ver Trailer siempre visible, deshabilitado si no hay trailer */}
+
+            {/* Trailer Button */}
             <div className="mb-8 flex justify-start">
               <button
-                className={`bg-red-600 text-white px-4 py-2 rounded flex items-center shadow-lg ${pelicula.trailerURL || pelicula.url ? 'hover:bg-red-700 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
+                className={`bg-red-600 text-white px-4 py-2 rounded flex items-center shadow-lg ${
+                  pelicula.trailerURL || pelicula.url 
+                    ? 'hover:bg-red-700 cursor-pointer' 
+                    : 'opacity-50 cursor-not-allowed'
+                }`}
                 onClick={() => {
                   if (pelicula.trailerURL || pelicula.url) {
                     window.open(pelicula.trailerURL || pelicula.url, "_blank");
@@ -207,9 +205,9 @@ function ReservaPage() {
                 }}
                 disabled={!(pelicula.trailerURL || pelicula.url)}
               >
-                <span className="w-4 h-4 mr-2 inline-block align-middle">
-                  <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v18l15-9-15-9z" /></svg>
-                </span>
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v18l15-9-15-9z" />
+                </svg>
                 Ver Trailer
               </button>
             </div>
@@ -262,6 +260,56 @@ function ReservaPage() {
                   onSelectFuncion={handleSelectFuncion}
                   idPelicula={pelicula.idPelicula}
 
+                />
+              )}
+
+              {/* Step 2: Selección de asientos */}
+              {step === 2 && selectedFuncion && (
+                <>
+                  <button
+                    onClick={handleBackToFunctions}
+                    className="mb-4 flex items-center text-gray-300 hover:text-white bg-transparent border-none cursor-pointer"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Volver a Funciones
+                  </button>
+                  
+                  <h3 className="text-xl font-bold text-white mb-4">
+                    Selecciona tus asientos - {formatDateTime(selectedFuncion.fechaHoraFuncion).hora} en {selectedFuncion.sala?.nombreSala || `Sala ${selectedFuncion.idSala}`}
+                  </h3>
+                  
+                  <SeatSelectorReserva
+                    idSala={selectedFuncion.idSala}
+                    fechaHoraFuncion={selectedFuncion.fechaHoraFuncion}
+                    onSeatsChange={handleSeatsChange}
+                  />
+                  
+                  <div className="mt-6 text-center">
+                    <button
+                      onClick={handleProcederAlPago}
+                      disabled={selectedSeatsInfo.count === 0}
+                      className="bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-white px-8 py-3 rounded-lg font-semibold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Proceder al Pago ({selectedSeatsInfo.count} asientos - ${selectedSeatsInfo.total})
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {/* Step 3: Pago con MercadoPago */}
+              {step === 3 && selectedFuncion && userDNI && (
+                <PaymentStep
+                  reservaData={{
+                    DNI: userDNI,
+                    fechaHoraReserva: new Date().toISOString()
+                  }}
+                  selectedSeatsData={selectedSeatsInfo}
+                  funcion={selectedFuncion}
+                  pelicula={pelicula}
+                  onPaymentSuccess={handlePaymentSuccess}
+                  onBack={handleBackToSeats}
                 />
               )}
             </div>

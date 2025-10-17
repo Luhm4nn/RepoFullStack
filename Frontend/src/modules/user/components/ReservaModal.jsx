@@ -1,5 +1,6 @@
 import { useState } from "react";
 import SeatSelectorReserva from "./SeatSelectorReserva";
+import PaymentStep from "./PaymentStep";
 import { createReserva } from "../../../api/Reservas.api";
 import { createAsientosReservados } from "../../../api/AsientoReservas.api";
 import { formatDateTime } from "../../shared";
@@ -172,7 +173,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
                   <div className="mt-4 pt-4 border-t border-slate-600 flex justify-between items-center">
                     <span className="text-white font-semibold text-lg">Total:</span>
                     <span className="text-green-400 font-bold text-2xl">
-                      ${selectedSeatsData.total.toFixed(2)}
+                      ${selectedSeatsData.total}
                     </span>
                   </div>
                 </div>
@@ -259,7 +260,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
                   <div className="pt-4 border-t border-slate-700">
                     <p className="text-lg">
                       <span className="text-gray-400">Total pagado:</span> 
-                      <span className="text-green-400 font-bold ml-2">${selectedSeatsData.total.toFixed(2)}</span>
+                      <span className="text-green-400 font-bold ml-2">${selectedSeatsData.total}</span>
                     </p>
                   </div>
                 </div>
