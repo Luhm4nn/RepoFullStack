@@ -15,6 +15,26 @@ Comisión 301 - Ingeniería en Sistemas de Información - UTN FRRO - 2025
 - [Configuración](#-configuración)
 - [Ejecución](#-ejecución)
 
+## Contenido Extra
+
+- [Propuesta actualizada](https://github.com/Luhm4nn/TP-DSW-lez-Luh/blob/main/proposal.md)
+- [Minutas de reuniones](/docs/minutas.md)
+- [Tracking de tareas y bugs](https://github.com/users/Luhm4nn/projects/1)
+- [Documentación de la API](/docs/api.md)
+
+---
+
+## Metodología utilizada
+
+Para la gestión del proyecto se adoptó una **metodología ágil adaptada**, basada en elementos de Scrum y XP, ajustada al tamaño del equipo (2 integrantes).
+
+- **Iteraciones cada 2 semanas (ajustable según los tiempos de cada uno)** con definición de tareas y revisión de avances.
+- **Uso de GitHub Projects** como tablero Kanban para gestionar features, bugs e issues.
+- **Programación en pareja** en tareas complejas y revisión cruzada de código (code review).
+- Registro de reuniones y acuerdos en `minutas.md`.
+
+---
+
 ## Características
 
 ### Para Usuarios
