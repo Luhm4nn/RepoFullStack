@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authAPI } from "../../../api/login.api";
 import { getReservas } from "../../../api/Reservas.api";
-import { ClaquetaPersonaje } from "../../shared";
 
 export default function MiPerfilPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [reservasCount, setReservasCount] = useState(0);
+  const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,14 +19,12 @@ export default function MiPerfilPage() {
           return;
         }
         setUser(auth.user);
-
-        // obtener cantidad de reservas del usuario (si existe endpoint)
         try {
           const all = await getReservas();
           const my = Array.isArray(all) ? all.filter(r => r.DNI === auth.user.DNI) : [];
-          setReservasCount(my.length);
+          setReservas(my);
         } catch {
-          setReservasCount(0);
+          setReservas([]);
         }
       } finally {
         setLoading(false);
@@ -76,11 +73,11 @@ export default function MiPerfilPage() {
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <div className="bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2">
                   <p className="text-xs text-gray-400">Reservas Totales</p>
-                  <p className="text-lg justify font-bold text-fuchsia-700">{reservasCount}</p>
+                  <p className="text-lg justify font-bold text-fuchsia-700">{reservas.length}</p>
                 </div>
                 <div className="bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2">
                   <p className="text-xs text-gray-400">Reservas Activas</p>
-                  <p className="text-lg justify font-bold text-green-700">{reservasCount}</p>
+                  <p className="text-lg justify font-bold text-green-700">{reservas.filter(r => r.estado === "activa").length}</p>
                 </div>
                 <button
                   onClick={() => navigate("/MisReservas")}
