@@ -1,7 +1,3 @@
-# RepoFullStack
-
-Repositorio con desarrollo back y front de la app web de cines para DSW.
-
 # Documentación del Proyecto - Cutzy
 
 Este directorio contiene la documentación generada durante el desarrollo del sistema Cutzy para cines.  

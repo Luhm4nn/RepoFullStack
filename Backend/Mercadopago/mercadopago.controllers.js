@@ -24,9 +24,9 @@ export const createPaymentPreference = async (req, res) => {
         }
       ],
       back_urls: {
-        success: `https://localhost:5173/reserva/success`,
-        failure: `https://localhost:5173/reserva/failure`,
-        pending: `https://localhost:5173/reserva/pending`
+        success: `${process.env.FRONTEND_URL}/reserva/success`,
+        failure: `${process.env.FRONTEND_URL}/reserva/failure`,
+        pending: `${process.env.FRONTEND_URL}/reserva/pending`
       },
       notification_url: `${process.env.NGROK_URL}/mercadopago/webhooks`,
       metadata: {
@@ -99,7 +99,7 @@ export const handleWebhook = async (req, res) => {
 
         try {
           const reservaCreada = await createReserva(reservaData);
-          console.log('✅ Reserva creada exitosamente:', reservaCreada);
+          console.log(' Reserva creada exitosamente:', reservaCreada);
 
           // Crear los asientos reservados usando los mismos valores
           const asientosData = asientos.map(asiento => ({
@@ -118,16 +118,16 @@ export const handleWebhook = async (req, res) => {
 
           const asientosCreados = await createAsientosReservados(asientosData);
           
-          console.log('✅ Asientos reservados creados:', asientosCreados);
+          console.log(' Asientos reservados creados:', asientosCreados);
 
-          console.log('🎉 Reserva completada exitosamente:', {
+          console.log(' Reserva completada exitosamente:', {
             reserva: reservaCreada,
             asientosCount: asientosData.length,
             paymentId: result.id
           });
 
         } catch (createError) {
-          console.error('❌ Error al crear reserva/asientos:', createError);
+          console.error(' Error al crear reserva/asientos:', createError);
           console.error('Stack:', createError.stack);
           throw createError;
         }
