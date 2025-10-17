@@ -6,6 +6,7 @@ import { formatDateTime } from "../../shared";
 import SeatSelectorReserva from "../components/SeatSelectorReserva";
 import PaymentStep from "../components/PaymentStep";
 import { authAPI } from "../../../api/login.api";
+import SeleccionFuncion from "../components/SeleccionFuncion";
 
 function ReservaPage() {
   const navigate = useNavigate();
@@ -210,66 +211,56 @@ function ReservaPage() {
                 Ver Trailer
               </button>
             </div>
-
-            {/* Main Content Area */}
-            <div className="bg-slate-800/50 border border-slate-700 rounded-xl shadow p-6">
-              {/* Step 1: Selección de función */}
-              {step === 1 && (
-                <>
-                  <h2 className="text-white text-2xl mb-6">Horarios y Reservas</h2>
-                  <div className="mb-6 flex flex-col md:flex-row gap-4 items-center">
-                    <label className="block text-white font-medium">Selecciona una fecha:</label>
-                    <input
-                      type="date"
-                      value={fecha}
-                      onChange={handleFechaChange}
-                      className="border rounded px-3 py-2 w-48 bg-slate-700 text-white border-gray-600 focus:ring-2 focus:ring-purple-500"
-                    />
+            {/* Showtimes */}
+            <div id="funciones" className="bg-slate-800/50 border border-slate-700 rounded-xl shadow p-6">
+              <h2 className="text-white text-2xl mb-6">Horarios y Reservas</h2>
+              
+              {selectedFuncion ? (
+                <div>
+                  <button
+                    onClick={() => setSelectedFuncion(null)}
+                    className="mb-4 flex items-center text-gray-300 hover:text-white bg-transparent border-none cursor-pointer"
+                  >
+                    <span className="w-4 h-4 mr-2 inline-block align-middle">
+                      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                    </span>
+                    Volver a Funciones
+                  </button>
+                  <h3 className="text-xl font-bold text-white mb-4">
+                    Selecciona tus asientos para:{" "}
+                    {formatDateTime(selectedFuncion.fechaHoraFuncion).hora}{" "}
+                    en Sala {selectedFuncion.sala?.nombreSala || selectedFuncion.idSala}
+                  </h3>
+                  <SeatSelectorReserva
+                    idSala={selectedFuncion.idSala}
+                    fechaHoraFuncion={selectedFuncion.fechaHoraFuncion}
+                    onSeatsChange={handleSeatsChange}
+                  />
+                   {reservationError && (
+                    <p className="mt-4 text-red-400 text-center">{reservationError}</p>
+                  )}
+                  <div className="mt-6 text-center">
                     <button
-                      onClick={handleBuscar}
-                      disabled={!fecha || loading}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded font-semibold disabled:opacity-50"
+                      onClick={handleConfirmarReserva}
+                      disabled={selectedSeatsInfo.count === 0 || reservationLoading}
+                      className="bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-white px-8 py-3 rounded-lg font-semibold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {loading ? "Buscando..." : "Buscar funciones"}
+                      {reservationLoading ? "Confirmando..." : `Confirmar Reserva (${selectedSeatsInfo.count} asientos - $${selectedSeatsInfo.total})`}
                     </button>
                   </div>
-                  
-                  {loading && <p className="mt-4 text-white">Cargando funciones...</p>}
-                  {error && <p className="mt-4 text-red-400">{error}</p>}
-                  
-                  <div className="space-y-6">
-                    {funciones.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {funciones.map((funcion, idx) => {
-                          const { hora } = formatDateTime(funcion.fechaHoraFuncion);
-                          return (
-                            <div key={idx} className="bg-slate-700/50 border border-slate-600 rounded-lg p-4 flex flex-col gap-2">
-                              <div className="flex items-center gap-3 mb-2">
-                                <div className="text-2xl font-bold text-purple-400">{hora}</div>
-                                <div className="text-sm text-gray-300 flex items-center gap-1">
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2h5" />
-                                  </svg>
-                                  {funcion.sala?.nombreSala || `Sala ${funcion.idSala}`}
-                                </div>
-                              </div>
-                              <div className="flex items-center justify-end">
-                                <button
-                                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded font-semibold"
-                                  onClick={() => handleSelectFuncion(funcion)}
-                                >
-                                  Seleccionar Asientos
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      !loading && !error && <p className="text-gray-400">Selecciona una fecha para ver las funciones disponibles.</p>
-                    )}
-                  </div>
-                </>
+                </div>
+              ) : (
+                <SeleccionFuncion
+                  funciones={funciones}
+                  loading={loading}
+                  error={error}
+                  fecha={fecha}
+                  onFechaChange={handleFechaChange}
+                  onBuscar={handleBuscar}
+                  onSelectFuncion={handleSelectFuncion}
+                  idPelicula={pelicula.idPelicula}
+
+                />
               )}
 
               {/* Step 2: Selección de asientos */}

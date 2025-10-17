@@ -2,8 +2,7 @@ import { PeliculaCard } from "../../shared";
 
 import { ClaquetaPersonaje } from "../../shared";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button, Carousel } from "flowbite-react";
+import { Carousel } from "flowbite-react";
 import { getPeliculasEnCartelera } from "../../user";
 
 

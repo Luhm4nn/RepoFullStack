@@ -1,34 +1,60 @@
 import { useEffect, useState } from "react";
 
-// Personaje: Claqueta con ojos, piernas y bocadillo animado
-export default function ClaquetaPersonaje() {
-  const [mensajeIdx, setMensajeIdx] = useState(0);
-  const mensajes = [
+export function ClaquetaPersonaje({
+  fixed = true,               // si true: position fixed bottom-left; si false: render inline
+  position = "bottom-left",   // 'bottom-left' (por ahora solo ese), reservado para futuras posiciones
+  messageInterval = 7000,     // ms entre mensajes (más espaciado por defecto)
+  size = 90,                  // ancho del SVG en px (alto se calcula)
+  mensajes = [
     "¡Hola! Soy Cutzy! 🎬",
     "¿Listo para ver una peli?",
     "Haz click en 'Ver Cartelera' para empezar!",
     "¡Disfruta la función! 🍿"
-  ];
+  ],
+  className = ""              // clases adicionales para el contenedor (útil al integrarlo)
+}) {
+  const [mensajeIdx, setMensajeIdx] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const id = setInterval(() => {
       setMensajeIdx((idx) => (idx + 1) % mensajes.length);
-    }, 3500);
-    return () => clearTimeout(timer);
-  }, [mensajeIdx]);
+    }, messageInterval);
+    return () => clearInterval(id);
+  }, [messageInterval, mensajes.length]);
+
+  const containerClass = fixed
+    ? "fixed bottom-8 left-8 z-50"
+    : "relative";
+
+  // tamaño: width=size, height ≈ size * 1.11 para mantener proporción similar al original
+  const width = size;
+  const height = Math.round(size * 1.11);
 
   return (
-    <div className="fixed bottom-8 left-8 z-50 flex flex-col items-center select-none">
-      {/* Bocadillo */}
-      <div className="mb-2 relative animate-fade-in-up">
-        <div className="bg-white text-gray-900 rounded-2xl px-6 py-3 shadow-lg text-lg font-semibold border-2 border-gray-300 relative">
+    <div className={`${containerClass} ${className}`} aria-live="polite">
+      {/* Bocadillo: solo fade (no jump) */}
+      <div className="mb-2">
+        <div
+          key={mensajeIdx}
+          className="bg-white text-gray-900 rounded-2xl px-5 py-2 shadow-lg text-base font-semibold border-2 border-gray-300 relative transition-opacity duration-500"
+          style={{ opacity: 1 }}
+        >
           {mensajes[mensajeIdx]}
-          <span className="absolute left-8 -bottom-4 w-6 h-6 bg-white border-l-2 border-b-2 border-gray-300 rotate-45"></span>
+          <span className="absolute left-6 -bottom-4 w-6 h-6 bg-white border-l-2 border-b-2 border-gray-300 rotate-45" />
         </div>
       </div>
-      {/* Claqueta SVG con ojos y piernas */}
-      <div className="relative animate-bounce-slow">
-        <svg width="90" height="100" viewBox="0 0 90 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+      {/* Claqueta SVG (sin animación de entrada para evitar saltos), puedes agregar bob si querés */}
+      <div>
+        <svg
+          width={width}
+          height={height}
+          viewBox="0 0 90 100"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-label="Claqueta Cutzy"
+        >
           {/* Claqueta base */}
           <rect x="10" y="30" width="70" height="40" rx="8" fill="#fff" stroke="#222" strokeWidth="3"/>
           {/* Claqueta tapa */}
@@ -54,7 +80,4 @@ export default function ClaquetaPersonaje() {
   );
 }
 
-// Animaciones Tailwind personalizadas (agregar en tailwind.config.js):
-// 'fade-in-up': 'fadeInUp 0.7s',
-// 'bounce-slow': 'bounce 2.5s infinite',
-// @keyframes fadeInUp { from { opacity:0; transform: translateY(20px);} to {opacity:1; transform: none;} }
+export default ClaquetaPersonaje;

@@ -54,12 +54,15 @@ const SeatSelectorReserva = ({
         
         // Obtener asientos ya reservados para esta función
         const reservadosData = await getAsientosReservadosPorFuncion(idSala, fechaHoraFuncion);
-        
-        const reservadosSet = new Set(
-          reservadosData.map(ar => `${ar.filaAsiento}${ar.nroAsiento}`)
-        );
-        
-        setAsientosReservados(reservadosSet);
+
+
+const reservadosSet = new Set(
+  reservadosData.map(ar => {
+    const key = `${ar.filaAsiento}${ar.nroAsiento}`;
+    return key;
+  })
+);
+setAsientosReservados(reservadosSet);
         
       } catch (err) {
         setError("Error al cargar los asientos");
@@ -71,6 +74,11 @@ const SeatSelectorReserva = ({
     
     if (idSala && fechaHoraFuncion) {
       fetchData();
+      setSelectedSeats(new Set());
+      setTotalPrice(0);
+      if (onSeatsChange) {
+        onSeatsChange({ seats: [], total: 0, count: 0 });
+      }
     }
   }, [idSala, fechaHoraFuncion]);
 
