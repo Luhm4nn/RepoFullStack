@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { asyncHandler } from "../Middlewares/asyncHandler.js";
 import { validateBody } from "../Middlewares/validateRequest.js";
-import { salasSchema } from "../validations/SalasSchema.js";
+import { salasSchema, salasUpdateSchema } from "../validations/SalasSchema.js";
 import {
   getSalas,
   getSala,
@@ -18,7 +18,7 @@ router.get("/Sala/:param", asyncHandler(getSala));
 
 router.post("/Sala", validateBody(salasSchema), asyncHandler(createSala));
 
-router.put("/Sala/:id", validateBody(salasSchema), asyncHandler(updateSala));
+router.put("/Sala/:id", validateBody(salasUpdateSchema), asyncHandler(updateSala));
 
 router.delete("/Sala/:id", asyncHandler(deleteSala));
 

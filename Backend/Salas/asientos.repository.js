@@ -30,15 +30,20 @@ async function getOne(idSala_filaAsiento_nroAsiento) {
 
 async function createManyForSala(idSala, filas, asientosPorFila, vipSeats = []) {
   const asientosToCreate = [];
+  const parsedIdSala = parseInt(idSala, 10);
+  const parsedFilas = parseInt(filas, 10);
+  const parsedAsientosPorFila = parseInt(asientosPorFila, 10);
 
-  for (let i=0; i < filas; i++) {
+  for (let i = 0; i < parsedFilas; i++) {
     const filaLetter = String.fromCharCode(65 + i); // A, B, C, D...
 
-    for(let nroAsiento = 1; nroAsiento <= asientosPorFila; nroAsiento++) {
-      const tipo = vipSeats.includes(`${filaLetter}${nroAsiento}`) ? "VIP" : "Normal";
+    for (let nroAsiento = 1; nroAsiento <= parsedAsientosPorFila; nroAsiento++) {
+      const seatId = `${filaLetter}${nroAsiento}`;
+      const tipo = vipSeats.includes(seatId) ? "VIP" : "Normal";
       const idTarifa = tipo === "VIP" ? 2 : 1;
+      
       asientosToCreate.push({
-        idSala: parseInt(idSala, 10),
+        idSala: parsedIdSala,
         filaAsiento: filaLetter,
         nroAsiento: nroAsiento,
         tipo: tipo,
@@ -49,7 +54,8 @@ async function createManyForSala(idSala, filas, asientosPorFila, vipSeats = []) 
 
   const createdAsientos = await prisma.asiento.createMany({
     data: asientosToCreate,
-  })
+  });
+  
   return createdAsientos;
 }
 
@@ -60,7 +66,7 @@ async function createOne(idSala, data) {
       filaAsiento: data.filaAsiento,
       nroAsiento: parseInt(data.nroAsiento, 10),
       tipo: data.tipo,
-      idTarifa: parseInt(data.idTarifa, 10),
+      idTarifa: data.idTarifa ? parseInt(data.idTarifa, 10) : null,
     },
   });
   return newAsiento;
@@ -90,48 +96,89 @@ async function updateOne(idSala_filaAsiento_nroAsiento, data) {
     },
     data: {
       tipo: data.tipo,
-      idTarifa: parseInt(data.idTarifa, 10),
+      idTarifa: data.idTarifa ? parseInt(data.idTarifa, 10) : null,
     },
   });
   return updatedAsiento;
 }
 
 async function updateManyForSala(idSala, vipSeats = []) {
-  await prisma.asiento.updateMany({
-    where: {
-      idSala: parseInt(idSala, 10),
-    },
-    data: {
-      tipo: "Normal",
-      idTarifa: 1,
-    },
-  });
+  const parsedIdSala = parseInt(idSala, 10);
+  
+  try {
+    console.log(`Actualizando asientos VIP para sala ${parsedIdSala}`);
+    console.log(`VIP Seats recibidos:`, vipSeats);
 
-  const updatedVipSeats = []
-
-  if (vipSeats.length > 0) {
-   
-    for (const seat of vipSeats) {
-    const filaAsiento = seat.charAt(0); 
-    const nroAsiento = parseInt(seat.slice(1), 10);
-
-    await prisma.asiento.update({
+    // Paso 1: Resetear todos los asientos a Normal
+    const resetResult = await prisma.asiento.updateMany({
       where: {
-        idSala_filaAsiento_nroAsiento: {
-              idSala: parseInt(idSala, 10),
-              filaAsiento: filaAsiento,
-              nroAsiento: nroAsiento,
-      }},
+        idSala: parsedIdSala,
+      },
       data: {
-        tipo: "VIP",
-        idTarifa: 2,
+        tipo: "Normal",
+        idTarifa: 1,
       },
     });
-    updatedVipSeats.push(seat);
+    
+    console.log(`Asientos reseteados: ${resetResult.count}`);
+
+    // Paso 2: Actualizar solo los asientos VIP especificados
+    const updatedVipSeats = [];
+
+    if (Array.isArray(vipSeats) && vipSeats.length > 0) {
+      for (const seat of vipSeats) {
+        // Validar formato del asiento (ej: "A1", "B12")
+        if (typeof seat !== 'string' || seat.length < 2) {
+          console.warn(`Formato de asiento inválido: ${seat}`);
+          continue;
+        }
+
+        const filaAsiento = seat.charAt(0); 
+        const nroAsientoStr = seat.slice(1);
+        const nroAsiento = parseInt(nroAsientoStr, 10);
+
+        if (isNaN(nroAsiento)) {
+          console.warn(`Número de asiento inválido: ${seat}`);
+          continue;
+        }
+
+        try {
+          await prisma.asiento.update({
+            where: {
+              idSala_filaAsiento_nroAsiento: {
+                idSala: parsedIdSala,
+                filaAsiento: filaAsiento,
+                nroAsiento: nroAsiento,
+              }
+            },
+            data: {
+              tipo: "VIP",
+              idTarifa: 2,
+            },
+          });
+          updatedVipSeats.push(seat);
+        } catch (updateError) {
+          console.error(`Error actualizando asiento ${seat}:`, updateError.message);
+          // Continuar con el siguiente asiento
+        }
+      }
+      
+      console.log(`Asientos VIP actualizados: ${updatedVipSeats.length}`);
+    }
+
+    return updatedVipSeats;
+  } catch (error) {
+    console.error('Error en updateManyForSala:', error);
+    throw error;
   }
 }
-return updatedVipSeats;
-}
-          
 
-export { getOne, getAll, createManyForSala, createOne, deleteOne, updateOne, updateManyForSala };
+export { 
+  getOne, 
+  getAll, 
+  createManyForSala, 
+  createOne, 
+  deleteOne, 
+  updateOne, 
+  updateManyForSala 
+};

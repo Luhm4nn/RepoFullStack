@@ -22,9 +22,26 @@ const salasSchema = Yup.object().shape({
     .integer("Debe ser un número entero")
     .min(1, "Mínimo 1 asiento por fila")
     .max(25, "Máximo 25 asientos por fila")
-    .required("La cantidad de asientos por fila"),
+    .required("La cantidad de asientos por fila es requerida"),
+
+  vipSeats: Yup.array()
+    .of(Yup.string())
+    .default([])
+    .notRequired()
 });
 
+const salasUpdateSchema = Yup.object().shape({
+  nombreSala: Yup.string()
+    .min(1, "Mínimo 1 caracter")
+    .max(45, "Máximo 45 caracteres"),
+
+  ubicacion: Yup.string()
+    .oneOf(["Ala Derecha", "Ala Izquierda", "Planta Baja", "Sótano", "Primer Piso"], "Ubicación inválida"),
+
+  vipSeats: Yup.array()
+    .of(Yup.string())
+    .default([])
+});
 
 export default salasSchema;
-export { salasSchema };
+export { salasSchema, salasUpdateSchema };
