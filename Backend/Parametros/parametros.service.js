@@ -17,17 +17,11 @@ export const getOne = async (id) => {
 };
 
 export const createOne = async (data) => {
-    // TODO: Implementar validaciones de negocio aquí
-    // Ejemplo: validar tipo de parámetro, formato del valor, etc.
-    
     const newParametro = await createOneDB(data);
     return newParametro;
 };
 
 export const deleteOne = async (id) => {
-    // TODO: Implementar validaciones de negocio aquí
-    // Ejemplo: verificar que no sea un parámetro crítico del sistema
-    
     const deletedParametro = await deleteOneDB(id);
     return deletedParametro;
 };
@@ -39,10 +33,6 @@ export const updateOne = async (id, data) => {
         error.status = 404;
         throw error;
     }
-    
-    // TODO: Implementar validaciones de negocio aquí
-    // Ejemplo: validar rangos de valores, impacto en el sistema, etc.
-    
     const updatedParametro = await updateOneDB(id, data);
     return updatedParametro;
 };
