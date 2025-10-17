@@ -26,6 +26,7 @@
     "tailwind-scrollbar": "^4.0.2",
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-react-aria-components": "^2.0.0",
+    "vite-plugin-mkcert": "^1.17.9",
     "yup": "^1.6.1"
   },
   "devDependencies": {
@@ -43,7 +44,6 @@
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.11",
-    "vite": "^7.0.4",
-    "vite-plugin-mkcert": "^1.17.9"
+    "vite": "^7.0.4"
   }
 }
