@@ -30,7 +30,7 @@ function PeliculaCard({ pelicula }) {
         <div className="text-gray-400 text-xs mb-2">{pelicula.sinopsis?.slice(0, 80)}...</div>
       </div>
       <Button
-        className="mt-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+        className="h-8 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
         onClick={() => navigate(`/reservar/${pelicula.idPelicula}`)}
       >
         Ver detalles

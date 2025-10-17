@@ -108,12 +108,6 @@ async function createOne(data) {
     total,
   };
 
-  console.log('📤 Datos procesados para crear reserva:', {
-    ...reservaData,
-    fechaHoraFuncion: reservaData.fechaHoraFuncion.toISOString(),
-    fechaHoraReserva: reservaData.fechaHoraReserva.toISOString()
-  });
-
   try {
     const newReserva = await prisma.reserva.create({
       data: reservaData,

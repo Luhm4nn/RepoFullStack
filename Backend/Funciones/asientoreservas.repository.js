@@ -60,7 +60,7 @@ async function getOne(idSala_filaAsiento_nroAsiento_fechaHoraFuncion) {
 }
 
 async function createMany(reservasArray) {
-  console.log('📥 createMany recibió:', {
+  console.log('createMany recibió:', {
     cantidad: reservasArray.length,
     primerElemento: reservasArray[0]
   });
@@ -72,7 +72,7 @@ async function createMany(reservasArray) {
     const DNI = parseInt(item.DNI, 10);
 
     if (isNaN(idSala) || isNaN(nroAsiento) || isNaN(DNI)) {
-      console.error(`❌ Error en item ${index}:`, {
+      console.error(`Error en item ${index}:`, {
         idSala: item.idSala,
         nroAsiento: item.nroAsiento,
         DNI: item.DNI
@@ -85,7 +85,7 @@ async function createMany(reservasArray) {
     const fechaReserva = removeMilliseconds(item.fechaHoraReserva);
 
     if (!fechaFuncion || !fechaReserva) {
-      console.error(`❌ Fechas inválidas en item ${index}:`, {
+      console.error(`Fechas inválidas en item ${index}:`, {
         fechaHoraFuncion: item.fechaHoraFuncion,
         fechaHoraReserva: item.fechaHoraReserva
       });
@@ -117,10 +117,10 @@ async function createMany(reservasArray) {
       skipDuplicates: true,
     });
     
-    console.log('✅ Asientos reservados creados:', newAsientoReservas);
+    console.log('Asientos reservados creados:', newAsientoReservas);
     return newAsientoReservas;
   } catch (error) {
-    console.error('❌ Error en createMany Prisma:', error);
+    console.error('Error en createMany Prisma:', error);
     throw error;
   }
 }

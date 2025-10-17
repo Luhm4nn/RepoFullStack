@@ -106,10 +106,6 @@ async function updateManyForSala(idSala, vipSeats = []) {
   const parsedIdSala = parseInt(idSala, 10);
   
   try {
-    console.log(`Actualizando asientos VIP para sala ${parsedIdSala}`);
-    console.log(`VIP Seats recibidos:`, vipSeats);
-
-    // Paso 1: Resetear todos los asientos a Normal
     const resetResult = await prisma.asiento.updateMany({
       where: {
         idSala: parsedIdSala,
@@ -119,10 +115,6 @@ async function updateManyForSala(idSala, vipSeats = []) {
         idTarifa: 1,
       },
     });
-    
-    console.log(`Asientos reseteados: ${resetResult.count}`);
-
-    // Paso 2: Actualizar solo los asientos VIP especificados
     const updatedVipSeats = [];
 
     if (Array.isArray(vipSeats) && vipSeats.length > 0) {
@@ -162,13 +154,10 @@ async function updateManyForSala(idSala, vipSeats = []) {
           // Continuar con el siguiente asiento
         }
       }
-      
-      console.log(`Asientos VIP actualizados: ${updatedVipSeats.length}`);
     }
 
     return updatedVipSeats;
   } catch (error) {
-    console.error('Error en updateManyForSala:', error);
     throw error;
   }
 }
