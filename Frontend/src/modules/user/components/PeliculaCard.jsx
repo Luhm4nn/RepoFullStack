@@ -26,8 +26,6 @@ function PeliculaCard({ pelicula }) {
         <div className="text-gray-300 text-sm mb-1">{pelicula.generoPelicula}</div>
         <div className="text-gray-400 text-xs mb-2">
           {pelicula.duracion ? `${pelicula.duracion} min` : "Duración N/D"}
-          {" · "}
-          {pelicula.fechaEstreno ? pelicula.fechaEstreno : "Sin fecha"}
         </div>
         <div className="text-gray-400 text-xs mb-2">{pelicula.sinopsis?.slice(0, 80)}...</div>
       </div>
