@@ -6,15 +6,6 @@ Integrantes: Diego Lezcano y Emiliano Luhmann
 Desarrollo de Software (Adrián Meca - Lucas Luna)
 Comisión 301 - Ingeniería en Sistemas de Información - UTN FRRO - 2025
 
-## Tabla de Contenidos
-
-- [Características](#-características)
-- [Tecnologías](#-tecnologías)
-- [Requisitos Previos](#-requisitos-previos)
-- [Instalación](#-instalación)
-- [Configuración](#-configuración)
-- [Ejecución](#-ejecución)
-
 ## Contenido Extra
 
 - [Propuesta actualizada](https://github.com/Luhm4nn/TP-DSW-lez-Luh/blob/main/proposal.md)
