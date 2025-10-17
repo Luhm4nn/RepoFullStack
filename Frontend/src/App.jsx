@@ -50,7 +50,6 @@ function AppRoutes() {
       <Route path="/login" element={<LoginPage onLogin={login} user={user} isAuthenticated={isAuthenticated} loading={loading} />} />
       <Route path="/register" element={<RegisterPage onRegister={register} loading={loading} />} />
   <Route path="/Cartelera" element={<CarteleraPage />} />
-      <Route path="/MiPerfil" element={<AuthenticatedRoute><div>Mi Perfil Page - Por implementar</div></AuthenticatedRoute>} />
       <Route path="/reserva/success" element={<ReservaSuccessPage />} />
       <Route path="/reserva/failure" element={<ReservaFailurePage />} />
       <Route path="/reserva/pending" element={<ReservaPendingPage />} />
