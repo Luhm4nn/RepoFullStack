@@ -26,7 +26,8 @@ async function createOne(data) {
       fechaEstreno: data.fechaEstreno,
       sinopsis: data.sinopsis,
       trailerURL: data.trailerURL,
-      portada: data.portada,
+      portada: data.portada, 
+      portadaPublicId: data.portadaPublicId,
       MPAA: data.MPAA,
     },
   });
@@ -55,10 +56,24 @@ async function updateOne(id, data) {
       sinopsis: data.sinopsis,
       trailerURL: data.trailerURL,
       portada: data.portada,
+      portadaPublicId: data.portadaPublicId,
       MPAA: data.MPAA,
     },
   });
   return updatedPelicula;
 }
 
-export { getOne, getAll, createOne, deleteOne, updateOne };
+async function getAllEnCartelera() {
+  const peliculas = await prisma.pelicula.findMany({
+    where: {
+      funcion: {
+        some: {
+          estado: "Publica",
+        },
+      },
+    },
+  });
+  return peliculas;
+}
+
+export { getOne, getAll, createOne, deleteOne, updateOne, getAllEnCartelera };

@@ -12,3 +12,4 @@ const tarifasSchema = Yup.object().shape({
 });
 
 export default tarifasSchema;
+export { tarifasSchema };

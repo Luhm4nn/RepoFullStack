@@ -7,18 +7,27 @@ async function getAll() {
   return salas;
 }
 
-async function getOne(id) {
-  const sala = await prisma.sala.findUnique({
-    where: {
-      idSala: parseInt(id, 10),
-    },
-  });
+async function getOne(param) {
+  let sala;
+
+  if (!isNaN(param)) {
+    sala = await prisma.sala.findUnique({
+      where: { idSala: parseInt(param, 10) },
+    });
+  } else {
+
+    sala = await prisma.sala.findUnique({
+      where: { nombreSala: param },
+    });
+  }
+
   return sala;
 }
 
 async function createOne(data) {
   const newSala = await prisma.sala.create({
     data: {
+      nombreSala: data.nombreSala,
       ubicacion: data.ubicacion,
       filas: data.filas,
       asientosPorFila: data.asientosPorFila,
@@ -42,6 +51,7 @@ async function updateOne(id, data) {
       idSala: parseInt(id, 10),
     },
     data: {
+      nombreSala: data.nombreSala,
       ubicacion: data.ubicacion
     },
   });

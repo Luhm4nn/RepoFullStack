@@ -20,17 +20,20 @@ VALUES
 
 CREATE TABLE `sala` (
   `idSala` int NOT NULL AUTO_INCREMENT,
+  `nombreSala` varchar(45) NOT NULL UNIQUE,
   `ubicacion` varchar(45) NOT NULL,
   `filas` int NOT NULL,
   `asientosPorFila` int NOT NULL,
   PRIMARY KEY (`idSala`)
 );
 
-CREATE TABLE `cliente` (
+CREATE TABLE `usuario` (
   `DNI` int NOT NULL,
-  `nombreCliente` varchar(45) NOT NULL,
-  `apellidoCliente` varchar(45) NOT NULL,
-  `email` varchar(70) NOT NULL,
+  `nombreUsuario` varchar(45) NOT NULL,
+  `apellidoUsuario` varchar(45) NOT NULL,
+  `email` varchar(70) NOT NULL UNIQUE,
+  `contrasena` varchar(255) NOT NULL,
+  `rol` varchar(20) NOT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`DNI`)
 );
@@ -56,7 +59,8 @@ CREATE TABLE `pelicula` (
   `fechaEstreno` date DEFAULT NULL,
   `sinopsis` varchar(500) DEFAULT NULL,
   `trailerURL` varchar(200) DEFAULT NULL,
-  `portada` blob,
+  `portada` varchar(255) DEFAULT NULL,
+  `portadaPublicId` varchar(255) DEFAULT NULL,
   `MPAA` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`idPelicula`)
 );
@@ -91,7 +95,7 @@ CREATE TABLE `reserva` (
   `estado` varchar(45) NOT NULL,
   `total` decimal(7,2) NOT NULL,
   PRIMARY KEY (`idSala`,`fechaHoraFuncion`,`DNI`,`fechaHoraReserva`),
-  CONSTRAINT `reserva_ibfk_1` FOREIGN KEY (`DNI`) REFERENCES `cliente` (`DNI`),
+  CONSTRAINT `reserva_ibfk_1` FOREIGN KEY (`DNI`) REFERENCES `usuario` (`DNI`),
   CONSTRAINT `reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaHoraFuncion`) REFERENCES `funcion` (`idSala`, `fechaHoraFuncion`)
 );
 
@@ -105,4 +109,11 @@ CREATE TABLE `asiento_reserva` (
   PRIMARY KEY (`idSala`,`filaAsiento`,`nroAsiento`,`fechaHoraFuncion`),
   CONSTRAINT `asiento_reserva_ibfk_1` FOREIGN KEY (`idSala`, `filaAsiento`, `nroAsiento`) REFERENCES `asiento` (`idSala`, `filaAsiento`, `nroAsiento`),
   CONSTRAINT `asiento_reserva_ibfk_2` FOREIGN KEY (`idSala`, `fechaHoraFuncion`, `DNI`, `fechaHoraReserva`) REFERENCES `reserva` (`idSala`, `fechaHoraFuncion`, `DNI`, `fechaHoraReserva`)
+);
+
+CREATE TABLE `RefreshToken` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `userId` INT NOT NULL,
+  `token` VARCHAR(191) NOT NULL UNIQUE,
+  CONSTRAINT `RefreshToken_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `usuario` (`DNI`)
 );

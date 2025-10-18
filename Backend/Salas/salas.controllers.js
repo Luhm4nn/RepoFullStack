@@ -4,7 +4,9 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "./salas.repository.js";
+} from "./salas.service.js";
+
+import {createManyForSala, updateManyForSala} from "./asientos.repository.js";
 
 import {createManyForSala, updateManyForSala} from "./asientos.repository.js";
 
@@ -16,7 +18,8 @@ export const getSalas = async (req, res) => {
 };
 
 export const getSala = async (req, res) => {
-  const sala = await getOne(req.params.id);
+  const { param } = req.params;
+  const sala = await getOne(param);
   res.json(sala);
 };
 
@@ -33,7 +36,7 @@ export const createSala = async (req, res) => {
     newSala.idSala,
     req.body.filas,
     req.body.asientosPorFila,
-    req.body.vipSeats
+    req.body.vipSeats || []
   );
 
   res.status(201).json(newSala);
@@ -46,7 +49,25 @@ export const deleteSala = async (req, res) => {
 };
 
 export const updateSala = async (req, res) => {
-  const updatedSala = await updateOne(req.params.id, req.body);
-  await updateManyForSala(req.params.id, req.body.vipSeats || []);
-  res.status(200).json(updatedSala);
+  try {
+    console.log('Datos recibidos para actualizar:', req.body);
+    console.log('ID de sala:', req.params.id);
+    
+    // Extraer vipSeats del body antes de actualizar la sala
+    const { vipSeats, ...salaData } = req.body;
+    
+    // Actualizar solo los datos de la sala (sin vipSeats)
+    const updatedSala = await updateOne(req.params.id, salaData);
+    
+    // Actualizar asientos VIP si se proporcionaron
+    if (vipSeats !== undefined) {
+      console.log('Actualizando asientos VIP:', vipSeats);
+      await updateManyForSala(req.params.id, vipSeats || []);
+    }
+    
+    res.status(200).json(updatedSala);
+  } catch (error) {
+    console.error('Error en updateSala controller:', error);
+    throw error;
+  }
 };

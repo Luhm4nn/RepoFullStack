@@ -1,9 +1,11 @@
 import {
   getOne,
   getAll,
-  createOne,
+  createMany,
   deleteOne,
   updateOne,
+  getAsientosReservadosPorFuncion,
+  cleanDateParam
 } from "./asientoreservas.repository.js";
 
 // Controllers for AsientoReservas
@@ -28,9 +30,16 @@ export const getAsientoReserva = async (req, res, next) => {
   res.json(asientoreserva);
 };
 
+export const getAsientosReservadosByFuncion = async (req, res) => {
+  const { idSala, fechaHoraFuncion: fechaHoraFuncionString } = req.params; 
+  const fechaFuncionDateLimpia = cleanDateParam(fechaHoraFuncionString); 
+  const reservados = await getAsientosReservadosPorFuncion(idSala, fechaFuncionDateLimpia); 
+  res.json(reservados);
+  };
+
 export const createAsientoReserva = async (req, res) => {
-  const newAsientoReserva = await createOne(req.body);
-  res.status(201).json(newAsientoReserva);
+  const newAsientoReservas = await createMany(req.body);
+  res.status(201).json(newAsientoReservas);
 };
 
 export const deleteAsientoReserva = async (req, res) => {

@@ -12,3 +12,4 @@ const parametrosSchema = Yup.object().shape({
 });
 
 export default parametrosSchema;
+export { parametrosSchema };

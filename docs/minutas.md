@@ -109,3 +109,67 @@ Este documento contiene un registro de las reuniones realizadas para la planific
 - Emiliano, Diego: Funciones Page (dejamos para lo último para poder utilizar la info de las otras Pages)
 
 ---
+
+## 📅 Reunión 6 - 06/09/2025
+
+**Participantes:** Emiliano, Diego
+**Objetivos:**
+
+- Planificar la continuacion del desarrollo Frontend.
+- Tratar de cerrar la parte del admin (validaciones y dashboard inicial).
+
+**Decisiones tomadas:**
+
+- Se acordó continuar con validaciones.
+- Se acordó continuar con Funciones.
+- Se acordó implementar Cloudinary para las imagenes.
+- Se acordó implementar valibot en el back
+
+**Próximas tareas:**
+
+- Crear ramas desde validaciones.
+- Diego: Cerrar validaciones de Salas, implementar cloudinary en peliculas, arrancar con dashboard.
+- Emiliano: Cerrar validaciones de Funciones, reporte de funciones que no están activas, filtrado por funciones.
+- Emiliano, Diego: Implementar Valibot.
+
+---
+## 📅 Reunión 6 - 06/09/2025
+
+**Participantes:** Emiliano, Diego
+**Objetivos:**
+
+- Planificar inicio de sesion.
+- Implemnetar primeras vistas del modelo para Cliente.
+- Definir issues para proximos pasos pendientes en la parte Admin.
+
+**Decisiones tomadas:**
+
+- Se acordó implementar el inicio de sesión para proteger rutas.
+- Se utilizará JWT como mecanismo de autenticación.
+- Se construirán los archivos y estructura necesaria para Auth en el backend.
+
+**Próximas tareas:**
+
+🔐 Backend (Node.js + Express + Prisma)
+
+- Crear modelo Usuario en Prisma (con campos: id, nombre, email, password, rol).
+- Implementar registro de usuario (hash de contraseña con bcrypt).
+- Implementar login de usuario (verificar credenciales y generar JWT).
+- Crear middleware de autenticación que valide el token JWT en rutas protegidas.
+- Crear middleware de autorización por rol (ej: admin, cliente).
+- Proteger rutas del administrador (/peliculas, /funciones, /salas, etc.).
+- Proteger ruta de reservas (solo accesible a usuarios logueados).
+
+🖥️ Frontend (React + Vite + Tailwind + Valibot)
+
+- Crear formulario de login con Formik + Yup/Valibot.
+- Crear formulario de registro de cliente.
+- Guardar el JWT en localStorage o cookies seguras al iniciar sesión.
+- Implementar un Auth Context / hook useAuth para manejar estado de autenticación en el front.
+- Redirigir al usuario a /login si intenta acceder a rutas protegidas.
+- Implementar layout diferente según rol:
+    Usuario no logueado → puede ver cartelera.
+    Cliente logueado → puede reservar funciones.
+    Admin → accede al dashboard con gestión de películas, funciones, etc.
+
+---

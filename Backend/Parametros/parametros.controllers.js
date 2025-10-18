@@ -4,7 +4,7 @@ import {
   createOne,
   deleteOne,
   updateOne,
-} from "./parametros.repository.js";
+} from "./parametros.service.js";
 
 // Controllers for Parametros
 
