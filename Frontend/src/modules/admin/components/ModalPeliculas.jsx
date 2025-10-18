@@ -139,8 +139,8 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-          <div className="relative bg-slate-800 border border-slate-700 p-4 md:p-6 overflow-hidden scrollbar-none rounded-lg shadow-lg z-10 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm "></div>
+          <div className="relative scrollbar-thin bg-slate-800 border border-slate-700 p-4 md:p-6 overflow-hidden scrollbar-none rounded-lg shadow-lg z-10 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl text-white font-bold mb-4">
               {isEditing ? "Editar Película" : "Añadir Nueva Película"}
             </h2>

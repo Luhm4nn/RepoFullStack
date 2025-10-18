@@ -66,7 +66,7 @@ function DetalleReservaModal({ reserva, onClose, onCancelar }) {
         </div>
 
         {/* Content - Scrollable */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 scrollbar-thin">
           {/* Película */}
           <div className="flex gap-6 mb-6">
             <img
