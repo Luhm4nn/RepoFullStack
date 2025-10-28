@@ -8,8 +8,6 @@ import {
 
 import {createManyForSala, updateManyForSala} from "./asientos.repository.js";
 
-import {createManyForSala, updateManyForSala} from "./asientos.repository.js";
-
 // Controllers for Salas
 
 export const getSalas = async (req, res) => {
