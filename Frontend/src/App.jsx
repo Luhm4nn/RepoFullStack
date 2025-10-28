@@ -20,7 +20,6 @@ import MisReservasPage from './modules/user/pages/MisReservasPage.jsx';
 import CarteleraPage from './modules/shared/pages/CarteleraPage.jsx';
 import ScrollToTop from './modules/shared/components/ScrollToTop';
 import { useAuth } from './modules/shared/hooks/useAuth.js';
-import ProtectedRoute from './modules/shared/components/ProtectedRoute';
 import { AuthenticatedRoute, AdminRoute } from './modules/shared';
 import ReservaSuccessPage from './modules/user/pages/ReservaSuccessPage.jsx';
 import ReservaFailurePage from './modules/user/pages/ReservaFailurePage.jsx';
