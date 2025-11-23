@@ -17,7 +17,7 @@ import {
  */
 function validateOwnership(user, targetDNI) {
   if (user.rol === 'ADMIN') {
-    return; // Admin puede acceder a todo
+    return;
   }
 
   if (user.id !== parseInt(targetDNI)) {

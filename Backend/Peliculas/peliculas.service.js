@@ -10,6 +10,7 @@ import { getFuncionesByPeliculaId } from '../Funciones/funciones.service.js';
 import { formatDateForBackendMessage } from '../utils/dateFormater.js';
 import { cloudinary } from '../config/cloudinary.js';
 
+
 export const getAll = async () => {
   const peliculas = await getAllDB();
   return peliculas;
