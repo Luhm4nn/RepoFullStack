@@ -1,7 +1,5 @@
 import { getOne, getAll, createOne, deleteOne, updateOne } from './usuarios.service.js';
 
-// Controllers for Usuarios
-
 export const getUsuarios = async (req, res) => {
   const usuarios = await getAll();
   if (!usuarios || usuarios.length === 0) {
@@ -13,7 +11,7 @@ export const getUsuarios = async (req, res) => {
 };
 
 export const getUsuario = async (req, res, next) => {
-  const usuario = await getOne(req.params.dni);
+  const usuario = await getOne(req.params.dni, req.user);
   if (!usuario) {
     const error = new Error('Usuario no encontrado.');
     error.status = 404;
@@ -33,6 +31,6 @@ export const deleteUsuario = async (req, res) => {
 };
 
 export const updateUsuario = async (req, res) => {
-  const updatedUsuario = await updateOne(req.params.dni, req.body);
+  const updatedUsuario = await updateOne(req.params.dni, req.body, req.user);
   res.status(200).json(updatedUsuario);
 };

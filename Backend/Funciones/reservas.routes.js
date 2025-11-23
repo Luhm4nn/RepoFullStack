@@ -9,6 +9,7 @@ import {
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
+import { strictLimiter } from '../Middlewares/rateLimiter.js';
 
 const router = Router();
 
@@ -20,7 +21,7 @@ router.get(
   asyncHandler(getReserva)
 );
 
-router.post('/Reserva', authMiddleware, asyncHandler(createReserva));
+router.post('/Reserva', authMiddleware, strictLimiter, asyncHandler(createReserva));
 
 router.put(
   '/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva',

@@ -7,13 +7,26 @@ import {
 } from './usuarios.repository.js';
 import bcrypt from 'bcryptjs';
 
+function validateOwnership(user, targetDNI) {
+  if (user.rol === 'ADMIN') {
+    return;
+  }
+
+  if (user.id !== parseInt(targetDNI)) {
+    const error = new Error('No puedes acceder a recursos de otros usuarios');
+    error.status = 403;
+    throw error;
+  }
+}
+
 export const getAll = async () => {
   const usuarios = await getAllDB();
   return usuarios;
 };
 
-export const getOne = async (id) => {
-  const usuario = await getOneDB(id);
+export const getOne = async (dni, user) => {
+  validateOwnership(user, dni);
+  const usuario = await getOneDB(dni);
   return usuario;
 };
 
@@ -25,24 +38,20 @@ export const createOne = async (data) => {
 };
 
 export const deleteOne = async (id) => {
-  // TODO: Implementar validaciones de negocio aquí
-  // Ejemplo: verificar que no tenga reservas activas antes de eliminar
-
   const deletedUsuario = await deleteOneDB(id);
   return deletedUsuario;
 };
 
-export const updateOne = async (id, data) => {
-  const usuarioExistente = await getOneDB(id);
+export const updateOne = async (dni, data, user) => {
+  validateOwnership(user, dni);
+
+  const usuarioExistente = await getOneDB(dni);
   if (!usuarioExistente) {
     const error = new Error('Usuario no encontrado.');
     error.status = 404;
     throw error;
   }
 
-  // TODO: Implementar validaciones de negocio aquí
-  // Ejemplo: validar cambios de email, verificar unicidad, etc.
-
-  const updatedUsuario = await updateOneDB(id, data);
+  const updatedUsuario = await updateOneDB(dni, data);
   return updatedUsuario;
 };

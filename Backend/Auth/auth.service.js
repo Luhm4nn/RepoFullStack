@@ -27,7 +27,7 @@ export const loginService = async (email, password, res) => {
   // Enviar refresh token en cookie httpOnly
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
