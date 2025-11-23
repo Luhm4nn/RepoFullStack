@@ -9,20 +9,20 @@ export const iniciarCronFunciones = () => {
       console.log(`[${ahora.toISOString()}] Verificando funciones finalizadas...`);
 
       // date range filter
-      const hace100Horas = new Date(ahora.getTime() - (100 * 60 * 60 * 1000)); 
-      const dentro24Horas = new Date(ahora.getTime() + (24 * 60 * 60 * 1000)); 
+      const hace100Horas = new Date(ahora.getTime() - (100 * 60 * 60 * 1000));
+      const dentro24Horas = new Date(ahora.getTime() + (24 * 60 * 60 * 1000));
 
-     
+
       const funciones = await prisma.funcion.findMany({
-        where: { 
+        where: {
           estado: { not: "Inactiva" },
           fechaHoraFuncion: {
             gte: hace100Horas,
-            lte: dentro24Horas   
+            lte: dentro24Horas
           }
         },
         include: {
-          pelicula: true 
+          pelicula: true
         }
       });
 
@@ -44,22 +44,22 @@ export const iniciarCronFunciones = () => {
             },
             data: { estado: "Inactiva" }
           });
-          
+
           funcionesActualizadas++;
-          console.log(`✅ Función finalizada: ${funcion.pelicula.nombrePelicula} - Sala ${funcion.idSala} - ${funcion.fechaHoraFuncion.toLocaleString()}`);
+          console.log(`Función finalizada: ${funcion.pelicula.nombrePelicula} - Sala ${funcion.idSala} - ${funcion.fechaHoraFuncion.toLocaleString()}`);
         }
       }
 
       if (funcionesActualizadas > 0) {
-        console.log(`🎬 ${funcionesActualizadas} función(es) marcada(s) como Inactiva`);
+        console.log(`${funcionesActualizadas} función(es) marcada(s) como Inactiva`);
       } else {
-        console.log(`✨ No hay funciones para actualizar (revisadas ${funciones.length} funciones en rango)`);
+        console.log(`No hay funciones para actualizar (revisadas ${funciones.length} funciones en rango)`);
       }
-      
+
     } catch (error) {
-      console.error("❌ Error en cron de funciones:", error);
+      console.error("Error en cron de funciones:", error);
     }
   });
-  
-  console.log("⏰ Cron job de funciones iniciado - se ejecuta cada 5 minutos");
+
+  console.log("Cron job de funciones iniciado - se ejecuta cada 5 minutos");
 };

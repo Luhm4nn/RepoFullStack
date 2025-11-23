@@ -7,13 +7,14 @@ import {
   updateUsuario,
 } from "./usuarios.controllers.js";
 import { asyncHandler } from "../Middlewares/asyncHandler.js";
+import { registerLimiter } from "../Middlewares/rateLimiter.js";
 const router = Router();
 
 router.get("/Usuarios", asyncHandler(getUsuarios));
 
 router.get("/Usuario/:dni", asyncHandler(getUsuario));
 
-router.post("/Usuario", asyncHandler(createUsuario));
+router.post("/Usuario", registerLimiter, asyncHandler(createUsuario));
 
 router.put("/Usuario/:dni", asyncHandler(updateUsuario));
 

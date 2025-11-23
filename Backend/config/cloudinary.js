@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import CloudinaryStorage from 'multer-storage-cloudinary';
 import multer from 'multer';
 
 cloudinary.config({
@@ -23,7 +23,7 @@ const moviePostersStorage = new CloudinaryStorage({
 });
 
 
-export const uploadMoviePoster = multer({ 
+export const uploadMoviePoster = multer({
   storage: moviePostersStorage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
