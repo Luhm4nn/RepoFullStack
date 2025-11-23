@@ -1,4 +1,4 @@
-import prisma from "../prisma/prisma.js";
+import prisma from '../prisma/prisma.js';
 
 // Repository for Reservas
 
@@ -20,15 +20,10 @@ async function getOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
   const reserva = await prisma.reserva.findUnique({
     where: {
       idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
-        idSala: parseInt(
-          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala,
-          10
-        ),
-        fechaHoraFuncion:
-          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
+        idSala: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala, 10),
+        fechaHoraFuncion: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
         DNI: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.DNI, 10),
-        fechaHoraReserva:
-          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
+        fechaHoraReserva: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
       },
     },
   });
@@ -37,17 +32,17 @@ async function getOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
 
 const removeMilliseconds = (date) => {
   if (!date) return null;
-  
+
   // Si ya es un objeto Date
   if (date instanceof Date) {
     const newDate = new Date(date);
-    newDate.setMilliseconds(0); 
+    newDate.setMilliseconds(0);
     return newDate;
   }
-  
+
   // Si es un string
   const newDate = new Date(date);
-  newDate.setMilliseconds(0); 
+  newDate.setMilliseconds(0);
   return newDate;
 };
 
@@ -61,7 +56,7 @@ async function createOne(data) {
       idSala: !!data.idSala,
       fechaHoraFuncion: !!data.fechaHoraFuncion,
       DNI: !!data.DNI,
-      total: !!data.total
+      total: !!data.total,
     };
     console.error('Validación falló:', error.details);
     throw error;
@@ -77,7 +72,7 @@ async function createOne(data) {
     error.details = {
       idSala: data.idSala,
       DNI: data.DNI,
-      total: data.total
+      total: data.total,
     };
     console.error('Conversión numérica falló:', error.details);
     throw error;
@@ -85,7 +80,7 @@ async function createOne(data) {
 
   // Procesar fechas
   const fechaFuncionDate = removeMilliseconds(data.fechaHoraFuncion);
-  const fechaReservaDate = data.fechaHoraReserva 
+  const fechaReservaDate = data.fechaHoraReserva
     ? removeMilliseconds(data.fechaHoraReserva)
     : removeMilliseconds(new Date());
 
@@ -93,7 +88,7 @@ async function createOne(data) {
     const error = new Error('Fechas inválidas');
     error.details = {
       fechaHoraFuncion: data.fechaHoraFuncion,
-      fechaHoraReserva: data.fechaHoraReserva
+      fechaHoraReserva: data.fechaHoraReserva,
     };
     console.error('Procesamiento de fechas falló:', error.details);
     throw error;
@@ -103,7 +98,7 @@ async function createOne(data) {
     idSala,
     fechaHoraFuncion: fechaFuncionDate,
     DNI,
-    estado: "ACTIVA",
+    estado: 'ACTIVA',
     fechaHoraReserva: fechaReservaDate,
     total,
   };
@@ -112,7 +107,7 @@ async function createOne(data) {
     const newReserva = await prisma.reserva.create({
       data: reservaData,
     });
-    
+
     console.log('Reserva creada exitosamente:', newReserva);
     return newReserva;
   } catch (error) {
@@ -126,15 +121,10 @@ async function deleteOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
   const deletedReserva = await prisma.reserva.delete({
     where: {
       idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
-        idSala: parseInt(
-          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala,
-          10
-        ),
-        fechaHoraFuncion:
-          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
+        idSala: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala, 10),
+        fechaHoraFuncion: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
         DNI: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.DNI, 10),
-        fechaHoraReserva:
-          idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
+        fechaHoraReserva: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
       },
     },
   });
@@ -144,23 +134,17 @@ async function deleteOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
 async function cancellOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
   // Usar una transacción para asegurar que ambas operaciones se completen
   const result = await prisma.$transaction(async (tx) => {
-    
     const cancelledReserva = await tx.reserva.update({
       where: {
         idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
-          idSala: parseInt(
-            idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala,
-            10
-          ),
-          fechaHoraFuncion:
-            idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
+          idSala: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.idSala, 10),
+          fechaHoraFuncion: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraFuncion,
           DNI: parseInt(idSala_fechaHoraFuncion_DNI_fechaHoraReserva.DNI, 10),
-          fechaHoraReserva:
-            idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
+          fechaHoraReserva: idSala_fechaHoraFuncion_DNI_fechaHoraReserva.fechaHoraReserva,
         },
       },
       data: {
-        estado: "CANCELADA",
+        estado: 'CANCELADA',
         fechaHoraCancelacion: new Date(),
       },
     });

@@ -1,4 +1,4 @@
-import e from "express";
+import e from 'express';
 import {
   getOne,
   getAll,
@@ -7,8 +7,8 @@ import {
   updateOne,
   getFuncionesByPeliculaAndFechaService,
   getActiveFunciones as getActiveFuncionesService,
-  getInactiveFunciones as getInactiveFuncionesService
-} from "./funciones.service.js";
+  getInactiveFunciones as getInactiveFuncionesService,
+} from './funciones.service.js';
 
 // Controllers for Funciones
 
@@ -20,9 +20,9 @@ export const getFuncionesSemana = async (req, res) => {
 
 export const getFunciones = async (req, res) => {
   const { estado } = req.query;
-  
+
   let funciones;
-  
+
   switch (estado?.toLowerCase()) {
     case 'activas':
       funciones = await getActiveFuncionesService();
@@ -38,7 +38,7 @@ export const getFunciones = async (req, res) => {
       funciones = await getActiveFuncionesService();
       break;
   }
-  
+
   res.json(funciones);
 };
 
@@ -61,7 +61,7 @@ export const getInactiveFuncionesEndpoint = async (req, res) => {
 export const getFuncion = async (req, res, next) => {
   const funcion = await getOne(req.params);
   if (!funcion) {
-    const error = new Error("Función no encontrada.");
+    const error = new Error('Función no encontrada.');
     error.status = 404;
     throw error;
   }
@@ -70,16 +70,16 @@ export const getFuncion = async (req, res, next) => {
 
 export const createFuncion = async (req, res) => {
   const newFuncion = await createOne(req.body);
-  if (newFuncion && newFuncion.name === "SOLAPAMIENTO_FUNCIONES") {
-    return res.status(newFuncion.status).json({ 
+  if (newFuncion && newFuncion.name === 'SOLAPAMIENTO_FUNCIONES') {
+    return res.status(newFuncion.status).json({
       message: newFuncion.message,
-      errorCode: newFuncion.name 
+      errorCode: newFuncion.name,
     });
   }
-  if (newFuncion && newFuncion.name === "FECHA_ESTRENO_INVALIDA") {
-    return res.status(newFuncion.status).json({ 
+  if (newFuncion && newFuncion.name === 'FECHA_ESTRENO_INVALIDA') {
+    return res.status(newFuncion.status).json({
       message: newFuncion.message,
-      errorCode: newFuncion.name
+      errorCode: newFuncion.name,
     });
   }
   res.status(201).json(newFuncion);
@@ -87,24 +87,24 @@ export const createFuncion = async (req, res) => {
 
 export const deleteFuncion = async (req, res) => {
   await deleteOne(req.params);
-  res.status(200).json({ message: "Función eliminada correctamente." });
+  res.status(200).json({ message: 'Función eliminada correctamente.' });
 };
 
 export const updateFuncion = async (req, res) => {
   const updatedFuncion = await updateOne(req.params, req.body);
   if (updatedFuncion) {
-    if (updatedFuncion.name === "SOLAPAMIENTO_FUNCIONES") {
+    if (updatedFuncion.name === 'SOLAPAMIENTO_FUNCIONES') {
       return res.status(updatedFuncion.status).json({
         message: updatedFuncion.message,
-        errorCode: updatedFuncion.name
+        errorCode: updatedFuncion.name,
       });
-    } else if (updatedFuncion.name === "FECHA_ESTRENO_INVALIDA") {
+    } else if (updatedFuncion.name === 'FECHA_ESTRENO_INVALIDA') {
       return res.status(updatedFuncion.status).json({
         message: updatedFuncion.message,
-        errorCode: updatedFuncion.name
+        errorCode: updatedFuncion.name,
       });
     }
   }
-  
+
   res.status(200).json(updatedFuncion);
 };

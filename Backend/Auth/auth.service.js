@@ -1,21 +1,20 @@
-import prisma from "../prisma/prisma.js";
-import bcrypt from "bcryptjs";
-import { generateAccessToken, generateRefreshToken } from "./refreshToken.service.js";
-import { saveRefreshToken } from "./refreshToken.repository.js";
-
+import prisma from '../prisma/prisma.js';
+import bcrypt from 'bcryptjs';
+import { generateAccessToken, generateRefreshToken } from './refreshToken.service.js';
+import { saveRefreshToken } from './refreshToken.repository.js';
 
 export const loginService = async (email, password, res) => {
   // Buscar usuario por email
   const user = await prisma.usuario.findUnique({ where: { email } });
   if (!user) {
-    const error = new Error("Usuario o contraseña incorrectos");
+    const error = new Error('Usuario o contraseña incorrectos');
     error.status = 401;
     throw error;
   }
   // Comparar password
   const valid = await bcrypt.compare(password, user.contrasena);
   if (!valid) {
-    const error = new Error("Usuario o contraseña incorrectos");
+    const error = new Error('Usuario o contraseña incorrectos');
     error.status = 401;
     throw error;
   }
@@ -26,6 +25,11 @@ export const loginService = async (email, password, res) => {
   // No enviar la contraseña al front
   const { contrasena, ...userSafe } = user;
   // Enviar refresh token en cookie httpOnly
-  res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "strict", maxAge: 7 * 24 * 60 * 60 * 1000 });
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
   return { token: accessToken, user: userSafe };
 };

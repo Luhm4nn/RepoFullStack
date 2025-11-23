@@ -1,4 +1,4 @@
-import prisma from "../prisma/prisma.js";
+import prisma from '../prisma/prisma.js';
 
 export async function saveRefreshToken(userId, token) {
   // Borra tokens viejos del usuario (opcional, para un solo dispositivo)

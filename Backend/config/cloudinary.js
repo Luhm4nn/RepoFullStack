@@ -13,27 +13,26 @@ console.log('☁️ Cloudinary configured with cloud name:', process.env.CLOUDIN
 const moviePostersStorage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "cutzy/posters",
-    allowed_formats: ["jpg", "png", "jpeg", "webp"],
+    folder: 'cutzy/posters',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
     transformation: [
-      { quality: "auto", fetch_format: "auto" },
-      { width: 500, height: 750, crop: "fill" }
+      { quality: 'auto', fetch_format: 'auto' },
+      { width: 500, height: 750, crop: 'fill' },
     ],
   },
 });
-
 
 export const uploadMoviePoster = multer({
   storage: moviePostersStorage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
     console.log('Processing movie poster:', file.originalname);
-    if (file.mimetype.startsWith("image/")) {
+    if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
-      cb(new Error("Solo se permiten archivos de imagen"), false);
+      cb(new Error('Solo se permiten archivos de imagen'), false);
     }
-  }
+  },
 });
 
 export { cloudinary };

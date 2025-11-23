@@ -1,5 +1,5 @@
-import { loginService } from "./auth.service.js";
-import { handleRefreshToken, revokeRefreshToken } from "./refreshToken.service.js";
+import { loginService } from './auth.service.js';
+import { handleRefreshToken, revokeRefreshToken } from './refreshToken.service.js';
 
 export const login = async (req, res) => {
   const { email, password } = req.body;

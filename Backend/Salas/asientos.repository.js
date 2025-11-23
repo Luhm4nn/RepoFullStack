@@ -1,4 +1,4 @@
-import prisma from "../prisma/prisma.js";
+import prisma from '../prisma/prisma.js';
 
 // Repository for Asientos
 
@@ -39,9 +39,9 @@ async function createManyForSala(idSala, filas, asientosPorFila, vipSeats = []) 
 
     for (let nroAsiento = 1; nroAsiento <= parsedAsientosPorFila; nroAsiento++) {
       const seatId = `${filaLetter}${nroAsiento}`;
-      const tipo = vipSeats.includes(seatId) ? "VIP" : "Normal";
-      const idTarifa = tipo === "VIP" ? 2 : 1;
-      
+      const tipo = vipSeats.includes(seatId) ? 'VIP' : 'Normal';
+      const idTarifa = tipo === 'VIP' ? 2 : 1;
+
       asientosToCreate.push({
         idSala: parsedIdSala,
         filaAsiento: filaLetter,
@@ -55,7 +55,7 @@ async function createManyForSala(idSala, filas, asientosPorFila, vipSeats = []) 
   const createdAsientos = await prisma.asiento.createMany({
     data: asientosToCreate,
   });
-  
+
   return createdAsientos;
 }
 
@@ -104,14 +104,14 @@ async function updateOne(idSala_filaAsiento_nroAsiento, data) {
 
 async function updateManyForSala(idSala, vipSeats = []) {
   const parsedIdSala = parseInt(idSala, 10);
-  
+
   try {
     const resetResult = await prisma.asiento.updateMany({
       where: {
         idSala: parsedIdSala,
       },
       data: {
-        tipo: "Normal",
+        tipo: 'Normal',
         idTarifa: 1,
       },
     });
@@ -125,7 +125,7 @@ async function updateManyForSala(idSala, vipSeats = []) {
           continue;
         }
 
-        const filaAsiento = seat.charAt(0); 
+        const filaAsiento = seat.charAt(0);
         const nroAsientoStr = seat.slice(1);
         const nroAsiento = parseInt(nroAsientoStr, 10);
 
@@ -141,10 +141,10 @@ async function updateManyForSala(idSala, vipSeats = []) {
                 idSala: parsedIdSala,
                 filaAsiento: filaAsiento,
                 nroAsiento: nroAsiento,
-              }
+              },
             },
             data: {
-              tipo: "VIP",
+              tipo: 'VIP',
               idTarifa: 2,
             },
           });
@@ -162,12 +162,4 @@ async function updateManyForSala(idSala, vipSeats = []) {
   }
 }
 
-export { 
-  getOne, 
-  getAll, 
-  createManyForSala, 
-  createOne, 
-  deleteOne, 
-  updateOne, 
-  updateManyForSala 
-};
+export { getOne, getAll, createManyForSala, createOne, deleteOne, updateOne, updateManyForSala };

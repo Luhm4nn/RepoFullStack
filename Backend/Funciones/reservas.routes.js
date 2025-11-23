@@ -1,31 +1,37 @@
-import { Router } from "express";
+import { Router } from 'express';
 import {
   getReservas,
   getReserva,
   createReserva,
   cancellReserva,
   deleteReserva,
-} from "./reservas.controllers.js";
+} from './reservas.controllers.js';
+import { asyncHandler } from '../Middlewares/asyncHandler.js';
+import { authMiddleware } from '../Middlewares/authMiddleware.js';
+import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
 
-import { asyncHandler } from "../Middlewares/asyncHandler.js";
 const router = Router();
 
-router.get("/Reservas", asyncHandler(getReservas));
+router.get('/Reservas', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(getReservas));
 
 router.get(
-  "/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva",
+  '/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva',
+  authMiddleware,
   asyncHandler(getReserva)
 );
 
-router.post("/Reserva", asyncHandler(createReserva));
+router.post('/Reserva', authMiddleware, asyncHandler(createReserva));
 
 router.put(
-  "/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva",
+  '/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva',
+  authMiddleware,
   asyncHandler(cancellReserva)
 );
 
 router.delete(
-  "/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva",
+  '/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
   asyncHandler(deleteReserva)
 );
 
