@@ -26,6 +26,7 @@
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
     "https": "^1.0.0",
     "jsonwebtoken": "^9.0.2",
     "mercadopago": "^2.9.0",

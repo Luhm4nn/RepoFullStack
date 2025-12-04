@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import CloudinaryStorage from 'multer-storage-cloudinary';
 import multer from 'multer';
+import logger from '../utils/logger.js';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -8,7 +9,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-console.log('☁️ Cloudinary configured with cloud name:', process.env.CLOUDINARY_CLOUD_NAME);
+// Solo mostrar en desarrollo
+logger.debug('☁️ Cloudinary configured successfully');
 
 const moviePostersStorage = new CloudinaryStorage({
   cloudinary,
@@ -26,7 +28,7 @@ export const uploadMoviePoster = multer({
   storage: moviePostersStorage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
-    console.log('Processing movie poster:', file.originalname);
+    logger.debug('Processing movie poster upload:', file.originalname);
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
