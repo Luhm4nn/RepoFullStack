@@ -1,17 +1,11 @@
-import {
-  getOne,
-  getAll,
-  createOne,
-  deleteOne,
-  updateOne,
-} from "./tarifas.service.js";
+import { getOne, getAll, createOne, deleteOne, updateOne } from './tarifas.service.js';
 
 // Controllers for Tarifas
 
 export const getTarifas = async (req, res) => {
   const tarifas = await getAll();
   if (!tarifas || tarifas.length === 0) {
-    const error = new Error("No existen tarifas cargadas aún.");
+    const error = new Error('No existen tarifas cargadas aún.');
     error.status = 404;
     throw error;
   }
@@ -26,7 +20,7 @@ export const getTarifa = async (req, res) => {
 export const createTarifa = async (req, res) => {
   const newTarifa = await createOne(req.body);
   if (!newTarifa) {
-    const error = new Error("Error al crear la tarifa.");
+    const error = new Error('Error al crear la tarifa.');
     error.status = 400;
     throw error;
   }
@@ -35,7 +29,7 @@ export const createTarifa = async (req, res) => {
 
 export const deleteTarifa = async (req, res) => {
   const deletedTarifa = await deleteOne(req.params.id);
-  res.status(200).json({ message: "Tarifa eliminada correctamente." });
+  res.status(200).json({ message: 'Tarifa eliminada correctamente.' });
 };
 
 export const updateTarifa = async (req, res) => {

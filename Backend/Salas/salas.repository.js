@@ -1,4 +1,4 @@
-import prisma from "../prisma/prisma.js";
+import prisma from '../prisma/prisma.js';
 
 // Repository for Salas
 
@@ -15,7 +15,6 @@ async function getOne(param) {
       where: { idSala: parseInt(param, 10) },
     });
   } else {
-
     sala = await prisma.sala.findUnique({
       where: { nombreSala: param },
     });
@@ -52,7 +51,7 @@ async function updateOne(id, data) {
     },
     data: {
       nombreSala: data.nombreSala,
-      ubicacion: data.ubicacion
+      ubicacion: data.ubicacion,
     },
   });
   return updatedSala;

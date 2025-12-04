@@ -1,4 +1,4 @@
-import api from './login.api.js';
+import api from './axiosInstance.js';
 
 // API para manejo de usuarios
 export const usuariosAPI = {

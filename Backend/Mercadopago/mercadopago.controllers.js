@@ -3,15 +3,15 @@ import { createOne as createReserva } from '../Funciones/reservas.repository.js'
 import { createMany as createAsientosReservados } from '../Funciones/asientoreservas.repository.js';
 
 const client = new MercadoPagoConfig({
-  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN
-})
+  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
+});
 
 // Crear preferencia de pago
 export const createPaymentPreference = async (req, res) => {
-  const { reserva, asientos } = req.body
+  const { reserva, asientos } = req.body;
 
   try {
-    const preference = new Preference(client)
+    const preference = new Preference(client);
 
     const body = {
       items: [
@@ -20,13 +20,13 @@ export const createPaymentPreference = async (req, res) => {
           description: `Función: ${reserva.fecha} ${reserva.hora} - ${reserva.sala}`,
           quantity: asientos.length,
           unit_price: parseFloat(reserva.total) / asientos.length,
-          currency_id: 'ARS'
-        }
+          currency_id: 'ARS',
+        },
       ],
       back_urls: {
         success: `${process.env.FRONTEND_URL}/reserva/success`,
         failure: `${process.env.FRONTEND_URL}/reserva/failure`,
-        pending: `${process.env.FRONTEND_URL}/reserva/pending`
+        pending: `${process.env.FRONTEND_URL}/reserva/pending`,
       },
       notification_url: `${process.env.NGROK_URL}/mercadopago/webhooks`,
       metadata: {
@@ -34,21 +34,21 @@ export const createPaymentPreference = async (req, res) => {
         fecha_hora_funcion: reserva.fechaHoraFuncion,
         dni: reserva.DNI.toString(),
         fecha_hora_reserva: reserva.fechaHoraReserva,
-        asientos: JSON.stringify(asientos)
-      }
-    }
+        asientos: JSON.stringify(asientos),
+      },
+    };
 
-    const response = await preference.create({ body })
+    const response = await preference.create({ body });
 
     return res.json({
       id: response.id,
-      init_point: response.init_point
-    })
+      init_point: response.init_point,
+    });
   } catch (error) {
-    console.error('Error creando preferencia de pago:', error)
-    return res.status(500).json({ error: 'Error al crear preferencia de pago' })
+    console.error('Error creando preferencia de pago:', error);
+    return res.status(500).json({ error: 'Error al crear preferencia de pago' });
   }
-}
+};
 
 // Webhook para notificaciones de pago
 export const handleWebhook = async (req, res) => {
@@ -64,7 +64,7 @@ export const handleWebhook = async (req, res) => {
       console.log('Webhook recibido:', {
         paymentId: result.id,
         status: result.status,
-        metadata: result.metadata
+        metadata: result.metadata,
       });
 
       if (result.status === 'approved') {
@@ -78,7 +78,7 @@ export const handleWebhook = async (req, res) => {
         // Convertir las fechas a objetos Date y remover milisegundos
         const fechaFuncionDate = new Date(metadata.fecha_hora_funcion);
         fechaFuncionDate.setMilliseconds(0);
-        
+
         const fechaReservaDate = new Date(metadata.fecha_hora_reserva);
         fechaReservaDate.setMilliseconds(0);
 
@@ -88,13 +88,13 @@ export const handleWebhook = async (req, res) => {
           fechaHoraFuncion: fechaFuncionDate,
           DNI: parseInt(metadata.dni, 10),
           fechaHoraReserva: fechaReservaDate,
-          total: parseFloat(result.transaction_amount)
+          total: parseFloat(result.transaction_amount),
         };
 
         console.log('Creando reserva con datos:', {
           ...reservaData,
           fechaHoraFuncion: reservaData.fechaHoraFuncion.toISOString(),
-          fechaHoraReserva: reservaData.fechaHoraReserva.toISOString()
+          fechaHoraReserva: reservaData.fechaHoraReserva.toISOString(),
         });
 
         try {
@@ -102,36 +102,34 @@ export const handleWebhook = async (req, res) => {
           console.log(' Reserva creada exitosamente:', reservaCreada);
 
           // Crear los asientos reservados usando los mismos valores
-          const asientosData = asientos.map(asiento => ({
+          const asientosData = asientos.map((asiento) => ({
             idSala: parseInt(metadata.id_sala, 10),
             filaAsiento: asiento.filaAsiento,
             nroAsiento: parseInt(asiento.nroAsiento, 10),
             fechaHoraFuncion: fechaFuncionDate,
             DNI: parseInt(metadata.dni, 10),
-            fechaHoraReserva: fechaReservaDate
+            fechaHoraReserva: fechaReservaDate,
           }));
 
           console.log('Intentando crear asientos reservados:', {
             cantidad: asientosData.length,
-            primerosAsientos: asientosData.slice(0, 2)
+            primerosAsientos: asientosData.slice(0, 2),
           });
 
           const asientosCreados = await createAsientosReservados(asientosData);
-          
+
           console.log(' Asientos reservados creados:', asientosCreados);
 
           console.log(' Reserva completada exitosamente:', {
             reserva: reservaCreada,
             asientosCount: asientosData.length,
-            paymentId: result.id
+            paymentId: result.id,
           });
-
         } catch (createError) {
           console.error(' Error al crear reserva/asientos:', createError);
           console.error('Stack:', createError.stack);
           throw createError;
         }
-
       } else {
         console.log(`Pago recibido con estado: ${result.status}`);
       }

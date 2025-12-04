@@ -1,4 +1,4 @@
-import prisma from "../prisma/prisma.js";
+import prisma from '../prisma/prisma.js';
 
 // Repository for Peliculas
 
@@ -26,7 +26,7 @@ async function createOne(data) {
       fechaEstreno: data.fechaEstreno,
       sinopsis: data.sinopsis,
       trailerURL: data.trailerURL,
-      portada: data.portada, 
+      portada: data.portada,
       portadaPublicId: data.portadaPublicId,
       MPAA: data.MPAA,
     },
@@ -68,7 +68,7 @@ async function getAllEnCartelera() {
     where: {
       funcion: {
         some: {
-          estado: "Publica",
+          estado: 'Publica',
         },
       },
     },

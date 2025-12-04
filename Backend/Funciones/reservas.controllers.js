@@ -7,40 +7,26 @@ import {
   getLatestReservas as getLatestReservasRepo
 } from "./reservas.repository.js";
 
-// Controllers for Reservas
+// Controllers para Reservas
+// El controller es solo un orquestador: recibe request, llama service, retorna response
 
 export const getReservas = async (req, res) => {
-  const reservas = await getAll();
-  if (!reservas || reservas.length === 0) {
-    const error = new Error("No existen reservas cargadas aún.");
-    error.status = 404;
-    throw error;
-  }
+  const reservas = await getAllReservas();
   res.json(reservas);
 };
 
 export const getReserva = async (req, res) => {
-  const reserva = await getOne(req.params);
-  if (!reserva) {
-    const error = new Error("Reserva no encontrada.");
-    error.status = 404;
-    throw error;
-  }
+  const reserva = await getReservaService(req.params, req.user);
   res.json(reserva);
 };
 
 export const createReserva = async (req, res) => {
-  const newReserva = await createOne(req.body);
+  const newReserva = await createReservaService(req.body, req.user);
   res.status(201).json(newReserva);
 };
 
-export const deleteReserva = async (req, res) => {
-  await deleteOne(req.params);
-  res.status(200).json({ message: "Reserva eliminada correctamente." });
-};
-
 export const cancellReserva = async (req, res) => {
-  const cancelledReserva = await cancellOne(req.params);
+  const cancelledReserva = await cancelReservaService(req.params, req.user);
   res.status(200).json(cancelledReserva);
 };
 

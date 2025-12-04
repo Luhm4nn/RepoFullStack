@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router } from 'express';
 import {
   getPeliculas,
   getPelicula,
@@ -6,24 +6,38 @@ import {
   deletePelicula,
   updatePelicula,
   getPeliculasEnCartelera,
-} from "./peliculas.controllers.js";
-import { asyncHandler } from "../Middlewares/asyncHandler.js";
-import { handleMoviePosterUpload } from "../Middlewares/uploadHandler.js";
-import { validateBody } from "../Middlewares/validateRequest.js";
-import { peliculaSchema } from "../validations/PeliculasSchema.js";
+} from './peliculas.controllers.js';
+import { asyncHandler } from '../Middlewares/asyncHandler.js';
+import { handleMoviePosterUpload } from '../Middlewares/uploadHandler.js';
+import { validateBody } from '../Middlewares/validateRequest.js';
+import { peliculaSchema } from '../validations/PeliculasSchema.js';
+import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
+import { authMiddleware } from '../Middlewares/authMiddleware.js';
 
 const router = Router();
 
-router.get("/Peliculas", asyncHandler(getPeliculas));
+router.get('/Peliculas', asyncHandler(getPeliculas));
+router.get('/Pelicula/:id', asyncHandler(getPelicula));
+router.get('/Peliculas/cartelera', asyncHandler(getPeliculasEnCartelera));
 
-router.get("/Pelicula/:id", asyncHandler(getPelicula));
+router.post(
+  '/Pelicula',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
+  handleMoviePosterUpload,
+  validateBody(peliculaSchema),
+  asyncHandler(createPelicula)
+);
 
-router.post("/Pelicula", handleMoviePosterUpload, validateBody(peliculaSchema), asyncHandler(createPelicula));
+router.put(
+  '/Pelicula/:id',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
+  handleMoviePosterUpload,
+  validateBody(peliculaSchema),
+  asyncHandler(updatePelicula)
+);
 
-router.put("/Pelicula/:id", handleMoviePosterUpload, validateBody(peliculaSchema), asyncHandler(updatePelicula));
-
-router.delete("/Pelicula/:id", asyncHandler(deletePelicula));
-
-router.get("/Peliculas/cartelera", asyncHandler(getPeliculasEnCartelera));
+router.delete('/Pelicula/:id', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(deletePelicula));
 
 export const peliculasRoutes = router;

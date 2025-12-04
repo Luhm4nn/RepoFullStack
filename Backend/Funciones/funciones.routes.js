@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router } from 'express';
 import {
   getFunciones,
   getFuncion,
@@ -9,35 +9,54 @@ import {
   getInactiveFuncionesEndpoint,
   getFuncionesByPeliculaAndFecha,
   getPublicFuncionesEndpoint,
-  getFuncionesSemana
-} from "./funciones.controllers.js";
+  getFuncionesSemana,
+} from './funciones.controllers.js';
 
-import { asyncHandler } from "../Middlewares/asyncHandler.js";
-import { validateBody } from "../Middlewares/validateRequest.js";
-import { funcionesSchema } from "../validations/FuncionesSchema.js";
+import { asyncHandler } from '../Middlewares/asyncHandler.js';
+import { validateBody } from '../Middlewares/validateRequest.js';
+import { funcionesSchema } from '../validations/FuncionesSchema.js';
+import { authMiddleware } from '../Middlewares/authMiddleware.js';
+import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
+
 const router = Router();
 
+router.get('/Funciones/:idPelicula/semana', asyncHandler(getFuncionesSemana));
 
-router.get("/Funciones/:idPelicula/semana", asyncHandler(getFuncionesSemana));
+router.get('/Funciones', asyncHandler(getFunciones));
 
+router.get('/Funcion/:idSala/:fechaHoraFuncion', asyncHandler(getFuncion));
 
-router.get("/Funciones", asyncHandler(getFunciones));
+router.get('/Funciones/activas', asyncHandler(getActiveFuncionesEndpoint));
 
 router.get(
-  "/Funcion/:idSala/:fechaHoraFuncion",
-  asyncHandler(getFuncion)
+  '/Funciones/inactivas',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
+  asyncHandler(getInactiveFuncionesEndpoint)
 );
 
-router.post("/Funcion", validateBody(funcionesSchema), asyncHandler(createFuncion));
+router.get('/Funciones/:idPelicula/:fecha', asyncHandler(getFuncionesByPeliculaAndFecha));
+
+router.post(
+  '/Funcion',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
+  validateBody(funcionesSchema),
+  asyncHandler(createFuncion)
+);
 
 router.put(
-  "/Funcion/:idSala/:fechaHoraFuncion",
+  '/Funcion/:idSala/:fechaHoraFuncion',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
   validateBody(funcionesSchema),
   asyncHandler(updateFuncion)
 );
 
 router.delete(
-  "/Funcion/:idSala/:fechaHoraFuncion",
+  '/Funcion/:idSala/:fechaHoraFuncion',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
   asyncHandler(deleteFuncion)
 );
 

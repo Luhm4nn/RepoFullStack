@@ -1,5 +1,5 @@
-import cron from "node-cron";
-import prisma from "../prisma/prisma.js";
+import cron from 'node-cron';
+import prisma from '../prisma/prisma.js';
 
 export const iniciarCronFunciones = () => {
   // Corre cada 1 minuto para verificar funciones finalizadas
@@ -9,28 +9,27 @@ export const iniciarCronFunciones = () => {
       console.log(`[${ahora.toISOString()}] Verificando funciones finalizadas...`);
 
       // date range filter
-      const hace100Horas = new Date(ahora.getTime() - (100 * 60 * 60 * 1000)); 
-      const dentro24Horas = new Date(ahora.getTime() + (24 * 60 * 60 * 1000)); 
+      const hace100Horas = new Date(ahora.getTime() - 100 * 60 * 60 * 1000);
+      const dentro24Horas = new Date(ahora.getTime() + 24 * 60 * 60 * 1000);
 
-     
       const funciones = await prisma.funcion.findMany({
-        where: { 
-          estado: { not: "Inactiva" },
+        where: {
+          estado: { not: 'Inactiva' },
           fechaHoraFuncion: {
             gte: hace100Horas,
-            lte: dentro24Horas   
-          }
+            lte: dentro24Horas,
+          },
         },
         include: {
-          pelicula: true 
-        }
+          pelicula: true,
+        },
       });
 
       let funcionesActualizadas = 0;
 
       for (const funcion of funciones) {
         const fechaFin = new Date(
-          funcion.fechaHoraFuncion.getTime() + (funcion.pelicula.duracion * 60000)
+          funcion.fechaHoraFuncion.getTime() + funcion.pelicula.duracion * 60000
         );
 
         // if pelicula ended changes estado to Inactiva
@@ -39,27 +38,30 @@ export const iniciarCronFunciones = () => {
             where: {
               idSala_fechaHoraFuncion: {
                 idSala: funcion.idSala,
-                fechaHoraFuncion: funcion.fechaHoraFuncion
-              }
+                fechaHoraFuncion: funcion.fechaHoraFuncion,
+              },
             },
-            data: { estado: "Inactiva" }
+            data: { estado: 'Inactiva' },
           });
-          
+
           funcionesActualizadas++;
-          console.log(`✅ Función finalizada: ${funcion.pelicula.nombrePelicula} - Sala ${funcion.idSala} - ${funcion.fechaHoraFuncion.toLocaleString()}`);
+          console.log(
+            `Función finalizada: ${funcion.pelicula.nombrePelicula} - Sala ${funcion.idSala} - ${funcion.fechaHoraFuncion.toLocaleString()}`
+          );
         }
       }
 
       if (funcionesActualizadas > 0) {
-        console.log(`🎬 ${funcionesActualizadas} función(es) marcada(s) como Inactiva`);
+        console.log(`${funcionesActualizadas} función(es) marcada(s) como Inactiva`);
       } else {
-        console.log(`✨ No hay funciones para actualizar (revisadas ${funciones.length} funciones en rango)`);
+        console.log(
+          `No hay funciones para actualizar (revisadas ${funciones.length} funciones en rango)`
+        );
       }
-      
     } catch (error) {
-      console.error("❌ Error en cron de funciones:", error);
+      console.error('Error en cron de funciones:', error);
     }
   });
-  
-  console.log("⏰ Cron job de funciones iniciado - se ejecuta cada 5 minutos");
+
+  console.log('Cron job de funciones iniciado - se ejecuta cada 5 minutos');
 };

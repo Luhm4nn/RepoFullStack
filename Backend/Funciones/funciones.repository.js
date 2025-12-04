@@ -1,4 +1,4 @@
-import prisma from "../prisma/prisma.js";
+import prisma from '../prisma/prisma.js';
 
 // Repository for Funciones
 
@@ -30,7 +30,7 @@ async function createOneDB(data) {
       fechaHoraFuncion: new Date(data.fechaHoraFuncion),
       idSala: parseInt(data.idSala, 10),
       idPelicula: parseInt(data.idPelicula, 10),
-      estado: "Privada"
+      estado: 'Privada',
     },
   });
   return newFuncion;
@@ -126,8 +126,8 @@ async function getPublicFuncionesBD() {
 }
 
 async function getFuncionesByPeliculaAndFecha(idPelicula, fecha) {
-  const fechaInicio = new Date(fecha + "T00:00:00");
-  const fechaFin = new Date(fecha + "T23:59:59.999");
+  const fechaInicio = new Date(fecha + 'T00:00:00');
+  const fechaFin = new Date(fecha + 'T23:59:59.999');
   const funciones = await prisma.funcion.findMany({
     where: {
       idPelicula: parseInt(idPelicula, 10),
@@ -159,5 +159,16 @@ async function getFuncionesSemanaDB(idPelicula, fechaInicio, fechaFin) {
   return funciones;
 }
 
-
-export { getAllDB, getOneDB, createOneDB, deleteOneDB, updateOneDB, getFuncionesBySala, getFuncionesByPelicula, getPublicFuncionesBD, getInactiveFuncionesBD, getActiveFuncionesBD, getFuncionesByPeliculaAndFecha, getFuncionesSemanaDB };
+export {
+  getAllDB,
+  getOneDB,
+  createOneDB,
+  deleteOneDB,
+  updateOneDB,
+  getFuncionesBySala,
+  getFuncionesByPelicula,
+  getInactiveFuncionesBD,
+  getActiveFuncionesBD,
+  getFuncionesByPeliculaAndFecha,
+  getFuncionesSemanaDB,
+};

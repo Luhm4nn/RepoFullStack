@@ -1,36 +1,68 @@
-import jwt from "jsonwebtoken";
-import { findRefreshToken, deleteRefreshToken } from "./refreshToken.repository.js";
+import jwt from 'jsonwebtoken';
+import { findRefreshToken, deleteRefreshToken, saveRefreshToken, deleteAllTokensForUser } from './refreshToken.repository.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "refreshsecret";
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
+  throw new Error('JWT_SECRET and JWT_REFRESH_SECRET must be configured in environment variables');
+}
 
 export function generateAccessToken(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 }
 
 export function generateRefreshToken(payload) {
-  return jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: "7d" });
+  return jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: '7d' });
 }
 
 export async function handleRefreshToken(req, res) {
-  const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) return res.status(401).json({ message: "No refresh token" });
+  const oldRefreshToken = req.cookies.refreshToken;
+  if (!oldRefreshToken) return res.status(401).json({ message: 'No refresh token' });
 
-  const tokenInDb = await findRefreshToken(refreshToken);
-  if (!tokenInDb) return res.status(401).json({ message: "Refresh token inválido" });
+  const tokenInDb = await findRefreshToken(oldRefreshToken);
+  if (!tokenInDb) return res.status(401).json({ message: 'Refresh token inválido' });
 
   try {
-    const payload = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
-    const newAccessToken = generateAccessToken({ id: payload.id, email: payload.email, rol: payload.rol });
+    const payload = jwt.verify(oldRefreshToken, JWT_REFRESH_SECRET);
+
+    const newAccessToken = generateAccessToken({
+      id: payload.id,
+      email: payload.email,
+      rol: payload.rol,
+    });
+
+    const newRefreshToken = generateRefreshToken({
+      id: payload.id,
+      email: payload.email,
+      rol: payload.rol,
+    });
+
+    await deleteRefreshToken(oldRefreshToken);
+    await saveRefreshToken(payload.id, newRefreshToken);
+
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     res.json({ accessToken: newAccessToken });
   } catch (err) {
-    return res.status(401).json({ message: "Refresh token inválido o expirado" });
+    return res.status(401).json({ message: 'Refresh token inválido o expirado' });
   }
 }
 
 export async function revokeRefreshToken(req, res) {
   const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) return res.status(400).json({ message: "No refresh token" });
+  if (!refreshToken) return res.status(400).json({ message: 'No refresh token' });
   await deleteRefreshToken(refreshToken);
-  res.clearCookie("refreshToken").json({ message: "Sesión cerrada" });
+  res.clearCookie('refreshToken').json({ message: 'Sesión cerrada' });
+}
+
+export async function revokeAllSessions(req, res) {
+  const userId = req.user.id;
+  await deleteAllTokensForUser(userId);
+  res.clearCookie('refreshToken').json({ message: 'Todas las sesiones cerradas exitosamente' });
 }

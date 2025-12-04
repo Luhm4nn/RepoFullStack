@@ -1,4 +1,4 @@
-import prisma from "../prisma/prisma.js";
+import prisma from '../prisma/prisma.js';
 
 export async function saveRefreshToken(userId, token) {
   await prisma.refresh_token.deleteMany({ where: { userId } });
@@ -11,4 +11,8 @@ export async function findRefreshToken(token) {
 
 export async function deleteRefreshToken(token) {
   return prisma.refresh_token.delete({ where: { token } });
+}
+
+export async function deleteAllTokensForUser(userId) {
+  return prisma.refresh_token.deleteMany({ where: { userId } });
 }
