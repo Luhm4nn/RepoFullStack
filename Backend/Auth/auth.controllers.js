@@ -2,11 +2,14 @@ import { loginService } from './auth.service.js';
 import { handleRefreshToken, revokeRefreshToken, revokeAllSessions } from './refreshToken.service.js';
 import logger from '../utils/logger.js';
 
+/**
+ * Inicia sesión de usuario
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ */
 export const login = async (req, res) => {
   const { email, password } = req.body;
-  const ip = req.ip || req.connection.remoteAddress;
-  const userAgent = req.headers['user-agent'];
-
+  
   try {
     const { token, user } = await loginService(email, password, res);
     

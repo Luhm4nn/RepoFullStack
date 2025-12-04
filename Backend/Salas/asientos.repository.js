@@ -1,9 +1,12 @@
 import prisma from '../prisma/prisma.js';
 
-// Repository for Asientos
-
+/**
+ * Obtiene todos los asientos de una sala
+ * @param {number} idSala - ID de la sala
+ * @returns {Promise<Array>} Lista de asientos
+ */
 async function getAll(idSala) {
-  const asientos = await prisma.asiento.findMany({
+  return await prisma.asiento.findMany({
     where: {
       idSala: parseInt(idSala, 10),
     },
@@ -12,22 +15,36 @@ async function getAll(idSala) {
       sala: true,
     },
   });
-  return asientos;
 }
 
-async function getOne(idSala_filaAsiento_nroAsiento) {
-  const asiento = await prisma.asiento.findUnique({
+/**
+ * Obtiene un asiento específico
+ * @param {Object} params - Parámetros de búsqueda
+ * @param {number} params.idSala - ID de la sala
+ * @param {string} params.filaAsiento - Fila del asiento
+ * @param {number} params.nroAsiento - Número del asiento
+ * @returns {Promise<Object|null>} Asiento encontrado o null
+ */
+async function getOne({ idSala, filaAsiento, nroAsiento }) {
+  return await prisma.asiento.findUnique({
     where: {
       idSala_filaAsiento_nroAsiento: {
-        idSala: parseInt(idSala_filaAsiento_nroAsiento.idSala, 10),
-        filaAsiento: idSala_filaAsiento_nroAsiento.filaAsiento,
-        nroAsiento: parseInt(idSala_filaAsiento_nroAsiento.nroAsiento, 10),
+        idSala: parseInt(idSala, 10),
+        filaAsiento: filaAsiento,
+        nroAsiento: parseInt(nroAsiento, 10),
       },
     },
   });
-  return asiento;
 }
 
+/**
+ * Crea múltiples asientos para una sala
+ * @param {number} idSala - ID de la sala
+ * @param {number} filas - Cantidad de filas
+ * @param {number} asientosPorFila - Asientos por fila
+ * @param {Array} vipSeats - Lista de asientos VIP
+ * @returns {Promise<Object>} Resultado de la creación masiva
+ */
 async function createManyForSala(idSala, filas, asientosPorFila, vipSeats = []) {
   const asientosToCreate = [];
   const parsedIdSala = parseInt(idSala, 10);
@@ -52,15 +69,19 @@ async function createManyForSala(idSala, filas, asientosPorFila, vipSeats = []) 
     }
   }
 
-  const createdAsientos = await prisma.asiento.createMany({
+  return await prisma.asiento.createMany({
     data: asientosToCreate,
   });
-
-  return createdAsientos;
 }
 
-async function createOne(idSala, data) {
-  const newAsiento = await prisma.asiento.create({
+/**
+ * Crea un asiento individual
+ * @param {number} idSala - ID de la sala
+ * @param {Object} data - Datos del asiento
+ * @returns {Promise<Object>} Asiento creado
+ */
+async function create(idSala, data) {
+  return await prisma.asiento.create({
     data: {
       idSala: parseInt(idSala, 10),
       filaAsiento: data.filaAsiento,
@@ -69,29 +90,38 @@ async function createOne(idSala, data) {
       idTarifa: data.idTarifa ? parseInt(data.idTarifa, 10) : null,
     },
   });
-  return newAsiento;
 }
 
-async function deleteOne(idSala_filaAsiento_nroAsiento) {
-  const deletedAsiento = await prisma.asiento.delete({
+/**
+ * Elimina un asiento
+ * @param {Object} params - Parámetros de búsqueda
+ * @returns {Promise<Object>} Asiento eliminado
+ */
+async function deleteOne({ idSala, filaAsiento, nroAsiento }) {
+  return await prisma.asiento.delete({
     where: {
       idSala_filaAsiento_nroAsiento: {
-        idSala: parseInt(idSala_filaAsiento_nroAsiento.idSala, 10),
-        filaAsiento: idSala_filaAsiento_nroAsiento.filaAsiento,
-        nroAsiento: parseInt(idSala_filaAsiento_nroAsiento.nroAsiento, 10),
+        idSala: parseInt(idSala, 10),
+        filaAsiento: filaAsiento,
+        nroAsiento: parseInt(nroAsiento, 10),
       },
     },
   });
-  return deletedAsiento;
 }
 
-async function updateOne(idSala_filaAsiento_nroAsiento, data) {
-  const updatedAsiento = await prisma.asiento.update({
+/**
+ * Actualiza un asiento
+ * @param {Object} params - Parámetros de búsqueda
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>} Asiento actualizado
+ */
+async function update({ idSala, filaAsiento, nroAsiento }, data) {
+  return await prisma.asiento.update({
     where: {
       idSala_filaAsiento_nroAsiento: {
-        idSala: parseInt(idSala_filaAsiento_nroAsiento.idSala, 10),
-        filaAsiento: idSala_filaAsiento_nroAsiento.filaAsiento,
-        nroAsiento: parseInt(idSala_filaAsiento_nroAsiento.nroAsiento, 10),
+        idSala: parseInt(idSala, 10),
+        filaAsiento: filaAsiento,
+        nroAsiento: parseInt(nroAsiento, 10),
       },
     },
     data: {
@@ -99,14 +129,20 @@ async function updateOne(idSala_filaAsiento_nroAsiento, data) {
       idTarifa: data.idTarifa ? parseInt(data.idTarifa, 10) : null,
     },
   });
-  return updatedAsiento;
 }
 
+/**
+ * Actualiza múltiples asientos para una sala (VIP/Normal)
+ * @param {number} idSala - ID de la sala
+ * @param {Array} vipSeats - Lista de asientos VIP
+ * @returns {Promise<Array>} Lista de asientos VIP actualizados
+ */
 async function updateManyForSala(idSala, vipSeats = []) {
   const parsedIdSala = parseInt(idSala, 10);
 
   try {
-    const resetResult = await prisma.asiento.updateMany({
+    // Resetear todos a Normal
+    await prisma.asiento.updateMany({
       where: {
         idSala: parsedIdSala,
       },
@@ -115,24 +151,17 @@ async function updateManyForSala(idSala, vipSeats = []) {
         idTarifa: 1,
       },
     });
+
     const updatedVipSeats = [];
 
     if (Array.isArray(vipSeats) && vipSeats.length > 0) {
       for (const seat of vipSeats) {
-        // Validar formato del asiento (ej: "A1", "B12")
-        if (typeof seat !== 'string' || seat.length < 2) {
-          console.warn(`Formato de asiento inválido: ${seat}`);
-          continue;
-        }
+        if (typeof seat !== 'string' || seat.length < 2) continue;
 
         const filaAsiento = seat.charAt(0);
-        const nroAsientoStr = seat.slice(1);
-        const nroAsiento = parseInt(nroAsientoStr, 10);
+        const nroAsiento = parseInt(seat.slice(1), 10);
 
-        if (isNaN(nroAsiento)) {
-          console.warn(`Número de asiento inválido: ${seat}`);
-          continue;
-        }
+        if (isNaN(nroAsiento)) continue;
 
         try {
           await prisma.asiento.update({
@@ -149,9 +178,8 @@ async function updateManyForSala(idSala, vipSeats = []) {
             },
           });
           updatedVipSeats.push(seat);
-        } catch (updateError) {
-          console.error(`Error actualizando asiento ${seat}:`, updateError.message);
-          // Continuar con el siguiente asiento
+        } catch (error) {
+          // Ignorar errores individuales
         }
       }
     }
@@ -166,8 +194,8 @@ export {
   getOne, 
   getAll, 
   createManyForSala, 
-  createOne, 
+  create, 
   deleteOne, 
-  updateOne, 
+  update, 
   updateManyForSala 
 };

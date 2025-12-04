@@ -1,23 +1,33 @@
 import prisma from '../prisma/prisma.js';
 
-// Repository for Peliculas
-
+/**
+ * Obtiene todas las películas
+ * @returns {Promise<Array>} Lista de películas
+ */
 async function getAll() {
-  const peliculas = await prisma.pelicula.findMany();
-  return peliculas;
+  return await prisma.pelicula.findMany();
 }
 
+/**
+ * Obtiene una película por ID
+ * @param {number} id - ID de la película
+ * @returns {Promise<Object|null>} Película encontrada o null
+ */
 async function getOne(id) {
-  const pelicula = await prisma.pelicula.findUnique({
+  return await prisma.pelicula.findUnique({
     where: {
       idPelicula: parseInt(id, 10),
     },
   });
-  return pelicula;
 }
 
-async function createOne(data) {
-  const newPelicula = await prisma.pelicula.create({
+/**
+ * Crea una nueva película
+ * @param {Object} data - Datos de la película
+ * @returns {Promise<Object>} Película creada
+ */
+async function create(data) {
+  return await prisma.pelicula.create({
     data: {
       nombrePelicula: data.nombrePelicula,
       duracion: data.duracion,
@@ -31,19 +41,29 @@ async function createOne(data) {
       MPAA: data.MPAA,
     },
   });
-  return newPelicula;
 }
+
+/**
+ * Elimina una película por ID
+ * @param {number} id - ID de la película
+ * @returns {Promise<Object>} Película eliminada
+ */
 async function deleteOne(id) {
-  const deletedPelicula = await prisma.pelicula.delete({
+  return await prisma.pelicula.delete({
     where: {
       idPelicula: parseInt(id, 10),
     },
   });
-  return deletedPelicula;
 }
 
-async function updateOne(id, data) {
-  const updatedPelicula = await prisma.pelicula.update({
+/**
+ * Actualiza una película existente
+ * @param {number} id - ID de la película
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>} Película actualizada
+ */
+async function update(id, data) {
+  return await prisma.pelicula.update({
     where: {
       idPelicula: parseInt(id, 10),
     },
@@ -60,11 +80,14 @@ async function updateOne(id, data) {
       MPAA: data.MPAA,
     },
   });
-  return updatedPelicula;
 }
 
+/**
+ * Obtiene películas que tienen funciones públicas (en cartelera)
+ * @returns {Promise<Array>} Lista de películas en cartelera
+ */
 async function getAllEnCartelera() {
-  const peliculas = await prisma.pelicula.findMany({
+  return await prisma.pelicula.findMany({
     where: {
       funcion: {
         some: {
@@ -73,7 +96,6 @@ async function getAllEnCartelera() {
       },
     },
   });
-  return peliculas;
 }
 
-export { getOne, getAll, createOne, deleteOne, updateOne, getAllEnCartelera };
+export { getOne, getAll, create, deleteOne, update, getAllEnCartelera };

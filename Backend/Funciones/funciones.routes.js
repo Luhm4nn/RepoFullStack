@@ -20,22 +20,21 @@ import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
 
 const router = Router();
 
-router.get('/Funciones/:idPelicula/semana', asyncHandler(getFuncionesSemana));
-
+// Rutas públicas de lectura
 router.get('/Funciones', asyncHandler(getFunciones));
-
+router.get('/Funciones/activas', asyncHandler(getActiveFuncionesEndpoint));
+router.get('/Funciones/publicas', asyncHandler(getPublicFuncionesEndpoint));
+router.get('/Funciones/:idPelicula/semana', asyncHandler(getFuncionesSemana));
+router.get('/Funciones/:idPelicula/:fecha', asyncHandler(getFuncionesByPeliculaAndFecha));
 router.get('/Funcion/:idSala/:fechaHoraFuncion', asyncHandler(getFuncion));
 
-router.get('/Funciones/activas', asyncHandler(getActiveFuncionesEndpoint));
-
+// Rutas protegidas (ADMIN)
 router.get(
   '/Funciones/inactivas',
   authMiddleware,
   authorizeRoles('ADMIN'),
   asyncHandler(getInactiveFuncionesEndpoint)
 );
-
-router.get('/Funciones/:idPelicula/:fecha', asyncHandler(getFuncionesByPeliculaAndFecha));
 
 router.post(
   '/Funcion',
@@ -58,27 +57,6 @@ router.delete(
   authMiddleware,
   authorizeRoles('ADMIN'),
   asyncHandler(deleteFuncion)
-);
-
-router.get(
-  "/Funciones/activas",
-  asyncHandler(getActiveFuncionesEndpoint)
-);
-
-router.get(
-  "/Funciones/inactivas",
-  asyncHandler(getInactiveFuncionesEndpoint)
-);
-
-
-router.get(
-  "/Funciones/:idPelicula/:fecha",
-  asyncHandler(getFuncionesByPeliculaAndFecha)
-);
-
-router.get(
-  "/Funciones/publicas",
-  asyncHandler(getPublicFuncionesEndpoint)
 );
 
 export const funcionesRoutes = router;

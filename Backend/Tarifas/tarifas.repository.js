@@ -1,53 +1,77 @@
 import prisma from '../prisma/prisma.js';
 
-// Repository for Tarifas
-
+/**
+ * Obtiene todas las tarifas
+ * @returns {Promise<Array>} Lista de tarifas
+ */
 async function getAll() {
-  const tarifas = await prisma.tarifa.findMany();
-  return tarifas;
+  return await prisma.tarifa.findMany();
 }
 
+/**
+ * Obtiene una tarifa por su ID
+ * @param {number} id - ID de la tarifa
+ * @returns {Promise<Object|null>} Tarifa encontrada o null
+ */
 async function getOne(id) {
-  const tarifa = await prisma.tarifa.findUnique({
+  return await prisma.tarifa.findUnique({
     where: {
       idTarifa: parseInt(id, 10),
     },
   });
-  return tarifa;
 }
 
-async function createOne(data) {
-  const newTarifa = await prisma.tarifa.create({
+/**
+ * Crea una nueva tarifa
+ * @param {Object} data - Datos de la tarifa
+ * @param {string} data.nombreTarifa - Nombre de la tarifa
+ * @param {number} data.precio - Precio de la tarifa
+ * @param {number} [data.edadMinima] - Edad mínima
+ * @param {number} [data.edadMaxima] - Edad máxima
+ * @returns {Promise<Object>} Tarifa creada
+ */
+async function create(data) {
+  return await prisma.tarifa.create({
     data: {
+      nombreTarifa: data.nombreTarifa,
       precio: data.precio,
-      descripcionTarifa: data.descripcionTarifa,
-      fechaDesde: data.fechaDesde,
+      edadMinima: data.edadMinima,
+      edadMaxima: data.edadMaxima,
     },
   });
-  return newTarifa;
 }
 
+/**
+ * Actualiza una tarifa existente
+ * @param {number} id - ID de la tarifa
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>} Tarifa actualizada
+ */
+async function update(id, data) {
+  return await prisma.tarifa.update({
+    where: {
+      idTarifa: parseInt(id, 10),
+    },
+    data: {
+      nombreTarifa: data.nombreTarifa,
+      precio: data.precio,
+      edadMinima: data.edadMinima,
+      edadMaxima: data.edadMaxima,
+    },
+  });
+}
+
+/**
+ * Elimina una tarifa por su ID
+ * @param {number} id - ID de la tarifa
+ * @returns {Promise<Object>} Tarifa eliminada
+ */
 async function deleteOne(id) {
-  const deletedTarifa = await prisma.tarifa.delete({
+  return await prisma.tarifa.delete({
     where: {
       idTarifa: parseInt(id, 10),
     },
   });
-  return deletedTarifa;
 }
 
-async function updateOne(id, data) {
-  const updatedTarifa = await prisma.tarifa.update({
-    where: {
-      idTarifa: parseInt(id, 10),
-    },
-    data: {
-      precio: data.precio,
-      descripcionTarifa: data.descripcionTarifa,
-      fechaDesde: data.fechaDesde,
-    },
-  });
-  return updatedTarifa;
-}
-
-export { getOne, getAll, createOne, deleteOne, updateOne };
+export { getAll, getOne, create, update, deleteOne };

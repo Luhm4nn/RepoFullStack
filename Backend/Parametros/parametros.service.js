@@ -1,38 +1,63 @@
-import {
-  getOne as getOneDB,
-  getAll as getAllDB,
-  createOne as createOneDB,
-  deleteOne as deleteOneDB,
-  updateOne as updateOneDB,
-} from './parametros.repository.js';
+import * as repository from './parametros.repository.js';
 
+/**
+ * Obtiene todos los parámetros del sistema
+ * @returns {Promise<Array>} Lista de parámetros
+ */
 export const getAll = async () => {
-  const parametros = await getAllDB();
-  return parametros;
+  return await repository.getAll();
 };
 
+/**
+ * Obtiene un parámetro por su ID
+ * @param {number} id - ID del parámetro
+ * @returns {Promise<Object>} Parámetro encontrado
+ * @throws {Error} Si el parámetro no existe (404)
+ */
 export const getOne = async (id) => {
-  const parametro = await getOneDB(id);
+  const parametro = await repository.getOne(id);
+  if (!parametro) {
+    const error = new Error('Parámetro no encontrado.');
+    error.status = 404;
+    throw error;
+  }
   return parametro;
 };
 
-export const createOne = async (data) => {
-  const newParametro = await createOneDB(data);
-  return newParametro;
+/**
+ * Crea un nuevo parámetro
+ * @param {Object} data - Datos del parámetro
+ * @param {string} data.descripcionParametro - Descripción del parámetro
+ * @param {string} data.valor - Valor del parámetro
+ * @returns {Promise<Object>} Parámetro creado
+ */
+export const create = async (data) => {
+  return await repository.create(data);
 };
 
+/**
+ * Elimina un parámetro por su ID
+ * @param {number} id - ID del parámetro
+ * @returns {Promise<Object>} Parámetro eliminado
+ * @throws {Error} Si el parámetro no existe
+ */
 export const deleteOne = async (id) => {
-  const deletedParametro = await deleteOneDB(id);
-  return deletedParametro;
+  return await repository.deleteOne(id);
 };
 
-export const updateOne = async (id, data) => {
-  const parametroExistente = await getOneDB(id);
+/**
+ * Actualiza un parámetro existente
+ * @param {number} id - ID del parámetro
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>} Parámetro actualizado
+ * @throws {Error} Si el parámetro no existe (404)
+ */
+export const update = async (id, data) => {
+  const parametroExistente = await repository.getOne(id);
   if (!parametroExistente) {
     const error = new Error('Parámetro no encontrado.');
     error.status = 404;
     throw error;
   }
-  const updatedParametro = await updateOneDB(id, data);
-  return updatedParametro;
+  return await repository.update(id, data);
 };

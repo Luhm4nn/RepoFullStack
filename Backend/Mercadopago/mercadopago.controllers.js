@@ -1,12 +1,17 @@
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
-import { createOne as createReserva } from '../Funciones/reservas.repository.js';
+import { create as createReserva } from '../Funciones/reservas.repository.js';
 import { createMany as createAsientosReservados } from '../Funciones/asientoreservas.repository.js';
+import logger from '../utils/logger.js';
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
 });
 
-// Crear preferencia de pago
+/**
+ * Crea una preferencia de pago en Mercado Pago
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ */
 export const createPaymentPreference = async (req, res) => {
   const { reserva, asientos } = req.body;
 
@@ -45,12 +50,16 @@ export const createPaymentPreference = async (req, res) => {
       init_point: response.init_point,
     });
   } catch (error) {
-    console.error('Error creando preferencia de pago:', error);
+    logger.error('Error creando preferencia de pago:', error);
     return res.status(500).json({ error: 'Error al crear preferencia de pago' });
   }
 };
 
-// Webhook para notificaciones de pago
+/**
+ * Webhook para notificaciones de pago
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ */
 export const handleWebhook = async (req, res) => {
   const { type, data } = req.body;
 
@@ -61,16 +70,13 @@ export const handleWebhook = async (req, res) => {
       const payment = new Payment(client);
       const result = await payment.get({ id: paymentId });
 
-      console.log('Webhook recibido:', {
+      logger.info('Webhook recibido:', {
         paymentId: result.id,
         status: result.status,
-        metadata: result.metadata,
       });
 
       if (result.status === 'approved') {
         const metadata = result.metadata;
-
-        console.log('Metadata completo:', JSON.stringify(metadata, null, 2));
 
         // Parsear asientos del metadata
         const asientos = JSON.parse(metadata.asientos);
@@ -91,15 +97,9 @@ export const handleWebhook = async (req, res) => {
           total: parseFloat(result.transaction_amount),
         };
 
-        console.log('Creando reserva con datos:', {
-          ...reservaData,
-          fechaHoraFuncion: reservaData.fechaHoraFuncion.toISOString(),
-          fechaHoraReserva: reservaData.fechaHoraReserva.toISOString(),
-        });
-
         try {
           const reservaCreada = await createReserva(reservaData);
-          console.log(' Reserva creada exitosamente:', reservaCreada);
+          logger.info('Reserva creada exitosamente:', { id: reservaCreada.id });
 
           // Crear los asientos reservados usando los mismos valores
           const asientosData = asientos.map((asiento) => ({
@@ -111,33 +111,24 @@ export const handleWebhook = async (req, res) => {
             fechaHoraReserva: fechaReservaDate,
           }));
 
-          console.log('Intentando crear asientos reservados:', {
-            cantidad: asientosData.length,
-            primerosAsientos: asientosData.slice(0, 2),
-          });
+          await createAsientosReservados(asientosData);
 
-          const asientosCreados = await createAsientosReservados(asientosData);
-
-          console.log(' Asientos reservados creados:', asientosCreados);
-
-          console.log(' Reserva completada exitosamente:', {
-            reserva: reservaCreada,
+          logger.info('Reserva completada exitosamente:', {
             asientosCount: asientosData.length,
             paymentId: result.id,
           });
         } catch (createError) {
-          console.error(' Error al crear reserva/asientos:', createError);
-          console.error('Stack:', createError.stack);
+          logger.error('Error al crear reserva/asientos:', createError);
           throw createError;
         }
       } else {
-        console.log(`Pago recibido con estado: ${result.status}`);
+        logger.info(`Pago recibido con estado: ${result.status}`);
       }
     }
 
     res.sendStatus(200);
   } catch (error) {
-    console.error('Error manejando webhook de Mercado Pago:', error);
+    logger.error('Error manejando webhook de Mercado Pago:', error);
     res.sendStatus(500);
   }
 };

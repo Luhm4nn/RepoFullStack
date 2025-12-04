@@ -1,13 +1,4 @@
-import {
-  getOne as getOneDB,
-  getAll as getAllDB,
-  createOne as createOneDB,
-  deleteOne as deleteOneDB,
-  cancellOne as cancellOneDB,
-} from './reservas.repository.js';
-
-// Service layer para Reservas
-// Contiene toda la lógica de negocio y validaciones
+import * as repository from './reservas.repository.js';
 
 /**
  * Valida que el usuario tenga permiso para acceder al recurso
@@ -29,10 +20,10 @@ function validateOwnership(user, targetDNI) {
 
 /**
  * Obtiene todas las reservas (solo ADMIN)
- * El authMiddleware ya verificó que sea ADMIN
+ * @returns {Promise<Array>} Lista de reservas
  */
 export async function getAllReservas() {
-  const reservas = await getAllDB();
+  const reservas = await repository.getAll();
 
   if (!reservas || reservas.length === 0) {
     const error = new Error('No existen reservas cargadas aún.');
@@ -45,12 +36,14 @@ export async function getAllReservas() {
 
 /**
  * Obtiene una reserva específica
- * Valida que el usuario solo pueda ver sus propias reservas (o admin cualquiera)
+ * @param {Object} params - Parámetros de búsqueda
+ * @param {Object} user - Usuario autenticado
+ * @returns {Promise<Object>} Reserva encontrada
  */
 export async function getReserva(params, user) {
   const { DNI } = params;
   validateOwnership(user, DNI);
-  const reserva = await getOneDB(params);
+  const reserva = await repository.getOne(params);
   if (!reserva) {
     const error = new Error('Reserva no encontrada.');
     error.status = 404;
@@ -62,22 +55,26 @@ export async function getReserva(params, user) {
 
 /**
  * Crea una nueva reserva
- * Valida que el usuario solo pueda crear reservas para sí mismo (o admin para otros)
+ * @param {Object} data - Datos de la reserva
+ * @param {Object} user - Usuario autenticado
+ * @returns {Promise<Object>} Reserva creada
  */
 export async function createReserva(data, user) {
   const { DNI } = data;
   validateOwnership(user, DNI);
-  const newReserva = await createOneDB(data);
-  return newReserva;
+  return await repository.create(data);
 }
 
 /**
  * Cancela una reserva
- * Valida ownership y reglas de cancelación
+ * @param {Object} params - Parámetros de búsqueda
+ * @param {Object} user - Usuario autenticado
+ * @returns {Promise<Object>} Reserva cancelada
  */
 export async function cancelReserva(params, user) {
   const { DNI, fechaHoraFuncion } = params;
   validateOwnership(user, DNI);
+  
   const fechaFuncion = new Date(fechaHoraFuncion);
   const now = new Date();
   const horasHastaFuncion = (fechaFuncion - now) / (1000 * 60 * 60);
@@ -90,15 +87,23 @@ export async function cancelReserva(params, user) {
     throw error;
   }
 
-  const cancelledReserva = await cancellOneDB(params);
-  return cancelledReserva;
+  return await repository.cancel(params);
 }
 
 /**
  * Elimina permanentemente una reserva (solo ADMIN)
- * El authMiddleware ya verificó que sea ADMIN
+ * @param {Object} params - Parámetros de búsqueda
+ * @returns {Promise<Object>} Reserva eliminada
  */
 export async function deleteReserva(params) {
-  const deletedReserva = await deleteOneDB(params);
-  return deletedReserva;
+  return await repository.deleteOne(params);
+}
+
+/**
+ * Obtiene las últimas reservas
+ * @param {number} limit - Límite de resultados
+ * @returns {Promise<Array>} Lista de reservas
+ */
+export async function getLatestReservas(limit) {
+  return await repository.getLatest(limit);
 }

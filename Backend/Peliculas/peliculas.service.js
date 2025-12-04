@@ -1,38 +1,48 @@
-import {
-  getOne as getOneDB,
-  getAll as getAllDB,
-  createOne as createOneDB,
-  deleteOne as deleteOneDB,
-  updateOne as updateOneDB,
-  getAllEnCartelera as getAllEnCarteleraDB,
-} from './peliculas.repository.js';
+import * as repository from './peliculas.repository.js';
 import { getFuncionesByPeliculaId } from '../Funciones/funciones.service.js';
 import { formatDateForBackendMessage } from '../utils/dateFormater.js';
 import { cloudinary } from '../config/cloudinary.js';
 
-
+/**
+ * Obtiene todas las películas
+ * @returns {Promise<Array>} Lista de películas
+ */
 export const getAll = async () => {
-  const peliculas = await getAllDB();
-  return peliculas;
+  return await repository.getAll();
 };
 
+/**
+ * Obtiene una película por ID
+ * @param {number} id - ID de la película
+ * @returns {Promise<Object>} Película encontrada
+ * @throws {Error} Si la película no existe (404)
+ */
 export const getOne = async (id) => {
-  const pelicula = await getOneDB(id);
+  const pelicula = await repository.getOne(id);
   return pelicula;
 };
 
-export const createOne = async (data) => {
+/**
+ * Crea una nueva película
+ * @param {Object} data - Datos de la película
+ * @returns {Promise<Object>} Película creada
+ */
+export const create = async (data) => {
   const movieDataToCreate = {
     ...data,
     duracion: data.duracion ? parseInt(data.duracion, 10) : 0,
   };
 
-  const newPelicula = await createOneDB(movieDataToCreate);
-  return newPelicula;
+  return await repository.create(movieDataToCreate);
 };
 
+/**
+ * Elimina una película
+ * @param {number} id - ID de la película
+ * @returns {Promise<Object>} Película eliminada
+ */
 export const deleteOne = async (id) => {
-  const peliculaExistente = await getOneDB(id);
+  const peliculaExistente = await repository.getOne(id);
 
   // Si tiene póster en Cloudinary se elimina también
   if (peliculaExistente?.portadaPublicId) {
@@ -43,12 +53,18 @@ export const deleteOne = async (id) => {
       console.error('Error eliminando póster de Cloudinary:', error);
     }
   }
-  const deletedPelicula = await deleteOneDB(id);
-  return deletedPelicula;
+  return await repository.deleteOne(id);
 };
 
-export const updateOne = async (id, data) => {
-  const peliculaExistente = await getOneDB(id);
+/**
+ * Actualiza una película existente
+ * @param {number} id - ID de la película
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>} Película actualizada
+ * @throws {Error} Si la película no existe (404) o validación falla (400)
+ */
+export const update = async (id, data) => {
+  const peliculaExistente = await repository.getOne(id);
   if (!peliculaExistente) {
     const error = new Error('Película no encontrada.');
     error.status = 404;
@@ -75,15 +91,22 @@ export const updateOne = async (id, data) => {
     duracion: data.duracion ? parseInt(data.duracion, 10) : 0,
   };
 
-  const updatedPelicula = await updateOneDB(id, movieDataToUpdate);
-  return updatedPelicula;
+  return await repository.update(id, movieDataToUpdate);
 };
 
+/**
+ * Obtiene películas en cartelera
+ * @returns {Promise<Array>} Lista de películas
+ */
 export const getAllEnCartelera = async () => {
-  const peliculas = await getAllEnCarteleraDB();
-  return peliculas;
+  return await repository.getAllEnCartelera();
 };
 
+/**
+ * Valida cambios en fecha de estreno
+ * @param {Object} data - Datos de la película
+ * @returns {Error|null} Error si la validación falla
+ */
 async function validationsEstreno(data) {
   const fechaNueva = new Date(data.fechaEstreno);
   const funciones = await getFuncionesByPeliculaId(data.id);
