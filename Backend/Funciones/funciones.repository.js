@@ -171,4 +171,5 @@ export {
   getActiveFuncionesBD,
   getFuncionesByPeliculaAndFecha,
   getFuncionesSemanaDB,
+  getPublicFuncionesBD,
 };
