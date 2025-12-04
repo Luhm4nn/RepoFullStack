@@ -180,4 +180,25 @@ async function cancellOne(idSala_fechaHoraFuncion_DNI_fechaHoraReserva) {
   return result;
 }
 
-export { getOne, getAll, createOne, deleteOne, cancellOne };
+async function getLatestReservas(limit = 5) {
+  const reservas = await prisma.reserva.findMany({
+    where: {
+      estado: 'ACTIVA'
+    },
+    include: {
+      funcion: {
+        include: {
+          sala: true,
+          pelicula: true,
+        },
+      },
+    },
+    orderBy: {
+      fechaHoraReserva: 'desc'
+    },
+    take: limit
+  });
+  return reservas;
+}
+
+export { getOne, getAll, createOne, deleteOne, cancellOne, getLatestReservas };

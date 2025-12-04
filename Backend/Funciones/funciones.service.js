@@ -6,7 +6,8 @@ import {
     updateOneDB, 
     getFuncionesBySala, 
     getFuncionesByPelicula, 
-    getActiveFuncionesBD, 
+    getActiveFuncionesBD,
+    getPublicFuncionesBD, 
     getInactiveFuncionesBD, 
     getFuncionesSemanaDB } from './funciones.repository.js';
 import { getOne as getParametroRepository } from '../Parametros/parametros.repository.js';
@@ -33,6 +34,11 @@ export const getInactiveFunciones = async () => {
     const funciones = await getInactiveFuncionesBD();
     return funciones;
 };
+
+export const getPublicFunciones = async () => {
+    const funciones = await getPublicFuncionesBD();
+    return funciones;
+}
 
 export const createOne = async (data) => {
     const solapamiento = await verificarSolapamientos(data);

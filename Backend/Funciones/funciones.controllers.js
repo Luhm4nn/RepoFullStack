@@ -7,7 +7,8 @@ import {
   updateOne,
   getFuncionesByPeliculaAndFechaService,
   getActiveFunciones as getActiveFuncionesService,
-  getInactiveFunciones as getInactiveFuncionesService
+  getInactiveFunciones as getInactiveFuncionesService,
+  getPublicFunciones as getPublicFuncionesService
 } from "./funciones.service.js";
 
 // Controllers for Funciones
@@ -57,6 +58,11 @@ export const getInactiveFuncionesEndpoint = async (req, res) => {
   const funciones = await getInactiveFuncionesService();
   res.json(funciones);
 };
+
+export const getPublicFuncionesEndpoint = async (req, res) => {
+  const funciones = await getPublicFuncionesService();
+  res.json(funciones);
+}
 
 export const getFuncion = async (req, res, next) => {
   const funcion = await getOne(req.params);

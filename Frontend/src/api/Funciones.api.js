@@ -5,7 +5,7 @@ const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export const getFunciones = async (estado = 'activas') => {
   try {
-    const response = await axios.get(`${VITE_API_URL}/Funciones?estado=${estado}`);
+    const response = await axios.get(`${VITE_API_URL}/Funciones/${estado}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching funciones:", error);
@@ -23,6 +23,10 @@ export const getFuncionesInactivas = async () => {
 
 export const getTodasLasFunciones = async () => {
   return getFunciones('todos');
+}
+
+export const getFuncionesPublicas = async () => {
+  return getFunciones('publicas');
 }
 
 export const createFuncion = async (funcion) => {
