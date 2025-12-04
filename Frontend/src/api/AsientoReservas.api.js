@@ -9,7 +9,6 @@ export const getAsientosReservadosPorFuncion = async (idSala, fechaHoraFuncion) 
     const response = await api.get(url);
     return response.data;
   } catch (error) {
-    console.error('Error fetching asientos reservados por función:', error);
     throw error;
   }
 };
@@ -17,10 +16,8 @@ export const getAsientosReservadosPorFuncion = async (idSala, fechaHoraFuncion) 
 export const createAsientosReservados = async (asientosData) => {
   try {
     const response = await api.post('/AsientoReserva', asientosData);
-
     return response.data;
   } catch (error) {
-    console.error('Error creating asientos reservados:', error);
     throw error;
   }
 };

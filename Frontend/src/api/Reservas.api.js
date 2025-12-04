@@ -6,7 +6,6 @@ export const getReservas = async () => {
     const response = await api.get('/Reservas');
     return response.data;
   } catch (error) {
-    console.error('Error fetching reservas:', error);
     throw error;
   }
 };
@@ -20,7 +19,6 @@ export const getReserva = async (idSala, fechaHoraFuncion, DNI, fechaHoraReserva
     const response = await api.get(url);
     return response.data;
   } catch (error) {
-    console.error('Error fetching reserva:', error);
     throw error;
   }
 };
@@ -46,7 +44,6 @@ export const createReserva = async (reservaData) => {
     });
     return response.data;
   } catch (error) {
-    console.error('Error creating reserva:', error);
     throw error;
   }
 };
@@ -60,7 +57,6 @@ export const cancelReserva = async (idSala, fechaHoraFuncion, DNI, fechaHoraRese
     const response = await api.put(url);
     return response.data;
   } catch (error) {
-    console.error('Error cancelling reserva:', error);
     throw error;
   }
 };
@@ -74,7 +70,6 @@ export const deleteReserva = async (idSala, fechaHoraFuncion, DNI, fechaHoraRese
     const response = await api.delete(url);
     return response.data;
   } catch (error) {
-    console.error('Error deleting reserva:', error);
     throw error;
   }
 };

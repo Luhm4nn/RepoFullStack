@@ -277,8 +277,8 @@ function CarteleraPage() {
 				</div>
 			</div>
 
-			{/* Estilos para la animación de escaneo */}
-			<style jsx>{`
+			<style>
+				{`
 				@keyframes scan {
 					0% { transform: translateY(-100%); }
 					100% { transform: translateY(100%); }
@@ -286,7 +286,8 @@ function CarteleraPage() {
 				.animate-scan {
 					animation: scan 10s linear infinite;
 				}
-			`}</style>
+				`}
+			</style>
 		</div>
 	);
 }

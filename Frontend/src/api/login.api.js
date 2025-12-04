@@ -22,10 +22,7 @@ export const authAPI = {
   logout: async () => {
     try {
       await api.post('/auth/logout');
-    } catch (error) {
-      console.error('Error en logout:', error);
     } finally {
-      // Limpiar datos locales siempre
       localStorage.removeItem('accessToken');
       localStorage.removeItem('user');
     }
