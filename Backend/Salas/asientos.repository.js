@@ -162,4 +162,12 @@ async function updateManyForSala(idSala, vipSeats = []) {
   }
 }
 
-export { getOne, getAll, createManyForSala, createOne, deleteOne, updateOne, updateManyForSala };
+export { 
+  getOne, 
+  getAll, 
+  createManyForSala, 
+  createOne, 
+  deleteOne, 
+  updateOne, 
+  updateManyForSala 
+};

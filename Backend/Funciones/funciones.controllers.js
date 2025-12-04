@@ -8,7 +8,8 @@ import {
   getFuncionesByPeliculaAndFechaService,
   getActiveFunciones as getActiveFuncionesService,
   getInactiveFunciones as getInactiveFuncionesService,
-} from './funciones.service.js';
+  getPublicFunciones as getPublicFuncionesService
+} from "./funciones.service.js";
 
 // Controllers for Funciones
 
@@ -58,6 +59,11 @@ export const getInactiveFuncionesEndpoint = async (req, res) => {
   res.json(funciones);
 };
 
+export const getPublicFuncionesEndpoint = async (req, res) => {
+  const funciones = await getPublicFuncionesService();
+  res.json(funciones);
+}
+
 export const getFuncion = async (req, res, next) => {
   const funcion = await getOne(req.params);
   if (!funcion) {
@@ -91,6 +97,18 @@ export const deleteFuncion = async (req, res) => {
 };
 
 export const updateFuncion = async (req, res) => {
+  const funcion = await getOne(req.params);
+  
+  if (req.body.estado && (req.body.estado === 'Privada' || req.body.estado === 'Publica')) {
+    const updatedFuncion = await updateOne(req.params, req.body);
+    res.status(200).json(updatedFuncion);
+  } 
+    else if (funcion.estado === "Privada") {
+    const updatedFuncion = await updateOne(req.params, req.body);
+    res.status(200).json(updatedFuncion);
+  } else {
+    res.status(403).json({ message: "No se puede actualizar una función pública, excepto para cambiar su estado." });
+  }
   const updatedFuncion = await updateOne(req.params, req.body);
   if (updatedFuncion) {
     if (updatedFuncion.name === 'SOLAPAMIENTO_FUNCIONES') {

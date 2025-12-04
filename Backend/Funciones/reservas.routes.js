@@ -5,6 +5,7 @@ import {
   createReserva,
   cancellReserva,
   deleteReserva,
+  getLatestReservas
 } from './reservas.controllers.js';
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
@@ -14,6 +15,8 @@ import { strictLimiter } from '../Middlewares/rateLimiter.js';
 const router = Router();
 
 router.get('/Reservas', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(getReservas));
+
+router.get("/Reservas/latest", asyncHandler(getLatestReservas));
 
 router.get(
   '/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva',
@@ -35,5 +38,6 @@ router.delete(
   authorizeRoles('ADMIN'),
   asyncHandler(deleteReserva)
 );
+
 
 export const reservasRoutes = router;

@@ -45,7 +45,7 @@ function SeleccionFuncion({
 
   return (
     <>
-      <div className="mb-6 flex gap-2 overflow-x-auto">
+      <div className="mb-6 flex gap-2 overflow-x-auto scrollbar-thin">
         {days.map(day => (
           <button
             key={day.date}

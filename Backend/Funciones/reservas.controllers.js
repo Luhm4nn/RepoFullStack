@@ -1,10 +1,11 @@
 import {
-  getAllReservas,
-  getReserva as getReservaService,
-  createReserva as createReservaService,
-  cancelReserva as cancelReservaService,
-  deleteReserva as deleteReservaService,
-} from './reservas.service.js';
+  getOne,
+  getAll,
+  createOne,
+  deleteOne,
+  cancellOne,
+  getLatestReservas as getLatestReservasRepo
+} from "./reservas.repository.js";
 
 // Controllers para Reservas
 // El controller es solo un orquestador: recibe request, llama service, retorna response
@@ -29,7 +30,8 @@ export const cancellReserva = async (req, res) => {
   res.status(200).json(cancelledReserva);
 };
 
-export const deleteReserva = async (req, res) => {
-  await deleteReservaService(req.params);
-  res.status(200).json({ message: 'Reserva eliminada correctamente.' });
+export const getLatestReservas = async (req, res) => {
+  const limit = parseInt(req.query.limit) || 5;
+  const reservas = await getLatestReservasRepo(limit);
+  res.json(reservas);
 };

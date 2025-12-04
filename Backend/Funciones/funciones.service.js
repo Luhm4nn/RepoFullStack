@@ -1,15 +1,15 @@
 import {
-  getOneDB,
-  getAllDB,
-  createOneDB,
-  deleteOneDB,
-  updateOneDB,
-  getFuncionesBySala,
-  getFuncionesByPelicula,
-  getActiveFuncionesBD,
-  getInactiveFuncionesBD,
-  getFuncionesSemanaDB,
-} from './funciones.repository.js';
+    getOneDB, 
+    getAllDB, 
+    createOneDB, 
+    deleteOneDB,
+    updateOneDB, 
+    getFuncionesBySala, 
+    getFuncionesByPelicula, 
+    getActiveFuncionesBD,
+    getPublicFuncionesBD, 
+    getInactiveFuncionesBD, 
+    getFuncionesSemanaDB } from './funciones.repository.js';
 import { getOne as getParametroRepository } from '../Parametros/parametros.repository.js';
 import { getOne as getPeliculaRepository } from '../Peliculas/peliculas.repository.js';
 import { formatDateForBackendMessage } from '../utils/dateFormater.js';
@@ -33,6 +33,11 @@ export const getInactiveFunciones = async () => {
   const funciones = await getInactiveFuncionesBD();
   return funciones;
 };
+
+export const getPublicFunciones = async () => {
+    const funciones = await getPublicFuncionesBD();
+    return funciones;
+}
 
 export const createOne = async (data) => {
   const solapamiento = await verificarSolapamientos(data);

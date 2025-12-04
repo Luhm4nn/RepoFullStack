@@ -8,6 +8,7 @@ import {
   getActiveFuncionesEndpoint,
   getInactiveFuncionesEndpoint,
   getFuncionesByPeliculaAndFecha,
+  getPublicFuncionesEndpoint,
   getFuncionesSemana,
 } from './funciones.controllers.js';
 
@@ -57,6 +58,27 @@ router.delete(
   authMiddleware,
   authorizeRoles('ADMIN'),
   asyncHandler(deleteFuncion)
+);
+
+router.get(
+  "/Funciones/activas",
+  asyncHandler(getActiveFuncionesEndpoint)
+);
+
+router.get(
+  "/Funciones/inactivas",
+  asyncHandler(getInactiveFuncionesEndpoint)
+);
+
+
+router.get(
+  "/Funciones/:idPelicula/:fecha",
+  asyncHandler(getFuncionesByPeliculaAndFecha)
+);
+
+router.get(
+  "/Funciones/publicas",
+  asyncHandler(getPublicFuncionesEndpoint)
 );
 
 export const funcionesRoutes = router;

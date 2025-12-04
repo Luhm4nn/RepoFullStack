@@ -23,6 +23,10 @@ export const getTodasLasFunciones = async () => {
   return getFunciones('todos');
 };
 
+export const getFuncionesPublicas = async () => {
+  return getFunciones('publicas');
+}
+
 export const createFuncion = async (funcion) => {
   try {
     const response = await api.post('/Funcion', funcion);

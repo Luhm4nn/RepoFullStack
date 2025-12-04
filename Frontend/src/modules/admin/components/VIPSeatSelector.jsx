@@ -94,7 +94,7 @@ const VIPSeatSelector = ({
       </div>
 
       {/* Seat Map */}
-      <div className="space-y-2 max-h-96 overflow-y-auto scrollbar-hide">
+      <div className="space-y-2 max-h-96 overflow-y-auto scrollbar-thin">
         {rows.map((row) => {
           const seatsPerRow = parseInt(asientosPorFila);
           const rowSeats = Array.from({ length: seatsPerRow }, (_, i) => getSeatId(row, i + 1));

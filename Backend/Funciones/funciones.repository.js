@@ -114,6 +114,17 @@ async function getActiveFuncionesBD() {
   return funciones;
 }
 
+async function getPublicFuncionesBD() {
+  const funciones = await prisma.funcion.findMany({
+    where: { estado: 'Publica' },
+    include: {
+      sala: true,
+      pelicula: true,
+    },
+  });
+  return funciones;
+}
+
 async function getFuncionesByPeliculaAndFecha(idPelicula, fecha) {
   const fechaInicio = new Date(fecha + 'T00:00:00');
   const fechaFin = new Date(fecha + 'T23:59:59.999');

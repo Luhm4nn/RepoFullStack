@@ -17,7 +17,6 @@ const salasSchema = Yup.object().shape({
     .min(1, "Mínimo 1 fila")
     .max(25, "Máximo 25 filas")
     .required("La cantidad de filas es requerida"),
-
   asientosPorFila: Yup.number()
     .positive("Debe ser un número positivo")
     .integer("Debe ser un número entero")
