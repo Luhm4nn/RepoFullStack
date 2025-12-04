@@ -5,12 +5,15 @@ import {
   createReserva,
   cancellReserva,
   deleteReserva,
+  getLatestReservas
 } from "./reservas.controllers.js";
 
 import { asyncHandler } from "../Middlewares/asyncHandler.js";
 const router = Router();
 
 router.get("/Reservas", asyncHandler(getReservas));
+
+router.get("/Reservas/latest", asyncHandler(getLatestReservas));
 
 router.get(
   "/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva",
@@ -28,5 +31,6 @@ router.delete(
   "/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva",
   asyncHandler(deleteReserva)
 );
+
 
 export const reservasRoutes = router;

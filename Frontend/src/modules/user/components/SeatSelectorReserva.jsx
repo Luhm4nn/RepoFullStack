@@ -204,7 +204,7 @@ setAsientosReservados(reservadosSet);
       </div>
 
       {/* Mapa de asientos */}
-      <div className="space-y-2 max-h-96 overflow-y-auto">
+      <div className="space-y-2 max-h-96 overflow-y-auto scrollbar-thin">
         {filas.map((fila) => (
           <div key={fila} className="flex items-center justify-center gap-1">
             <span className="w-6 text-gray-400 text-sm font-mono text-center">

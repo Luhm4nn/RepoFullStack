@@ -21,9 +21,7 @@ export const getPeliculas = async (req, res) => {
 export const getPelicula = async (req, res, next) => {
   const pelicula = await getOne(req.params.id);
   if (!pelicula) {
-    const error = new Error("Película no encontrada.");
-    error.status = 404;
-    throw error;
+    console.log("No existe la película solicitada.");
   }
   res.json(pelicula);
 };

@@ -38,6 +38,7 @@ export const createSala = async (req, res) => {
   );
 
   res.status(201).json(newSala);
+
 };
 
 export const deleteSala = async (req, res) => {

@@ -8,6 +8,7 @@ import {
   getActiveFuncionesEndpoint,
   getInactiveFuncionesEndpoint,
   getFuncionesByPeliculaAndFecha,
+  getPublicFuncionesEndpoint,
   getFuncionesSemana
 } from "./funciones.controllers.js";
 
@@ -54,6 +55,11 @@ router.get(
 router.get(
   "/Funciones/:idPelicula/:fecha",
   asyncHandler(getFuncionesByPeliculaAndFecha)
+);
+
+router.get(
+  "/Funciones/publicas",
+  asyncHandler(getPublicFuncionesEndpoint)
 );
 
 export const funcionesRoutes = router;

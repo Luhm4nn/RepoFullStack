@@ -4,6 +4,7 @@ import {
   createOne,
   deleteOne,
   cancellOne,
+  getLatestReservas as getLatestReservasRepo
 } from "./reservas.repository.js";
 
 // Controllers for Reservas
@@ -41,4 +42,10 @@ export const deleteReserva = async (req, res) => {
 export const cancellReserva = async (req, res) => {
   const cancelledReserva = await cancellOne(req.params);
   res.status(200).json(cancelledReserva);
+};
+
+export const getLatestReservas = async (req, res) => {
+  const limit = parseInt(req.query.limit) || 5;
+  const reservas = await getLatestReservasRepo(limit);
+  res.json(reservas);
 };
