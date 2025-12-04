@@ -4,3 +4,8 @@ Frontend/.env
 Backend/package-lock.json
 Frontend/package-lock.json
 Backend/.env
+
+# Playwright
+Frontend/test-results/
+Frontend/playwright-report/
+Frontend/playwright/.cache/
