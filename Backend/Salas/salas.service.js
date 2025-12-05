@@ -53,3 +53,11 @@ export const update = async (id, data) => {
   }
   return await repository.update(id, data);
 };
+
+/**
+ * Cuenta todas las salas
+ * @returns {Promise<number>} Cantidad de salas
+ */
+export const getCountAll = async () => {
+  return await repository.countAll();
+};

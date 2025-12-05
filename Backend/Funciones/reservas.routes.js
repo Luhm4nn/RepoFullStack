@@ -5,7 +5,8 @@ import {
   createReserva,
   cancellReserva,
   deleteReserva,
-  getLatestReservas
+  getLatestReservas,
+  getUserReservas
 } from './reservas.controllers.js';
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
@@ -13,6 +14,8 @@ import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
 import { strictLimiter } from '../Middlewares/rateLimiter.js';
 
 const router = Router();
+
+router.get('/Reservas/user', authMiddleware, asyncHandler(getUserReservas));
 
 router.get('/Reservas', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(getReservas));
 

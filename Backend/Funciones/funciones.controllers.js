@@ -7,7 +7,8 @@ import {
   getFuncionesByPeliculaAndFechaService,
   getActiveFunciones as getActiveFuncionesService,
   getInactiveFunciones as getInactiveFuncionesService,
-  getPublicFunciones as getPublicFuncionesService
+  getPublicFunciones as getPublicFuncionesService,
+  getCountPublic
 } from "./funciones.service.js";
 
 /**
@@ -36,6 +37,9 @@ export const getFunciones = async (req, res) => {
       break;
     case 'inactivas':
       funciones = await getInactiveFuncionesService();
+      break;
+    case 'publicas':
+      funciones = await getPublicFuncionesService();
       break;
     case 'todas':
       funciones = await getAll();
@@ -87,7 +91,17 @@ export const getInactiveFuncionesEndpoint = async (req, res) => {
 export const getPublicFuncionesEndpoint = async (req, res) => {
   const funciones = await getPublicFuncionesService();
   res.json(funciones);
-}
+};
+
+/**
+ * Obtiene el conteo de funciones públicas
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ */
+export const getCountPublicFunciones = async (req, res) => {
+  const count = await getCountPublic();
+  res.json({ count });
+};
 
 /**
  * Obtiene una función específica
@@ -111,14 +125,14 @@ export const getFuncion = async (req, res) => {
  */
 export const createFuncion = async (req, res) => {
   const newFuncion = await create(req.body);
-  
+
   if (newFuncion && (newFuncion.name === 'SOLAPAMIENTO_FUNCIONES' || newFuncion.name === 'FECHA_ESTRENO_INVALIDA')) {
     return res.status(newFuncion.status).json({
       message: newFuncion.message,
       errorCode: newFuncion.name,
     });
   }
-  
+
   res.status(201).json(newFuncion);
 };
 
@@ -139,7 +153,7 @@ export const deleteFuncion = async (req, res) => {
  */
 export const updateFuncion = async (req, res) => {
   const updatedFuncion = await update(req.params, req.body);
-  
+
   if (updatedFuncion && (updatedFuncion.name === 'SOLAPAMIENTO_FUNCIONES' || updatedFuncion.name === 'FECHA_ESTRENO_INVALIDA')) {
     return res.status(updatedFuncion.status).json({
       message: updatedFuncion.message,

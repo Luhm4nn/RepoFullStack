@@ -69,3 +69,13 @@ export const updateSala = async (req, res) => {
 
   res.status(200).json(updatedSala);
 };
+
+/**
+ * Obtiene el conteo de salas
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ */
+export const getCountSalas = async (req, res) => {
+  const count = await service.getCountAll();
+  res.json({ count });
+};

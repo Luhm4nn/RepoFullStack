@@ -84,3 +84,12 @@ export const getPeliculasEnCartelera = async () => {
     throw error;
   }
 };
+
+export const getCountPeliculasEnCartelera = async () => {
+  try {
+    const response = await api.get('/Peliculas/cartelera/count');
+    return response.data.count;
+  } catch (error) {
+    throw error;
+  }
+};

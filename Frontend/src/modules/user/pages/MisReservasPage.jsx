@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getReservas } from "../../../api/Reservas.api";
+import { getUserReservas } from "../../../api/Reservas.api";
 import { authAPI } from "../../../api/login.api";
 import MisReservasList from "../components/MisReservasList";
 
@@ -30,17 +30,8 @@ function MisReservasPage() {
         return;
       }
 
-      const todasReservas = await getReservas();
-      
-      // Filtrar solo las reservas del usuario actual
-      const misReservas = todasReservas.filter(
-        r => r.DNI === auth.user.DNI
-      );
-
-      // Ordenar por fecha más reciente primero
-      misReservas.sort((a, b) => 
-        new Date(b.fechaHoraReserva) - new Date(a.fechaHoraReserva)
-      );
+      // Usar el nuevo endpoint que ya filtra por usuario
+      const misReservas = await getUserReservas();
 
       setReservas(misReservas);
     } catch (err) {
@@ -58,12 +49,12 @@ function MisReservasPage() {
 
   const aplicarFiltro = () => {
     const ahora = new Date();
-    
+
     let filtradas = [...reservas];
 
     switch (filter) {
       case "activas":
-        filtradas = reservas.filter(r => 
+        filtradas = reservas.filter(r =>
           r.estado === "ACTIVA" && new Date(r.fechaHoraFuncion) >= ahora
         );
         break;
@@ -71,7 +62,7 @@ function MisReservasPage() {
         filtradas = reservas.filter(r => r.estado === "CANCELADA");
         break;
       case "pasadas":
-        filtradas = reservas.filter(r => 
+        filtradas = reservas.filter(r =>
           new Date(r.fechaHoraFuncion) < ahora && r.estado === "ACTIVA"
         );
         break;
@@ -92,13 +83,13 @@ function MisReservasPage() {
     const ahora = new Date();
     switch (filterType) {
       case "activas":
-        return reservas.filter(r => 
+        return reservas.filter(r =>
           r.estado === "ACTIVA" && new Date(r.fechaHoraFuncion) >= ahora
         ).length;
       case "canceladas":
         return reservas.filter(r => r.estado === "CANCELADA").length;
       case "pasadas":
-        return reservas.filter(r => 
+        return reservas.filter(r =>
           new Date(r.fechaHoraFuncion) < ahora && r.estado === "ACTIVA"
         ).length;
       case "todas":
@@ -136,41 +127,37 @@ function MisReservasPage() {
           <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-1 sm:p-2 inline-flex flex-wrap gap-1 sm:gap-2 min-w-[320px]">
             <button
               onClick={() => setFilter("todas")}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-base ${
-                filter === "todas"
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-base ${filter === "todas"
                   ? "bg-purple-600 text-white"
                   : "text-gray-400 hover:text-white hover:bg-slate-700"
-              }`}
+                }`}
             >
               Todas ({getFilterCount("todas")})
             </button>
             <button
               onClick={() => setFilter("activas")}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-base ${
-                filter === "activas"
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-base ${filter === "activas"
                   ? "bg-green-600 text-white"
                   : "text-gray-400 hover:text-white hover:bg-slate-700"
-              }`}
+                }`}
             >
               Activas ({getFilterCount("activas")})
             </button>
             <button
               onClick={() => setFilter("pasadas")}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-base ${
-                filter === "pasadas"
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-base ${filter === "pasadas"
                   ? "bg-gray-600 text-white"
                   : "text-gray-400 hover:text-white hover:bg-slate-700"
-              }`}
+                }`}
             >
               Pasadas ({getFilterCount("pasadas")})
             </button>
             <button
               onClick={() => setFilter("canceladas")}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-base ${
-                filter === "canceladas"
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-base ${filter === "canceladas"
                   ? "bg-red-600 text-white"
                   : "text-gray-400 hover:text-white hover:bg-slate-700"
-              }`}
+                }`}
             >
               Canceladas ({getFilterCount("canceladas")})
             </button>

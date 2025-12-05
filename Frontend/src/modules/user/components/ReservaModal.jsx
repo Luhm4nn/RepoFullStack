@@ -39,7 +39,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
     try {
       // 1. Crear la reserva principal
       const fechaHoraReserva = new Date().toISOString();
-      
+
       const reservaData = {
         idSala: funcion.idSala,
         fechaHoraFuncion: funcion.fechaHoraFuncion,
@@ -48,7 +48,13 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
         fechaHoraReserva: fechaHoraReserva
       };
 
+      console.log('=== CREANDO RESERVA ===');
+      console.log('Datos de reserva:', reservaData);
+      console.log('Intentando llamar a createReserva...');
+
       const reservaCreada = await createReserva(reservaData);
+
+      console.log('Reserva creada exitosamente:', reservaCreada);
 
       // 2. Crear los asientos reservados
       const asientosData = selectedSeatsData.seats.map(seat => ({
@@ -60,11 +66,13 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
         fechaHoraReserva: fechaHoraReserva
       }));
 
+      console.log('Creando asientos reservados:', asientosData);
       await createAsientosReservados(asientosData);
+      console.log('Asientos creados exitosamente');
 
       // 3. Simular pago
       setStep(3);
-      
+
       // Simular procesamiento de pago
       setTimeout(() => {
         setStep(4);
@@ -72,7 +80,13 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
       }, 2000);
 
     } catch (err) {
-      console.error("Error al crear reserva:", err);
+      console.error("=== ERROR AL CREAR RESERVA ===");
+      console.error("Error completo:", err);
+      console.error("Error response:", err.response);
+      console.error("Error response data:", err.response?.data);
+      console.error("Error message:", err.message);
+      console.error("Error status:", err.response?.status);
+
       setError(err.response?.data?.message || "Error al procesar la reserva. Intenta nuevamente.");
       setLoading(false);
     }
@@ -154,7 +168,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
             <div className="space-y-6">
               <div>
                 <h3 className="text-xl font-bold text-white mb-4">Confirma tu reserva</h3>
-                
+
                 {/* Resumen de asientos */}
                 <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-4">
                   <h4 className="text-white font-semibold mb-3">Asientos seleccionados:</h4>
@@ -259,7 +273,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
                   <p><span className="text-gray-400">DNI:</span> {dni}</p>
                   <div className="pt-4 border-t border-slate-700">
                     <p className="text-lg">
-                      <span className="text-gray-400">Total pagado:</span> 
+                      <span className="text-gray-400">Total pagado:</span>
                       <span className="text-green-400 font-bold ml-2">${selectedSeatsData.total}</span>
                     </p>
                   </div>

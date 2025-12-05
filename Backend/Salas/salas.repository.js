@@ -76,4 +76,12 @@ async function update(id, data) {
   });
 }
 
-export { getAll, getOne, create, deleteOne, update };
+/**
+ * Cuenta todas las salas
+ * @returns {Promise<number>} Cantidad de salas
+ */
+async function countAll() {
+  return await prisma.sala.count();
+}
+
+export { getAll, getOne, create, deleteOne, update, countAll };

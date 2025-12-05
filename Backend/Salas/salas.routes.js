@@ -2,13 +2,14 @@ import { Router } from 'express';
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { validateBody } from '../Middlewares/validateRequest.js';
 import { salasSchema, salasUpdateSchema } from '../validations/SalasSchema.js';
-import { getSalas, getSala, createSala, deleteSala, updateSala } from './salas.controllers.js';
+import { getSalas, getSala, createSala, deleteSala, updateSala, getCountSalas } from './salas.controllers.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
 
 const router = Router();
 
 router.get('/Salas', asyncHandler(getSalas));
+router.get('/Salas/count', asyncHandler(getCountSalas));
 
 router.get('/Sala/:param', asyncHandler(getSala));
 

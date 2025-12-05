@@ -73,3 +73,12 @@ export const getAsientosBySala = async (id) => {
     throw error;
   }
 };
+
+export const getCountSalas = async () => {
+  try {
+    const response = await api.get('/Salas/count');
+    return response.data.count;
+  } catch (error) {
+    throw error;
+  }
+};

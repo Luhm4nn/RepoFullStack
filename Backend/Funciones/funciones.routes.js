@@ -10,6 +10,7 @@ import {
   getFuncionesByPeliculaAndFecha,
   getPublicFuncionesEndpoint,
   getFuncionesSemana,
+  getCountPublicFunciones,
 } from './funciones.controllers.js';
 
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
@@ -24,6 +25,7 @@ const router = Router();
 router.get('/Funciones', asyncHandler(getFunciones));
 router.get('/Funciones/activas', asyncHandler(getActiveFuncionesEndpoint));
 router.get('/Funciones/publicas', asyncHandler(getPublicFuncionesEndpoint));
+router.get('/Funciones/publicas/count', asyncHandler(getCountPublicFunciones));
 router.get('/Funciones/:idPelicula/semana', asyncHandler(getFuncionesSemana));
 router.get('/Funciones/:idPelicula/:fecha', asyncHandler(getFuncionesByPeliculaAndFecha));
 router.get('/Funcion/:idSala/:fechaHoraFuncion', asyncHandler(getFuncion));
