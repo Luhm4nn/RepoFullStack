@@ -7,15 +7,29 @@ import * as repository from './reservas.repository.js';
  * @throws {Error} Si no tiene permiso
  */
 function validateOwnership(user, targetDNI) {
+  console.log('=== VALIDATE OWNERSHIP ===');
+  console.log('User:', user);
+  console.log('Target DNI:', targetDNI);
+  console.log('User rol:', user?.rol);
+  console.log('User id:', user?.id);
+  console.log('Parsed target DNI:', parseInt(targetDNI));
+
   if (user.rol === 'ADMIN') {
+    console.log('Usuario es ADMIN, acceso permitido');
     return;
   }
 
   if (user.id !== parseInt(targetDNI)) {
+    console.error('Acceso denegado: user.id !== targetDNI', {
+      userId: user.id,
+      targetDNI: parseInt(targetDNI)
+    });
     const error = new Error('No puedes acceder a recursos de otros usuarios');
     error.status = 403;
     throw error;
   }
+
+  console.log('Validación exitosa: usuario es dueño del recurso');
 }
 
 /**
@@ -60,9 +74,26 @@ export async function getReserva(params, user) {
  * @returns {Promise<Object>} Reserva creada
  */
 export async function createReserva(data, user) {
+  console.log('=== CREATE RESERVA SERVICE ===');
+  console.log('Data recibida:', JSON.stringify(data, null, 2));
+  console.log('User recibido:', JSON.stringify(user, null, 2));
+
   const { DNI } = data;
-  validateOwnership(user, DNI);
-  return await repository.create(data);
+  console.log('DNI de la reserva:', DNI);
+  console.log('User ID:', user?.id);
+  console.log('User rol:', user?.rol);
+
+  try {
+    validateOwnership(user, DNI);
+    console.log('Validación de ownership exitosa');
+
+    const result = await repository.create(data);
+    console.log('Reserva creada exitosamente:', result);
+    return result;
+  } catch (error) {
+    console.error('Error en createReserva service:', error.message);
+    throw error;
+  }
 }
 
 /**
@@ -74,7 +105,7 @@ export async function createReserva(data, user) {
 export async function cancelReserva(params, user) {
   const { DNI, fechaHoraFuncion } = params;
   validateOwnership(user, DNI);
-  
+
   const fechaFuncion = new Date(fechaHoraFuncion);
   const now = new Date();
   const horasHastaFuncion = (fechaFuncion - now) / (1000 * 60 * 60);
@@ -106,4 +137,23 @@ export async function deleteReserva(params) {
  */
 export async function getLatestReservas(limit) {
   return await repository.getLatest(limit);
+}
+
+/**
+ * Obtiene las reservas de un usuario específico
+ * @param {number} userDNI - DNI del usuario
+ * @returns {Promise<Array>} Lista de reservas del usuario
+ */
+export async function getUserReservas(userDNI) {
+  const allReservas = await repository.getAll();
+  
+  // Filtrar solo las reservas del usuario
+  const userReservas = allReservas.filter(r => r.DNI === parseInt(userDNI));
+  
+  // Ordenar por fecha más reciente primero
+  userReservas.sort((a, b) => 
+    new Date(b.fechaHoraReserva) - new Date(a.fechaHoraReserva)
+  );
+  
+  return userReservas;
 }

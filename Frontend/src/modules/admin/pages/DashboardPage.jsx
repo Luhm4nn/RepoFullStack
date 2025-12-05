@@ -1,8 +1,8 @@
 import { Film, Calendar, BarChart3, Armchair, Clock, TrendingUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { getPeliculasEnCartelera } from '../../../api/Peliculas.api';
-import { getSalas } from '../../../api/Salas.api';
-import { getFuncionesPublicas } from '../../../api/Funciones.api';
+import { getCountPeliculasEnCartelera } from '../../../api/Peliculas.api';
+import { getCountSalas } from '../../../api/Salas.api';
+import { getCountFuncionesPublicas } from '../../../api/Funciones.api';
 import { getLatestReservas } from '../../../api/Reservas.api';
 
 const DashboardPage = () => {
@@ -19,13 +19,28 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [peliculas, salas, funciones, reservas] = await Promise.all([
-          getPeliculasEnCartelera(),
-          getSalas(),
-          getFuncionesPublicas(),
-          getLatestReservas(4) // Traer las últimas 4 reservas
+        // Fetch counts with individual error handling (optimized for performance)
+        const [countPeliculas, countSalas, countFunciones, reservas] = await Promise.all([
+          getCountPeliculasEnCartelera().catch(err => {
+            console.error('Error fetching películas count:', err);
+            return 0;
+          }),
+          getCountSalas().catch(err => {
+            console.error('Error fetching salas count:', err);
+            return 0;
+          }),
+          getCountFuncionesPublicas().catch(err => {
+            console.error('Error fetching funciones count:', err);
+            return 0;
+          }),
+          getLatestReservas(4).catch(err => {
+            console.error('Error fetching reservas:', err);
+            return [];
+          })
         ]);
-        
+
+        console.log('Dashboard data:', { countPeliculas, countSalas, countFunciones, reservas });
+
         // Contar reservas de hoy
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
@@ -36,9 +51,9 @@ const DashboardPage = () => {
         }).length;
 
         setStats({
-          totalPeliculas: peliculas.length,
-          totalSalas: salas.length,
-          totalFunciones: funciones.length,
+          totalPeliculas: countPeliculas,
+          totalSalas: countSalas,
+          totalFunciones: countFunciones,
           reservasHoy: reservasHoy
         });
 
@@ -48,9 +63,9 @@ const DashboardPage = () => {
           pelicula: reserva.funcion?.pelicula?.nombrePelicula || 'Película no disponible',
           sala: reserva.funcion?.sala?.nombreSala || 'N/A',
           asientos: reserva.cantidadAsientos || 0,
-          hora: new Date(reserva.funcion?.fechaHoraFuncion).toLocaleTimeString('es-AR', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
+          hora: new Date(reserva.funcion?.fechaHoraFuncion).toLocaleTimeString('es-AR', {
+            hour: '2-digit',
+            minute: '2-digit'
           }),
           cliente: `Cliente ${reserva.DNI}`,
           fechaReserva: new Date(reserva.fechaHoraReserva)
@@ -196,7 +211,7 @@ const DashboardPage = () => {
               </div>
               <h2 className="text-xl md:text-2xl font-bold text-white">Ocupación de Salas</h2>
             </div>
-            
+
             <div className="space-y-4">
               {ocupacionSalas.map((sala, index) => {
                 const porcentaje = Math.round((sala.ocupacion / sala.capacidad) * 100);
@@ -210,11 +225,10 @@ const DashboardPage = () => {
                     </div>
                     <div className="w-full bg-slate-700 rounded-full h-2 md:h-3 overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          porcentaje >= 80 ? 'bg-gradient-to-r from-orange-600 to-red-600' : 
-                          porcentaje >= 50 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 
-                          'bg-gradient-to-r from-green-600 to-teal-500'
-                        }`}
+                        className={`h-full rounded-full transition-all duration-500 ${porcentaje >= 80 ? 'bg-gradient-to-r from-orange-600 to-red-600' :
+                          porcentaje >= 50 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
+                            'bg-gradient-to-r from-green-600 to-teal-500'
+                          }`}
                         style={{ width: `${porcentaje}%` }}
                       />
                     </div>
@@ -232,7 +246,7 @@ const DashboardPage = () => {
               </div>
               <h2 className="text-xl md:text-2xl font-bold text-white">Últimas Reservas</h2>
             </div>
-            
+
             {loadingReservas ? (
               <div className="space-y-3">
                 {[1, 2, 3, 4].map((i) => (
@@ -259,7 +273,6 @@ const DashboardPage = () => {
                     </div>
                     <div className="flex justify-between items-center text-xs md:text-sm">
                       <span className="text-gray-400">Sala {reserva.sala}</span>
-                      <span className="text-gray-300">{reserva.asientos} asientos</span>
                     </div>
                   </div>
                 ))}

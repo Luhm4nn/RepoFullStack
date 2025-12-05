@@ -45,6 +45,14 @@ export const getPublicFunciones = async () => {
 };
 
 /**
+ * Cuenta funciones públicas
+ * @returns {Promise<number>} Cantidad de funciones públicas
+ */
+export const getCountPublic = async () => {
+  return await repository.countPublic();
+};
+
+/**
  * Crea una nueva función con validaciones
  * @param {Object} data - Datos de la función
  * @returns {Promise<Object|Error>} Función creada o Error
@@ -52,7 +60,7 @@ export const getPublicFunciones = async () => {
 export const create = async (data) => {
   const solapamiento = await verificarSolapamientos(data);
   const estrenoProblem = await verificarFechaDeEstreno(data);
-  
+
   if (solapamiento) return solapamiento;
   if (estrenoProblem) return estrenoProblem;
 
@@ -130,7 +138,7 @@ export const update = async (params, data) => {
     };
     const solapamiento = await verificarSolapamientos(datosParaValidar, funcionExistente);
     const estrenoProblem = await verificarFechaDeEstreno(datosParaValidar, funcionExistente);
-    
+
     if (solapamiento) return solapamiento;
     if (estrenoProblem) return estrenoProblem;
   }
@@ -199,7 +207,7 @@ const verificarSolapamientos = async (nuevaFuncion, funcionExistente = null) => 
 
   const duracionNuevaPelicula = parseInt(nuevaPelicula.duracion, 10);
   const funcionesMismaSala = await repository.getBySala(nuevaFuncion.idSala);
-  
+
   const funcionesFiltradas = funcionesMismaSala.filter(
     (f) =>
       !(

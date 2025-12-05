@@ -98,4 +98,20 @@ async function getAllEnCartelera() {
   });
 }
 
-export { getOne, getAll, create, deleteOne, update, getAllEnCartelera };
+/**
+ * Cuenta películas que tienen funciones públicas (en cartelera)
+ * @returns {Promise<number>} Cantidad de películas en cartelera
+ */
+async function countEnCartelera() {
+  return await prisma.pelicula.count({
+    where: {
+      funcion: {
+        some: {
+          estado: 'Publica',
+        },
+      },
+    },
+  });
+}
+
+export { getOne, getAll, create, deleteOne, update, getAllEnCartelera, countEnCartelera };

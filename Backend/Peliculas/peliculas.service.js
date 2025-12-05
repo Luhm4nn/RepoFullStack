@@ -103,6 +103,14 @@ export const getAllEnCartelera = async () => {
 };
 
 /**
+ * Cuenta películas en cartelera
+ * @returns {Promise<number>} Cantidad de películas en cartelera
+ */
+export const getCountEnCartelera = async () => {
+  return await repository.countEnCartelera();
+};
+
+/**
  * Valida cambios en fecha de estreno
  * @param {Object} data - Datos de la película
  * @returns {Error|null} Error si la validación falla

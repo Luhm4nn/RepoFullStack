@@ -25,7 +25,7 @@ export const getReserva = async (idSala, fechaHoraFuncion, DNI, fechaHoraReserva
 
 export const getLatestReservas = async (limit = 5) => {
   try {
-    const response = await axios.get(`${VITE_API_URL}/Reservas/latest?limit=${limit}`);
+    const response = await api.get(`/Reservas/latest?limit=${limit}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching latest reservas:", error);
@@ -83,3 +83,15 @@ export const getReservasByUser = async (DNI) => {
     throw error;
   }
 };
+
+export const getUserReservas = async () => {
+  try {
+    const response = await api.get('/Reservas/user');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user reservas:', error);
+    throw error;
+  }
+};
+
+

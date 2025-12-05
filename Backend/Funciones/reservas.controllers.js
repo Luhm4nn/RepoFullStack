@@ -4,7 +4,8 @@ import {
   createReserva as createReservaService,
   deleteReserva as deleteReservaService,
   cancelReserva as cancelReservaService,
-  getLatestReservas as getLatestReservasService
+  getLatestReservas as getLatestReservasService,
+  getUserReservas as getUserReservasService
 } from "./reservas.service.js";
 
 /**
@@ -57,6 +58,19 @@ export const getLatestReservas = async (req, res) => {
   const reservas = await getLatestReservasService(limit);
   res.json(reservas);
 };
+
+/**
+ * Obtiene las reservas del usuario autenticado
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ */
+export const getUserReservas = async (req, res) => {
+  const userDNI = req.user.id; // El DNI está en req.user.id
+  const reservas = await getUserReservasService(userDNI);
+  res.json(reservas);
+};
+
+
 
 /**
  * Elimina una reserva

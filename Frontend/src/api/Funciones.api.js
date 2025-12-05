@@ -3,7 +3,7 @@ import { dateFormaterBackend } from '../modules/shared';
 
 export const getFunciones = async (estado = 'activas') => {
   try {
-    const response = await api.get(`/Funciones?estado=${estado}`);
+    const response = await api.get(`/Funciones/${estado}`);
     return response.data;
   } catch (error) {
     throw error;
@@ -67,6 +67,15 @@ export const getFuncionesSemana = async (idPelicula) => {
   try {
     const response = await api.get(`/Funciones/${idPelicula}/semana`);
     return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getCountFuncionesPublicas = async () => {
+  try {
+    const response = await api.get('/Funciones/publicas/count');
+    return response.data.count;
   } catch (error) {
     throw error;
   }

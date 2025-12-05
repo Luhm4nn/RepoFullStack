@@ -207,6 +207,16 @@ async function getByPeliculaAndRange(idPelicula, fechaInicio, fechaFin) {
   });
 }
 
+/**
+ * Cuenta funciones públicas
+ * @returns {Promise<number>} Cantidad de funciones públicas
+ */
+async function countPublic() {
+  return await prisma.funcion.count({
+    where: { estado: 'Publica' },
+  });
+}
+
 export {
   getAll,
   getOne,
@@ -220,4 +230,5 @@ export {
   getPublic,
   getByPeliculaAndFecha,
   getByPeliculaAndRange,
+  countPublic,
 };

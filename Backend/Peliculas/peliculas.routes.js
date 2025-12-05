@@ -6,6 +6,7 @@ import {
   deletePelicula,
   updatePelicula,
   getPeliculasEnCartelera,
+  getCountPeliculasEnCartelera,
 } from './peliculas.controllers.js';
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { handleMoviePosterUpload } from '../Middlewares/uploadHandler.js';
@@ -19,6 +20,7 @@ const router = Router();
 router.get('/Peliculas', asyncHandler(getPeliculas));
 router.get('/Pelicula/:id', asyncHandler(getPelicula));
 router.get('/Peliculas/cartelera', asyncHandler(getPeliculasEnCartelera));
+router.get('/Peliculas/cartelera/count', asyncHandler(getCountPeliculasEnCartelera));
 
 router.post(
   '/Pelicula',

@@ -73,6 +73,7 @@ export const handleWebhook = async (req, res) => {
       logger.info('Webhook recibido:', {
         paymentId: result.id,
         status: result.status,
+        metadata: result.metadata
       });
 
       if (result.status === 'approved') {
@@ -94,12 +95,18 @@ export const handleWebhook = async (req, res) => {
           fechaHoraFuncion: fechaFuncionDate,
           DNI: parseInt(metadata.dni, 10),
           fechaHoraReserva: fechaReservaDate,
-          total: parseFloat(result.transaction_amount),
+          total: result.transaction_amount.toString(), // Convert to string for Decimal
         };
+
+        logger.info('Intentando crear reserva con datos:', reservaData);
 
         try {
           const reservaCreada = await createReserva(reservaData);
-          logger.info('Reserva creada exitosamente:', { id: reservaCreada.id });
+          logger.info('Reserva creada exitosamente:', {
+            idSala: reservaCreada.idSala,
+            fechaHoraFuncion: reservaCreada.fechaHoraFuncion,
+            DNI: reservaCreada.DNI
+          });
 
           // Crear los asientos reservados usando los mismos valores
           const asientosData = asientos.map((asiento) => ({
@@ -118,7 +125,11 @@ export const handleWebhook = async (req, res) => {
             paymentId: result.id,
           });
         } catch (createError) {
-          logger.error('Error al crear reserva/asientos:', createError);
+          logger.error('Error al crear reserva/asientos:', {
+            error: createError.message,
+            stack: createError.stack,
+            reservaData: reservaData
+          });
           throw createError;
         }
       } else {
@@ -128,7 +139,10 @@ export const handleWebhook = async (req, res) => {
 
     res.sendStatus(200);
   } catch (error) {
-    logger.error('Error manejando webhook de Mercado Pago:', error);
+    logger.error('Error manejando webhook de Mercado Pago:', {
+      error: error.message,
+      stack: error.stack
+    });
     res.sendStatus(500);
   }
 };
