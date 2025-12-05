@@ -42,7 +42,6 @@ export default function MiPerfilPage() {
           const my = Array.isArray(all) ? all.filter(r => r.DNI === auth.user.DNI) : [];
           my.sort((a, b) => new Date(a.fechaHoraFuncion) - new Date(b.fechaHoraFuncion));
           setReservas(my);
-          console.log("Mis reservas:", my);
         } catch (e) {
           setReservas([]);
         }

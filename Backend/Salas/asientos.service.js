@@ -1,48 +1,55 @@
-import {
-  getOne as getOneDB,
-  getAll as getAllDB,
-  createOne as createOneDB,
-  deleteOne as deleteOneDB,
-  updateOne as updateOneDB,
-} from './asientos.repository.js';
+import * as repository from './asientos.repository.js';
 
+/**
+ * Obtiene todos los asientos de una sala
+ * @param {number} idSala - ID de la sala
+ * @returns {Promise<Array>} Lista de asientos
+ */
 export const getAll = async (idSala) => {
-  const asientos = await getAllDB(idSala);
-  return asientos;
+  return await repository.getAll(idSala);
 };
 
-export const getOne = async (id) => {
-  const asiento = await getOneDB(id);
-  return asiento;
+/**
+ * Obtiene un asiento específico
+ * @param {Object} params - Parámetros de búsqueda
+ * @returns {Promise<Object>} Asiento encontrado
+ */
+export const getOne = async (params) => {
+  return await repository.getOne(params);
 };
 
-export const createOne = async (data) => {
-  // TODO: Implementar validaciones de negocio aquí
-  // Ejemplo: validar que no exista asiento en misma posición, validar sala, etc.
-
-  const newAsiento = await createOneDB(data);
-  return newAsiento;
+/**
+ * Crea un asiento individual
+ * @param {number} idSala - ID de la sala
+ * @param {Object} data - Datos del asiento
+ * @returns {Promise<Object>} Asiento creado
+ */
+export const create = async (idSala, data) => {
+  return await repository.create(idSala, data);
 };
 
-export const deleteOne = async (id) => {
-  // TODO: Implementar validaciones de negocio aquí
-  // Ejemplo: verificar que no tenga reservas activas antes de eliminar
-
-  const deletedAsiento = await deleteOneDB(id);
-  return deletedAsiento;
+/**
+ * Elimina un asiento
+ * @param {Object} params - Parámetros de búsqueda
+ * @returns {Promise<Object>} Asiento eliminado
+ */
+export const deleteOne = async (params) => {
+  return await repository.deleteOne(params);
 };
 
-export const updateOne = async (id, data) => {
-  const asientoExistente = await getOneDB(id);
+/**
+ * Actualiza un asiento
+ * @param {Object} params - Parámetros de búsqueda
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>} Asiento actualizado
+ * @throws {Error} Si el asiento no existe (404)
+ */
+export const update = async (params, data) => {
+  const asientoExistente = await repository.getOne(params);
   if (!asientoExistente) {
     const error = new Error('Asiento no encontrado.');
     error.status = 404;
     throw error;
   }
-
-  // TODO: Implementar validaciones de negocio aquí
-  // Ejemplo: validar cambios de estado, verificar disponibilidad, etc.
-
-  const updatedAsiento = await updateOneDB(id, data);
-  return updatedAsiento;
+  return await repository.update(params, data);
 };

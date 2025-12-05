@@ -1,31 +1,43 @@
 import prisma from '../prisma/prisma.js';
 
-// Repository for Funciones
-
-async function getAllDB() {
-  const funciones = await prisma.funcion.findMany({
+/**
+ * Obtiene todas las funciones
+ * @returns {Promise<Array>} Lista de funciones
+ */
+async function getAll() {
+  return await prisma.funcion.findMany({
     include: {
       sala: true,
       pelicula: true,
     },
   });
-  return funciones;
 }
 
-async function getOneDB(idSala_fechaHoraFuncion) {
-  const funcion = await prisma.funcion.findUnique({
+/**
+ * Obtiene una función específica
+ * @param {Object} params - Parámetros de búsqueda
+ * @param {number} params.idSala - ID de la sala
+ * @param {string|Date} params.fechaHoraFuncion - Fecha y hora de la función
+ * @returns {Promise<Object|null>} Función encontrada o null
+ */
+async function getOne({ idSala, fechaHoraFuncion }) {
+  return await prisma.funcion.findUnique({
     where: {
       idSala_fechaHoraFuncion: {
-        idSala: parseInt(idSala_fechaHoraFuncion.idSala, 10),
-        fechaHoraFuncion: idSala_fechaHoraFuncion.fechaHoraFuncion,
+        idSala: parseInt(idSala, 10),
+        fechaHoraFuncion: new Date(fechaHoraFuncion),
       },
     },
   });
-  return funcion;
 }
 
-async function createOneDB(data) {
-  const newFuncion = await prisma.funcion.create({
+/**
+ * Crea una nueva función
+ * @param {Object} data - Datos de la función
+ * @returns {Promise<Object>} Función creada
+ */
+async function create(data) {
+  return await prisma.funcion.create({
     data: {
       fechaHoraFuncion: new Date(data.fechaHoraFuncion),
       idSala: parseInt(data.idSala, 10),
@@ -33,27 +45,36 @@ async function createOneDB(data) {
       estado: 'Privada',
     },
   });
-  return newFuncion;
 }
 
-async function deleteOneDB(idSala_fechaHoraFuncion) {
-  const deletedFuncion = await prisma.funcion.delete({
+/**
+ * Elimina una función
+ * @param {Object} params - Parámetros de búsqueda
+ * @returns {Promise<Object>} Función eliminada
+ */
+async function deleteOne({ idSala, fechaHoraFuncion }) {
+  return await prisma.funcion.delete({
     where: {
       idSala_fechaHoraFuncion: {
-        idSala: parseInt(idSala_fechaHoraFuncion.idSala, 10),
-        fechaHoraFuncion: idSala_fechaHoraFuncion.fechaHoraFuncion,
+        idSala: parseInt(idSala, 10),
+        fechaHoraFuncion: new Date(fechaHoraFuncion),
       },
     },
   });
-  return deletedFuncion;
 }
 
-async function updateOneDB(idSala_fechaHoraFuncion, data) {
-  const updatedFuncion = await prisma.funcion.update({
+/**
+ * Actualiza una función
+ * @param {Object} params - Parámetros de búsqueda
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>} Función actualizada
+ */
+async function update({ idSala, fechaHoraFuncion }, data) {
+  return await prisma.funcion.update({
     where: {
       idSala_fechaHoraFuncion: {
-        idSala: parseInt(idSala_fechaHoraFuncion.idSala, 10),
-        fechaHoraFuncion: idSala_fechaHoraFuncion.fechaHoraFuncion,
+        idSala: parseInt(idSala, 10),
+        fechaHoraFuncion: new Date(fechaHoraFuncion),
       },
     },
     data: {
@@ -63,11 +84,15 @@ async function updateOneDB(idSala_fechaHoraFuncion, data) {
       estado: data.estado,
     },
   });
-  return updatedFuncion;
 }
 
-async function getFuncionesBySala(idSala) {
-  const funciones = await prisma.funcion.findMany({
+/**
+ * Obtiene funciones por sala
+ * @param {number} idSala - ID de la sala
+ * @returns {Promise<Array>} Lista de funciones
+ */
+async function getBySala(idSala) {
+  return await prisma.funcion.findMany({
     where: {
       idSala: parseInt(idSala, 10),
     },
@@ -76,11 +101,15 @@ async function getFuncionesBySala(idSala) {
       pelicula: true,
     },
   });
-  return funciones;
 }
 
-async function getFuncionesByPelicula(idPelicula) {
-  const funciones = await prisma.funcion.findMany({
+/**
+ * Obtiene funciones por película
+ * @param {number} idPelicula - ID de la película
+ * @returns {Promise<Array>} Lista de funciones
+ */
+async function getByPelicula(idPelicula) {
+  return await prisma.funcion.findMany({
     where: {
       idPelicula: parseInt(idPelicula, 10),
     },
@@ -89,46 +118,60 @@ async function getFuncionesByPelicula(idPelicula) {
       pelicula: true,
     },
   });
-  return funciones;
 }
 
-async function getInactiveFuncionesBD() {
-  const funciones = await prisma.funcion.findMany({
+/**
+ * Obtiene funciones inactivas
+ * @returns {Promise<Array>} Lista de funciones inactivas
+ */
+async function getInactive() {
+  return await prisma.funcion.findMany({
     where: { estado: 'Inactiva' },
     include: {
       sala: true,
       pelicula: true,
     },
   });
-  return funciones;
 }
 
-async function getActiveFuncionesBD() {
-  const funciones = await prisma.funcion.findMany({
+/**
+ * Obtiene funciones activas (no inactivas)
+ * @returns {Promise<Array>} Lista de funciones activas
+ */
+async function getActive() {
+  return await prisma.funcion.findMany({
     where: { estado: { not: 'Inactiva' } },
     include: {
       sala: true,
       pelicula: true,
     },
   });
-  return funciones;
 }
 
-async function getPublicFuncionesBD() {
-  const funciones = await prisma.funcion.findMany({
+/**
+ * Obtiene funciones públicas
+ * @returns {Promise<Array>} Lista de funciones públicas
+ */
+async function getPublic() {
+  return await prisma.funcion.findMany({
     where: { estado: 'Publica' },
     include: {
       sala: true,
       pelicula: true,
     },
   });
-  return funciones;
 }
 
-async function getFuncionesByPeliculaAndFecha(idPelicula, fecha) {
+/**
+ * Obtiene funciones por película y fecha
+ * @param {number} idPelicula - ID de la película
+ * @param {string} fecha - Fecha en formato YYYY-MM-DD
+ * @returns {Promise<Array>} Lista de funciones
+ */
+async function getByPeliculaAndFecha(idPelicula, fecha) {
   const fechaInicio = new Date(fecha + 'T00:00:00');
   const fechaFin = new Date(fecha + 'T23:59:59.999');
-  const funciones = await prisma.funcion.findMany({
+  return await prisma.funcion.findMany({
     where: {
       idPelicula: parseInt(idPelicula, 10),
       fechaHoraFuncion: {
@@ -140,11 +183,17 @@ async function getFuncionesByPeliculaAndFecha(idPelicula, fecha) {
       sala: true,
     },
   });
-  return funciones;
 }
 
-async function getFuncionesSemanaDB(idPelicula, fechaInicio, fechaFin) {
-  const funciones = await prisma.funcion.findMany({
+/**
+ * Obtiene funciones de una película en un rango de fechas
+ * @param {number} idPelicula - ID de la película
+ * @param {Date} fechaInicio - Fecha de inicio
+ * @param {Date} fechaFin - Fecha de fin
+ * @returns {Promise<Array>} Lista de funciones
+ */
+async function getByPeliculaAndRange(idPelicula, fechaInicio, fechaFin) {
+  return await prisma.funcion.findMany({
     where: {
       idPelicula: parseInt(idPelicula, 10),
       fechaHoraFuncion: {
@@ -156,20 +205,19 @@ async function getFuncionesSemanaDB(idPelicula, fechaInicio, fechaFin) {
       sala: true,
     },
   });
-  return funciones;
 }
 
 export {
-  getAllDB,
-  getOneDB,
-  createOneDB,
-  deleteOneDB,
-  updateOneDB,
-  getFuncionesBySala,
-  getFuncionesByPelicula,
-  getInactiveFuncionesBD,
-  getActiveFuncionesBD,
-  getFuncionesByPeliculaAndFecha,
-  getFuncionesSemanaDB,
-  getPublicFuncionesBD,
+  getAll,
+  getOne,
+  create,
+  deleteOne,
+  update,
+  getBySala,
+  getByPelicula,
+  getInactive,
+  getActive,
+  getPublic,
+  getByPeliculaAndFecha,
+  getByPeliculaAndRange,
 };

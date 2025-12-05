@@ -1,59 +1,72 @@
-import {
-    getOneDB, 
-    getAllDB, 
-    createOneDB, 
-    deleteOneDB,
-    updateOneDB, 
-    getFuncionesBySala, 
-    getFuncionesByPelicula, 
-    getActiveFuncionesBD,
-    getPublicFuncionesBD, 
-    getInactiveFuncionesBD, 
-    getFuncionesSemanaDB } from './funciones.repository.js';
+import * as repository from './funciones.repository.js';
 import { getOne as getParametroRepository } from '../Parametros/parametros.repository.js';
 import { getOne as getPeliculaRepository } from '../Peliculas/peliculas.repository.js';
 import { formatDateForBackendMessage } from '../utils/dateFormater.js';
 
+/**
+ * Obtiene todas las funciones
+ * @returns {Promise<Array>} Lista de funciones
+ */
 export const getAll = async () => {
-  const funciones = await getAllDB();
-  return funciones;
+  return await repository.getAll();
 };
 
-export const getOne = async (id) => {
-  const funcion = await getOneDB(id);
-  return funcion;
+/**
+ * Obtiene una función específica
+ * @param {Object} params - Parámetros de búsqueda
+ * @returns {Promise<Object>} Función encontrada
+ */
+export const getOne = async (params) => {
+  return await repository.getOne(params);
 };
 
+/**
+ * Obtiene funciones activas
+ * @returns {Promise<Array>} Lista de funciones activas
+ */
 export const getActiveFunciones = async () => {
-  const funciones = await getActiveFuncionesBD();
-  return funciones;
+  return await repository.getActive();
 };
 
+/**
+ * Obtiene funciones inactivas
+ * @returns {Promise<Array>} Lista de funciones inactivas
+ */
 export const getInactiveFunciones = async () => {
-  const funciones = await getInactiveFuncionesBD();
-  return funciones;
+  return await repository.getInactive();
 };
 
+/**
+ * Obtiene funciones públicas
+ * @returns {Promise<Array>} Lista de funciones públicas
+ */
 export const getPublicFunciones = async () => {
-    const funciones = await getPublicFuncionesBD();
-    return funciones;
-}
+  return await repository.getPublic();
+};
 
-export const createOne = async (data) => {
+/**
+ * Crea una nueva función con validaciones
+ * @param {Object} data - Datos de la función
+ * @returns {Promise<Object|Error>} Función creada o Error
+ */
+export const create = async (data) => {
   const solapamiento = await verificarSolapamientos(data);
   const estrenoProblem = await verificarFechaDeEstreno(data);
-  if (solapamiento) {
-    return solapamiento;
-  }
-  if (estrenoProblem) {
-    return estrenoProblem;
-  }
-  const newFuncion = await createOneDB(data);
-  return newFuncion;
+  
+  if (solapamiento) return solapamiento;
+  if (estrenoProblem) return estrenoProblem;
+
+  return await repository.create(data);
 };
 
-export const deleteOne = async (id) => {
-  const funcion = await getOneDB(id);
+/**
+ * Elimina una función
+ * @param {Object} params - Parámetros de búsqueda
+ * @returns {Promise<Object>} Función eliminada
+ * @throws {Error} Si no existe o no se puede eliminar
+ */
+export const deleteOne = async (params) => {
+  const funcion = await repository.getOne(params);
   if (!funcion) {
     const error = new Error('Función no encontrada.');
     error.status = 404;
@@ -66,17 +79,27 @@ export const deleteOne = async (id) => {
     throw error;
   }
 
-  const deletedFuncion = await deleteOneDB(id);
-  return deletedFuncion;
+  return await repository.deleteOne(params);
 };
 
+/**
+ * Obtiene funciones por ID de película
+ * @param {number} idPelicula - ID de la película
+ * @returns {Promise<Array>} Lista de funciones
+ */
 export const getFuncionesByPeliculaId = async (idPelicula) => {
-  const funciones = await getFuncionesByPelicula(idPelicula);
-  return funciones;
+  return await repository.getByPelicula(idPelicula);
 };
 
-export const updateOne = async (id, data) => {
-  const funcionExistente = await getOneDB(id);
+/**
+ * Actualiza una función con validaciones
+ * @param {Object} params - Parámetros de búsqueda
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object|Error>} Función actualizada o Error
+ * @throws {Error} Si no existe o validación falla
+ */
+export const update = async (params, data) => {
+  const funcionExistente = await repository.getOne(params);
   if (!funcionExistente) {
     const error = new Error('Función no encontrada.');
     error.status = 404;
@@ -85,7 +108,7 @@ export const updateOne = async (id, data) => {
 
   // Validations for update
   if (data.estado) {
-    if (data.estado !== 'Privada' && data.estado !== 'Publica' && data.estado !== 'Inactiva') {
+    if (!['Privada', 'Publica', 'Inactiva'].includes(data.estado)) {
       const error = new Error('Estado inválido. Solo se permiten: Privada, Publica, Inactiva.');
       error.status = 400;
       throw error;
@@ -98,7 +121,7 @@ export const updateOne = async (id, data) => {
     throw error;
   }
 
-  // if Date, Sala or Pelicula is being changed, check for overlaps
+  // Check for overlaps if critical fields change
   if (data.fechaHoraFuncion || data.idSala || data.idPelicula) {
     const datosParaValidar = {
       idSala: data.idSala || funcionExistente.idSala,
@@ -107,31 +130,31 @@ export const updateOne = async (id, data) => {
     };
     const solapamiento = await verificarSolapamientos(datosParaValidar, funcionExistente);
     const estrenoProblem = await verificarFechaDeEstreno(datosParaValidar, funcionExistente);
-    if (solapamiento) {
-      return solapamiento;
-    }
-    if (estrenoProblem) {
-      return estrenoProblem;
-    }
+    
+    if (solapamiento) return solapamiento;
+    if (estrenoProblem) return estrenoProblem;
   }
 
-  const updatedFuncion = await updateOneDB(id, data);
-  return updatedFuncion;
+  return await repository.update(params, data);
 };
 
+/**
+ * Obtiene funciones por película y fecha (o semana)
+ * @param {number} idPelicula - ID de la película
+ * @param {string} fecha - Fecha o 'semana'
+ * @returns {Promise<Array>} Lista de funciones
+ */
 export const getFuncionesByPeliculaAndFechaService = async (idPelicula, fecha) => {
   if (fecha === 'semana') {
     const hoy = new Date();
     const sieteDiasDespues = new Date();
     sieteDiasDespues.setDate(hoy.getDate() + 7);
-    const funciones = await getFuncionesSemanaDB(idPelicula, hoy, sieteDiasDespues);
-    return funciones;
+    return await repository.getByPeliculaAndRange(idPelicula, hoy, sieteDiasDespues);
   }
-  const fechaFormateada = fecha;
-  const funciones = await getFuncionesByPeliculaAndFecha(idPelicula, fechaFormateada);
-  return funciones;
+  return await repository.getByPeliculaAndFecha(idPelicula, fecha);
 };
-// validation functions
+
+// Validation functions
 
 const verificarFechaDeEstreno = async (nuevaFuncion, funcionExistente = null) => {
   const pelicula = await getPeliculaRepository(nuevaFuncion.idPelicula);
@@ -175,7 +198,8 @@ const verificarSolapamientos = async (nuevaFuncion, funcionExistente = null) => 
   }
 
   const duracionNuevaPelicula = parseInt(nuevaPelicula.duracion, 10);
-  const funcionesMismaSala = await getFuncionesBySala(nuevaFuncion.idSala);
+  const funcionesMismaSala = await repository.getBySala(nuevaFuncion.idSala);
+  
   const funcionesFiltradas = funcionesMismaSala.filter(
     (f) =>
       !(
@@ -191,16 +215,13 @@ const verificarSolapamientos = async (nuevaFuncion, funcionExistente = null) => 
   for (const funcionExistenteSala of funcionesFiltradas) {
     const fechaExistenteInicio = new Date(funcionExistenteSala.fechaHoraFuncion);
 
-    // Obtener duración de la película existente
     const peliculaExistente = await getPeliculaRepository(funcionExistenteSala.idPelicula);
     const duracionExistente = parseInt(peliculaExistente.duracion, 10);
     const fechaExistenteFin = new Date(fechaExistenteInicio.getTime() + duracionExistente * 60000);
 
-    // Verificar solapamiento considerando tiempo de limpieza
     const finExistenteMasLimpieza = new Date(fechaExistenteFin.getTime() + tiempoLimpieza * 60000);
     const finNuevaMasLimpieza = new Date(nuevaFechaFin.getTime() + tiempoLimpieza * 60000);
 
-    // Verificar si hay solapamiento
     const haySolapamiento =
       (nuevaFechaInicio < finExistenteMasLimpieza && nuevaFechaFin > fechaExistenteInicio) ||
       (fechaExistenteInicio < finNuevaMasLimpieza && fechaExistenteFin > nuevaFechaInicio);
@@ -215,6 +236,5 @@ const verificarSolapamientos = async (nuevaFuncion, funcionExistente = null) => 
     }
   }
 
-  // Si llegamos aquí, no hay solapamientos
   return null;
 };

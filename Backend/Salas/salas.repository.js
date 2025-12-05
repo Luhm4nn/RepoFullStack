@@ -1,30 +1,41 @@
 import prisma from '../prisma/prisma.js';
 
-// Repository for Salas
-
+/**
+ * Obtiene todas las salas
+ * @returns {Promise<Array>} Lista de salas
+ */
 async function getAll() {
-  const salas = await prisma.sala.findMany();
-  return salas;
+  return await prisma.sala.findMany();
 }
 
+/**
+ * Obtiene una sala por ID o Nombre
+ * @param {string|number} param - ID o Nombre de la sala
+ * @returns {Promise<Object|null>} Sala encontrada o null
+ */
 async function getOne(param) {
-  let sala;
-
   if (!isNaN(param)) {
-    sala = await prisma.sala.findUnique({
+    return await prisma.sala.findUnique({
       where: { idSala: parseInt(param, 10) },
     });
   } else {
-    sala = await prisma.sala.findUnique({
+    return await prisma.sala.findUnique({
       where: { nombreSala: param },
     });
   }
-
-  return sala;
 }
 
-async function createOne(data) {
-  const newSala = await prisma.sala.create({
+/**
+ * Crea una nueva sala
+ * @param {Object} data - Datos de la sala
+ * @param {string} data.nombreSala - Nombre de la sala
+ * @param {string} data.ubicacion - Ubicación
+ * @param {number} data.filas - Cantidad de filas
+ * @param {number} data.asientosPorFila - Asientos por fila
+ * @returns {Promise<Object>} Sala creada
+ */
+async function create(data) {
+  return await prisma.sala.create({
     data: {
       nombreSala: data.nombreSala,
       ubicacion: data.ubicacion,
@@ -32,20 +43,29 @@ async function createOne(data) {
       asientosPorFila: data.asientosPorFila,
     },
   });
-  return newSala;
 }
 
+/**
+ * Elimina una sala por ID
+ * @param {number} id - ID de la sala
+ * @returns {Promise<Object>} Sala eliminada
+ */
 async function deleteOne(id) {
-  const deletedSala = await prisma.sala.delete({
+  return await prisma.sala.delete({
     where: {
       idSala: parseInt(id, 10),
     },
   });
-  return deletedSala;
 }
 
-async function updateOne(id, data) {
-  const updatedSala = await prisma.sala.update({
+/**
+ * Actualiza una sala existente
+ * @param {number} id - ID de la sala
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>} Sala actualizada
+ */
+async function update(id, data) {
+  return await prisma.sala.update({
     where: {
       idSala: parseInt(id, 10),
     },
@@ -54,7 +74,6 @@ async function updateOne(id, data) {
       ubicacion: data.ubicacion,
     },
   });
-  return updatedSala;
 }
 
-export { getOne, getAll, createOne, deleteOne, updateOne };
+export { getAll, getOne, create, deleteOne, update };

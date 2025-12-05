@@ -1,48 +1,55 @@
-import {
-  getOne as getOneDB,
-  getAll as getAllDB,
-  createOne as createOneDB,
-  deleteOne as deleteOneDB,
-  updateOne as updateOneDB,
-} from './salas.repository.js';
+import * as repository from './salas.repository.js';
 
+/**
+ * Obtiene todas las salas
+ * @returns {Promise<Array>} Lista de salas
+ */
 export const getAll = async () => {
-  const salas = await getAllDB();
-  return salas;
+  return await repository.getAll();
 };
 
-export const getOne = async (id) => {
-  const sala = await getOneDB(id);
+/**
+ * Obtiene una sala por ID o Nombre
+ * @param {string|number} param - ID o Nombre de la sala
+ * @returns {Promise<Object>} Sala encontrada
+ * @throws {Error} Si la sala no existe (404)
+ */
+export const getOne = async (param) => {
+  const sala = await repository.getOne(param);
   return sala;
 };
 
-export const createOne = async (data) => {
-  // TODO: Implementar validaciones de negocio aquí
-  // Ejemplo: validar capacidad mínima/máxima, nombre único, etc.
-
-  const newSala = await createOneDB(data);
-  return newSala;
+/**
+ * Crea una nueva sala
+ * @param {Object} data - Datos de la sala
+ * @returns {Promise<Object>} Sala creada
+ */
+export const create = async (data) => {
+  return await repository.create(data);
 };
 
+/**
+ * Elimina una sala
+ * @param {number} id - ID de la sala
+ * @returns {Promise<Object>} Sala eliminada
+ */
 export const deleteOne = async (id) => {
-  // TODO: Implementar validaciones de negocio aquí
-  // Ejemplo: verificar que no tenga funciones programadas antes de eliminar
-
-  const deletedSala = await deleteOneDB(id);
-  return deletedSala;
+  return await repository.deleteOne(id);
 };
 
-export const updateOne = async (id, data) => {
-  const salaExistente = await getOneDB(id);
+/**
+ * Actualiza una sala existente
+ * @param {number} id - ID de la sala
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>} Sala actualizada
+ * @throws {Error} Si la sala no existe (404)
+ */
+export const update = async (id, data) => {
+  const salaExistente = await repository.getOne(id);
   if (!salaExistente) {
     const error = new Error('Sala no encontrada.');
     error.status = 404;
     throw error;
   }
-
-  // TODO: Implementar validaciones de negocio aquí
-  // Ejemplo: validar cambios de capacidad vs funciones existentes, etc.
-
-  const updatedSala = await updateOneDB(id, data);
-  return updatedSala;
+  return await repository.update(id, data);
 };
