@@ -8,8 +8,10 @@ import {
   getActiveFunciones as getActiveFuncionesService,
   getInactiveFunciones as getInactiveFuncionesService,
   getPublicFunciones as getPublicFuncionesService,
-  getCountPublic
+  getCountPublic,
+  getDetallesFuncion as getDetallesFuncionService,
 } from "./funciones.service.js";
+
 
 /**
  * Obtiene funciones de una película para la semana actual
@@ -117,6 +119,17 @@ export const getFuncion = async (req, res) => {
   }
   res.json(funcion);
 };
+
+/**
+ * Obtiene detalles de una función con estadísticas
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ */
+export const getDetallesFuncion = async (req, res) => {
+  const detalles = await getDetallesFuncionService(req.params);
+  res.json(detalles);
+};
+
 
 /**
  * Crea una nueva función

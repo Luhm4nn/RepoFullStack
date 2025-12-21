@@ -217,6 +217,56 @@ async function countPublic() {
   });
 }
 
+/**
+ * Obtiene una función con estadísticas de ocupación y ganancia
+ * @param {Object} params - Parámetros de búsqueda
+ * @param {number} params.idSala - ID de la sala
+ * @param {string|Date} params.fechaHoraFuncion - Fecha y hora de la función
+ * @returns {Promise\u003cObject|null\u003e} Función con estadísticas o null
+ */
+async function getOneWithStats({ idSala, fechaHoraFuncion }) {
+  const funcionDate = new Date(fechaHoraFuncion);
+  funcionDate.setMilliseconds(0);
+
+  // Obtener la función con sus relaciones
+  const funcion = await prisma.funcion.findUnique({
+    where: {
+      idSala_fechaHoraFuncion: {
+        idSala: parseInt(idSala, 10),
+        fechaHoraFuncion: funcionDate,
+      },
+    },
+    include: {
+      sala: true,
+      pelicula: true,
+    },
+  });
+
+  if (!funcion) {
+    return null;
+  }
+
+  // Contar asientos reservados y sumar ganancia
+  const stats = await prisma.asiento_reserva.aggregate({
+    where: {
+      idSala: parseInt(idSala, 10),
+      fechaHoraFuncion: funcionDate,
+    },
+    _count: {
+      _all: true,
+    },
+    _sum: {
+      valor: true,
+    },
+  });
+
+  return {
+    ...funcion,
+    asientosReservados: stats._count._all || 0,
+    gananciaTotal: stats._sum.valor || 0,
+  };
+}
+
 export {
   getAll,
   getOne,
@@ -231,4 +281,5 @@ export {
   getByPeliculaAndFecha,
   getByPeliculaAndRange,
   countPublic,
+  getOneWithStats,
 };

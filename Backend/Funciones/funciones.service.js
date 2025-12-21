@@ -162,6 +162,33 @@ export const getFuncionesByPeliculaAndFechaService = async (idPelicula, fecha) =
   return await repository.getByPeliculaAndFecha(idPelicula, fecha);
 };
 
+/**
+ * Obtiene detalles de una función con estadísticas
+ * @param {Object} params - Parámetros de búsqueda
+ * @returns {Promise<Object>} Función con estadísticas calculadas
+ */
+export const getDetallesFuncion = async (params) => {
+  const funcionConStats = await repository.getOneWithStats(params);
+
+  if (!funcionConStats) {
+    const error = new Error('Función no encontrada.');
+    error.status = 404;
+    throw error;
+  }
+
+  // Calcular porcentaje de ocupación
+  const totalAsientosSala = funcionConStats.sala?.cantidadAsientos || 0;
+  const porcentajeOcupacion = totalAsientosSala > 0
+    ? ((funcionConStats.asientosReservados / totalAsientosSala) * 100).toFixed(2)
+    : 0;
+
+  return {
+    ...funcionConStats,
+    porcentajeOcupacion: parseFloat(porcentajeOcupacion),
+    totalAsientosSala,
+  };
+};
+
 // Validation functions
 
 const verificarFechaDeEstreno = async (nuevaFuncion, funcionExistente = null) => {

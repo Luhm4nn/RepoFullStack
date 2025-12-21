@@ -17,6 +17,8 @@ import ModalPublishFuncion from "./ModalPublishFuncion";
 import FuncionesForm from "./FuncionesForm";
 import ErrorModal from "../../shared/components/ErrorModal.jsx";
 import FuncionesInlineFilters from "./FuncionesInlineFilters";
+import DetalleFuncionModal from "./DetalleFuncionModal";
+import { getDetallesFuncion } from "../../../api/Funciones.api";
 
 // Custom hooks
 import { useFuncionesFetch } from "../hooks/useFuncionesFetch.js";
@@ -25,7 +27,11 @@ import { useFuncionesModals } from "../hooks/useFuncionesModals.js";
 
 function FuncionesList() {
   const [mostrandoActivas, setMostrandoActivas] = useState(true);
-  
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [funcionToDetail, setFuncionToDetail] = useState(null);
+  const [detallesFuncion, setDetallesFuncion] = useState(null);
+  const [loadingDetalles, setLoadingDetalles] = useState(false);
+
   // Custom hooks
   const {
     funciones,
@@ -68,7 +74,7 @@ function FuncionesList() {
   const handleDeleteClick = async () => {
     if (!funcionToDelete) return;
     setIsDeleting(true);
-    
+
     const result = await handleDeleteFuncion(funcionToDelete);
     if (result.success) {
       closeDeleteModal();
@@ -81,7 +87,7 @@ function FuncionesList() {
   const handlePublishClick = async () => {
     if (!funcionToPublish) return;
     setIsPublishing(true);
-    
+
     const result = await handlePublishFuncion(funcionToPublish);
     if (result.success) {
       closePublishModal();
@@ -95,7 +101,7 @@ function FuncionesList() {
 
   const handleEditSubmit = async (funcionActualizada) => {
     if (!funcionToEdit) return;
-    
+
     const result = await handleUpdateFuncion(funcionToEdit, funcionActualizada);
     if (result.success) {
       closeEditModal();
@@ -105,6 +111,28 @@ function FuncionesList() {
       }
     }
   };
+
+  const openDetailModal = async (funcion) => {
+    setFuncionToDetail(funcion);
+    setShowDetailModal(true);
+    setLoadingDetalles(true);
+    try {
+      const detalles = await getDetallesFuncion(funcion.idSala, funcion.fechaHoraFuncion);
+      setDetallesFuncion(detalles);
+    } catch (error) {
+      console.error("Error cargando detalles:", error);
+      alert("Error al cargar los detalles de la función");
+    } finally {
+      setLoadingDetalles(false);
+    }
+  };
+
+  const closeDetailModal = () => {
+    setShowDetailModal(false);
+    setFuncionToDetail(null);
+    setDetallesFuncion(null);
+  };
+
 
   // Apply filters when they change
   useEffect(() => {
@@ -121,8 +149,8 @@ function FuncionesList() {
     return (
       <div className="text-center p-4">
         <p className="text-white text-xl">No se encontraron Funciones cargadas.</p>
-        <button 
-          onClick={fetchFunciones} 
+        <button
+          onClick={fetchFunciones}
           className="mt-2 px-4 py-2 w-full sm:w-auto bg-gradient-to-r from-orange-500 to-red-600 hover:bg-gradient-to-r hover:from-orange-600 hover:to-red-700 text-white rounded transition-colors text-sm"
         >
           Reintentar
@@ -140,14 +168,13 @@ function FuncionesList() {
         </h2>
         <Button
           onClick={() => setMostrandoActivas(!mostrandoActivas)}
-          className={`text-sm ${
-            mostrandoActivas 
-              ? '!bg-slate-600 hover:!bg-slate-700' 
-              : '!bg-orange-600 hover:!bg-orange-700'
-          }`}
+          className={`text-sm ${mostrandoActivas
+            ? '!bg-slate-600 hover:!bg-slate-700'
+            : '!bg-orange-600 hover:!bg-orange-700'
+            }`}
         >
-          {mostrandoActivas 
-            ? ' Ver Finalizadas' 
+          {mostrandoActivas
+            ? ' Ver Finalizadas'
             : ' Ver Activas'
           }
         </Button>
@@ -155,7 +182,7 @@ function FuncionesList() {
 
       {/* Inline filters */}
       <FuncionesInlineFilters filterHook={filterHook} />
-      
+
       <div className="hidden md:block overflow-x-auto">
         <Table >
           <TableHead>
@@ -172,8 +199,8 @@ function FuncionesList() {
             {funciones.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-4">
-                  {mostrandoActivas 
-                    ? 'No hay funciones activas registradas' 
+                  {mostrandoActivas
+                    ? 'No hay funciones activas registradas'
                     : 'No hay funciones finalizadas'
                   }
                 </TableCell>
@@ -203,14 +230,24 @@ function FuncionesList() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          className="w-full sm:w-auto text-sm bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                          onClick={() => openDetailModal(funcion)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Ver Detalle
+                        </Button>
                         {funcion.estado !== 'Inactiva' && (
-                          <Button 
-                            size="sm" 
-                            className={`w-full sm:w-auto text-sm ${
-                              funcion.estado === 'Privada'
-                                ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
-                                : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
-                            }`}
+                          <Button
+                            size="sm"
+                            className={`w-full sm:w-auto text-sm ${funcion.estado === 'Privada'
+                              ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
+                              : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
+                              }`}
                             onClick={() => openPublishModal(funcion)}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
@@ -223,10 +260,10 @@ function FuncionesList() {
                             {funcion.estado === 'Privada' ? 'Publicar' : 'Privatizar'}
                           </Button>
                         )}
-                        
+
                         {funcion.estado === 'Privada' && (
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             className="w-full sm:w-auto text-sm bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600"
                             onClick={() => openEditModal(funcion)}
                           >
@@ -238,8 +275,8 @@ function FuncionesList() {
                         )}
 
                         {(funcion.estado === 'Privada' || funcion.estado === 'Inactiva') && (
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             className="w-full sm:w-auto text-sm bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
                             onClick={() => openDeleteModal(funcion)}
                           >
@@ -263,8 +300,8 @@ function FuncionesList() {
       <div className="md:hidden space-y-4">
         {funciones.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
-            {mostrandoActivas 
-              ? 'No hay funciones activas registradas' 
+            {mostrandoActivas
+              ? 'No hay funciones activas registradas'
               : 'No hay funciones finalizadas'
             }
           </div>
@@ -273,7 +310,7 @@ function FuncionesList() {
             const { fecha, hora } = formatDateTime(funcion.fechaHoraFuncion);
             return (
               <div key={`${funcion.idSala}-${funcion.fechaHoraFuncion}`} className="bg-slate-800/50 rounded-lg border border-slate-700 p-4 space-y-3">
-                
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
@@ -301,7 +338,7 @@ function FuncionesList() {
                     </div>
                     <span>{fecha}</span>
                   </div>
-                  
+
                   <div className="flex items-center gap-2 text-gray-300">
                     <div className="w-6 h-6 bg-slate-700 rounded flex items-center justify-center flex-shrink-0">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 text-white">
@@ -321,14 +358,24 @@ function FuncionesList() {
                 </div>
 
                 <div className="flex flex-col gap-2 pt-2">
+                  <Button
+                    size="sm"
+                    className="w-full text-sm bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    onClick={() => openDetailModal(funcion)}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-2 text-white">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Ver Detalle
+                  </Button>
                   {funcion.estado !== 'Inactiva' && (
-                    <Button 
-                      size="sm" 
-                      className={`w-full text-sm ${
-                        funcion.estado === 'Privada' 
-                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700' 
-                          : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
-                      }`}
+                    <Button
+                      size="sm"
+                      className={`w-full text-sm ${funcion.estado === 'Privada'
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
+                        : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
+                        }`}
                       onClick={() => openPublishModal(funcion)}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-2 text-white">
@@ -341,10 +388,10 @@ function FuncionesList() {
                       {funcion.estado === 'Privada' ? 'Publicar' : 'Privatizar'}
                     </Button>
                   )}
-                  
+
                   {funcion.estado === 'Privada' && (
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       className="w-full text-sm bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600"
                       onClick={() => openEditModal(funcion)}
                     >
@@ -356,8 +403,8 @@ function FuncionesList() {
                   )}
 
                   {(funcion.estado === 'Privada' || funcion.estado === 'Inactiva') && (
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       className="w-full text-sm bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
                       onClick={() => openDeleteModal(funcion)}
                     >
@@ -401,14 +448,14 @@ function FuncionesList() {
       {/* Edit modal */}
       {showEditModal && (
         <Modal show={showEditModal} onClose={closeEditModal} size="xl"
-        theme={{
-          content: {
-            base: "relative h-full w-full p-4 flex items-center justify-center min-h-screen",
-            inner: "relative rounded-lg bg-slate-800 shadow flex flex-col max-h-[90vh] w-full max-w-md mx-auto"
-          }
-        }}>
+          theme={{
+            content: {
+              base: "relative h-full w-full p-4 flex items-center justify-center min-h-screen",
+              inner: "relative rounded-lg bg-slate-800 shadow flex flex-col max-h-[90vh] w-full max-w-md mx-auto"
+            }
+          }}>
           <ModalBody className="p-0">
-            <FuncionesForm 
+            <FuncionesForm
               onSubmit={handleEditSubmit}
               funcionToEdit={funcionToEdit}
               isEditing={true}
@@ -420,6 +467,17 @@ function FuncionesList() {
 
       {/* Error modal */}
       <ErrorModal error={modalError} onClose={hideError} />
+
+      {/* Detail modal */}
+      {showDetailModal && funcionToDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <DetalleFuncionModal
+            funcion={funcionToDetail}
+            detalles={detallesFuncion}
+            onClose={closeDetailModal}
+          />
+        </div>
+      )}
     </div>
   );
 }
