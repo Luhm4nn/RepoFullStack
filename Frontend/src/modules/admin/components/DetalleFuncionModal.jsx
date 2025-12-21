@@ -169,7 +169,7 @@ function DetalleFuncionModal({ funcion, onClose, detalles }) {
                                 </h4>
                             </div>
                             <p className="text-3xl font-bold text-green-400 mb-1">
-                                ${detalles?.gananciaTotal?.toFixed(2) || '0.00'}
+                                ${detalles?.gananciaTotal?.toFixed(2) || "0.00"}
                             </p>
                             <p className="text-gray-300 text-sm">
                                 Recaudado hasta el momento

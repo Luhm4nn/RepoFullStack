@@ -246,25 +246,32 @@ async function getOneWithStats({ idSala, fechaHoraFuncion }) {
     return null;
   }
 
-  // Contar asientos reservados y sumar ganancia
-  const stats = await prisma.asiento_reserva.aggregate({
+  // Contar asientos reservados
+  const asientosReservados = await prisma.asiento_reserva.count({
     where: {
       idSala: parseInt(idSala, 10),
       fechaHoraFuncion: funcionDate,
     },
-    _count: {
-      _all: true,
+  });
+
+  // Sumar ganancia de reservas activas
+  const gananciaStats = await prisma.reserva.aggregate({
+    where: {
+      idSala: parseInt(idSala, 10),
+      fechaHoraFuncion: funcionDate,
+      estado: 'ACTIVA',
     },
     _sum: {
-      valor: true,
+      total: true,
     },
   });
 
   return {
     ...funcion,
-    asientosReservados: stats._count._all || 0,
-    gananciaTotal: stats._sum.valor || 0,
+    asientosReservados: asientosReservados || 0,
+    gananciaTotal: Number(gananciaStats._sum.total) || 0,
   };
+
 }
 
 export {
