@@ -8,7 +8,8 @@ import {
   getActiveFunciones as getActiveFuncionesService,
   getInactiveFunciones as getInactiveFuncionesService,
   getPublicFunciones as getPublicFuncionesService,
-  getCountPublic
+  getCountPublic,
+  getWithFilters as getWithFiltersService,
 } from "./funciones.service.js";
 
 /**
@@ -23,14 +24,30 @@ export const getFuncionesSemana = async (req, res) => {
 };
 
 /**
- * Obtiene funciones filtradas por estado
+ * Obtiene funciones filtradas por estado o con filtros avanzados
  * @param {Object} req - Request
  * @param {Object} res - Response
+ * @query {string} estado - Estado de la función (opcional)
+ * @query {number} idPelicula - ID de película (opcional)
+ * @query {string} nombrePelicula - Nombre de película (opcional)
+ * @query {number} idSala - ID de sala (opcional)
+ * @query {string} nombreSala - Nombre de sala (opcional)
+ * @query {string} fechaDesde - Fecha desde (opcional)
+ * @query {string} fechaHasta - Fecha hasta (opcional)
+ * @query {number} limit - Límite de resultados (opcional)
  */
 export const getFunciones = async (req, res) => {
-  const { estado } = req.query;
-  let funciones;
+  const { estado, idPelicula, nombrePelicula, idSala, nombreSala, fechaDesde, fechaHasta, limit } = req.query;
 
+  // Si hay filtros avanzados, usar el nuevo servicio
+  if (idPelicula || nombrePelicula || idSala || nombreSala || fechaDesde || fechaHasta || limit) {
+    const filters = { estado, idPelicula, nombrePelicula, idSala, nombreSala, fechaDesde, fechaHasta, limit };
+    const funciones = await getWithFiltersService(filters);
+    return res.json(funciones);
+  }
+
+  // Comportamiento legacy para mantener compatibilidad
+  let funciones;
   switch (estado?.toLowerCase()) {
     case 'activas':
       funciones = await getActiveFuncionesService();

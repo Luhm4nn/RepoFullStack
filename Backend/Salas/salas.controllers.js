@@ -79,3 +79,16 @@ export const getCountSalas = async (req, res) => {
   const count = await service.getCountAll();
   res.json({ count });
 };
+
+/**
+ * Busca salas por nombre con query params
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ * @query {string} q - Término de búsqueda
+ * @query {number} limit - Límite de resultados (opcional)
+ */
+export const searchSalas = async (req, res) => {
+  const { q, limit } = req.query;
+  const salas = await service.search(q, limit);
+  res.json(salas);
+};

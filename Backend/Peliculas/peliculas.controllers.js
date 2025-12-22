@@ -98,3 +98,16 @@ export const getCountPeliculasEnCartelera = async (req, res) => {
     res.status(500).json({ message: 'Error counting peliculas en cartelera.' });
   }
 };
+
+/**
+ * Busca películas por nombre con query params
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ * @query {string} q - Término de búsqueda
+ * @query {number} limit - Límite de resultados (opcional)
+ */
+export const searchPeliculas = async (req, res) => {
+  const { q, limit } = req.query;
+  const peliculas = await service.search(q, limit);
+  res.json(peliculas);
+};

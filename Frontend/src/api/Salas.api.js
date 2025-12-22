@@ -24,14 +24,10 @@ export const searchSalas = async (query, limit = 5) => {
       return [];
     }
 
-    const response = await api.get('/Salas');
+    const response = await api.get(`/Salas/search?q=${encodeURIComponent(query)}&limit=${limit}`);
     const salas = response.data;
 
-    return salas
-      .filter((sala) =>
-        sala.nombreSala?.toLowerCase().includes(query.toLowerCase())
-      )
-      .slice(0, limit);
+    return salas;
   } catch (error) {
     throw error;
   }

@@ -84,9 +84,12 @@ export const getReservasByUser = async (DNI) => {
   }
 };
 
-export const getUserReservas = async () => {
+export const getUserReservas = async (estado = null) => {
   try {
-    const response = await api.get('/Reservas/user');
+    const url = estado 
+      ? `/Reservas/user?estado=${estado}` 
+      : '/Reservas/user';
+    const response = await api.get(url);
     return response.data;
   } catch (error) {
     console.error('Error fetching user reservas:', error);

@@ -7,18 +7,14 @@ import MisReservasList from "../components/MisReservasList";
 function MisReservasPage() {
   const navigate = useNavigate();
   const [reservas, setReservas] = useState([]);
-  const [reservasFiltradas, setReservasFiltradas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState("todas"); // todas, activas, canceladas, pasadas
+  const [todasReservas, setTodasReservas] = useState([]); // Cache de todas para contar
 
   useEffect(() => {
     fetchReservas();
-  }, []);
-
-  useEffect(() => {
-    aplicarFiltro();
-  }, [filter, reservas]);
+  }, [filter]);
 
   const fetchReservas = async () => {
     setLoading(true);
@@ -30,14 +26,34 @@ function MisReservasPage() {
         return;
       }
 
-      // Usar el nuevo endpoint que ya filtra por usuario
-      const misReservas = await getUserReservas();
+      let misReservas;
+      const ahora = new Date();
+
+      // Backend filtra por estado, frontend solo filtra fecha si es necesario
+      if (filter === 'canceladas') {
+        misReservas = await getUserReservas('CANCELADA');
+      } else if (filter === 'activas' || filter === 'pasadas') {
+        // Traer solo confirmadas y filtrar por fecha en frontend
+        const confirmadas = await getUserReservas('CONFIRMADA');
+        if (filter === 'activas') {
+          misReservas = confirmadas.filter(r => new Date(r.funcion?.fechaHoraFuncion) >= ahora);
+        } else {
+          misReservas = confirmadas.filter(r => new Date(r.funcion?.fechaHoraFuncion) < ahora);
+        }
+      } else {
+        // todas
+        misReservas = await getUserReservas();
+      }
 
       setReservas(misReservas);
+      
+      // Si es la primera carga, guardar todas para los contadores
+      if (filter === 'todas') {
+        setTodasReservas(misReservas);
+      }
     } catch (err) {
       console.error("Error fetching reservas:", err);
       if (err.response?.status === 404) {
-        // No hay reservas, no es un error
         setReservas([]);
       } else {
         setError("Error al cargar tus reservas");
@@ -47,53 +63,27 @@ function MisReservasPage() {
     }
   };
 
-  const aplicarFiltro = () => {
-    const ahora = new Date();
-
-    let filtradas = [...reservas];
-
-    switch (filter) {
-      case "activas":
-        filtradas = reservas.filter(r =>
-          r.estado === "ACTIVA" && new Date(r.fechaHoraFuncion) >= ahora
-        );
-        break;
-      case "canceladas":
-        filtradas = reservas.filter(r => r.estado === "CANCELADA");
-        break;
-      case "pasadas":
-        filtradas = reservas.filter(r =>
-          new Date(r.fechaHoraFuncion) < ahora && r.estado === "ACTIVA"
-        );
-        break;
-      case "todas":
-      default:
-        // Ya están todas
-        break;
-    }
-
-    setReservasFiltradas(filtradas);
-  };
-
   const handleReservaActualizada = () => {
-    fetchReservas(); // Recargar reservas después de cancelar
+    fetchReservas();
   };
 
   const getFilterCount = (filterType) => {
     const ahora = new Date();
+    const base = todasReservas.length > 0 ? todasReservas : reservas;
+    
     switch (filterType) {
       case "activas":
-        return reservas.filter(r =>
-          r.estado === "ACTIVA" && new Date(r.fechaHoraFuncion) >= ahora
+        return base.filter(r =>
+          r.estadoReserva === "CONFIRMADA" && new Date(r.funcion?.fechaHoraFuncion) >= ahora
         ).length;
       case "canceladas":
-        return reservas.filter(r => r.estado === "CANCELADA").length;
+        return base.filter(r => r.estadoReserva === "CANCELADA").length;
       case "pasadas":
-        return reservas.filter(r =>
-          new Date(r.fechaHoraFuncion) < ahora && r.estado === "ACTIVA"
+        return base.filter(r =>
+          r.estadoReserva === "CONFIRMADA" && new Date(r.funcion?.fechaHoraFuncion) < ahora
         ).length;
       case "todas":
-        return reservas.length;
+        return base.length;
       default:
         return 0;
     }
@@ -233,7 +223,7 @@ function MisReservasPage() {
           </div>
         ) : (
           <MisReservasList
-            reservas={reservasFiltradas}
+            reservas={reservas}
             onReservaActualizada={handleReservaActualizada}
           />
         )}

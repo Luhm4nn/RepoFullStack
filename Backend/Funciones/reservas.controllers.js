@@ -63,10 +63,12 @@ export const getLatestReservas = async (req, res) => {
  * Obtiene las reservas del usuario autenticado
  * @param {Object} req - Request
  * @param {Object} res - Response
+ * @query {string} estado - Filtra reservas por estado (CONFIRMADA, CANCELADA, opcional)
  */
 export const getUserReservas = async (req, res) => {
   const userDNI = req.user.id; // El DNI está en req.user.id
-  const reservas = await getUserReservasService(userDNI);
+  const { estado } = req.query;
+  const reservas = await getUserReservasService(userDNI, estado);
   res.json(reservas);
 };
 

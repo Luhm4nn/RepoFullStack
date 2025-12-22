@@ -84,4 +84,34 @@ async function countAll() {
   return await prisma.sala.count();
 }
 
-export { getAll, getOne, create, deleteOne, update, countAll };
+/**
+ * Busca salas por nombre con límite opcional
+ * @param {string} searchQuery - Término de búsqueda
+ * @param {number} limit - Límite de resultados (opcional)
+ * @returns {Promise<Array>} Lista de salas que coinciden con la búsqueda
+ */
+async function search(searchQuery, limit) {
+  const where = searchQuery
+    ? {
+        nombreSala: {
+          contains: searchQuery,
+          mode: 'insensitive',
+        },
+      }
+    : {};
+
+  const options = {
+    where,
+    orderBy: {
+      nombreSala: 'asc',
+    },
+  };
+
+  if (limit && !isNaN(limit) && limit > 0) {
+    options.take = parseInt(limit, 10);
+  }
+
+  return await prisma.sala.findMany(options);
+}
+
+export { getAll, getOne, create, deleteOne, update, countAll, search };

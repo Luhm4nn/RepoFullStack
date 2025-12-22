@@ -43,7 +43,7 @@ function FuncionesList() {
     handlePublishFuncion
   } = useFuncionesFetch(mostrandoActivas);
 
-  const filterHook = useFuncionesFilter(funcionesSinFiltrar, setFunciones);
+  const filterHook = useFuncionesFilter(funcionesSinFiltrar, setFunciones, mostrandoActivas);
 
   const {
     showDeleteModal,
@@ -106,12 +106,7 @@ function FuncionesList() {
     }
   };
 
-  // Apply filters when they change
-  useEffect(() => {
-    if (funcionesSinFiltrar.length > 0) {
-      filterHook.aplicarFiltros();
-    }
-  }, [filterHook.filtros, funcionesSinFiltrar, filterHook.aplicarFiltros]);
+  // No necesita useEffect aquí - el hook ya aplica filtros automáticamente con debounce
 
   if (loading) {
     return <div className="text-center p-4">Cargando Funciones...</div>;

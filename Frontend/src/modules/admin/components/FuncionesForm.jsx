@@ -1,15 +1,13 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, TextInput } from "flowbite-react";
 import { useState, useEffect } from "react";
-import { getSalas } from "../../../api/Salas.api";
-import { getPeliculas } from "../../../api/Peliculas.api";
+import { searchSalas } from "../../../api/Salas.api";
+import { searchPeliculas } from "../../../api/Peliculas.api";
 import { funcionesSchema } from "../../../validations/FuncionesSchema.js";
 import { formatDateTimeForBackend, getCurrentDateTime, formatDateForInput } from "../../shared/utils/dateFormater.js";
 
 export default function FuncionesForm({ onSubmit, funcionToEdit = null, isEditing = false, onCancel }) {
-  const [salas, setSalas] = useState([]);
-  const [peliculas, setPeliculas] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Estados para el filtrado
   const [salasFiltradas, setSalasFiltradas] = useState([]);
@@ -22,61 +20,45 @@ export default function FuncionesForm({ onSubmit, funcionToEdit = null, isEditin
   const [peliculaSeleccionada, setPeliculaSeleccionada] = useState(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
     if (funcionToEdit) {
-      const sala = salas.find(s => s.idSala === funcionToEdit.idSala);
-      const pelicula = peliculas.find(p => p.idPelicula === funcionToEdit.idPelicula);
-      setSalaSeleccionada(sala);
-      setPeliculaSeleccionada(pelicula);
-      setBusquedaSala(sala?.nombreSala || '');
-      setBusquedaPelicula(pelicula?.nombrePelicula || '');
+      // Set initial search values from funcionToEdit if editing
+      setBusquedaSala(funcionToEdit.sala?.nombreSala || '');
+      setBusquedaPelicula(funcionToEdit.pelicula?.nombrePelicula || '');
+      setSalaSeleccionada(funcionToEdit.sala || null);
+      setPeliculaSeleccionada(funcionToEdit.pelicula || null);
     }
-  }, [funcionToEdit, salas, peliculas]);
+  }, [funcionToEdit]);
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const [salasData, peliculasData] = await Promise.all([
-        getSalas(),
-        getPeliculas()
-      ]);
-      setSalas(salasData);
-      setPeliculas(peliculasData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSalaSearch = (value) => {
+  const handleSalaSearch = async (value) => {
     setBusquedaSala(value);
     if (!value.trim()) {
       setSalasFiltradas([]);
       return;
     }
-    const filtradas = salas.filter(sala => 
-      sala.nombreSala.toLowerCase().includes(value.toLowerCase()) ||
-      sala.ubicacion.toLowerCase().includes(value.toLowerCase())
-    );
-    setSalasFiltradas(filtradas);
-    setMostrarSugerenciasSalas(true);
+    try {
+      const filtradas = await searchSalas(value, 10);
+      setSalasFiltradas(filtradas);
+      setMostrarSugerenciasSalas(true);
+    } catch (error) {
+      console.error('Error searching salas:', error);
+      setSalasFiltradas([]);
+    }
   };
 
-  const handlePeliculaSearch = (value) => {
+  const handlePeliculaSearch = async (value) => {
     setBusquedaPelicula(value);
     if (!value.trim()) {
       setPeliculasFiltradas([]);
       return;
     }
-    const filtradas = peliculas.filter(pelicula => 
-      pelicula.nombrePelicula.toLowerCase().includes(value.toLowerCase())
-    );
-    setPeliculasFiltradas(filtradas);
-    setMostrarSugerenciasPeliculas(true);
+    try {
+      const filtradas = await searchPeliculas(value, 10);
+      setPeliculasFiltradas(filtradas);
+      setMostrarSugerenciasPeliculas(true);
+    } catch (error) {
+      console.error('Error searching peliculas:', error);
+      setPeliculasFiltradas([]);
+    }
   };
 
   const seleccionarSala = (sala, setFieldValue) => {
