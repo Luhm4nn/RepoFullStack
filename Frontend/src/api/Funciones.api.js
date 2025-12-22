@@ -42,7 +42,7 @@ export const getFuncionesInactivas = async () => {
 };
 
 export const getTodasLasFunciones = async () => {
-  return getFunciones({ estado: 'todas' });
+  return getFunciones();
 };
 
 export const getFuncionesPublicas = async () => {

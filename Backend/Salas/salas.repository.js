@@ -85,7 +85,7 @@ async function countAll() {
 }
 
 /**
- * Busca salas por nombre con límite opcional
+ * Busca salas por nombre o ubicación con límite opcional
  * @param {string} searchQuery - Término de búsqueda
  * @param {number} limit - Límite de resultados (opcional)
  * @returns {Promise<Array>} Lista de salas que coinciden con la búsqueda
@@ -93,10 +93,20 @@ async function countAll() {
 async function search(searchQuery, limit) {
   const where = searchQuery
     ? {
-        nombreSala: {
-          contains: searchQuery,
-          mode: 'insensitive',
-        },
+        OR: [
+          {
+            nombreSala: {
+              contains: searchQuery,
+              mode: 'insensitive',
+            },
+          },
+          {
+            ubicacion: {
+              contains: searchQuery,
+              mode: 'insensitive',
+            },
+          },
+        ],
       }
     : {};
 

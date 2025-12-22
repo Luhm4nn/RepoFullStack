@@ -1,10 +1,11 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Button, Label, TextInput } from "flowbite-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { searchSalas } from "../../../api/Salas.api";
 import { searchPeliculas } from "../../../api/Peliculas.api";
 import { funcionesSchema } from "../../../validations/FuncionesSchema.js";
 import { formatDateTimeForBackend, getCurrentDateTime, formatDateForInput } from "../../shared/utils/dateFormater.js";
+import { debounce } from "../../shared/utils/debounce.js";
 
 export default function FuncionesForm({ onSubmit, funcionToEdit = null, isEditing = false, onCancel }) {
   const [loading, setLoading] = useState(false);
@@ -29,36 +30,52 @@ export default function FuncionesForm({ onSubmit, funcionToEdit = null, isEditin
     }
   }, [funcionToEdit]);
 
-  const handleSalaSearch = async (value) => {
+  // Búsqueda de salas con debounce
+  const debouncedSalaSearch = useCallback(
+    debounce(async (value) => {
+      if (!value.trim()) {
+        setSalasFiltradas([]);
+        return;
+      }
+      try {
+        const filtradas = await searchSalas(value, 10);
+        setSalasFiltradas(filtradas);
+        setMostrarSugerenciasSalas(true);
+      } catch (error) {
+        console.error('Error searching salas:', error);
+        setSalasFiltradas([]);
+      }
+    }, 300),
+    []
+  );
+
+  const handleSalaSearch = (value) => {
     setBusquedaSala(value);
-    if (!value.trim()) {
-      setSalasFiltradas([]);
-      return;
-    }
-    try {
-      const filtradas = await searchSalas(value, 10);
-      setSalasFiltradas(filtradas);
-      setMostrarSugerenciasSalas(true);
-    } catch (error) {
-      console.error('Error searching salas:', error);
-      setSalasFiltradas([]);
-    }
+    debouncedSalaSearch(value);
   };
 
-  const handlePeliculaSearch = async (value) => {
+  // Búsqueda de películas con debounce
+  const debouncedPeliculaSearch = useCallback(
+    debounce(async (value) => {
+      if (!value.trim()) {
+        setPeliculasFiltradas([]);
+        return;
+      }
+      try {
+        const filtradas = await searchPeliculas(value, 10);
+        setPeliculasFiltradas(filtradas);
+        setMostrarSugerenciasPeliculas(true);
+      } catch (error) {
+        console.error('Error searching peliculas:', error);
+        setPeliculasFiltradas([]);
+      }
+    }, 300),
+    []
+  );
+
+  const handlePeliculaSearch = (value) => {
     setBusquedaPelicula(value);
-    if (!value.trim()) {
-      setPeliculasFiltradas([]);
-      return;
-    }
-    try {
-      const filtradas = await searchPeliculas(value, 10);
-      setPeliculasFiltradas(filtradas);
-      setMostrarSugerenciasPeliculas(true);
-    } catch (error) {
-      console.error('Error searching peliculas:', error);
-      setPeliculasFiltradas([]);
-    }
+    debouncedPeliculaSearch(value);
   };
 
   const seleccionarSala = (sala, setFieldValue) => {

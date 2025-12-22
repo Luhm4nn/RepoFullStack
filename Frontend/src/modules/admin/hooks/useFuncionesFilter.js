@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { getFunciones } from '../../../api/Funciones.api';
 import { useDebounce } from '../../shared/utils/debounce.js';
-import logger from '../../../../../Backend/utils/logger.js';
 
 export const useFuncionesFilter = (funcionesSinFiltrar, setFunciones, mostrandoActivas = true) => {
   const [filtros, setFiltros] = useState({
@@ -26,10 +25,9 @@ export const useFuncionesFilter = (funcionesSinFiltrar, setFunciones, mostrandoA
 
       // Build filters object for backend
       const backendFiltros = {
-        // Agregar estado según la pestaña actual: Publica o Privada
-        estado: mostrandoActivas ? 'Publica' || 'Privada' :  'Inactiva'
+        // Agregar estado según la pestaña actual
+        estado: mostrandoActivas ? 'activas' : 'inactivas'
       };
-      logger.debug(`Mostrando funciones con estado: ${backendFiltros.estado}`);
       // Enviar nombre de película como texto al backend
       if (debouncedPelicula.trim()) {
         backendFiltros.nombrePelicula = debouncedPelicula.trim();

@@ -268,7 +268,13 @@ async function getWithFilters(filters = {}) {
   }
 
   if (filters.estado) {
-    where.estado = filters.estado;
+    const estadoLower = filters.estado.toLowerCase();
+    // Funciones activas incluyen todas menos Inactivas
+    if (estadoLower === 'activas') {
+      where.estado = { not: 'Inactiva' };
+    }  else {
+      where.estado = filters.estado;
+    }
   }
 
   if (filters.fechaDesde || filters.fechaHasta) {
