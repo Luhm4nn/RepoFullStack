@@ -18,23 +18,134 @@ describe('Funciones API', () => {
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
     });
-  });
 
-  describe('GET /FuncionesActivas', () => {
-    test('debe retornar solo funciones activas', async () => {
-      const response = await request(app).get('/FuncionesActivas');
+    test('debe filtrar por nombrePelicula', async () => {
+      const response = await request(app).get('/Funciones').query({
+        nombrePelicula: 'test',
+      });
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
+      response.body.forEach((funcion) => {
+        if (funcion.pelicula?.nombrePelicula) {
+          expect(
+            funcion.pelicula.nombrePelicula.toLowerCase()
+          ).toContain('test');
+        }
+      });
     });
-  });
 
-  describe('GET /FuncionesPublicas', () => {
-    test('debe retornar funciones públicas sin autenticación', async () => {
-      const response = await request(app).get('/FuncionesPublicas');
+    test('debe filtrar por nombreSala (busca en nombreSala o ubicacion)', async () => {
+      const response = await request(app).get('/Funciones').query({
+        nombreSala: 'sala',
+      });
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
+      response.body.forEach((funcion) => {
+        if (funcion.sala) {
+          const matchNombre = funcion.sala.nombreSala?.toLowerCase().includes('sala');
+          const matchUbicacion = funcion.sala.ubicacion?.toLowerCase().includes('sala');
+          expect(matchNombre || matchUbicacion).toBe(true);
+        }
+      });
+    });
+
+    test('debe filtrar por estado=activas (excluye Inactiva)', async () => {
+      const response = await request(app).get('/Funciones').query({
+        estado: 'activas',
+      });
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      response.body.forEach((funcion) => {
+        expect(funcion.estado).not.toBe('Inactiva');
+      });
+    });
+
+    test('debe filtrar por estado=inactivas (solo Inactiva)', async () => {
+      const response = await request(app).get('/Funciones').query({
+        estado: 'inactivas',
+      });
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      response.body.forEach((funcion) => {
+        expect(funcion.estado).toBe('Inactiva');
+      });
+    });
+
+    test('debe filtrar por estado=publicas (solo Publica)', async () => {
+      const response = await request(app).get('/Funciones').query({
+        estado: 'publicas',
+      });
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      response.body.forEach((funcion) => {
+        expect(funcion.estado).toBe('Publica');
+      });
+    });
+
+    test('debe filtrar por fechaDesde', async () => {
+      const fechaDesde = new Date();
+      fechaDesde.setDate(fechaDesde.getDate() + 1);
+
+      const response = await request(app).get('/Funciones').query({
+        fechaDesde: fechaDesde.toISOString(),
+      });
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      response.body.forEach((funcion) => {
+        const fechaFuncion = new Date(funcion.fechaHoraFuncion);
+        expect(fechaFuncion.getTime()).toBeGreaterThanOrEqual(
+          fechaDesde.getTime()
+        );
+      });
+    });
+
+    test('debe filtrar por fechaHasta', async () => {
+      const fechaHasta = new Date();
+      fechaHasta.setDate(fechaHasta.getDate() + 7);
+
+      const response = await request(app).get('/Funciones').query({
+        fechaHasta: fechaHasta.toISOString(),
+      });
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      response.body.forEach((funcion) => {
+        const fechaFuncion = new Date(funcion.fechaHoraFuncion);
+        expect(fechaFuncion.getTime()).toBeLessThanOrEqual(
+          fechaHasta.getTime()
+        );
+      });
+    });
+
+    test('debe combinar múltiples filtros', async () => {
+      const fechaDesde = new Date();
+      const fechaHasta = new Date();
+      fechaHasta.setDate(fechaHasta.getDate() + 30);
+
+      const response = await request(app).get('/Funciones').query({
+        estado: 'activas',
+        fechaDesde: fechaDesde.toISOString(),
+        fechaHasta: fechaHasta.toISOString(),
+      });
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      response.body.forEach((funcion) => {
+        expect(funcion.estado).not.toBe('Inactiva');
+        const fechaFuncion = new Date(funcion.fechaHoraFuncion);
+        expect(fechaFuncion.getTime()).toBeGreaterThanOrEqual(
+          fechaDesde.getTime()
+        );
+        expect(fechaFuncion.getTime()).toBeLessThanOrEqual(
+          fechaHasta.getTime()
+        );
+      });
     });
   });
 
@@ -50,7 +161,6 @@ describe('Funciones API', () => {
         .post('/Funcion')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          // Datos incompletos
           idSala: 1,
         });
 
@@ -58,7 +168,6 @@ describe('Funciones API', () => {
     });
 
     test('debe detectar función antes de fecha de estreno', async () => {
-      // Crear una función antes del estreno de la película
       const fechaPasada = new Date('2020-01-01T20:00:00Z');
 
       const response = await request(app)
@@ -71,12 +180,10 @@ describe('Funciones API', () => {
           estado: 'Privada',
         });
 
-      // Puede ser 400 o el error específico de fecha de estreno
       expect([400, 404]).toContain(response.status);
     });
 
     test('debe crear función válida', async () => {
-      // Usar fecha futura
       const fechaFutura = new Date();
       fechaFutura.setDate(fechaFutura.getDate() + 7);
       fechaFutura.setHours(20, 0, 0, 0);
@@ -101,7 +208,6 @@ describe('Funciones API', () => {
           fechaHoraFuncion: response.body.fechaHoraFuncion,
         };
       } else {
-        // Puede fallar por solapamiento u otras validaciones
         expect([400, 409]).toContain(response.status);
       }
     });
@@ -109,12 +215,8 @@ describe('Funciones API', () => {
 
   describe('Validaciones de solapamiento', () => {
     test('debe detectar solapamiento de funciones', async () => {
-      if (!testFuncionId) {
-        // Skip si no se pudo crear función de prueba
-        return;
-      }
+      if (!testFuncionId) return;
 
-      // Intentar crear función en el mismo horario
       const response = await request(app)
         .post('/Funcion')
         .set('Authorization', `Bearer ${adminToken}`)
@@ -169,7 +271,6 @@ describe('Funciones API', () => {
     test('debe eliminar función privada/inactiva', async () => {
       if (!testFuncionId) return;
 
-      // Primero cambiar a Privada si no lo está
       await request(app)
         .put(`/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`)
         .set('Authorization', `Bearer ${adminToken}`)
