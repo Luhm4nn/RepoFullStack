@@ -114,4 +114,34 @@ async function countEnCartelera() {
   });
 }
 
-export { getOne, getAll, create, deleteOne, update, getAllEnCartelera, countEnCartelera };
+/**
+ * Busca películas por nombre con límite opcional
+ * @param {string} searchQuery - Término de búsqueda
+ * @param {number} limit - Límite de resultados (opcional)
+ * @returns {Promise<Array>} Lista de películas que coinciden con la búsqueda
+ */
+async function search(searchQuery, limit) {
+  const where = searchQuery
+    ? {
+        nombrePelicula: {
+          contains: searchQuery,
+          mode: 'insensitive',
+        },
+      }
+    : {};
+
+  const options = {
+    where,
+    orderBy: {
+      nombrePelicula: 'asc',
+    },
+  };
+
+  if (limit && !isNaN(limit) && limit > 0) {
+    options.take = parseInt(limit, 10);
+  }
+
+  return await prisma.pelicula.findMany(options);
+}
+
+export { getOne, getAll, create, deleteOne, update, getAllEnCartelera, countEnCartelera, search };

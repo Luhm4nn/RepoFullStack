@@ -6,6 +6,7 @@ export default {
   clearMocks: true,
   resetMocks: true,
   restoreMocks: true,
+  maxWorkers: 1,
   globalTeardown: './__tests__/globalTeardown.js',
   collectCoverageFrom: [
     '**/*.js',

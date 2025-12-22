@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { getFuncionesActivas, getFuncionesInactivas, deleteFuncion, updateFuncion } from '../../../api/Funciones.api';
-import { getPeliculas } from '../../../api/Peliculas.api';
-import { getSalas } from '../../../api/Salas.api';
 import useErrorModal from '../../shared/hooks/useErrorModal.js';
 
 export const useFuncionesFetch = (mostrandoActivas = true) => {
@@ -10,25 +8,7 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-
-  const [peliculas, setPeliculas] = useState([]); 
-  const [salas, setSalas] = useState([]);         
-  
   const { error: modalError, handleApiError, hideError } = useErrorModal();
-
-  // Load movies and rooms data
-  const loadPeliculasYSalas = async () => {
-    try {
-      const [peliculasData, salasData] = await Promise.all([
-        getPeliculas(),
-        getSalas()
-      ]);
-      setPeliculas(peliculasData);
-      setSalas(salasData);
-    } catch (error) {
-      console.error('Error loading movies and rooms:', error);
-    }
-  };
 
   // Fetch functions based on active/inactive filter
   const fetchFunciones = async () => {
@@ -102,8 +82,6 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
     setFunciones,
     funcionesSinFiltrar,
     setFuncionesSinFiltrar,
-    peliculas,
-    salas,
     loading,
     error,
     modalError,
@@ -113,7 +91,6 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
     fetchFunciones,
     handleDeleteFuncion,
     handleUpdateFuncion,
-    handlePublishFuncion,
-    loadPeliculasYSalas
+    handlePublishFuncion
   };
 };

@@ -111,6 +111,16 @@ export const getCountEnCartelera = async () => {
 };
 
 /**
+ * Busca películas por nombre
+ * @param {string} searchQuery - Término de búsqueda
+ * @param {number} limit - Límite de resultados (opcional)
+ * @returns {Promise<Array>} Lista de películas que coinciden
+ */
+export const search = async (searchQuery, limit) => {
+  return await repository.search(searchQuery, limit);
+};
+
+/**
  * Valida cambios en fecha de estreno
  * @param {Object} data - Datos de la película
  * @returns {Error|null} Error si la validación falla

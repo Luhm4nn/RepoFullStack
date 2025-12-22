@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authAPI } from "../../../api/login.api";
-import { getReservas } from "../../../api/Reservas.api";
+import { getUserReservas } from "../../../api/Reservas.api";
 import ClaquetaPersonaje from "../../shared/components/ClaquetaPersonaje";
 
 export default function MiPerfilPage() {
@@ -38,9 +38,9 @@ export default function MiPerfilPage() {
         }
         setUser(auth.user);
         try {
-          const all = await getReservas();
-          const my = Array.isArray(all) ? all.filter(r => r.DNI === auth.user.DNI) : [];
-          my.sort((a, b) => new Date(a.fechaHoraFuncion) - new Date(b.fechaHoraFuncion));
+          // Usar endpoint optimizado que ya filtra por usuario
+          const my = await getUserReservas();
+          my.sort((a, b) => new Date(a.funcion?.fechaHoraFuncion) - new Date(b.funcion?.fechaHoraFuncion));
           setReservas(my);
         } catch (e) {
           setReservas([]);
@@ -70,17 +70,17 @@ export default function MiPerfilPage() {
 
   const now = new Date();
 
-  const reservasActivas = reservas.filter(r => r.estado === "ACTIVA" && new Date(r.fechaHoraFuncion) >= now);
-  const reservasFinalizadas = reservas.filter(r => new Date(r.fechaHoraFuncion) < now);
+  const reservasActivas = reservas.filter(r => r.estadoReserva === "CONFIRMADA" && new Date(r.funcion?.fechaHoraFuncion) >= now);
+  const reservasFinalizadas = reservas.filter(r => new Date(r.funcion?.fechaHoraFuncion) < now);
   const totalGastado = reservas.reduce((s, r) => s + (parseFloat(r.total) || 0), 0);
 
   const proximaReserva = reservas
-    .filter(r => r.estado === "ACTIVA" && new Date(r.fechaHoraFuncion) >= now)
-    .sort((a, b) => new Date(a.fechaHoraFuncion) - new Date(b.fechaHoraFuncion))[0];
+    .filter(r => r.estadoReserva === "CONFIRMADA" && new Date(r.funcion?.fechaHoraFuncion) >= now)
+    .sort((a, b) => new Date(a.funcion?.fechaHoraFuncion) - new Date(b.funcion?.fechaHoraFuncion))[0];
 
   const ultimaReserva = reservas
     .slice()
-    .sort((a, b) => new Date(b.fechaHoraReserva || b.fechaHoraFuncion) - new Date(a.fechaHoraReserva || a.fechaHoraFuncion))[0];
+    .sort((a, b) => new Date(b.fechaHoraReserva || b.funcion?.fechaHoraFuncion) - new Date(a.fechaHoraReserva || a.funcion?.fechaHoraFuncion))[0];
 
   const formatDateTime = (iso) => {
     if (!iso) return "—";
