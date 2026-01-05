@@ -1,6 +1,20 @@
 import prisma from '../prisma/prisma.js';
 
 /**
+ * Parse ID de forma segura
+ * @param {*} id - ID a parsear
+ * @param {string} fieldName - Nombre del campo para el error
+ * @returns {number} ID parseado
+ */
+function safeParseInt(id, fieldName = 'ID') {
+  const parsed = parseInt(id, 10);
+  if (isNaN(parsed)) {
+    throw new Error(`${fieldName} inválido`);
+  }
+  return parsed;
+}
+
+/**
  * Obtiene todas las películas
  * @returns {Promise<Array>} Lista de películas
  */
@@ -16,7 +30,7 @@ async function getAll() {
 async function getOne(id) {
   return await prisma.pelicula.findUnique({
     where: {
-      idPelicula: parseInt(id, 10),
+      idPelicula: safeParseInt(id, 'ID de película'),
     },
   });
 }
@@ -51,7 +65,7 @@ async function create(data) {
 async function deleteOne(id) {
   return await prisma.pelicula.delete({
     where: {
-      idPelicula: parseInt(id, 10),
+      idPelicula: safeParseInt(id, 'ID de película'),
     },
   });
 }
@@ -65,7 +79,7 @@ async function deleteOne(id) {
 async function update(id, data) {
   return await prisma.pelicula.update({
     where: {
-      idPelicula: parseInt(id, 10),
+      idPelicula: safeParseInt(id, 'ID de película'),
     },
     data: {
       nombrePelicula: data.nombrePelicula,

@@ -18,12 +18,12 @@ const router = Router();
 
 router.get('/Usuarios', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(getUsuarios));
 
-router.get('/Usuario/:dni', authMiddleware, asyncHandler(getUsuario));
+router.get('/Usuario/:dni', authMiddleware, validateParams(dniParamSchema), asyncHandler(getUsuario));
 
 router.post('/Usuario', registerLimiter, validateBody(usuarioCreateSchema), asyncHandler(createUsuario));
 
-router.put('/Usuario/:dni', authMiddleware, generalLimiter, validateBody(usuarioUpdateSchema), asyncHandler(updateUsuario));
+router.put('/Usuario/:dni', authMiddleware, generalLimiter, validateParams(dniParamSchema), validateBody(usuarioUpdateSchema), asyncHandler(updateUsuario));
 
-router.delete('/Usuario/:dni', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(deleteUsuario));
+router.delete('/Usuario/:dni', authMiddleware, authorizeRoles('ADMIN'), validateParams(dniParamSchema), asyncHandler(deleteUsuario));
 
 export const usuariosRoutes = router;

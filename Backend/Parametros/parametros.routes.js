@@ -15,12 +15,12 @@ const router = Router();
 
 router.get('/Parametros', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(getParametros));
 
-router.get('/Parametro/:id', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(getParametro));
+router.get('/Parametro/:id', authMiddleware, authorizeRoles('ADMIN'), validateParams(idParamSchema), asyncHandler(getParametro));
 
 router.post('/Parametro', authMiddleware, authorizeRoles('ADMIN'), validateBody(parametrosSchema), asyncHandler(createParametro));
 
-router.put('/Parametro/:id', authMiddleware, authorizeRoles('ADMIN'), validateBody(parametrosSchema), asyncHandler(updateParametro));
+router.put('/Parametro/:id', authMiddleware, authorizeRoles('ADMIN'), validateParams(idParamSchema), validateBody(parametrosSchema), asyncHandler(updateParametro));
 
-router.delete('/Parametro/:id', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(deleteParametro));
+router.delete('/Parametro/:id', authMiddleware, authorizeRoles('ADMIN'), validateParams(idParamSchema), asyncHandler(deleteParametro));
 
 export const parametrosRoutes = router;

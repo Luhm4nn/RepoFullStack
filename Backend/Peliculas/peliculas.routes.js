@@ -20,8 +20,8 @@ import { moderateLimiter } from '../Middlewares/rateLimiter.js';
 const router = Router();
 
 router.get('/Peliculas', moderateLimiter, asyncHandler(getPeliculas));
-router.get('/Peliculas/search', moderateLimiter, asyncHandler(searchPeliculas));
-router.get('/Pelicula/:id', asyncHandler(getPelicula));
+router.get('/Peliculas/search', moderateLimiter, validateQuery(searchQuerySchema), asyncHandler(searchPeliculas));
+router.get('/Pelicula/:id', validateParams(idParamSchema), asyncHandler(getPelicula));
 router.get('/Peliculas/cartelera', moderateLimiter, asyncHandler(getPeliculasEnCartelera));
 router.get('/Peliculas/cartelera/count', asyncHandler(getCountPeliculasEnCartelera));
 
@@ -43,6 +43,6 @@ router.put(
   asyncHandler(updatePelicula)
 );
 
-router.delete('/Pelicula/:id', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(deletePelicula));
+router.delete('/Pelicula/:id', authMiddleware, authorizeRoles('ADMIN'), validateParams(idParamSchema), asyncHandler(deletePelicula));
 
 export const peliculasRoutes = router;

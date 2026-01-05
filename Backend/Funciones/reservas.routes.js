@@ -12,16 +12,17 @@ import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
 import { strictLimiter } from '../Middlewares/rateLimiter.js';
-import { validateBody } from '../Middlewares/validateRequest.js';
+import { validateBody, validateQuery } from '../Middlewares/validateRequest.js';
 import { reservaCreateSchema } from '../validations/ReservasSchema.js';
+import { reservasFilterSchema } from '../validations/CommonSchemas.js';
 
 const router = Router();
 
-router.get('/Reservas/user', authMiddleware, asyncHandler(getUserReservas));
+router.get('/Reservas/user', authMiddleware, validateQuery(reservasFilterSchema), asyncHandler(getUserReservas));
 
-router.get('/Reservas', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(getReservas));
+router.get('/Reservas', authMiddleware, authorizeRoles('ADMIN'), validateQuery(reservasFilterSchema), asyncHandler(getReservas));
 
-router.get("/Reservas/latest", asyncHandler(getLatestReservas));
+router.get("/Reservas/latest", validateQuery(reservasFilterSchema), asyncHandler(getLatestReservas));
 
 router.get(
   '/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva',

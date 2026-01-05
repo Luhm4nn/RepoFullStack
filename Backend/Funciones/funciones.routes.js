@@ -14,8 +14,9 @@ import {
 } from './funciones.controllers.js';
 
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
-import { validateBody } from '../Middlewares/validateRequest.js';
+import { validateBody, validateQuery } from '../Middlewares/validateRequest.js';
 import { funcionesSchema } from '../validations/FuncionesSchema.js';
+import { funcionesFilterSchema } from '../validations/CommonSchemas.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
 import { moderateLimiter } from '../Middlewares/rateLimiter.js';
@@ -23,7 +24,7 @@ import { moderateLimiter } from '../Middlewares/rateLimiter.js';
 const router = Router();
 
 // Rutas públicas de lectura
-router.get('/Funciones', moderateLimiter, asyncHandler(getFunciones));
+router.get('/Funciones', moderateLimiter, validateQuery(funcionesFilterSchema), asyncHandler(getFunciones));
 router.get('/Funciones/activas', asyncHandler(getActiveFuncionesEndpoint));
 router.get('/Funciones/publicas', moderateLimiter, asyncHandler(getPublicFuncionesEndpoint));
 router.get('/Funciones/publicas/count', asyncHandler(getCountPublicFunciones));
