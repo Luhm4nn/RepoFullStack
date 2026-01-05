@@ -11,6 +11,8 @@ import {
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
 import { strictLimiter } from '../Middlewares/rateLimiter.js';
+import { validateBody } from '../Middlewares/validateRequest.js';
+import { asientosReservadosSchema } from '../validations/ReservasSchema.js';
 
 const router = Router();
 router.get('/AsientoReservas', asyncHandler(getAsientoReservas));
@@ -22,7 +24,7 @@ router.get(
   asyncHandler(getAsientoReserva)
 );
 
-router.post('/AsientoReserva', authMiddleware, strictLimiter, asyncHandler(createAsientoReserva));
+router.post('/AsientoReserva', authMiddleware, strictLimiter, validateBody(asientosReservadosSchema), asyncHandler(createAsientoReserva));
 
 router.put(
   '/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva/Asiento/:filaAsiento/:nroAsiento',

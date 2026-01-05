@@ -1,7 +1,13 @@
 import { useState } from 'react';
+import { Formik, Form, Field } from 'formik';
+import { registerSchema } from '../../../validations/UsuariosSchema';
 
 const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading = false }) => {
-  const [formData, setFormData] = useState({
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('error');
+
+  const initialValues = {
     DNI: '',
     nombreUsuario: '',
     apellidoUsuario: '',
@@ -9,97 +15,18 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
     contrasena: '',
     confirmPassword: '',
     telefono: ''
-  });
-  
-  const [errors, setErrors] = useState({});
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
-  const [alertType, setAlertType] = useState('error');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.DNI.trim()) {
-      newErrors.DNI = 'El DNI es requerido';
-    } else if (!/^\d{7,8}$/.test(formData.DNI.trim())) {
-      newErrors.DNI = 'El DNI debe tener 7 u 8 dígitos';
-    }
-
-    if (!formData.nombreUsuario.trim()) {
-      newErrors.nombreUsuario = 'El nombre es requerido';
-    } else if (formData.nombreUsuario.trim().length < 2) {
-      newErrors.nombreUsuario = 'El nombre debe tener al menos 2 caracteres';
-    }
-
-    if (!formData.apellidoUsuario.trim()) {
-      newErrors.apellidoUsuario = 'El apellido es requerido';
-    } else if (formData.apellidoUsuario.trim().length < 2) {
-      newErrors.apellidoUsuario = 'El apellido debe tener al menos 2 caracteres';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'El email es requerido';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'El email no es válido';
-    }
-
-    if (!formData.contrasena.trim()) {
-      newErrors.contrasena = 'La contraseña es requerida';
-    } else if (formData.contrasena.length < 6) {
-      newErrors.contrasena = 'La contraseña debe tener al menos 6 caracteres';
-    }
-
-    if (!formData.confirmPassword.trim()) {
-      newErrors.confirmPassword = 'Confirma tu contraseña';
-    } else if (formData.contrasena !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Las contraseñas no coinciden';
-    }
-
-    if (formData.telefono.trim() && !/^\d{8,15}$/.test(formData.telefono.trim())) {
-      newErrors.telefono = 'El teléfono debe tener entre 8 y 15 dígitos';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-    setIsSubmitting(true);
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setShowAlert(false);
     try {
-      const { confirmPassword, ...dataToSend } = formData;
+      const { confirmPassword, ...dataToSend } = values;
       const result = onRegister ? await onRegister(dataToSend) : { success: false, error: 'No register handler provided' };
       if (result.success) {
         setAlertType('success');
         setAlertMessage('¡Registro exitoso! Ahora puedes iniciar sesión.');
         setShowAlert(true);
-        setFormData({
-          DNI: '',
-          nombreUsuario: '',
-          apellidoUsuario: '',
-          email: '',
-          contrasena: '',
-          confirmPassword: '',
-          telefono: ''
-        });
+        resetForm();
         setTimeout(() => {
           if (onNavigateToLogin) onNavigateToLogin();
         }, 2000);
@@ -113,7 +40,7 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
       setAlertMessage('Error inesperado. Intenta nuevamente.');
       setShowAlert(true);
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
   };
 
@@ -131,8 +58,13 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
           <p className="text-gray-400">Únete para disfrutar del mejor cine</p>
         </div>
 
-        {/* Form Card */}
-        <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700 p-6 shadow-2xl">
+        <Formik
+          initialValues={initialValues}
+          validationSchema={registerSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ errors, touched, isSubmitting }) => (
+        <Form className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700 p-6 shadow-2xl">
           {/* Alert */}
           {showAlert && (
             <div className={`mb-6 p-4 border rounded-lg flex items-start gap-3 ${
@@ -167,21 +99,19 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
               <label htmlFor="DNI" className="text-white mb-2 block font-medium">
                 DNI *
               </label>
-              <input
+              <Field
                 id="DNI"
                 name="DNI"
                 type="text"
                 placeholder="12345678"
-                value={formData.DNI}
-                onChange={handleInputChange}
                 disabled={isSubmitting || loading}
                 className={`w-full px-3 py-2 rounded-lg border transition-colors ${
-                  errors.DNI 
+                  errors.DNI && touched.DNI
                     ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500' 
                     : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               />
-              {errors.DNI && (
+              {errors.DNI && touched.DNI && (
                 <p className="mt-1 text-sm text-red-400">{errors.DNI}</p>
               )}
             </div>
@@ -192,21 +122,19 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
                 <label htmlFor="nombreUsuario" className="text-white mb-2 block font-medium">
                   Nombre *
                 </label>
-                <input
+                <Field
                   id="nombreUsuario"
                   name="nombreUsuario"
                   type="text"
                   placeholder="Juan"
-                  value={formData.nombreUsuario}
-                  onChange={handleInputChange}
                   disabled={isSubmitting || loading}
                   className={`w-full px-3 py-2 rounded-lg border transition-colors ${
-                    errors.nombreUsuario 
+                    errors.nombreUsuario && touched.nombreUsuario
                       ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500' 
                       : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 />
-                {errors.nombreUsuario && (
+                {errors.nombreUsuario && touched.nombreUsuario && (
                   <p className="mt-1 text-sm text-red-400">{errors.nombreUsuario}</p>
                 )}
               </div>
@@ -215,21 +143,19 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
                 <label htmlFor="apellidoUsuario" className="text-white mb-2 block font-medium">
                   Apellido *
                 </label>
-                <input
+                <Field
                   id="apellidoUsuario"
                   name="apellidoUsuario"
                   type="text"
                   placeholder="Pérez"
-                  value={formData.apellidoUsuario}
-                  onChange={handleInputChange}
                   disabled={isSubmitting || loading}
                   className={`w-full px-3 py-2 rounded-lg border transition-colors ${
-                    errors.apellidoUsuario 
+                    errors.apellidoUsuario && touched.apellidoUsuario
                       ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500' 
                       : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 />
-                {errors.apellidoUsuario && (
+                {errors.apellidoUsuario && touched.apellidoUsuario && (
                   <p className="mt-1 text-sm text-red-400">{errors.apellidoUsuario}</p>
                 )}
               </div>
@@ -240,21 +166,19 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
               <label htmlFor="email" className="text-white mb-2 block font-medium">
                 Email *
               </label>
-              <input
+              <Field
                 id="email"
                 name="email"
                 type="email"
                 placeholder="tu@email.com"
-                value={formData.email}
-                onChange={handleInputChange}
                 disabled={isSubmitting || loading}
                 className={`w-full px-3 py-2 rounded-lg border transition-colors ${
-                  errors.email 
+                  errors.email && touched.email
                     ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500' 
                     : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               />
-              {errors.email && (
+              {errors.email && touched.email && (
                 <p className="mt-1 text-sm text-red-400">{errors.email}</p>
               )}
             </div>
@@ -264,21 +188,19 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
               <label htmlFor="telefono" className="text-white mb-2 block font-medium">
                 Teléfono
               </label>
-              <input
+              <Field
                 id="telefono"
                 name="telefono"
                 type="text"
                 placeholder="3411234567 (opcional)"
-                value={formData.telefono}
-                onChange={handleInputChange}
                 disabled={isSubmitting || loading}
                 className={`w-full px-3 py-2 rounded-lg border transition-colors ${
-                  errors.telefono 
+                  errors.telefono && touched.telefono
                     ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500' 
                     : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               />
-              {errors.telefono && (
+              {errors.telefono && touched.telefono && (
                 <p className="mt-1 text-sm text-red-400">{errors.telefono}</p>
               )}
             </div>
@@ -289,21 +211,19 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
                 <label htmlFor="contrasena" className="text-white mb-2 block font-medium">
                   Contraseña *
                 </label>
-                <input
+                <Field
                   id="contrasena"
                   name="contrasena"
                   type="password"
                   placeholder="••••••••"
-                  value={formData.contrasena}
-                  onChange={handleInputChange}
                   disabled={isSubmitting || loading}
                   className={`w-full px-3 py-2 rounded-lg border transition-colors ${
-                    errors.contrasena 
+                    errors.contrasena && touched.contrasena
                       ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500' 
                       : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 />
-                {errors.contrasena && (
+                {errors.contrasena && touched.contrasena && (
                   <p className="mt-1 text-sm text-red-400">{errors.contrasena}</p>
                 )}
               </div>
@@ -312,21 +232,19 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
                 <label htmlFor="confirmPassword" className="text-white mb-2 block font-medium">
                   Confirmar *
                 </label>
-                <input
+                <Field
                   id="confirmPassword"
                   name="confirmPassword"
                   type="password"
                   placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
                   disabled={isSubmitting || loading}
                   className={`w-full px-3 py-2 rounded-lg border transition-colors ${
-                    errors.confirmPassword 
+                    errors.confirmPassword && touched.confirmPassword
                       ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500' 
                       : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 />
-                {errors.confirmPassword && (
+                {errors.confirmPassword && touched.confirmPassword && (
                   <p className="mt-1 text-sm text-red-400">{errors.confirmPassword}</p>
                 )}
               </div>
@@ -335,7 +253,6 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
             {/* Submit Button */}
             <button
               type="submit"
-              onClick={handleSubmit}
               className="w-full py-3 px-4 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 focus:ring-4 focus:ring-green-300 font-medium text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-6"
               disabled={isSubmitting || loading}
             >
@@ -385,7 +302,9 @@ const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading =
               </button>
             </div>
           </div>
-        </div>
+        </Form>
+          )}
+        </Formik>
 
         {/* Footer */}
         <div className="text-center mt-6 text-gray-500 text-sm">
