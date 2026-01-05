@@ -8,6 +8,39 @@ export const api = axios.create({
   withCredentials: true,
 });
 
+// Obtener token CSRF inicial al cargar la aplicación
+const initCsrfToken = async () => {
+  try {
+    await axios.get(`${API_URL}/auth/csrf-token`, {
+      withCredentials: true,
+    });
+  } catch (error) {
+    console.warn('No se pudo obtener token CSRF:', error.message);
+  }
+};
+
+// Inicializar token CSRF
+initCsrfToken();
+
+// Interceptor para inyectar token CSRF en requests
+api.interceptors.request.use(
+  (config) => {
+    // Leer el token CSRF de la cookie
+    const csrfToken = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('XSRF-TOKEN='))
+      ?.split('=')[1];
+    
+    // Agregar token al header si existe
+    if (csrfToken) {
+      config.headers['x-csrf-token'] = csrfToken;
+    }
+    
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 // Interceptor para manejar errores y refresh automático del token
 api.interceptors.response.use(
   (response) => response,
