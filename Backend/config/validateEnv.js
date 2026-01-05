@@ -1,4 +1,4 @@
-import logger from "../utils/logger";
+import logger from "../utils/logger.js";
 
 /**
  * Valida que todas las variables de entorno requeridas estén presentes
