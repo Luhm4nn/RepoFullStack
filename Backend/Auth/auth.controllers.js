@@ -1,6 +1,7 @@
 import { loginService } from './auth.service.js';
 import { handleRefreshToken, revokeRefreshToken, revokeAllSessions } from './refreshToken.service.js';
 import logger from '../utils/logger.js';
+import { generateCsrfToken } from '../config/csrf.js';
 
 /**
  * Inicia sesión de usuario
@@ -29,6 +30,16 @@ export const login = async (req, res) => {
     
     throw error;
   }
+};
+
+/**
+ * Obtiene el token CSRF para el cliente
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ */
+export const getCsrfToken = (req, res) => {
+  const token = generateCsrfToken(req, res);
+  res.json({ csrfToken: token });
 };
 
 export const refresh = handleRefreshToken;
