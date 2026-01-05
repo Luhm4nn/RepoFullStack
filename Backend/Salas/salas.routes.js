@@ -5,12 +5,13 @@ import { salasSchema, salasUpdateSchema } from '../validations/SalasSchema.js';
 import { getSalas, getSala, createSala, deleteSala, updateSala, getCountSalas, searchSalas } from './salas.controllers.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
+import { moderateLimiter } from '../Middlewares/rateLimiter.js';
 
 const router = Router();
 
-router.get('/Salas', asyncHandler(getSalas));
+router.get('/Salas', moderateLimiter, asyncHandler(getSalas));
 
-router.get('/Salas/search', asyncHandler(searchSalas));
+router.get('/Salas/search', moderateLimiter, asyncHandler(searchSalas));
 
 router.get('/Salas/count', asyncHandler(getCountSalas));
 

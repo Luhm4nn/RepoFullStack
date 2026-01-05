@@ -34,3 +34,11 @@ export const strictLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+export const moderateLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 200,
+  message: 'Has excedido el límite de peticiones. Intenta más tarde.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});

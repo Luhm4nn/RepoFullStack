@@ -18,16 +18,17 @@ import { validateBody } from '../Middlewares/validateRequest.js';
 import { funcionesSchema } from '../validations/FuncionesSchema.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
+import { moderateLimiter } from '../Middlewares/rateLimiter.js';
 
 const router = Router();
 
 // Rutas públicas de lectura
-router.get('/Funciones', asyncHandler(getFunciones));
+router.get('/Funciones', moderateLimiter, asyncHandler(getFunciones));
 router.get('/Funciones/activas', asyncHandler(getActiveFuncionesEndpoint));
-router.get('/Funciones/publicas', asyncHandler(getPublicFuncionesEndpoint));
+router.get('/Funciones/publicas', moderateLimiter, asyncHandler(getPublicFuncionesEndpoint));
 router.get('/Funciones/publicas/count', asyncHandler(getCountPublicFunciones));
-router.get('/Funciones/:idPelicula/semana', asyncHandler(getFuncionesSemana));
-router.get('/Funciones/:idPelicula/:fecha', asyncHandler(getFuncionesByPeliculaAndFecha));
+router.get('/Funciones/:idPelicula/semana', moderateLimiter, asyncHandler(getFuncionesSemana));
+router.get('/Funciones/:idPelicula/:fecha', moderateLimiter, asyncHandler(getFuncionesByPeliculaAndFecha));
 router.get('/Funcion/:idSala/:fechaHoraFuncion', asyncHandler(getFuncion));
 
 // Rutas protegidas (ADMIN)

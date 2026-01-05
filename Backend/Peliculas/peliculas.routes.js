@@ -15,13 +15,14 @@ import { validateBody } from '../Middlewares/validateRequest.js';
 import { peliculaSchema } from '../validations/PeliculasSchema.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
+import { moderateLimiter } from '../Middlewares/rateLimiter.js';
 
 const router = Router();
 
-router.get('/Peliculas', asyncHandler(getPeliculas));
-router.get('/Peliculas/search', asyncHandler(searchPeliculas));
+router.get('/Peliculas', moderateLimiter, asyncHandler(getPeliculas));
+router.get('/Peliculas/search', moderateLimiter, asyncHandler(searchPeliculas));
 router.get('/Pelicula/:id', asyncHandler(getPelicula));
-router.get('/Peliculas/cartelera', asyncHandler(getPeliculasEnCartelera));
+router.get('/Peliculas/cartelera', moderateLimiter, asyncHandler(getPeliculasEnCartelera));
 router.get('/Peliculas/cartelera/count', asyncHandler(getCountPeliculasEnCartelera));
 
 router.post(
