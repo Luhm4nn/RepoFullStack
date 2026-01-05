@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
+import { loginSchema } from '../../../validations/AuthSchema';
 
 
 const LoginForm = ({ onLogin, onNavigateToRegister, onNavigateHome, loading = false }) => {
@@ -11,15 +11,6 @@ const LoginForm = ({ onLogin, onNavigateToRegister, onNavigateHome, loading = fa
     email: '',
     password: ''
   };
-
-  const validationSchema = Yup.object({
-    email: Yup.string()
-      .email('El email no es válido')
-      .required('El email es requerido'),
-    password: Yup.string()
-      .min(6, 'La contraseña debe tener al menos 6 caracteres')
-      .required('La contraseña es requerida')
-  });
 
   const handleSubmit = async (values, { setSubmitting }) => {
     setShowAlert(false);
@@ -77,7 +68,7 @@ const LoginForm = ({ onLogin, onNavigateToRegister, onNavigateHome, loading = fa
 
           <Formik
             initialValues={initialValues}
-            validationSchema={validationSchema}
+            validationSchema={loginSchema}
             onSubmit={handleSubmit}
           >
             {({ isSubmitting }) => (
