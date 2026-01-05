@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import app from './app.js';
 import { iniciarCronFunciones } from './jobs/funcionesCron.js';
 import logger from './utils/logger.js';

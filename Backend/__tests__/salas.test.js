@@ -116,7 +116,7 @@ describe('Salas API', () => {
     test('debe validar campos requeridos', async () => {
       const response = await request(app)
         .post('/Sala')
-        .set('Authorization', `Bearer ${adminToken}`)
+        .set('Cookie', adminToken)
         .send({
           nombreSala: 'Sala Incompleta',
         });

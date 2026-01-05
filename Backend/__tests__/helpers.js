@@ -23,16 +23,20 @@ export const getAdminToken = async () => {
   });
 
   if (response.status === 200) {
-    adminToken = response.body.token;
-    return adminToken;
+    // Capturar cookies de la respuesta
+    const cookies = response.headers['set-cookie'];
+    if (cookies) {
+      adminToken = cookies;
+      return adminToken;
+    }
   }
 
-  throw new Error('No se pudo obtener token de admin. Asegúrate de tener un usuario admin en la BD.');
+  throw new Error('No se pudo obtener token de admin (Cookies).');
 };
 
 /**
  * Obtiene un token de usuario normal para testing
- * @returns {Promise<string>} Token de autenticación de usuario
+ * @returns {Promise<Array>} Cookies de autenticación de usuario
  */
 export const getUserToken = async () => {
   if (userToken) return userToken;
@@ -59,8 +63,11 @@ export const getUserToken = async () => {
     });
 
     if (loginResponse.status === 200) {
-      userToken = loginResponse.body.token;
-      return userToken;
+      const cookies = loginResponse.headers['set-cookie'];
+      if (cookies) {
+        userToken = cookies;
+        return userToken;
+      }
     }
   }
 

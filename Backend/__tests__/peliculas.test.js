@@ -135,7 +135,7 @@ describe('Peliculas API', () => {
     test('debe validar campos requeridos', async () => {
       const response = await request(app)
         .post('/Pelicula')
-        .set('Authorization', `Bearer ${adminToken}`)
+        .set('Cookie', adminToken)
         .send({
           nombrePelicula: 'Película Incompleta',
         });

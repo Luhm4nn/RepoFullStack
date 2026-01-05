@@ -6,7 +6,6 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -19,11 +18,9 @@ export const AuthProvider = ({ children }) => {
       const authData = authAPI.checkAuth();
       if (authData) {
         setUser(authData.user);
-        setToken(authData.token);
         setIsAuthenticated(true);
       }
     } catch (error) {
-  // Error verificando autenticación
       logout();
     } finally {
       setLoading(false);
@@ -33,15 +30,13 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setLoading(true);
-      const { token: newToken, user: userData } = await authAPI.login(email, password);
+      const { user: userData } = await authAPI.login(email, password);
       
       setUser(userData);
-      setToken(newToken);
       setIsAuthenticated(true);
       
       return { success: true, user: userData };
     } catch (error) {
-  // Error en login
       return { 
         success: false, 
         error: error.message || 'Error en el login' 
@@ -56,10 +51,9 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       await authAPI.logout();
     } catch (error) {
-  // Error en logout
+      // Error en logout
     } finally {
       setUser(null);
-      setToken(null);
       setIsAuthenticated(false);
       setLoading(false);
     }
@@ -87,7 +81,6 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       const result = await usuariosAPI.register(userData);
       setUser(result.user);
-      setToken(result.token);
       setIsAuthenticated(true);
       return { success: true, ...result };
     } catch (error) {
@@ -102,7 +95,6 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
-    token,
     loading,
     isAuthenticated,
     login,

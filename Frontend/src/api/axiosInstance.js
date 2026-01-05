@@ -8,20 +8,6 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-// Interceptor para agregar el token automáticamente a todas las requests
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
 // Interceptor para manejar errores y refresh automático del token
 api.interceptors.response.use(
   (response) => response,
@@ -31,20 +17,12 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const response = await axios.post(
-          `${API_URL}/auth/refresh`,
-          {},
-          {
-            withCredentials: true,
-          }
-        );
+        await axios.post(`${API_URL}/auth/refresh`, {}, {
+          withCredentials: true,
+        });
 
-        const { accessToken } = response.data;
-        localStorage.setItem('accessToken', accessToken);
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        localStorage.removeItem('accessToken');
         localStorage.removeItem('user');
         window.location.href = '/login';
         return Promise.reject(refreshError);
