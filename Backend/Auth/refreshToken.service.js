@@ -48,7 +48,12 @@ export async function handleRefreshToken(req, res) {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ accessToken: newAccessToken });
+    res.cookie('accessToken', newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 1000,
+    });
   } catch (err) {
     return res.status(401).json({ message: 'Refresh token inválido o expirado' });
   }
@@ -58,7 +63,9 @@ export async function revokeRefreshToken(req, res) {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) return res.status(400).json({ message: 'No refresh token' });
   await deleteRefreshToken(refreshToken);
-  res.clearCookie('refreshToken').json({ message: 'Sesión cerrada' });
+  res.clearCookie('refreshToken');
+  res.clearCookie('accessToken');
+  res.json({ message: 'Sesión cerrada' });
 }
 
 export async function revokeAllSessions(req, res) {

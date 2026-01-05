@@ -159,7 +159,7 @@ describe('Funciones API', () => {
     test('debe validar campos requeridos', async () => {
       const response = await request(app)
         .post('/Funcion')
-        .set('Authorization', `Bearer ${adminToken}`)
+        .set('Cookie', adminToken)
         .send({
           idSala: 1,
         });
@@ -172,7 +172,7 @@ describe('Funciones API', () => {
 
       const response = await request(app)
         .post('/Funcion')
-        .set('Authorization', `Bearer ${adminToken}`)
+        .set('Cookie', adminToken)
         .send({
           idSala: 1,
           idPelicula: 1,
@@ -197,7 +197,7 @@ describe('Funciones API', () => {
 
       const response = await request(app)
         .post('/Funcion')
-        .set('Authorization', `Bearer ${adminToken}`)
+        .set('Cookie', adminToken)
         .send(nuevaFuncion);
 
       if (response.status === 201) {
@@ -219,7 +219,7 @@ describe('Funciones API', () => {
 
       const response = await request(app)
         .post('/Funcion')
-        .set('Authorization', `Bearer ${adminToken}`)
+        .set('Cookie', adminToken)
         .send({
           idSala: testFuncionId.idSala,
           idPelicula: 1,
@@ -248,7 +248,7 @@ describe('Funciones API', () => {
 
       const response = await request(app)
         .put(`/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`)
-        .set('Authorization', `Bearer ${adminToken}`)
+        .set('Cookie', adminToken)
         .send({ estado: 'Publica' });
 
       if (response.status === 200) {
@@ -273,12 +273,12 @@ describe('Funciones API', () => {
 
       await request(app)
         .put(`/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`)
-        .set('Authorization', `Bearer ${adminToken}`)
+        .set('Cookie', adminToken)
         .send({ estado: 'Privada' });
 
       const response = await request(app)
         .delete(`/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`)
-        .set('Authorization', `Bearer ${adminToken}`);
+        .set('Cookie', adminToken);
 
       expect([200, 403]).toContain(response.status);
     });

@@ -29,6 +29,7 @@ Para la gestión del proyecto se adoptó una **metodología ágil adaptada**, ba
 ## Características
 
 ### Para Usuarios
+
 - **Explorar Cartelera**: Navega por las películas en exhibición con información detallada
 - **Selección de Funciones**: Elige fecha, hora y sala para tu película favorita
 - **Mapa de Asientos**: Selector visual interactivo con asientos normales y VIP
@@ -37,6 +38,7 @@ Para la gestión del proyecto se adoptó una **metodología ágil adaptada**, ba
 - **Gestión de Reservas**: Crea, visualiza y cancela tus reservas
 
 ### Para Administradores
+
 - **Gestión de Películas**: CRUD completo con carga de imágenes (Cloudinary)
 - **Gestión de Salas**: Crear y configurar salas con asientos VIP
 - **Programación de Funciones**: Asignar películas a salas y horarios
@@ -45,6 +47,7 @@ Para la gestión del proyecto se adoptó una **metodología ágil adaptada**, ba
 ## Tecnologías
 
 ### Frontend
+
 - **React 18** - Biblioteca de UI
 - **Vite** - Build tool y dev server
 - **React Router v6** - Enrutamiento
@@ -54,15 +57,35 @@ Para la gestión del proyecto se adoptó una **metodología ágil adaptada**, ba
 - **Lucide React** - Iconos
 
 ### Backend
+
 - **Node.js** - Runtime de JavaScript
 - **Express.js** - Framework web
 - **Prisma ORM** - Base de datos
 - **PostgreSQL** - Base de datos relacional
 - **JWT** - Autenticación
 - **Bcrypt** - Hashing de contraseñas
+- **Cookie-Parser** - Manejo de cookies seguras
 - **Yup** - Validación de schemas
 - **Mercado Pago SDK** - Integración de pagos
 - **Cloudinary** - Almacenamiento de imágenes
+
+## Seguridad y Autenticación
+
+El sistema implementa un robusto mecanismo de autenticación basado en **JWT (JSON Web Tokens)** con las siguientes características de seguridad:
+
+### 🔒 Cookies httpOnly
+
+A diferencia del almacenamiento tradicional en `localStorage`, los tokens de acceso (`accessToken`) y refresco (`refreshToken`) se almacenan exclusivamente en **cookies httpOnly**.
+
+- **Protección XSS**: Las cookies httpOnly no pueden ser leídas ni manipuladas por JavaScript, protegiendo contra ataques de Cross-Site Scripting.
+- **Transparencia**: El navegador envía automáticamente las credenciales en cada petición al backend.
+- **Refresh Automático**: El sistema maneja transparentemente la expiración del token mediante un interceptor que renueva las credenciales sin afectar la experiencia del usuario.
+
+### 🛡️ Medidas Adicionales
+
+- **SameSite**: Configurado como `Strict` o `Lax` para prevenir CSRF.
+- **Secure**: Las cookies solo se envían por HTTPS en producción.
+- **Rotación de Refresh Tokens**: Cada vez que se usa un refresh token, se invalida y se emite uno nuevo para detectar robos de sesión.
 
 ## Requisitos Previos
 
@@ -244,19 +267,21 @@ npm run preview
 ## Usuarios de Prueba
 
 ### Administrador
+
 ```
 Email: admin@cutzy.com
 Contraseña: 123456
 ```
 
 ### Usuario Regular
+
 ```
 Email: cliente@cutzy.com
 Contraseña: 123456
 ```
 
-
 ### Error con Prisma
+
 ```bash
 # Regenerar el cliente de Prisma
 npx prisma generate
@@ -264,6 +289,7 @@ npx prisma generate
 ```
 
 ### Webhooks de Mercado Pago no funcionan
+
 ```bash
 # Asegúrate de que ngrok esté corriendo
 ngrok http 4000
@@ -275,9 +301,11 @@ NGROK_URL="https://nuevo-subdominio.ngrok.io"
 ```
 
 ### Error de CORS
+
 Verifica que `VITE_API_URL` en el frontend apunte correctamente al backend.
 
 ### Imágenes no se cargan
+
 Verifica las credenciales de Cloudinary en el archivo `.env` del backend.
 
 ## Notas Adicionales

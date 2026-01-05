@@ -18,7 +18,7 @@ export const loginService = async (email, password, res) => {
     error.status = 401;
     throw error;
   }
-  
+
   const valid = await bcrypt.compare(password, user.contrasena);
   if (!valid) {
     const error = new Error('Usuario o contraseña incorrectos');
@@ -28,11 +28,11 @@ export const loginService = async (email, password, res) => {
 
   const accessToken = generateAccessToken({ id: user.DNI, email: user.email, rol: user.rol });
   const refreshToken = generateRefreshToken({ id: user.DNI, email: user.email, rol: user.rol });
-  
+
   await saveRefreshToken(user.DNI, refreshToken);
-  
+
   const { contrasena, ...userSafe } = user;
-  
+
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -40,5 +40,12 @@ export const loginService = async (email, password, res) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
-  return { token: accessToken, user: userSafe };
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
+    maxAge: 60 * 60 * 1000,
+  });
+
+  return { user: userSafe };
 };
