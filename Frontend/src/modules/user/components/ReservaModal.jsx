@@ -1,14 +1,16 @@
 import { useState } from "react";
+import { Formik, Form, Field } from "formik";
 import SeatSelectorReserva from "./SeatSelectorReserva";
 import PaymentStep from "./PaymentStep";
 import { createReserva } from "../../../api/Reservas.api";
 import { createAsientosReservados } from "../../../api/AsientoReservas.api";
 import { formatDateTime } from "../../shared";
+import { reservaSchema } from "../../../validations/ReservasSchema";
 
 function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
   const [step, setStep] = useState(1); // 1: selección asientos, 2: confirmación, 3: pago, 4: éxito
   const [selectedSeatsData, setSelectedSeatsData] = useState({ seats: [], total: 0, count: 0 });
-  const [dni, setDni] = useState("");
+  const [confirmedDNI, setConfirmedDNI] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -27,12 +29,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
     setStep(2);
   };
 
-  const handleConfirmarReserva = async () => {
-    if (!dni || dni.length < 7) {
-      setError("Ingresa un DNI válido");
-      return;
-    }
-
+  const handleConfirmarReserva = async (values, { setSubmitting }) => {
     setLoading(true);
     setError(null);
 
@@ -43,7 +40,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
       const reservaData = {
         idSala: funcion.idSala,
         fechaHoraFuncion: funcion.fechaHoraFuncion,
-        DNI: parseInt(dni, 10),
+        DNI: parseInt(values.DNI, 10),
         total: selectedSeatsData.total,
         fechaHoraReserva: fechaHoraReserva
       };
@@ -62,13 +59,16 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
         filaAsiento: seat.filaAsiento,
         nroAsiento: seat.nroAsiento,
         fechaHoraFuncion: funcion.fechaHoraFuncion,
-        DNI: parseInt(dni, 10),
+        DNI: parseInt(values.DNI, 10),
         fechaHoraReserva: fechaHoraReserva
       }));
 
       console.log('Creando asientos reservados:', asientosData);
       await createAsientosReservados(asientosData);
       console.log('Asientos creados exitosamente');
+
+      // Guardar DNI para mostrar en step 4
+      setConfirmedDNI(values.DNI);
 
       // 3. Simular pago
       setStep(3);
@@ -77,6 +77,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
       setTimeout(() => {
         setStep(4);
         setLoading(false);
+        setSubmitting(false);
       }, 2000);
 
     } catch (err) {
@@ -89,6 +90,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
 
       setError(err.response?.data?.message || "Error al procesar la reserva. Intenta nuevamente.");
       setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -165,7 +167,16 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
 
           {/* Step 2: Confirmación y datos del usuario */}
           {step === 2 && (
-            <div className="space-y-6">
+            <Formik
+              initialValues={{ 
+                DNI: '', 
+                selectedSeats: selectedSeatsData.seats 
+              }}
+              validationSchema={reservaSchema}
+              onSubmit={handleConfirmarReserva}
+            >
+              {({ errors, touched, isSubmitting }) => (
+                <Form className="space-y-6">
               <div>
                 <h3 className="text-xl font-bold text-white mb-4">Confirma tu reserva</h3>
 
@@ -194,20 +205,28 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
 
                 {/* Formulario DNI */}
                 <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-                  <label className="block text-white font-semibold mb-2">
+                  <label htmlFor="DNI" className="block text-white font-semibold mb-2">
                     DNI del titular de la reserva:
                   </label>
-                  <input
+                  <Field
+                    id="DNI"
+                    name="DNI"
                     type="text"
-                    value={dni}
-                    onChange={(e) => setDni(e.target.value.replace(/\D/g, ""))}
                     placeholder="Ingresa tu DNI"
                     maxLength={8}
-                    className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className={`w-full px-4 py-3 rounded-lg border transition-colors ${
+                      errors.DNI && touched.DNI
+                        ? 'bg-slate-700 border-red-500 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent'
+                        : 'bg-slate-700 border-slate-600 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent'
+                    }`}
                   />
-                  <p className="text-gray-400 text-sm mt-2">
-                    Solo números, sin puntos ni espacios
-                  </p>
+                  {errors.DNI && touched.DNI ? (
+                    <p className="text-red-400 text-sm mt-2">{errors.DNI}</p>
+                  ) : (
+                    <p className="text-gray-400 text-sm mt-2">
+                      Solo números, sin puntos ni espacios
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -219,21 +238,24 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
 
               <div className="flex justify-end gap-4">
                 <button
+                  type="button"
                   onClick={() => setStep(1)}
                   className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-semibold transition-colors"
-                  disabled={loading}
+                  disabled={isSubmitting || loading}
                 >
                   Volver
                 </button>
                 <button
-                  onClick={handleConfirmarReserva}
-                  disabled={loading || !dni || dni.length < 7}
+                  type="submit"
+                  disabled={isSubmitting || loading}
                   className="px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
-                  {loading ? "Procesando..." : "Confirmar y Pagar"}
+                  {loading || isSubmitting ? "Procesando..." : "Confirmar y Pagar"}
                 </button>
               </div>
-            </div>
+                </Form>
+              )}
+            </Formik>
           )}
 
           {/* Step 3: Procesando pago */}
@@ -270,7 +292,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
                   <p><span className="text-gray-400">Hora:</span> {hora}</p>
                   <p><span className="text-gray-400">Sala:</span> {funcion.sala?.nombreSala || `Sala ${funcion.idSala}`}</p>
                   <p><span className="text-gray-400">Asientos:</span> {selectedSeatsData.count}</p>
-                  <p><span className="text-gray-400">DNI:</span> {dni}</p>
+                  <p><span className="text-gray-400">DNI:</span> {confirmedDNI}</p>
                   <div className="pt-4 border-t border-slate-700">
                     <p className="text-lg">
                       <span className="text-gray-400">Total pagado:</span>

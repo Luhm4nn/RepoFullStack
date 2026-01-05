@@ -1,6 +1,5 @@
 import * as Yup from 'yup';
 
-// Schema para crear una reserva
 export const reservaCreateSchema = Yup.object().shape({
   idSala: Yup.number()
     .required('El ID de sala es requerido')
@@ -36,7 +35,6 @@ export const reservaCreateSchema = Yup.object().shape({
     .required('La fecha y hora de reserva es requerida'),
 });
 
-// Schema para array de asientos reservados
 export const asientosReservadosSchema = Yup.array().of(
   Yup.object().shape({
     idSala: Yup.number()
@@ -47,7 +45,9 @@ export const asientosReservadosSchema = Yup.array().of(
     filaAsiento: Yup.string()
       .required('La fila del asiento es requerida')
       .length(1, 'La fila debe ser una sola letra')
-      .matches(/^[A-Z]$/, 'La fila debe ser una letra mayúscula'),
+      .matches(/^[A-Z]$/, 'La fila debe ser una letra mayúscula')
+      .uppercase()
+      .trim(),
     
     nroAsiento: Yup.number()
       .required('El número de asiento es requerido')

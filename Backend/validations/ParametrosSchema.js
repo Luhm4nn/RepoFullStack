@@ -4,7 +4,8 @@ const parametrosSchema = Yup.object().shape({
   descripcionParametro: Yup.string()
     .required('La descripción es requerida')
     .min(1, 'La descripción debe tener al menos 1 caracter')
-    .max(45, 'La descripción no puede exceder 45 caracteres'),
+    .max(45, 'La descripción no puede exceder 45 caracteres')
+    .trim(),
   valor: Yup.number()
     .required('El valor es requerido')
     .min(1, 'El valor debe ser mayor a 0')

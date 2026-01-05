@@ -1,6 +1,5 @@
 import * as Yup from 'yup';
 
-// Schema para validar login
 export const loginSchema = Yup.object().shape({
   email: Yup.string()
     .required('El email es requerido')

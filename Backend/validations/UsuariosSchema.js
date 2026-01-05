@@ -1,6 +1,5 @@
 import * as Yup from 'yup';
 
-// Schema para CREAR usuario (registro desde backend)
 export const usuarioCreateSchema = Yup.object().shape({
   DNI: Yup.string()
     .required('El DNI es requerido')
@@ -36,7 +35,6 @@ export const usuarioCreateSchema = Yup.object().shape({
     .trim(),
 });
 
-// Schema para ACTUALIZAR usuario (sin contraseña ni DNI)
 export const usuarioUpdateSchema = Yup.object().shape({
   nombreUsuario: Yup.string()
     .min(2, 'El nombre debe tener al menos 2 caracteres')
