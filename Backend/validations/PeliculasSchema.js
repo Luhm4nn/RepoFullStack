@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import xss from 'xss';
 
 // Esquema compartido para películas
 export const peliculaSchema = Yup.object().shape({
@@ -30,13 +31,13 @@ export const peliculaSchema = Yup.object().shape({
   sinopsis: Yup.string()
     .max(1000, 'Máximo 1000 caracteres')
     .trim()
-    .transform((value) => value || null)
+    .transform((value) => value ? xss(value) : null)
     .nullable(),
 
   trailerURL: Yup.string()
     .url('Debe ser una URL válida')
     .trim()
-    .transform((value) => value || null)
+    .transform((value) => value ? xss(value) : null)
     .nullable(),
 
   portada: Yup.mixed().nullable(),

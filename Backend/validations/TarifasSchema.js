@@ -1,11 +1,13 @@
 import * as Yup from 'yup';
+import xss from 'xss';
 
 const tarifasSchema = Yup.object().shape({
   descripcionTarifa: Yup.string()
     .required('La descripción es requerida')
     .min(3, 'La descripción debe tener al menos 3 caracteres')
     .max(100, 'La descripción no puede exceder 100 caracteres')
-    .trim(),
+    .trim()
+    .transform((value) => xss(value)),
   precio: Yup.number()
     .required('El precio es requerido')
     .positive('El precio debe ser un número positivo')
