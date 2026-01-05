@@ -10,8 +10,9 @@ import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { registerLimiter, generalLimiter } from '../Middlewares/rateLimiter.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
-import { validateBody } from '../Middlewares/validateRequest.js';
+import { validateBody, validateParams } from '../Middlewares/validateRequest.js';
 import { usuarioCreateSchema, usuarioUpdateSchema } from '../validations/UsuariosSchema.js';
+import { dniParamSchema } from '../validations/CommonSchemas.js';
 
 
 const router = Router();

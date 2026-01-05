@@ -21,7 +21,7 @@ export const searchQuerySchema = Yup.object().shape({
 
 export const funcionesFilterSchema = Yup.object().shape({
   estado: Yup.string()
-    .oneOf(['ACTIVA', 'INACTIVA', 'PUBLICADA'], 'Estado inválido')
+    .oneOf(['activas', 'inactivas', 'publicas'], 'Estado inválido')
     .nullable(),
   
   idPelicula: Yup.number()

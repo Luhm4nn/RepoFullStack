@@ -7,8 +7,9 @@ import {
   updateParametro,
 } from './parametros.controllers.js';
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
-import { validateBody } from '../Middlewares/validateRequest.js';
+import { validateBody, validateParams } from '../Middlewares/validateRequest.js';
 import { parametrosSchema } from '../validations/ParametrosSchema.js';
+import { idParamSchema } from '../validations/CommonSchemas.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
 const router = Router();
