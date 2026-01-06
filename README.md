@@ -44,6 +44,20 @@ Para la gestión del proyecto se adoptó una **metodología ágil adaptada**, ba
 - **Programación de Funciones**: Asignar películas a salas y horarios
 - **Gestión de Tarifas**: Configurar precios para asientos normales y VIP
 
+## Sistema de Notificaciones
+
+Sistema híbrido que combina:
+- **React Hot Toast**: Notificaciones simples (success, error, warning, info)
+- **Modales Personalizados**: Errores de lógica de negocio con códigos específicos
+
+```javascript
+const notify = useNotification();
+notify.success('Operación exitosa');
+notify.handleError(error); // Auto-detecta si usar modal o toast
+```
+
+> 📖 **Para ejemplos de uso completos** y lista de errores estandarizados, consulta [documentacion.md](/docs/documentacion.md)
+
 ## Tecnologías
 
 ### Frontend
@@ -52,6 +66,7 @@ Para la gestión del proyecto se adoptó una **metodología ágil adaptada**, ba
 - **Vite** - Build tool y dev server
 - **React Router v6** - Enrutamiento
 - **Axios** - Cliente HTTP
+- **React Hot Toast** - Sistema de notificaciones
 - **Tailwind CSS** - Framework de estilos
 - **Flowbite React** - Componentes UI
 - **Lucide React** - Iconos
@@ -71,21 +86,14 @@ Para la gestión del proyecto se adoptó una **metodología ágil adaptada**, ba
 
 ## Seguridad y Autenticación
 
-El sistema implementa un robusto mecanismo de autenticación basado en **JWT (JSON Web Tokens)** con las siguientes características de seguridad:
+El sistema implementa múltiples capas de seguridad:
 
-### 🔒 Cookies httpOnly
+- **JWT en cookies httpOnly**: Protección contra XSS, tokens no accesibles desde JavaScript
+- **Protección CSRF**: Validación de tokens en operaciones mutantes
+- **Refresh Token Rotation**: Detección de robo de sesión
+- **Vite Proxy**: Comunicación segura entre HTTPS frontend y HTTP backend en desarrollo
 
-A diferencia del almacenamiento tradicional en `localStorage`, los tokens de acceso (`accessToken`) y refresco (`refreshToken`) se almacenan exclusivamente en **cookies httpOnly**.
-
-- **Protección XSS**: Las cookies httpOnly no pueden ser leídas ni manipuladas por JavaScript, protegiendo contra ataques de Cross-Site Scripting.
-- **Transparencia**: El navegador envía automáticamente las credenciales en cada petición al backend.
-- **Refresh Automático**: El sistema maneja transparentemente la expiración del token mediante un interceptor que renueva las credenciales sin afectar la experiencia del usuario.
-
-### 🛡️ Medidas Adicionales
-
-- **SameSite**: Configurado como `Strict` o `Lax` para prevenir CSRF.
-- **Secure**: Las cookies solo se envían por HTTPS en producción.
-- **Rotación de Refresh Tokens**: Cada vez que se usa un refresh token, se invalida y se emite uno nuevo para detectar robos de sesión.
+> 📖 **Para detalles técnicos completos** (interceptores, flujos de autenticación, configuración CSRF), consulta [documentacion.md](/docs/documentacion.md)
 
 ## Requisitos Previos
 
@@ -139,29 +147,36 @@ DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/cutzy_cinema?schem
 JWT_SECRET="tu_secreto_jwt_super_seguro_aqui"
 JWT_REFRESH_SECRET="tu_secreto_refresh_jwt_super_seguro_aqui"
 
+# CSRF Protection
+CSRF_SECRET="tu_secreto_csrf_super_seguro_aqui"
+
 # Cloudinary (para imágenes)
 CLOUDINARY_CLOUD_NAME="tu_cloud_name"
 CLOUDINARY_API_KEY="tu_api_key"
 CLOUDINARY_API_SECRET="tu_api_secret"
 
-#URL del Frontend
+# URL del Frontend (con HTTPS)
 FRONTEND_URL="https://localhost:5173"
 
 # Mercado Pago
 MERCADOPAGO_ACCESS_TOKEN="tu_access_token_de_mercadopago"
 NGROK_URL="https://tu-subdominio.ngrok.io"
 
+# Entorno (development o production)
+NODE_ENV="development"
+
 # Puerto del servidor
 PORT=4000
 ```
 
-### Frontend - Variables de Entorno
+### Frontend - Configuración
 
-Crea un archivo `.env` en la carpeta `Frontend/` con:
+El frontend **no requiere archivo `.env`**. Usa un proxy de Vite (ya configurado en `vite.config.js`) que:
+- Redirige peticiones `/api/*` al backend en `http://localhost:4000`
+- Permite compartir cookies entre HTTPS y HTTP en desarrollo
+- Elimina el prefijo `/api` antes de enviar al backend
 
-```env
-VITE_API_URL=http://localhost:4000
-```
+> 📖 Para entender cómo funciona el proxy y la separación de rutas, consulta [documentacion.md](/docs/documentacion.md)
 
 ### Configuración de la Base de Datos
 
@@ -302,7 +317,7 @@ NGROK_URL="https://nuevo-subdominio.ngrok.io"
 
 ### Error de CORS
 
-Verifica que `VITE_API_URL` en el frontend apunte correctamente al backend.
+Verifica que `FRONTEND_URL` en el backend `.env` sea exactamente `https://localhost:5173` (con HTTPS).
 
 ### Imágenes no se cargan
 
