@@ -56,13 +56,10 @@ export const deleteSala = async (req, res) => {
  * @param {Object} res - Response
  */
 export const updateSala = async (req, res) => {
-  // Extraer vipSeats del body antes de actualizar la sala
   const { vipSeats, ...salaData } = req.body;
 
-  // Actualizar solo los datos de la sala (sin vipSeats)
   const updatedSala = await service.update(req.params.id, salaData);
 
-  // Actualizar asientos VIP si se proporcionaron
   if (vipSeats !== undefined) {
     await updateManyForSala(req.params.id, vipSeats || []);
   }

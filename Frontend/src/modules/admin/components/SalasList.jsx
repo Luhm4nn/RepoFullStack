@@ -11,12 +11,10 @@ import {
   ModalBody,
   ModalHeader,
 } from "flowbite-react";
-
-
-
 import { useEffect, useState } from "react";
 import SalasEditForm from "./SalasEditForm";
 import SalaDelete from "./SalaDelete";
+import { useNotification } from '../../../context/NotificationContext';
 
 function SalasList() {
   const [salas, setSalas] = useState([]);
@@ -26,6 +24,7 @@ function SalasList() {
   const [selectedSala, setSelectedSala] = useState(null);
   const [deleteModal, setDeleteModal] = useState(false);
   const [salaToDelete, setSalaToDelete] = useState(null);
+  const notify = useNotification();
 
   useEffect(() => {
     fetchSalas();
@@ -58,8 +57,9 @@ function SalasList() {
       setEditingModal(false);
       setSelectedSala(null);
       await fetchSalas();
+      notify.success('Sala actualizada exitosamente');
     } catch (error) {
-      alert("Error al actualizar la sala: " + error.message);
+      notify.error("Error al actualizar la sala: " + error.message);
     }
   };
 
@@ -74,8 +74,9 @@ function SalasList() {
       setDeleteModal(false);
       setSalaToDelete(null);
       await fetchSalas();
+      notify.success('Sala eliminada exitosamente');
     } catch (error) {
-      alert("Error al eliminar la sala: " + error.message);
+      notify.error("Error al eliminar la sala: " + error.message);
     }
   };
 

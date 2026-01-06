@@ -10,7 +10,6 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
   
   const { error: modalError, handleApiError, hideError } = useErrorModal();
 
-  // Fetch functions based on active/inactive filter
   const fetchFunciones = async () => {
     try {
       setLoading(true);
@@ -25,7 +24,6 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
     }
   };
 
-  // Delete function
   const handleDeleteFuncion = async (funcionToDelete) => {
     try {
       const idSala = funcionToDelete.idSala;
@@ -39,7 +37,6 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
     }
   };
 
-  // Update function (for publish/unpublish or edit)
   const handleUpdateFuncion = async (funcionOriginal, funcionActualizada) => {
     try {
       const idSalaOriginal = funcionOriginal.idSala;

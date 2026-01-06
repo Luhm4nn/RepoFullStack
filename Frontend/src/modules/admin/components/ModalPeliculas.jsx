@@ -89,7 +89,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
     } catch (error) {
       const handled = handleApiError(error);
       if (!handled) {
-        alert(`Error al ${isEditing ? 'actualizar' : 'crear'} película: ` + (error.response?.data?.message || error.message));
+        notify.handleError(error);
       }
     } finally {
       setSubmitting(false);

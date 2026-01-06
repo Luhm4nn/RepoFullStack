@@ -3,6 +3,7 @@ import { Card, Button, Modal, ModalBody, ModalHeader, } from "flowbite-react";
 import { useEffect, useState } from "react";
 import ParametrosForm from "./ParametroForm";
 import ParametroDelete from "./ParametroDelete";
+import { useNotification } from "../../../context/NotificationContext";
 
 
 
@@ -14,6 +15,7 @@ function ParametrosList({ onAddClick }) {
   const [mostrarDeleteModal, setMostrarDeleteModal] = useState(false);
   const [parametroAEliminar, setParametroAEliminar] = useState(null);
   const [eliminando, setEliminando] = useState(false);
+  const notify = useNotification();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -73,7 +75,7 @@ function ParametrosList({ onAddClick }) {
   const openDeleteModal = (parametro) => {
     // Proteger los primeros dos registros (IDs 1 y 2)
     if (parametro.idParametro <= 2) {
-      alert("No se puede eliminar este parámetro del sistema.");
+      notify.warning("No se puede eliminar este parámetro del sistema.");
       return;
     }
     setParametroAEliminar(parametro);
@@ -98,7 +100,7 @@ function ParametrosList({ onAddClick }) {
       setMostrarDeleteModal(false);
       setParametroAEliminar(null);
     } catch (error) {
-      alert("Error al eliminar el parámetro.");
+      notify.error("Error al eliminar el parámetro.");
     } finally {
       setEliminando(false);
     }

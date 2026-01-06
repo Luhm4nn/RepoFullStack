@@ -1,6 +1,5 @@
 import { useAuth } from '../hooks/useAuth.js';
 
-// Componente para rutas que requieren autenticación
 const PrivateRoute = ({ children, redirectTo = '/login', fallback = null }) => {
   const { isAuthenticated, loading } = useAuth();
 
@@ -113,7 +112,6 @@ const RoleRoute = ({ children, allowedRoles = [], fallback = null }) => {
   return children;
 };
 
-// Componente para rutas solo para administradores
 const AdminRoute = ({ children, ...props }) => {
   return (
     <RoleRoute allowedRoles={['ADMIN']} {...props}>
@@ -122,7 +120,6 @@ const AdminRoute = ({ children, ...props }) => {
   );
 };
 
-// Componente para rutas solo para clientes
 const ClientRoute = ({ children, ...props }) => {
   return (
     <RoleRoute allowedRoles={['CLIENTE']} {...props}>
@@ -131,7 +128,6 @@ const ClientRoute = ({ children, ...props }) => {
   );
 };
 
-// Componente para rutas que requieren estar autenticado pero permiten cualquier rol
 const AuthenticatedRoute = ({ children, ...props }) => {
   return (
     <RoleRoute allowedRoles={['ADMIN', 'CLIENTE']} {...props}>
@@ -140,6 +136,5 @@ const AuthenticatedRoute = ({ children, ...props }) => {
   );
 };
 
-// Exportar todos los componentes
 export { PrivateRoute, RoleRoute, AdminRoute, ClientRoute, AuthenticatedRoute };
 export default PrivateRoute;

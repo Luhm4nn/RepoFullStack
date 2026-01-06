@@ -41,7 +41,6 @@ export const getAdminToken = async () => {
 export const getUserToken = async () => {
   if (userToken) return userToken;
 
-  // Crear un usuario de prueba
   const userData = {
     nombre: 'Test User',
     apellido: 'Testing',

@@ -18,7 +18,6 @@ import FuncionesForm from "./FuncionesForm";
 import ErrorModal from "../../shared/components/ErrorModal.jsx";
 import FuncionesInlineFilters from "./FuncionesInlineFilters";
 
-// Custom hooks
 import { useFuncionesFetch } from "../hooks/useFuncionesFetch.js";
 import { useFuncionesFilter } from "../hooks/useFuncionesFilter.js";
 import { useFuncionesModals } from "../hooks/useFuncionesModals.js";
@@ -26,7 +25,6 @@ import { useFuncionesModals } from "../hooks/useFuncionesModals.js";
 function FuncionesList() {
   const [mostrandoActivas, setMostrandoActivas] = useState(true);
   
-  // Custom hooks
   const {
     funciones,
     setFunciones,

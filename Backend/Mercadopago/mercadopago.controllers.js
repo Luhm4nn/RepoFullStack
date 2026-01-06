@@ -79,17 +79,14 @@ export const handleWebhook = async (req, res) => {
       if (result.status === 'approved') {
         const metadata = result.metadata;
 
-        // Parsear asientos del metadata
         const asientos = JSON.parse(metadata.asientos);
 
-        // Convertir las fechas a objetos Date y remover milisegundos
         const fechaFuncionDate = new Date(metadata.fecha_hora_funcion);
         fechaFuncionDate.setMilliseconds(0);
 
         const fechaReservaDate = new Date(metadata.fecha_hora_reserva);
         fechaReservaDate.setMilliseconds(0);
 
-        // Construir reservaData con fechas como Date objects
         const reservaData = {
           idSala: parseInt(metadata.id_sala, 10),
           fechaHoraFuncion: fechaFuncionDate,
@@ -108,7 +105,6 @@ export const handleWebhook = async (req, res) => {
             DNI: reservaCreada.DNI
           });
 
-          // Crear los asientos reservados usando los mismos valores
           const asientosData = asientos.map((asiento) => ({
             idSala: parseInt(metadata.id_sala, 10),
             filaAsiento: asiento.filaAsiento,

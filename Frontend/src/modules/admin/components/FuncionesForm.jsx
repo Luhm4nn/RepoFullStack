@@ -216,7 +216,13 @@ export default function FuncionesForm({ onSubmit, funcionToEdit = null, isEditin
                     type="button" 
                     color
                     className="!bg-slate-700 hover:!bg-slate-600 text-white" 
-                    onClick={() => isEditing && onCancel ? onCancel() : window.location.reload()}
+                    onClick={() => {
+                      if (isEditing && onCancel) {
+                        onCancel();
+                      } else {
+                        window.location.reload();
+                      }
+                    }}
                   >
                     Cancelar
                   </Button>

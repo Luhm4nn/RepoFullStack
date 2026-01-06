@@ -1,20 +1,24 @@
 import { useState } from "react";
 import { Button, Modal, ModalBody } from "flowbite-react";
 import { SalasList, SalasForm, createSala } from "../../admin";
+import { useNotification } from '../../../context/NotificationContext';
 
 function SalasPage() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [refreshList, setRefreshList] = useState(0);
+  const notify = useNotification();
 
   const handleSubmit = async (values) => {
     try {
       await createSala(values);
+      notify.success('Sala creada exitosamente');
       
       setMostrarFormulario(false);
       setRefreshList(prev => prev + 1);
       
     } catch (error) {
-      alert('Error al agregar sala');
+      const errorMsg = error.response?.data?.message || error.message || 'Error al agregar sala';
+      notify.error(`Error al agregar sala: ${errorMsg}`);
     }
   };
 

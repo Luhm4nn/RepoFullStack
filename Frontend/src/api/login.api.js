@@ -4,6 +4,8 @@ export const authAPI = {
   // Login
   login: async (email, password) => {
     try {
+      await api.get('/auth/csrf-token');
+      
       const response = await api.post('/auth/login', { email, password });
       const { user } = response.data;
       localStorage.setItem('user', JSON.stringify(user));

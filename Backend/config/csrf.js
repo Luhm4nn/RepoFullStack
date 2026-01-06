@@ -1,8 +1,13 @@
 import 'dotenv/config';
 import { doubleCsrf } from 'csrf-csrf';
 
+const csrfSecret = process.env.CSRF_SECRET;
+if (!csrfSecret) {
+  throw new Error('CSRF_SECRET is required in environment variables');
+}
+
 const { doubleCsrfProtection, generateCsrfToken } = doubleCsrf({
-  getSecret: () => process.env.CSRF_SECRET || 'default-secret',
+  getSecret: () => csrfSecret,
   cookieName: 'XSRF-TOKEN',
   cookieOptions: {
     httpOnly: false,
@@ -11,7 +16,7 @@ const { doubleCsrfProtection, generateCsrfToken } = doubleCsrf({
     path: '/',
   },
   getTokenFromRequest: (req) => req.headers['x-csrf-token'],
-  getSessionIdentifier: (req) => req.sessionID || '',
+  getSessionIdentifier: () => 'csrf-session',
 });
 
 export { doubleCsrfProtection, generateCsrfToken };

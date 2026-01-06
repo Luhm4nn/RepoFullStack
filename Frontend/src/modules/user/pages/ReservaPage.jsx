@@ -7,10 +7,12 @@ import SeatSelectorReserva from "../components/SeatSelectorReserva";
 import PaymentStep from "../components/PaymentStep";
 import { authAPI } from "../../../api/login.api";
 import SeleccionFuncion from "../components/SeleccionFuncion";
+import { useNotification } from '../../../context/NotificationContext';
 
 function ReservaPage() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const notify = useNotification();
   const [pelicula, setPelicula] = useState(null);
   const [fecha, setFecha] = useState("");
   const [funciones, setFunciones] = useState([]);
@@ -84,7 +86,7 @@ function ReservaPage() {
 
   const handleSelectFuncion = (funcion) => {
     if (!userDNI) {
-      alert("Debes iniciar sesión para realizar una reserva.");
+      notify.warning("Debes iniciar sesión para realizar una reserva.");
       navigate('/login');
       return;
     }
@@ -99,7 +101,7 @@ function ReservaPage() {
 
   const handleProcederAlPago = () => {
     if (selectedSeatsInfo.count === 0) {
-      alert("Debes seleccionar al menos un asiento");
+      notify.warning("Debes seleccionar al menos un asiento");
       return;
     }
     setStep(3);
@@ -107,7 +109,7 @@ function ReservaPage() {
 
   const handlePaymentSuccess = () => {
     // El webhook del backend ya creó la reserva cuando el pago fue aprobado
-    alert("¡Pago exitoso! Tu reserva ha sido confirmada.");
+    notify.success("¡Pago exitoso! Tu reserva ha sido confirmada.");
     navigate('/MisReservas');
   };
 

@@ -13,7 +13,6 @@ export default function SalasEditForm({ sala, onSubmit, onCancel }) {
   useEffect(() => {
     const fetchCurrentVipSeats = async () => {
       try {
-        // Importar la función de la API
         const asientos = await getAsientosBySala(sala.idSala);
         
         const vipSeatsFromDb = asientos

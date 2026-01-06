@@ -32,7 +32,6 @@ export const getFunciones = async (filtros = {}) => {
   }
 };
 
-// Funciones helper (mantienen compatibilidad)
 export const getFuncionesActivas = async () => {
   return getFunciones({ estado: 'activas' });
 };
