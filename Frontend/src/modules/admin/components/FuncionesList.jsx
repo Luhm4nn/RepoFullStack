@@ -18,15 +18,15 @@ import FuncionesForm from "./FuncionesForm";
 import ErrorModal from "../../shared/components/ErrorModal.jsx";
 import FuncionesInlineFilters from "./FuncionesInlineFilters";
 
-// Custom hooks
 import { useFuncionesFetch } from "../hooks/useFuncionesFetch.js";
 import { useFuncionesFilter } from "../hooks/useFuncionesFilter.js";
 import { useFuncionesModals } from "../hooks/useFuncionesModals.js";
+import { useNotification } from "../../../context/NotificationContext";
 
 function FuncionesList() {
   const [mostrandoActivas, setMostrandoActivas] = useState(true);
+  const notify = useNotification();
   
-  // Custom hooks
   const {
     funciones,
     setFunciones,
@@ -73,7 +73,7 @@ function FuncionesList() {
     if (result.success) {
       closeDeleteModal();
     } else {
-      alert(result.error);
+      notify.error(result.error);
       setIsDeleting(false);
     }
   };
@@ -87,7 +87,7 @@ function FuncionesList() {
       closePublishModal();
     } else {
       if (result.error) {
-        alert(result.error);
+        notify.error(result.error);
       }
       setIsPublishing(false);
     }
@@ -101,7 +101,7 @@ function FuncionesList() {
       closeEditModal();
     } else {
       if (result.error) {
-        alert(result.error);
+        notify.error(result.error);
       }
     }
   };

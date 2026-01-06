@@ -5,12 +5,10 @@ async function addPublicFunctions() {
     logger.info('=== Agregando funciones públicas ===\n');
 
     try {
-        // Obtener todas las películas
         const peliculas = await prisma.pelicula.findMany({
             orderBy: { idPelicula: 'asc' }
         });
 
-        // Obtener todas las salas
         const salas = await prisma.sala.findMany({
             orderBy: { idSala: 'asc' }
         });

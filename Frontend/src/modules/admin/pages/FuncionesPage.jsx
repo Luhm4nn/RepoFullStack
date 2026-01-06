@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Button, Modal, ModalBody } from "flowbite-react";
 import { FuncionesList, FuncionesForm, createFuncion } from "../../admin";
 import { ErrorModal, useErrorModal } from "../../shared";
+import { useNotification } from "../../../context/NotificationContext";
 
 function FuncionesPage() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [refreshList, setRefreshList] = useState(0);
   const { error, handleApiError, hideError } = useErrorModal();
+  const notify = useNotification();
 
   const handleSubmit = async (values) => {
     try {
@@ -17,9 +19,8 @@ function FuncionesPage() {
       // Usar el hook para manejar errores de validación
       const wasHandled = handleApiError(error);
       if (!wasHandled) {
-        // Si no fue un error de validación, mostrar alert tradicional
-        const errorMessage = error.response?.data?.message || error.message;
-        alert(`Error al crear función: ${errorMessage}`);
+        // Si no fue un error de validación, mostrar toast
+        notify.handleError(error);
       }
     }
   };

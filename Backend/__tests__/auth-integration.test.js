@@ -23,11 +23,9 @@ describe('Auth Integration', () => {
 
       expect(response.status).toBe(200);
       
-      // Validar Body
       expect(response.body).toHaveProperty('user');
-      expect(response.body).not.toHaveProperty('token'); // NO debe devolver token
+      expect(response.body).not.toHaveProperty('token');
       
-      // Validar Cookies
       const cookies = response.headers['set-cookie'];
       expect(cookies).toBeDefined();
       expect(Array.isArray(cookies)).toBe(true);

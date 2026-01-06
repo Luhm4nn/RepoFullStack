@@ -2,10 +2,12 @@ import { useState } from "react";
 import { cancelReserva } from "../../../api/Reservas.api";
 import { formatDateTime } from "../../shared/utils/dateFormater";
 import DetalleReservaModal from "./DetalleReservaModal";
+import { useNotification } from '../../../context/NotificationContext';
 
 function MisReservasList({ reservas, onReservaActualizada }) {
   const [cancellingId, setCancellingId] = useState(null);
   const [reservaSeleccionada, setReservaSeleccionada] = useState(null);
+  const notify = useNotification();
 
   const handleCancelar = async (reserva) => {
     const ahora = new Date();
@@ -13,7 +15,7 @@ function MisReservasList({ reservas, onReservaActualizada }) {
     
     // Verificar si la función ya pasó
     if (fechaFuncion < ahora) {
-      alert("No puedes cancelar una reserva de una función que ya pasó.");
+      notify.warning("No puedes cancelar una reserva de una función que ya pasó.");
       return;
     }
 
@@ -37,7 +39,7 @@ function MisReservasList({ reservas, onReservaActualizada }) {
         onReservaActualizada();
       }
     } catch (err) {
-      alert("Error al cancelar la reserva. Intenta nuevamente.");
+      notify.error("Error al cancelar la reserva. Intenta nuevamente.");
     } finally {
       setCancellingId(null);
     }

@@ -48,14 +48,12 @@ const removeMilliseconds = (date) => {
  * @returns {Promise<Object>} Reserva creada
  */
 async function create(data) {
-  // Validar datos requeridos
   if (!data.idSala || !data.fechaHoraFuncion || !data.DNI || !data.total) {
     const error = new Error('Faltan datos requeridos para crear la reserva');
     error.status = 400;
     throw error;
   }
 
-  // Parsear y validar números
   const idSala = parseInt(data.idSala, 10);
   const DNI = parseInt(data.DNI, 10);
   const total = parseFloat(data.total);

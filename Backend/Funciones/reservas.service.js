@@ -149,15 +149,12 @@ export async function getLatestReservas(limit) {
 export async function getUserReservas(userDNI, estado = null) {
   const allReservas = await repository.getAll();
   
-  // Filtrar solo las reservas del usuario
   let userReservas = allReservas.filter(r => r.DNI === parseInt(userDNI));
   
-  // Filtrar por estado si se proporciona
   if (estado && (estado === 'CONFIRMADA' || estado === 'CANCELADA')) {
     userReservas = userReservas.filter(r => r.estadoReserva === estado);
   }
   
-  // Ordenar por fecha más reciente primero
   userReservas.sort((a, b) => 
     new Date(b.fechaHoraReserva) - new Date(a.fechaHoraReserva)
   );

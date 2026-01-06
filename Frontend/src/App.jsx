@@ -25,6 +25,7 @@ import ReservaSuccessPage from './modules/user/pages/ReservaSuccessPage.jsx';
 import ReservaFailurePage from './modules/user/pages/ReservaFailurePage.jsx';
 import ReservaPendingPage from './modules/user/pages/ReservaPendingPage.jsx';
 import MiPerfilPage from './modules/user/pages/MiPerfilPage.jsx';
+import { NotificationProvider } from './context/NotificationContext.jsx';
 // Si necesitas AdminRoute y AuthenticatedRoute, exportalos desde ProtectedRoute.jsx
 
 
@@ -71,7 +72,7 @@ function AppRoutes() {
 
 function App() {
   return (
-    <>
+    <NotificationProvider>
       <ScrollToTop />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 font-montserrat">
         <NavbarWrapper />
@@ -80,7 +81,7 @@ function App() {
         </main>
         <FooterComp />
       </div>
-    </>
+    </NotificationProvider>
   );
 }
 

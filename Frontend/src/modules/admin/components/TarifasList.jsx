@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { formatDate, formatearPrecio } from "../../shared";
 import TarifaForm from "./TarifaForm";
 import TarifaDelete from "./TarifaDelete";
+import { useNotification } from "../../../context/NotificationContext";
 
 function TarifasList() {
   const [tarifas, setTarifas] = useState([]);
@@ -12,6 +13,7 @@ function TarifasList() {
   const [mostrarDeleteModal, setMostrarDeleteModal] = useState(false);
   const [tarifaAEliminar, setTarifaAEliminar] = useState(null);
   const [eliminando, setEliminando] = useState(false);
+  const notify = useNotification();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -32,31 +34,25 @@ function TarifasList() {
     }
   };
 
-  // Función para manejar el envío del formulario
   const handleSubmit = async (data) => {
     try {
       if (tarifaEditar) {
         // Editar tarifa existente
         await updateTarifa(tarifaEditar.idTarifa, data);
       } else {
-        // Crear nueva tarifa
         await createTarifa(data);
       }
-      // Recargar la lista después de crear/editar
       await fetchTarifas();
       closeModal();
     } catch (error) {
-      // Error handling
     }
   };
 
-  // Función para abrir el modal para crear
   const openModal = () => {
     setTarifaEditar(null);
     setMostrarFormulario(true);
   };
 
-  // Función para abrir el modal para editar
   const openEditModal = (tarifa) => {
     setTarifaEditar(tarifa);
     setMostrarFormulario(true);
@@ -67,11 +63,10 @@ function TarifasList() {
     setTarifaEditar(null);
   };
 
-  // Función para abrir el modal de confirmación de eliminación
   const openDeleteModal = (tarifa) => {
     // Proteger las primeras dos tarifas (IDs 1 y 2)
     if (tarifa.idTarifa <= 2) {
-      alert("No se puede eliminar esta tarifa del sistema.");
+      notify.warning("No se puede eliminar esta tarifa del sistema.");
       return;
     }
     setTarifaAEliminar(tarifa);
@@ -85,7 +80,6 @@ function TarifasList() {
     }
   };
 
-  // Función para confirmar eliminación
   const confirmDelete = async () => {
     if (!tarifaAEliminar) return;
     
@@ -95,8 +89,9 @@ function TarifasList() {
       await fetchTarifas();
       setMostrarDeleteModal(false);
       setTarifaAEliminar(null);
+      notify.success('Tarifa eliminada exitosamente');
     } catch (error) {
-      alert("Error al eliminar la tarifa.");
+      notify.error("Error al eliminar la tarifa.");
     } finally {
       setEliminando(false);
     }

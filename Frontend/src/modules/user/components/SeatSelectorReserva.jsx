@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAsientosBySala } from '../../../api/Salas.api'
 import { getAsientosReservadosPorFuncion } from '../../../api/AsientoReservas.api';
+import { useNotification } from '../../../context/NotificationContext';
 
 const SeatSelectorReserva = ({ 
   idSala,
@@ -26,13 +27,11 @@ const SeatSelectorReserva = ({
     }
   }, [idSala, fechaHoraFuncion]);
 
-  // Efecto para cargar datos de asientos
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Obtener todos los asientos de la sala
         const asientosData = await getAsientosBySala(idSala);
         setAsientos(asientosData);
         
@@ -104,7 +103,7 @@ setAsientosReservados(reservadosSet);
       } else {
         // Verificar límite de asientos
         if (newSelected.size >= maxSeats) {
-          alert(`Máximo ${maxSeats} asientos por reserva`);
+          notify.warning(`Máximo ${maxSeats} asientos por reserva`);
           return prev;
         }
         newSelected.add(seatId);

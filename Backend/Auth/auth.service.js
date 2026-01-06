@@ -2,6 +2,7 @@ import prisma from '../prisma/prisma.js';
 import bcrypt from 'bcryptjs';
 import { generateAccessToken, generateRefreshToken } from './refreshToken.service.js';
 import { saveRefreshToken } from './refreshToken.repository.js';
+import logger from '../utils/logger.js';
 
 /**
  * Autentica un usuario y genera tokens
@@ -36,14 +37,14 @@ export const loginService = async (email, password, res) => {
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
+    sameSite: 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   res.cookie('accessToken', accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
+    sameSite: 'lax',
     maxAge: 60 * 60 * 1000,
   });
 

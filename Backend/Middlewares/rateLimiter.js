@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 //middleware para limitar el numero de peticiones
 
 export const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 1 * 60 * 1000,
   max: 5,
   message: 'Demasiados intentos de login. Por favor intenta de nuevo en 15 minutos.',
   standardHeaders: true,

@@ -16,7 +16,6 @@ export const usuariosAPI = {
     }
   },
 
-  // Obtener todos los usuarios - GET /Usuarios (solo admin)
   getAllUsers: async () => {
     try {
       const response = await api.get('/Usuarios');
@@ -26,7 +25,6 @@ export const usuariosAPI = {
     }
   },
 
-  // Obtener usuario por DNI - GET /Usuario/:dni
   getUser: async (dni) => {
     try {
       const response = await api.get(`/Usuario/${dni}`);
@@ -36,7 +34,6 @@ export const usuariosAPI = {
     }
   },
 
-  // Crear usuario - POST /Usuario (solo admin para crear con cualquier rol)
   createUser: async (userData) => {
     try {
       const response = await api.post('/Usuario', userData);
@@ -46,7 +43,6 @@ export const usuariosAPI = {
     }
   },
 
-  // Actualizar usuario - PUT /Usuario/:dni
   updateUser: async (dni, userData) => {
     try {
       const response = await api.put(`/Usuario/${dni}`, userData);
@@ -56,7 +52,6 @@ export const usuariosAPI = {
     }
   },
 
-  // Eliminar usuario - DELETE /Usuario/:dni
   deleteUser: async (dni) => {
     try {
       const response = await api.delete(`/Usuario/${dni}`);
@@ -85,7 +80,6 @@ export const usuariosAPI = {
       // Asumiendo que implementarás PUT /usuarios/profile en el backend
       const response = await api.put('/usuarios/profile', userData);
       
-      // Actualizar usuario en localStorage si el update es exitoso
       const updatedUser = response.data;
       localStorage.setItem('user', JSON.stringify(updatedUser));
       

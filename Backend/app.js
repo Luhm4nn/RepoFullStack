@@ -6,6 +6,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { doubleCsrfProtection } from './config/csrf.js';
+import logger from './utils/logger.js';
 
 const app = express();
 
