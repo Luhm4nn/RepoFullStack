@@ -6,12 +6,14 @@ import { peliculaSchema } from "../../../validations/PeliculasSchema.js";
 import { dateFormaterBackend } from "../../shared/utils/dateFormater.js";
 import useErrorModal from "../../shared/hooks/useErrorModal";
 import ErrorModal from "../../shared/components/ErrorModal.jsx";
+import { useNotification } from "../../../context/NotificationContext";
 
 function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
   const [showModal, setShowModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const { error, handleApiError, hideError } = useErrorModal();
+  const notify = useNotification();
   const isEditing = !!peliculaToEdit;
 
   useEffect(() => {
@@ -43,11 +45,11 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
     const file = event.target.files[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
-        alert('Solo se permiten archivos de imagen');
+        notify.warning('Solo se permiten archivos de imagen');
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        alert('El archivo debe ser menor a 5MB');
+        notify.warning('El archivo debe ser menor a 5MB');
         return;
       }
       setSelectedFile(file);
