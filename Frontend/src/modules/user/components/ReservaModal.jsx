@@ -45,13 +45,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
         fechaHoraReserva: fechaHoraReserva
       };
 
-      console.log('=== CREANDO RESERVA ===');
-      console.log('Datos de reserva:', reservaData);
-      console.log('Intentando llamar a createReserva...');
-
       const reservaCreada = await createReserva(reservaData);
-
-      console.log('Reserva creada exitosamente:', reservaCreada);
 
       // 2. Crear los asientos reservados
       const asientosData = selectedSeatsData.seats.map(seat => ({
@@ -63,9 +57,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
         fechaHoraReserva: fechaHoraReserva
       }));
 
-      console.log('Creando asientos reservados:', asientosData);
       await createAsientosReservados(asientosData);
-      console.log('Asientos creados exitosamente');
 
       // Guardar DNI para mostrar en step 4
       setConfirmedDNI(values.DNI);
@@ -81,13 +73,6 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
       }, 2000);
 
     } catch (err) {
-      console.error("=== ERROR AL CREAR RESERVA ===");
-      console.error("Error completo:", err);
-      console.error("Error response:", err.response);
-      console.error("Error response data:", err.response?.data);
-      console.error("Error message:", err.message);
-      console.error("Error status:", err.response?.status);
-
       setError(err.response?.data?.message || "Error al procesar la reserva. Intenta nuevamente.");
       setLoading(false);
       setSubmitting(false);

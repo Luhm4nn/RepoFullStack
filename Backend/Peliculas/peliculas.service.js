@@ -48,9 +48,9 @@ export const deleteOne = async (id) => {
   if (peliculaExistente?.portadaPublicId) {
     try {
       await cloudinary.uploader.destroy(peliculaExistente.portadaPublicId);
-      console.log('Póster eliminado de Cloudinary:', peliculaExistente.portadaPublicId);
+      logger.info('Póster eliminado de Cloudinary:', peliculaExistente.portadaPublicId);
     } catch (error) {
-      console.error('Error eliminando póster de Cloudinary:', error);
+      logger.error('Error eliminando póster de Cloudinary:', error);
     }
   }
   return await repository.deleteOne(id);
@@ -80,9 +80,9 @@ export const update = async (id, data) => {
   if (data.portada && peliculaExistente.portadaPublicId) {
     try {
       await cloudinary.uploader.destroy(peliculaExistente.portadaPublicId);
-      console.log('Póster anterior eliminado de Cloudinary:', peliculaExistente.portadaPublicId);
+      logger.info('Póster anterior eliminado de Cloudinary:', peliculaExistente.portadaPublicId);
     } catch (error) {
-      console.error('Error eliminando póster anterior de Cloudinary:', error);
+      logger.error('Error eliminando póster anterior de Cloudinary:', error);
     }
   }
 

@@ -23,7 +23,6 @@ export default function SalasEditForm({ sala, onSubmit, onCancel }) {
         setCurrentVipSeats(vipSeatsFromDb);
         setVipSeats(vipSeatsFromDb);
       } catch (error) {
-        console.error("Error fetching current VIP seats:", error);
         // En caso de error, usar array vacío
         setCurrentVipSeats([]);
         setVipSeats([]);

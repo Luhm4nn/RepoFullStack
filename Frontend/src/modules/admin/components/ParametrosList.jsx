@@ -28,7 +28,6 @@ function ParametrosList({ onAddClick }) {
       setParametros(data);
       setError(null);
     } catch (error) {
-      console.error("Error fetching parametros:", error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -49,8 +48,7 @@ function ParametrosList({ onAddClick }) {
       await fetchParametros();
       closeModal();
     } catch (error) {
-      console.error("Error saving parametro:", error);
-      
+      // Error handling
     }
   };
 
@@ -100,7 +98,6 @@ function ParametrosList({ onAddClick }) {
       setMostrarDeleteModal(false);
       setParametroAEliminar(null);
     } catch (error) {
-      console.error("Error deleting parametro:", error);
       alert("Error al eliminar el parámetro.");
     } finally {
       setEliminando(false);

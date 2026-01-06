@@ -26,7 +26,6 @@ function TarifasList() {
       setTarifas(data);
       setError(null);
     } catch (error) {
-      console.error("Error fetching tarifas:", error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -47,8 +46,7 @@ function TarifasList() {
       await fetchTarifas();
       closeModal();
     } catch (error) {
-      console.error("Error saving tarifa:", error);
-      // Aquí podrías mostrar un mensaje de error al usuario
+      // Error handling
     }
   };
 
@@ -98,7 +96,6 @@ function TarifasList() {
       setMostrarDeleteModal(false);
       setTarifaAEliminar(null);
     } catch (error) {
-      console.error("Error deleting tarifa:", error);
       alert("Error al eliminar la tarifa.");
     } finally {
       setEliminando(false);

@@ -36,7 +36,6 @@ function DetalleReservaModal({ reserva, onClose, onCancelar }) {
 
         setAsientos(asientosReserva);
       } catch (err) {
-        console.error("Error cargando asientos:", err);
         setError("No se pudieron cargar los asientos");
       } finally {
         setLoading(false);

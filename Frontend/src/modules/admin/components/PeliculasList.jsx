@@ -31,7 +31,6 @@ function PeliculasList({ refreshTrigger }) {
       setPeliculas(data);
       setError(null);
     } catch (error) {
-      console.error("Error fetching peliculas:", error);
       setError(error.message);
     } finally {
       setLoading(false);

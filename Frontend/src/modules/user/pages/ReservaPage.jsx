@@ -77,7 +77,6 @@ function ReservaPage() {
       }
     } catch (err) {
       setError("Error al obtener funciones para la fecha seleccionada.");
-      console.error("Error fetching funciones:", err);
     } finally {
       setLoading(false);
     }

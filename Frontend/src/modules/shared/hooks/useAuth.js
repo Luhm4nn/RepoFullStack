@@ -64,7 +64,6 @@ export const useLogout = () => {
       await logout();
       return true;
     } catch (error) {
-      console.error('Error al cerrar sesión:', error);
       return false;
     }
   };

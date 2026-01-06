@@ -42,7 +42,6 @@ export default function FuncionesForm({ onSubmit, funcionToEdit = null, isEditin
         setSalasFiltradas(filtradas);
         setMostrarSugerenciasSalas(true);
       } catch (error) {
-        console.error('Error searching salas:', error);
         setSalasFiltradas([]);
       }
     }, 300),
@@ -66,7 +65,6 @@ export default function FuncionesForm({ onSubmit, funcionToEdit = null, isEditin
         setPeliculasFiltradas(filtradas);
         setMostrarSugerenciasPeliculas(true);
       } catch (error) {
-        console.error('Error searching peliculas:', error);
         setPeliculasFiltradas([]);
       }
     }, 300),

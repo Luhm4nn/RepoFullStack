@@ -1,4 +1,5 @@
 import * as service from './peliculas.service.js';
+import logger from '../utils/logger.js';
 
 /**
  * Obtiene todas las películas
@@ -7,9 +8,6 @@ import * as service from './peliculas.service.js';
  */
 export const getPeliculas = async (req, res) => {
   const peliculas = await service.getAll();
-  if (!peliculas || peliculas.length === 0) {
-    // console.log('No existen películas cargadas aún.'); // Removed unnecessary log
-  }
   res.json(peliculas);
 };
 
@@ -79,7 +77,7 @@ export const getPeliculasEnCartelera = async (req, res) => {
     const peliculas = await service.getAllEnCartelera();
     res.json(peliculas);
   } catch (error) {
-    console.error('Error fetching peliculas en cartelera:', error);
+    logger.error('Error fetching peliculas en cartelera:', error);
     res.status(500).json({ message: 'Error fetching peliculas en cartelera.' });
   }
 };
@@ -94,7 +92,7 @@ export const getCountPeliculasEnCartelera = async (req, res) => {
     const count = await service.getCountEnCartelera();
     res.json({ count });
   } catch (error) {
-    console.error('Error counting peliculas en cartelera:', error);
+    logger.error('Error counting peliculas en cartelera:', error);
     res.status(500).json({ message: 'Error counting peliculas en cartelera.' });
   }
 };

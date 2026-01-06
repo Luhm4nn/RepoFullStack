@@ -66,7 +66,6 @@ setAsientosReservados(reservadosSet);
         
       } catch (err) {
         setError("Error al cargar los asientos");
-        console.error(err);
       } finally {
         setLoading(false);
       }

@@ -8,15 +8,12 @@ function SalasPage() {
 
   const handleSubmit = async (values) => {
     try {
-      console.log('Enviando sala:', values);
       await createSala(values);
-      console.log('Sala creada exitosamente');
       
       setMostrarFormulario(false);
       setRefreshList(prev => prev + 1);
       
     } catch (error) {
-      console.error('Error al crear sala:', error);
       alert('Error al agregar sala');
     }
   };

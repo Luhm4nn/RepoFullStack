@@ -19,7 +19,6 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
       setFuncionesSinFiltrar(funcionesData);
       setError(null);
     } catch (error) {
-      console.error("Error fetching functions:", error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -36,7 +35,6 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
       await fetchFunciones();
       return { success: true };
     } catch (error) {
-      console.error('Error eliminando función:', error);
       return { success: false, error: 'Error eliminando función' };
     }
   };
@@ -51,7 +49,6 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
       await fetchFunciones();
       return { success: true };
     } catch (error) {
-      console.error('Error actualizando función:', error);
       const wasHandled = handleApiError(error);
       if (!wasHandled) {
         const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';

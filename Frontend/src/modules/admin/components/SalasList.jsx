@@ -41,7 +41,6 @@ function SalasList() {
       setSalas(data);
       setError(null);
     } catch (error) {
-      console.error("Error fetching salas:", error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -59,9 +58,7 @@ function SalasList() {
       setEditingModal(false);
       setSelectedSala(null);
       await fetchSalas();
-      console.log("Sala actualizada exitosamente");
     } catch (error) {
-      console.error("Error updating sala:", error);
       alert("Error al actualizar la sala: " + error.message);
     }
   };
@@ -77,9 +74,7 @@ function SalasList() {
       setDeleteModal(false);
       setSalaToDelete(null);
       await fetchSalas();
-      console.log("Sala eliminada exitosamente");
     } catch (error) {
-      console.error("Error deleting sala:", error);
       alert("Error al eliminar la sala: " + error.message);
     }
   };

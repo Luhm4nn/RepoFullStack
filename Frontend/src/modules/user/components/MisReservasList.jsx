@@ -37,7 +37,6 @@ function MisReservasList({ reservas, onReservaActualizada }) {
         onReservaActualizada();
       }
     } catch (err) {
-      console.error("Error cancelando reserva:", err);
       alert("Error al cancelar la reserva. Intenta nuevamente.");
     } finally {
       setCancellingId(null);

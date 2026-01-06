@@ -22,24 +22,18 @@ const DashboardPage = () => {
         // Fetch counts with individual error handling (optimized for performance)
         const [countPeliculas, countSalas, countFunciones, reservas] = await Promise.all([
           getCountPeliculasEnCartelera().catch(err => {
-            console.error('Error fetching películas count:', err);
             return 0;
           }),
           getCountSalas().catch(err => {
-            console.error('Error fetching salas count:', err);
             return 0;
           }),
           getCountFuncionesPublicas().catch(err => {
-            console.error('Error fetching funciones count:', err);
             return 0;
           }),
           getLatestReservas(4).catch(err => {
-            console.error('Error fetching reservas:', err);
             return [];
           })
         ]);
-
-        console.log('Dashboard data:', { countPeliculas, countSalas, countFunciones, reservas });
 
         // Contar reservas de hoy
         const hoy = new Date();
@@ -73,7 +67,7 @@ const DashboardPage = () => {
 
         setUltimasReservas(reservasFormateadas);
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        // Error handling
       } finally {
         setLoading(false);
         setLoadingReservas(false);

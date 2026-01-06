@@ -5,7 +5,6 @@ export const getTarifas = async () => {
     const response = await api.get('/Tarifas');
     return response.data;
   } catch (error) {
-    console.error('Error fetching tarifas:', error);
     throw error;
   }
 };
@@ -15,7 +14,6 @@ export const getTarifa = async (idTarifa) => {
     const response = await api.get(`/Tarifa/${idTarifa}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching tarifa:', error);
     throw error;
   }
 };
@@ -25,7 +23,6 @@ export const createTarifa = async (tarifa) => {
     const response = await api.post('/Tarifa', tarifa);
     return response.data;
   } catch (error) {
-    console.error('Error creating tarifa:', error);
     throw error;
   }
 };
@@ -35,7 +32,6 @@ export const updateTarifa = async (id, tarifa) => {
     const response = await api.put(`/Tarifa/${id}`, tarifa);
     return response.data;
   } catch (error) {
-    console.error('Error updating tarifa:', error);
     throw error;
   }
 };
@@ -45,7 +41,6 @@ export const deleteTarifa = async (id) => {
     const response = await api.delete(`/Tarifa/${id}`);
     return response.data;
   } catch (error) {
-    console.error('Error deleting tarifa:', error);
     throw error;
   }
 };

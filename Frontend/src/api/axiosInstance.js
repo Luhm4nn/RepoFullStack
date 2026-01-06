@@ -15,7 +15,7 @@ const initCsrfToken = async () => {
       withCredentials: true,
     });
   } catch (error) {
-    console.warn('No se pudo obtener token CSRF:', error.message);
+    // CSRF token initialization failed silently
   }
 };
 

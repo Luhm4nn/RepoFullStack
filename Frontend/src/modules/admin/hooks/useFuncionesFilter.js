@@ -50,7 +50,6 @@ export const useFuncionesFilter = (funcionesSinFiltrar, setFunciones, mostrandoA
       const funcionesFiltradas = await getFunciones(backendFiltros);
       setFunciones(funcionesFiltradas);
     } catch (error) {
-      console.error('Error applying filters:', error);
       setFunciones(funcionesSinFiltrar);
     }
   }, [debouncedPelicula, debouncedSala, filtros.fechaDesde, filtros.fechaHasta, mostrandoActivas, setFunciones, funcionesSinFiltrar]);

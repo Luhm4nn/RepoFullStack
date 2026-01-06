@@ -52,7 +52,6 @@ function MisReservasPage() {
         setTodasReservas(misReservas);
       }
     } catch (err) {
-      console.error("Error fetching reservas:", err);
       if (err.response?.status === 404) {
         setReservas([]);
       } else {

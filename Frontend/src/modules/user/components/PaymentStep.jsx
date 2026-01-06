@@ -51,7 +51,6 @@ function PaymentStep({
       const response = await createPaymentPreference(paymentData);
       setPreferenceId(response.id);
     } catch (err) {
-      console.error("Error creating preference:", err);
       setError("Error al iniciar el pago. Por favor, intenta nuevamente.");
     } finally {
       setLoading(false);
