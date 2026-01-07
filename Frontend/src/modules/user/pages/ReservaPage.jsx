@@ -8,7 +8,8 @@ import PaymentStep from "../components/PaymentStep";
 import { authAPI } from "../../../api/login.api";
 import SeleccionFuncion from "../components/SeleccionFuncion";
 import { useNotification } from "../../../context/NotificationContext";
-import { MovieCardSkeleton } from "../../shared/components/Skeleton";
+import { Skeleton } from "../../shared/components/Skeleton";
+import { CenteredSpinner } from "../../shared/components/Spinner";
 
 function ReservaPage() {
   const navigate = useNavigate();
@@ -156,7 +157,7 @@ function ReservaPage() {
         {/* Movie Details */}
         {loadingPelicula ? (
           <div className="flex justify-center items-center h-40">
-            <MovieCardSkeleton />
+            <CenteredSpinner size="md" message="Cargando película..." />
           </div>
         ) : !pelicula ? (
           <div className="flex flex-col items-center justify-center h-40">

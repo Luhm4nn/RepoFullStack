@@ -89,22 +89,6 @@ export const CardSkeleton = memo(({ count = 6 }) => (
 ));
 
 /**
- * Skeleton para tarjetas de películas
- * @param {number} props.count - Cantidad de tarjetas
- */
-export const MovieCardSkeleton = memo(({ count = 6 }) => (
-  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    {Array.from({ length: count }).map((_, i) => (
-      <div key={i} className="animate-pulse">
-        <Skeleton height="h-96" rounded="rounded-lg" className="mb-3" />
-        <Skeleton width="w-full" className="mb-2" />
-        <Skeleton width="w-2/3" />
-      </div>
-    ))}
-  </div>
-));
-
-/**
  * Skeleton para texto multilínea
  * @param {number} props.lines - Cantidad de líneas
  */
@@ -155,33 +139,6 @@ export const FormSkeleton = memo(({ fields = 5, hasButton = true }) => (
         className="mt-4"
       />
     )}
-  </div>
-));
-
-/**
- * Skeleton para carrusel de películas
- */
-export const CarouselSkeleton = memo(() => (
-  <div className="animate-pulse space-y-4">
-    {/* Contenedor principal más ancho */}
-    <div className="relative h-[400px] md:h-[550px] w-full rounded-xl overflow-hidden bg-slate-800/50 border border-slate-700">
-      {/* Fondo con pulso */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-700"></div>
-
-      {/* Sección inferior para simular info */}
-      <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3 bg-gradient-to-t from-slate-900 to-transparent">
-        <div className="h-10 bg-slate-600 rounded-lg w-2/3"></div>
-        <div className="h-4 bg-slate-600/70 rounded w-full"></div>
-        <div className="h-4 bg-slate-600/70 rounded w-4/5"></div>
-      </div>
-    </div>
-
-    {/* Indicadores */}
-    <div className="flex justify-center gap-2">
-      {[...Array(5)].map((_, i) => (
-        <div key={i} className="w-2 h-2 rounded-full bg-slate-600"></div>
-      ))}
-    </div>
   </div>
 ));
 

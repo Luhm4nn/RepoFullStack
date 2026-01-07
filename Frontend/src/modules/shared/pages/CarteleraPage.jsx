@@ -1,7 +1,7 @@
 import { PeliculaCard } from "../../shared";
 import { useEffect, useState } from "react";
 import { getPeliculasEnCartelera } from "../../user";
-import { CarouselSkeleton } from "../components/Skeleton";
+import { CenteredSpinner } from "../components/Spinner";
 
 function CarteleraPage() {
   const [peliculas, setPeliculas] = useState([]);
@@ -69,7 +69,7 @@ function CarteleraPage() {
 
           {loading ? (
             <div className="flex justify-center items-center h-[400px] md:h-[550px] rounded-xl bg-slate-800/50 border border-slate-700">
-              <CarouselSkeleton />
+              <CenteredSpinner message="Cargando cartelera..." />
             </div>
           ) : peliculas.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-96 bg-slate-800/50 rounded-xl border border-slate-700">

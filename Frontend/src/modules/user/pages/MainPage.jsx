@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Carousel } from "flowbite-react";
 import { getPeliculasEnCartelera } from "../../user";
-import { CarouselSkeleton } from "../../shared/components/Skeleton";
+import { CenteredSpinner } from "../../shared/components/Spinner";
 
 function MainPage() {
   const [peliculas, setPeliculas] = useState([]);
@@ -32,7 +32,7 @@ function MainPage() {
         <div className="w-full max-w-4xl mb-12">
           {loading ? (
             <div className="flex justify-center items-center h-96">
-              <CarouselSkeleton />
+              <CenteredSpinner message="Cargando cartelera..." />
             </div>
           ) : (
             <Carousel
