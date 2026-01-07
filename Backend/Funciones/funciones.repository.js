@@ -222,7 +222,7 @@ async function countPublic() {
  * @param {Object} params - Parámetros de búsqueda
  * @param {number} params.idSala - ID de la sala
  * @param {string|Date} params.fechaHoraFuncion - Fecha y hora de la función
- * @returns {Promise\u003cObject|null\u003e} Función con estadísticas o null
+ * @returns {Promise<Object|null>} Función con estadísticas o null
  */
 async function getOneWithStats({ idSala, fechaHoraFuncion }) {
   const funcionDate = new Date(fechaHoraFuncion);
@@ -271,7 +271,9 @@ async function getOneWithStats({ idSala, fechaHoraFuncion }) {
     asientosReservados: asientosReservados || 0,
     gananciaTotal: Number(gananciaStats._sum.total) || 0,
   };
+}
 
+/**
  * Obtiene funciones con filtros dinámicos
  * @param {Object} filters - Filtros de búsqueda
  * @param {number} filters.idPelicula - ID de película (opcional)
@@ -326,7 +328,7 @@ async function getWithFilters(filters = {}) {
     // Funciones activas incluyen todas menos Inactivas
     if (estadoLower === 'activas') {
       where.estado = { not: 'Inactiva' };
-    }  else {
+    } else {
       where.estado = filters.estado;
     }
   }
