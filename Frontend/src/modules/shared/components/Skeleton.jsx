@@ -21,15 +21,41 @@ export const Skeleton = ({
   );
 };
 
+// Skeleton para tablas admin - estilo Flowbite
 export const TableSkeleton = ({ rows = 5, columns = 6 }) => (
-  <div className="space-y-3">
-    {Array.from({ length: rows }).map((_, i) => (
-      <div key={i} className="flex gap-4">
-        {Array.from({ length: columns }).map((_, j) => (
-          <Skeleton key={j} width="flex-1" />
+  <div className="overflow-x-auto">
+    <div className="min-w-full">
+      {/* Table Header */}
+      <div className="bg-slate-800/50 border-b border-slate-700">
+        <div className="flex gap-4 px-6 py-3.5">
+          {Array.from({ length: columns }).map((_, j) => (
+            <div key={j} className="flex-1">
+              <Skeleton height="h-4" width="w-20" className="bg-slate-600" />
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Table Body */}
+      <div className="divide-y divide-slate-700">
+        {Array.from({ length: rows }).map((_, i) => (
+          <div
+            key={i}
+            className="bg-slate-800/50 hover:bg-white/5 transition-colors"
+          >
+            <div className="flex gap-4 px-6 py-4 items-center">
+              {Array.from({ length: columns }).map((_, j) => (
+                <div key={j} className="flex-1">
+                  <Skeleton
+                    height="h-4"
+                    className={j === columns - 1 ? "w-24" : ""}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
-    ))}
+    </div>
   </div>
 );
 
@@ -53,14 +79,6 @@ export const MovieCardSkeleton = ({ count = 6 }) => (
         <Skeleton width="w-full" className="mb-2" />
         <Skeleton width="w-2/3" />
       </div>
-    ))}
-  </div>
-);
-
-export const TableRowSkeleton = ({ columns = 6, height = "h-12" }) => (
-  <div className="flex gap-4 items-center">
-    {Array.from({ length: columns }).map((_, i) => (
-      <Skeleton key={i} width="flex-1" height={height} />
     ))}
   </div>
 );
@@ -103,28 +121,6 @@ export const FormSkeleton = ({ fields = 5, hasButton = true }) => (
         className="mt-4"
       />
     )}
-  </div>
-);
-
-export const MovieAdminCardSkeleton = ({ count = 3 }) => (
-  <div className="space-y-4">
-    {Array.from({ length: count }).map((_, i) => (
-      <div
-        key={i}
-        className="flex gap-4 p-4 bg-slate-800/50 rounded-lg animate-pulse"
-      >
-        <Skeleton width="w-24" height="h-36" rounded="rounded-md" />
-        <div className="flex-1 space-y-3">
-          <Skeleton width="w-1/2" height="h-6" />
-          <Skeleton width="w-full" height="h-4" />
-          <Skeleton width="w-3/4" height="h-4" />
-          <div className="flex gap-2 mt-4">
-            <Skeleton width="w-20" height="h-8" rounded="rounded-md" />
-            <Skeleton width="w-20" height="h-8" rounded="rounded-md" />
-          </div>
-        </div>
-      </div>
-    ))}
   </div>
 );
 

@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -10,14 +10,14 @@ export const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const csrfToken = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('XSRF-TOKEN='))
-      ?.split('=')[1];
-    
+      .split("; ")
+      .find((row) => row.startsWith("XSRF-TOKEN="))
+      ?.split("=")[1];
+
     if (csrfToken) {
-      config.headers['x-csrf-token'] = csrfToken;
+      config.headers["x-csrf-token"] = csrfToken;
     }
-    
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -27,20 +27,20 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    
+
     if (error.response?.status === 401 && !originalRequest._retry) {
-      if (originalRequest.url?.includes('/auth/')) {
+      if (originalRequest.url?.includes("/auth/")) {
         return Promise.reject(error);
       }
-      
+
       originalRequest._retry = true;
 
       try {
-        await api.post('/auth/refresh', {});
+        await api.post("/auth/refresh", {});
         return api(originalRequest);
       } catch (refreshError) {
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        localStorage.removeItem("user");
+        window.location.href = "/login";
         return Promise.reject(error);
       }
     }
