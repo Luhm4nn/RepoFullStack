@@ -176,8 +176,12 @@ export const getDetallesFuncion = async (params) => {
     throw error;
   }
 
+  // Calcular total de asientos de la sala
+  const totalAsientosSala = funcionConStats.sala?.filas && funcionConStats.sala?.asientosPorFila
+    ? funcionConStats.sala.filas * funcionConStats.sala.asientosPorFila
+    : 0;
+
   // Calcular porcentaje de ocupación
-  const totalAsientosSala = funcionConStats.sala?.cantidadAsientos || 0;
   const porcentajeOcupacion = totalAsientosSala > 0
     ? ((funcionConStats.asientosReservados / totalAsientosSala) * 100)
     : 0;

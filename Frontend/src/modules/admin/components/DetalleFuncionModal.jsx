@@ -37,7 +37,10 @@ function DetalleFuncionModal({ funcion, onClose, detalles }) {
         if (!sala || !asientos) return null;
 
         const filas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-        const asientosPorFila = Math.ceil(sala.cantidadAsientos / filas.length);
+        // Calcular total de asientos: primero desde detalles, luego calculado desde sala
+        const totalAsientos = detalles?.totalAsientosSala ||
+            (sala?.filas && sala?.asientosPorFila ? sala.filas * sala.asientosPorFila : 0);
+        const asientosPorFila = Math.ceil(totalAsientos / filas.length);
 
         const asientosReservadosSet = new Set(
             asientos.map(a => `${a.filaAsiento}${a.nroAsiento}`)
@@ -123,8 +126,8 @@ function DetalleFuncionModal({ funcion, onClose, detalles }) {
                             <div>
                                 <p className="text-gray-400">Estado</p>
                                 <p className={`font-semibold ${funcion.estado === 'Privada' ? 'text-red-500' :
-                                        funcion.estado === 'Publica' ? 'text-green-500' :
-                                            'text-gray-500'
+                                    funcion.estado === 'Publica' ? 'text-green-500' :
+                                        'text-gray-500'
                                     }`}>
                                     {funcion.estado}
                                 </p>
@@ -154,7 +157,7 @@ function DetalleFuncionModal({ funcion, onClose, detalles }) {
                                 />
                             </div>
                             <p className="text-gray-300 text-sm">
-                                {detalles?.asientosReservados || 0} / {detalles?.totalAsientosSala || sala?.cantidadAsientos || 0} asientos
+                                {detalles?.asientosReservados || 0} / {detalles?.totalAsientosSala || (sala?.filas && sala?.asientosPorFila ? sala.filas * sala.asientosPorFila : 0)} asientos
                             </p>
                         </div>
 
@@ -203,18 +206,18 @@ function DetalleFuncionModal({ funcion, onClose, detalles }) {
                                 {/* Asientos */}
                                 {mapaAsientos?.map((filaData) => (
                                     <div key={filaData.fila} className="flex items-center gap-2">
-                                        <span className="text-gray-400 font-semibold w-6 text-center">{filaData.fila}</span>
+                                        
                                         <div className="flex gap-1 flex-1 justify-center">
                                             {filaData.asientos.map((asiento) => (
                                                 <div
                                                     key={asiento.id}
                                                     className={`w-6 h-6 sm:w-7 sm:h-7 rounded-t-lg flex items-center justify-center text-xs font-semibold transition-all ${asiento.reservado
-                                                            ? 'bg-purple-600 text-white border border-purple-400'
-                                                            : 'bg-slate-700 text-gray-400 border border-slate-600'
+                                                        ? 'bg-purple-600 text-white border border-purple-400'
+                                                        : 'bg-slate-700 text-gray-400 border border-slate-600'
                                                         }`}
                                                     title={asiento.id}
                                                 >
-                                                    {asiento.reservado ? '✓' : ''}
+                                                    {asiento.id}
                                                 </div>
                                             ))}
                                         </div>
