@@ -16,10 +16,7 @@ export const AuthProvider = ({ children }) => {
 
   const initializeAuth = async () => {
     try {
-      // Obtener CSRF token primero
-      await api.get("/auth/csrf-token");
-
-      // Luego verificar autenticación
+      // Verificar autenticación
       const authData = authAPI.checkAuth();
       if (authData) {
         setUser(authData.user);

@@ -1,4 +1,4 @@
-import logger from "../utils/logger.js";
+import logger from '../utils/logger.js';
 
 /**
  * Valida que todas las variables de entorno requeridas estén presentes
@@ -6,13 +6,7 @@ import logger from "../utils/logger.js";
  */
 
 export const validateEnv = () => {
-  const requiredEnvVars = [
-    'DATABASE_URL',
-    'JWT_SECRET',
-    'JWT_REFRESH_SECRET',
-    'CSRF_SECRET',
-    'FRONTEND_URL',
-  ];
+  const requiredEnvVars = ['DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET', 'FRONTEND_URL'];
 
   const optionalEnvVars = [
     'CLOUDINARY_CLOUD_NAME',
@@ -27,8 +21,8 @@ export const validateEnv = () => {
   if (missing.length > 0) {
     throw new Error(
       `Faltan variables de entorno requeridas:\n${missing.map((v) => `  - ${v}`).join('\n')}\n\n` +
-      `Asegúrate de tener un archivo .env con todas las variables necesarias.\n` +
-      `Puedes usar .env.example como referencia.`
+        `Asegúrate de tener un archivo .env con todas las variables necesarias.\n` +
+        `Puedes usar .env.example como referencia.`
     );
   }
 
@@ -36,7 +30,7 @@ export const validateEnv = () => {
   if (missingOptional.length > 0 && process.env.NODE_ENV !== 'test') {
     logger.warn(
       `Variables de entorno opcionales no configuradas:\n${missingOptional.map((v) => `  - ${v}`).join('\n')}\n` +
-      `Algunas funcionalidades podrían no estar disponibles.`
+        `Algunas funcionalidades podrían no estar disponibles.`
     );
   }
 };

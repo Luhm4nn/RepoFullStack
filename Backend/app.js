@@ -5,7 +5,6 @@ import { errorHandler } from './Middlewares/errorHandler.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
-import { doubleCsrfProtection } from './config/csrf.js';
 import logger from './utils/logger.js';
 
 const app = express();
@@ -38,28 +37,6 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
-
-if (process.env.NODE_ENV !== 'test') {
-  app.use((req, res, next) => {
-    const publicRoutes = [
-      '/auth/login',
-      '/auth/register',
-      '/auth/refresh',
-      '/auth/logout',
-      '/auth/csrf-token',
-      '/mercadopago/webhook'
-    ];
-    
-    const isPublicRoute = publicRoutes.some(route => req.path.startsWith(route));
-    const isGetRequest = req.method === 'GET';
-    
-    if (isPublicRoute || isGetRequest) {
-      return next();
-    }
-    
-    return doubleCsrfProtection(req, res, next);
-  });
-}
 
 app.use(indexRoutes);
 

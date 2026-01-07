@@ -22,7 +22,7 @@ import { useFuncionesFetch } from "../hooks/useFuncionesFetch.js";
 import { useFuncionesFilter } from "../hooks/useFuncionesFilter.js";
 import { useFuncionesModals } from "../hooks/useFuncionesModals.js";
 import { useNotification } from "../../../context/NotificationContext";
-import { TableSkeleton } from "../../shared/components/Skeleton";
+import { Skeleton, TableSkeleton } from "../../shared/components/Skeleton";
 
 function FuncionesList() {
   const [mostrandoActivas, setMostrandoActivas] = useState(true);

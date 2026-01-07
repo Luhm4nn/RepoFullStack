@@ -7,22 +7,6 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const csrfToken = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("XSRF-TOKEN="))
-      ?.split("=")[1];
-
-    if (csrfToken) {
-      config.headers["x-csrf-token"] = csrfToken;
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
