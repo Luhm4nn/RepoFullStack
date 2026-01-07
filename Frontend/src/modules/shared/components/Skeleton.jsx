@@ -1,28 +1,45 @@
-export const Skeleton = ({
-  variant = "default",
-  width = "w-full",
-  height = "h-4",
-  className = "",
-  count = 1,
-  rounded = "rounded",
-}) => {
-  const variants = {
-    default: "bg-slate-700",
-    circle: "rounded-full",
-    text: "h-4 mb-2",
-    card: "h-48 rounded-lg",
-    avatar: "w-10 h-10 rounded-full",
-  };
+import { memo } from "react";
 
-  return (
-    <div
-      className={`animate-pulse ${width} ${height} ${variants[variant]} ${rounded} ${className}`}
-    />
-  );
-};
+/**
+ * Componente base de skeleton para loading states
+ * @param {Object} props
+ * @param {'default'|'circle'|'text'|'card'|'avatar'} props.variant - Variante del skeleton
+ * @param {string} props.width - Clase de ancho (ej: 'w-full', 'w-1/2')
+ * @param {string} props.height - Clase de altura (ej: 'h-4', 'h-10')
+ * @param {string} props.className - Clases CSS adicionales
+ * @param {string} props.rounded - Clase de redondeo (ej: 'rounded', 'rounded-full')
+ */
+export const Skeleton = memo(
+  ({
+    variant = "default",
+    width = "w-full",
+    height = "h-4",
+    className = "",
+    count = 1,
+    rounded = "rounded",
+  }) => {
+    const variants = {
+      default: "bg-slate-700",
+      circle: "rounded-full",
+      text: "h-4 mb-2",
+      card: "h-48 rounded-lg",
+      avatar: "w-10 h-10 rounded-full",
+    };
 
-// Skeleton para tablas admin - estilo Flowbite
-export const TableSkeleton = ({ rows = 5, columns = 6 }) => (
+    return (
+      <div
+        className={`animate-pulse ${width} ${height} ${variants[variant]} ${rounded} ${className}`}
+      />
+    );
+  }
+);
+
+/**
+ * Skeleton para tablas tipo Flowbite
+ * @param {number} props.rows - Cantidad de filas
+ * @param {number} props.columns - Cantidad de columnas
+ */
+export const TableSkeleton = memo(({ rows = 5, columns = 6 }) => (
   <div className="overflow-x-auto">
     <div className="min-w-full">
       {/* Table Header */}
@@ -57,9 +74,9 @@ export const TableSkeleton = ({ rows = 5, columns = 6 }) => (
       </div>
     </div>
   </div>
-);
+));
 
-export const CardSkeleton = ({ count = 6 }) => (
+export const CardSkeleton = memo(({ count = 6 }) => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
     {Array.from({ length: count }).map((_, i) => (
       <div key={i} className="space-y-3">
@@ -69,9 +86,13 @@ export const CardSkeleton = ({ count = 6 }) => (
       </div>
     ))}
   </div>
-);
+));
 
-export const MovieCardSkeleton = ({ count = 6 }) => (
+/**
+ * Skeleton para tarjetas de películas
+ * @param {number} props.count - Cantidad de tarjetas
+ */
+export const MovieCardSkeleton = memo(({ count = 6 }) => (
   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
     {Array.from({ length: count }).map((_, i) => (
       <div key={i} className="animate-pulse">
@@ -81,9 +102,13 @@ export const MovieCardSkeleton = ({ count = 6 }) => (
       </div>
     ))}
   </div>
-);
+));
 
-export const TextSkeleton = ({ lines = 3, className = "" }) => (
+/**
+ * Skeleton para texto multilínea
+ * @param {number} props.lines - Cantidad de líneas
+ */
+export const TextSkeleton = memo(({ lines = 3, className = "" }) => (
   <div className={`space-y-2 ${className}`}>
     {Array.from({ length: lines }).map((_, i) => (
       <Skeleton
@@ -93,9 +118,13 @@ export const TextSkeleton = ({ lines = 3, className = "" }) => (
       />
     ))}
   </div>
-);
+));
 
-export const CircleSkeleton = ({ size = "w-10 h-10", className = "" }) => (
+/**
+ * Skeleton circular para avatares
+ * @param {string} props.size - Clases de tamaño Tailwind
+ */
+export const CircleSkeleton = memo(({ size = "w-10 h-10", className = "" }) => (
   <Skeleton
     variant="circle"
     width={size.split(" ")[0]}
@@ -103,9 +132,14 @@ export const CircleSkeleton = ({ size = "w-10 h-10", className = "" }) => (
     rounded="rounded-full"
     className={className}
   />
-);
+));
 
-export const FormSkeleton = ({ fields = 5, hasButton = true }) => (
+/**
+ * Skeleton para formularios
+ * @param {number} props.fields - Cantidad de campos
+ * @param {boolean} props.hasButton - Si incluye botón
+ */
+export const FormSkeleton = memo(({ fields = 5, hasButton = true }) => (
   <div className="space-y-6">
     {Array.from({ length: fields }).map((_, i) => (
       <div key={i} className="space-y-2">
@@ -122,20 +156,40 @@ export const FormSkeleton = ({ fields = 5, hasButton = true }) => (
       />
     )}
   </div>
-);
+));
 
-export const CarouselSkeleton = () => (
-  <div className="animate-pulse">
-    <Skeleton height="h-[400px] md:h-[550px]" rounded="rounded-xl" />
-    <div className="flex justify-center gap-2 mt-4">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Skeleton key={i} width="w-2" height="h-2" rounded="rounded-full" />
+/**
+ * Skeleton para carrusel de películas
+ */
+export const CarouselSkeleton = memo(() => (
+  <div className="animate-pulse space-y-4">
+    {/* Contenedor principal más ancho */}
+    <div className="relative h-[400px] md:h-[550px] w-full rounded-xl overflow-hidden bg-slate-800/50 border border-slate-700">
+      {/* Fondo con pulso */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-700"></div>
+
+      {/* Sección inferior para simular info */}
+      <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3 bg-gradient-to-t from-slate-900 to-transparent">
+        <div className="h-10 bg-slate-600 rounded-lg w-2/3"></div>
+        <div className="h-4 bg-slate-600/70 rounded w-full"></div>
+        <div className="h-4 bg-slate-600/70 rounded w-4/5"></div>
+      </div>
+    </div>
+
+    {/* Indicadores */}
+    <div className="flex justify-center gap-2">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="w-2 h-2 rounded-full bg-slate-600"></div>
       ))}
     </div>
   </div>
-);
+));
 
-export const ReservaCardSkeleton = ({ count = 3 }) => (
+/**
+ * Skeleton para tarjetas de reserva
+ * @param {number} props.count - Cantidad de tarjetas
+ */
+export const ReservaCardSkeleton = memo(({ count = 3 }) => (
   <div className="space-y-4">
     {Array.from({ length: count }).map((_, i) => (
       <div
@@ -160,4 +214,4 @@ export const ReservaCardSkeleton = ({ count = 3 }) => (
       </div>
     ))}
   </div>
-);
+));

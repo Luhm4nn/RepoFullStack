@@ -107,7 +107,12 @@ export default function FuncionesForm({
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
         <div className="relative bg-slate-800 border border-slate-700 p-4 md:p-6 rounded-lg shadow-lg z-10 w-full max-w-lg mx-4">
-          <div className="h-8 w-48 bg-slate-700 rounded animate-pulse mb-4"></div>
+          <Skeleton
+            height="h-8"
+            width="w-48"
+            rounded="rounded"
+            className="mb-4"
+          />
           <FormSkeleton fields={3} hasButton />
         </div>
       </div>

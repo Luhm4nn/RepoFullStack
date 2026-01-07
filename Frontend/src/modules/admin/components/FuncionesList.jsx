@@ -117,8 +117,8 @@ function FuncionesList() {
     return (
       <div className="w-full">
         <div className="mb-4 flex justify-between items-center">
-          <div className="h-7 w-48 bg-slate-700 rounded animate-pulse"></div>
-          <div className="h-9 w-32 bg-slate-700 rounded animate-pulse"></div>
+          <Skeleton height="h-7" width="w-48" rounded="rounded" />
+          <Skeleton height="h-9" width="w-32" rounded="rounded" />
         </div>
         <TableSkeleton rows={8} columns={6} />
       </div>
