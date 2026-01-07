@@ -1,9 +1,31 @@
 import api from './axiosInstance.js';
 import { dateFormaterBackend } from '../modules/shared';
 
-export const getFunciones = async (estado = 'activas') => {
+// Función principal con query params (usa el backend optimizado)
+export const getFunciones = async (filtros = {}) => {
   try {
-    const response = await api.get(`/Funciones/${estado}`);
+    const params = new URLSearchParams();
+    
+    // Si solo hay estado, mantener compatibilidad con rutas antiguas
+    if (typeof filtros === 'string') {
+      const response = await api.get(`/Funciones?estado=${filtros}`);
+      return response.data;
+    }
+    
+    // Filtros avanzados con query params
+    if (filtros.estado) params.append('estado', filtros.estado);
+    if (filtros.idPelicula) params.append('idPelicula', filtros.idPelicula);
+    if (filtros.nombrePelicula) params.append('nombrePelicula', filtros.nombrePelicula);
+    if (filtros.idSala) params.append('idSala', filtros.idSala);
+    if (filtros.nombreSala) params.append('nombreSala', filtros.nombreSala);
+    if (filtros.fechaDesde) params.append('fechaDesde', filtros.fechaDesde);
+    if (filtros.fechaHasta) params.append('fechaHasta', filtros.fechaHasta);
+    if (filtros.limit) params.append('limit', filtros.limit);
+    
+    const queryString = params.toString();
+    const url = queryString ? `/Funciones?${queryString}` : '/Funciones';
+    
+    const response = await api.get(url);
     return response.data;
   } catch (error) {
     throw error;
@@ -11,19 +33,19 @@ export const getFunciones = async (estado = 'activas') => {
 };
 
 export const getFuncionesActivas = async () => {
-  return getFunciones('activas');
+  return getFunciones({ estado: 'activas' });
 };
 
 export const getFuncionesInactivas = async () => {
-  return getFunciones('inactivas');
+  return getFunciones({ estado: 'inactivas' });
 };
 
 export const getTodasLasFunciones = async () => {
-  return getFunciones('todos');
+  return getFunciones();
 };
 
 export const getFuncionesPublicas = async () => {
-  return getFunciones('publicas');
+  return getFunciones({ estado: 'publicas' });
 };
 
 export const createFuncion = async (funcion) => {

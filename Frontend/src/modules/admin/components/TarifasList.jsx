@@ -1,9 +1,16 @@
-import { getTarifas, createTarifa, updateTarifa, deleteTarifa } from "../../../api/Tarifas.api";
+import {
+  getTarifas,
+  createTarifa,
+  updateTarifa,
+  deleteTarifa,
+} from "../../../api/Tarifas.api";
 import { Card, Button, Modal, ModalBody, ModalHeader } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { formatDate, formatearPrecio } from "../../shared";
 import TarifaForm from "./TarifaForm";
 import TarifaDelete from "./TarifaDelete";
+import { useNotification } from "../../../context/NotificationContext";
+import { CardSkeleton } from "../../shared/components/Skeleton";
 
 function TarifasList() {
   const [tarifas, setTarifas] = useState([]);
@@ -12,6 +19,7 @@ function TarifasList() {
   const [mostrarDeleteModal, setMostrarDeleteModal] = useState(false);
   const [tarifaAEliminar, setTarifaAEliminar] = useState(null);
   const [eliminando, setEliminando] = useState(false);
+  const notify = useNotification();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -26,39 +34,30 @@ function TarifasList() {
       setTarifas(data);
       setError(null);
     } catch (error) {
-      console.error("Error fetching tarifas:", error);
       setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Función para manejar el envío del formulario
   const handleSubmit = async (data) => {
     try {
       if (tarifaEditar) {
         // Editar tarifa existente
         await updateTarifa(tarifaEditar.idTarifa, data);
       } else {
-        // Crear nueva tarifa
         await createTarifa(data);
       }
-      // Recargar la lista después de crear/editar
       await fetchTarifas();
       closeModal();
-    } catch (error) {
-      console.error("Error saving tarifa:", error);
-      // Aquí podrías mostrar un mensaje de error al usuario
-    }
+    } catch (error) {}
   };
 
-  // Función para abrir el modal para crear
   const openModal = () => {
     setTarifaEditar(null);
     setMostrarFormulario(true);
   };
 
-  // Función para abrir el modal para editar
   const openEditModal = (tarifa) => {
     setTarifaEditar(tarifa);
     setMostrarFormulario(true);
@@ -69,11 +68,10 @@ function TarifasList() {
     setTarifaEditar(null);
   };
 
-  // Función para abrir el modal de confirmación de eliminación
   const openDeleteModal = (tarifa) => {
     // Proteger las primeras dos tarifas (IDs 1 y 2)
     if (tarifa.idTarifa <= 2) {
-      alert("No se puede eliminar esta tarifa del sistema.");
+      notify.warning("No se puede eliminar esta tarifa del sistema.");
       return;
     }
     setTarifaAEliminar(tarifa);
@@ -87,34 +85,50 @@ function TarifasList() {
     }
   };
 
-  // Función para confirmar eliminación
   const confirmDelete = async () => {
     if (!tarifaAEliminar) return;
-    
+
     try {
       setEliminando(true);
       await deleteTarifa(tarifaAEliminar.idTarifa);
       await fetchTarifas();
       setMostrarDeleteModal(false);
       setTarifaAEliminar(null);
+      notify.success("Tarifa eliminada exitosamente");
     } catch (error) {
-      console.error("Error deleting tarifa:", error);
-      alert("Error al eliminar la tarifa.");
+      notify.error("Error al eliminar la tarifa.");
     } finally {
       setEliminando(false);
     }
   };
 
   if (loading) {
-    return <div className="text-center p-4 text-white">Cargando Tarifas...</div>;
+    return (
+      <div className="w-full">
+        <Card className="bg-slate-800/50 border-slate-700">
+          <div className="p-6">
+            <div className="flex flex-row items-center justify-between mb-4">
+              <CardSkeleton />
+            </div>
+            <div className="space-y-4">
+              {[...Array(6)].map((_, i) => (
+                <CardSkeleton key={i} />
+              ))}
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
   }
 
   if (error) {
     return (
       <div className="text-center p-4">
-        <p className="text-white text-xl">No se encontraron Tarifas cargadas.</p>
-        <button 
-          onClick={fetchTarifas} 
+        <p className="text-white text-xl">
+          No se encontraron Tarifas cargadas.
+        </p>
+        <button
+          onClick={fetchTarifas}
           className="mt-2 px-4 py-2 w-full sm:w-auto bg-gradient-to-r from-orange-500 to-red-600 hover:bg-gradient-to-r hover:from-orange-600 hover:to-red-700 text-white rounded transition-colors text-sm"
         >
           Reintentar
@@ -133,12 +147,13 @@ function TarifasList() {
         theme={{
           content: {
             base: "relative h-full w-full p-4 flex items-center justify-center min-h-screen",
-            inner: "relative rounded-lg bg-slate-800 shadow flex flex-col max-h-[90vh] w-full max-w-md mx-auto"
-          }
+            inner:
+              "relative rounded-lg bg-slate-800 shadow flex flex-col max-h-[90vh] w-full max-w-md mx-auto",
+          },
         }}
       >
         <ModalBody className="p-0">
-          <TarifaForm 
+          <TarifaForm
             onSubmit={handleSubmit}
             onCancel={closeModal}
             initialData={tarifaEditar}
@@ -156,8 +171,9 @@ function TarifasList() {
           theme={{
             content: {
               base: "relative h-full w-full p-4 flex items-center justify-center",
-              inner: "relative rounded-lg bg-slate-800 shadow flex flex-col max-h-[90vh] w-full max-w-md mx-auto"
-            }
+              inner:
+                "relative rounded-lg bg-slate-800 shadow flex flex-col max-h-[90vh] w-full max-w-md mx-auto",
+            },
           }}
         >
           <ModalBody className="p-0">
@@ -180,20 +196,24 @@ function TarifasList() {
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
               onClick={openModal}
             >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                strokeWidth="2.5" 
-                stroke="currentColor" 
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2.5"
+                stroke="currentColor"
                 className="w-4 h-4 mr-2"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
               </svg>
               Nueva
             </Button>
           </div>
-          
+
           <div className="space-y-4">
             {tarifas.length === 0 ? (
               <div className="text-center py-8 text-gray-400">
@@ -201,11 +221,14 @@ function TarifasList() {
               </div>
             ) : (
               tarifas.map((tar) => (
-                <div key={tar.idTarifa} className="p-4 bg-slate-700/50 rounded-lg">
+                <div
+                  key={tar.idTarifa}
+                  className="p-4 bg-slate-700/50 rounded-lg"
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <h4 className="text-white font-medium mb-1">
-                        {tar.descripcionTarifa || 'Sin descripción'}
+                        {tar.descripcionTarifa || "Sin descripción"}
                       </h4>
                       <p className="text-2xl font-bold text-green-400">
                         {formatearPrecio(tar.precio)}
@@ -221,11 +244,22 @@ function TarifasList() {
                         className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600 text-sm"
                         onClick={() => openEditModal(tar)}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                          className="size-4"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                          />
                         </svg>
                       </Button>
-                      
+
                       {/* Botón Eliminar - Solo si no es una de las primeras dos */}
                       {tar.idTarifa > 2 && (
                         <Button
@@ -233,9 +267,20 @@ function TarifasList() {
                           className="w-full sm:w-auto bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-sm"
                           onClick={() => openDeleteModal(tar)}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                        </svg>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="size-4"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                            />
+                          </svg>
                         </Button>
                       )}
                     </div>

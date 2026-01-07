@@ -1,7 +1,6 @@
 import { useContext } from 'react';
 import AuthContext from '../../../context/AuthContext.jsx';
 
-// Hook personalizado para usar el contexto de autenticación
 export const useAuth = () => {
   const context = useContext(AuthContext);
   
@@ -12,7 +11,6 @@ export const useAuth = () => {
   return context;
 };
 
-// Hook para verificar si el usuario tiene un rol específico
 export const useRole = (requiredRole) => {
   const { user, isAuthenticated } = useAuth();
   
@@ -23,19 +21,16 @@ export const useRole = (requiredRole) => {
   };
 };
 
-// Hook para verificar si es admin
 export const useIsAdmin = () => {
   const { hasRole } = useRole('ADMIN');
   return hasRole;
 };
 
-// Hook para verificar si es cliente
 export const useIsClient = () => {
   const { hasRole } = useRole('CLIENTE');
   return hasRole;
 };
 
-// Hook para obtener información del usuario actual
 export const useCurrentUser = () => {
   const { user, isAuthenticated, loading } = useAuth();
   
@@ -50,7 +45,6 @@ export const useCurrentUser = () => {
   };
 };
 
-// Hook para manejar logout con confirmación
 export const useLogout = () => {
   const { logout } = useAuth();
   
@@ -64,7 +58,6 @@ export const useLogout = () => {
       await logout();
       return true;
     } catch (error) {
-      console.error('Error al cerrar sesión:', error);
       return false;
     }
   };

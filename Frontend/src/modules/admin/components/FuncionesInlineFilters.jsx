@@ -3,18 +3,10 @@ import { TextInput, Button } from "flowbite-react";
 function FuncionesInlineFilters({ filterHook }) {
   const {
     filtros,
-    peliculasSugeridas,
-    salasSugeridas,
-    mostrarSugerenciasPeliculas,
-    mostrarSugerenciasSalas,
     handlePeliculaChange,
     handleSalaChange,
     handleFilterChange,
-    seleccionarSugerenciaPelicula,
-    seleccionarSugerenciaSala,
-    limpiarFiltros,
-    setMostrarSugerenciasPeliculas,
-    setMostrarSugerenciasSalas
+    limpiarFiltros
   } = filterHook;
 
   return (
@@ -25,31 +17,14 @@ function FuncionesInlineFilters({ filterHook }) {
           <label className="text-sm font-medium text-white mb-1 block">
             Película
           </label>
-          <div className="relative w-full">
-            <TextInput
-              type="text"
-              placeholder="Buscar película..."
-              value={filtros.pelicula}
-              onChange={(e) => handlePeliculaChange(e.target.value)}
-              color
-              className="w-full !bg-slate-700 hover:!bg-slate-600 text-white border-slate-600 rounded-lg"
-              onBlur={() => setTimeout(() => setMostrarSugerenciasPeliculas(false), 200)}
-              onFocus={() => peliculasSugeridas.length > 0 && setMostrarSugerenciasPeliculas(true)}
-            />
-            {mostrarSugerenciasPeliculas && peliculasSugeridas.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-slate-800 border border-slate-600 rounded-md mt-1 z-50 shadow-lg">
-                {peliculasSugeridas.map((pelicula) => (
-                  <div
-                    key={pelicula.idPelicula}
-                    className="px-3 py-2 hover:bg-slate-700 cursor-pointer text-white text-sm"
-                    onClick={() => seleccionarSugerenciaPelicula(pelicula)}
-                  >
-                    {pelicula.nombrePelicula}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <TextInput
+            type="text"
+            placeholder="Buscar película..."
+            value={filtros.pelicula}
+            onChange={(e) => handlePeliculaChange(e.target.value)}
+            color
+            className="w-full !bg-slate-700 hover:!bg-slate-600 text-white border-slate-600 rounded-lg"
+          />
         </div>
 
         {/* Sala filter */}
@@ -57,31 +32,14 @@ function FuncionesInlineFilters({ filterHook }) {
           <label className="text-sm font-medium text-white mb-1 block">
             Sala
           </label>
-          <div className="relative w-full">
-            <TextInput
-              type="text"
-              placeholder="Buscar sala..."
-              value={filtros.sala}
-              onChange={(e) => handleSalaChange(e.target.value)}
-              color
-              className="w-full !bg-slate-700 hover:!bg-slate-600 text-white border-slate-600 rounded-lg"
-              onBlur={() => setTimeout(() => setMostrarSugerenciasSalas(false), 200)}
-              onFocus={() => salasSugeridas.length > 0 && setMostrarSugerenciasSalas(true)}
-            />
-            {mostrarSugerenciasSalas && salasSugeridas.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-slate-800 border border-slate-600 rounded-md mt-1 z-50 shadow-lg">
-                {salasSugeridas.map((sala) => (
-                  <div
-                    key={sala.idSala}
-                    className="px-3 py-2 hover:bg-slate-700 cursor-pointer text-white text-sm"
-                    onClick={() => seleccionarSugerenciaSala(sala)}
-                  >
-                    {sala.nombreSala}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <TextInput
+            type="text"
+            placeholder="Buscar sala..."
+            value={filtros.sala}
+            onChange={(e) => handleSalaChange(e.target.value)}
+            color
+            className="w-full !bg-slate-700 hover:!bg-slate-600 text-white border-slate-600 rounded-lg"
+          />
         </div>
 
         {/* Date from */}

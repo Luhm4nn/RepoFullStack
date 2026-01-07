@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { findRefreshToken, deleteRefreshToken, saveRefreshToken, deleteAllTokensForUser } from './refreshToken.repository.js';
+import logger from '../utils/logger.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
@@ -18,10 +19,14 @@ export function generateRefreshToken(payload) {
 
 export async function handleRefreshToken(req, res) {
   const oldRefreshToken = req.cookies.refreshToken;
-  if (!oldRefreshToken) return res.status(401).json({ message: 'No refresh token' });
+  if (!oldRefreshToken) {
+    return res.status(401).json({ message: 'No refresh token' });
+  }
 
   const tokenInDb = await findRefreshToken(oldRefreshToken);
-  if (!tokenInDb) return res.status(401).json({ message: 'Refresh token inválido' });
+  if (!tokenInDb) {
+    return res.status(401).json({ message: 'Refresh token inválido' });
+  }
 
   try {
     const payload = jwt.verify(oldRefreshToken, JWT_REFRESH_SECRET);
@@ -44,13 +49,21 @@ export async function handleRefreshToken(req, res) {
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ accessToken: newAccessToken });
+    res.cookie('accessToken', newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 1000,
+    });
+    
+    return res.json({ accessToken: newAccessToken });
   } catch (err) {
-    return res.status(401).json({ message: 'Refresh token inválido o expirado' });
+    await deleteRefreshToken(oldRefreshToken);
+    return res.status(403).json({ message: 'Refresh token expirado o inválido' });
   }
 }
 
@@ -58,7 +71,9 @@ export async function revokeRefreshToken(req, res) {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) return res.status(400).json({ message: 'No refresh token' });
   await deleteRefreshToken(refreshToken);
-  res.clearCookie('refreshToken').json({ message: 'Sesión cerrada' });
+  res.clearCookie('refreshToken');
+  res.clearCookie('accessToken');
+  res.json({ message: 'Sesión cerrada' });
 }
 
 export async function revokeAllSessions(req, res) {

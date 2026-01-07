@@ -26,14 +26,10 @@ export const searchPeliculas = async (query, limit = 10) => {
       return [];
     }
 
-    const response = await api.get('/Peliculas');
+    const response = await api.get(`/Peliculas/search?q=${encodeURIComponent(query)}&limit=${limit}`);  
     const peliculas = response.data;
 
     return peliculas
-      .filter((pelicula) =>
-        pelicula.nombrePelicula?.toLowerCase().includes(query.toLowerCase())
-      )
-      .slice(0, limit);
   } catch (error) {
     throw error;
   }

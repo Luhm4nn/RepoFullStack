@@ -1,17 +1,22 @@
 import { Router } from 'express';
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
-import { validateBody } from '../Middlewares/validateRequest.js';
+import { validateBody, validateQuery, validateParams } from '../Middlewares/validateRequest.js';
 import { salasSchema, salasUpdateSchema } from '../validations/SalasSchema.js';
-import { getSalas, getSala, createSala, deleteSala, updateSala, getCountSalas } from './salas.controllers.js';
+import { searchQuerySchema, idParamSchema, salaParamSchema } from '../validations/CommonSchemas.js';
+import { getSalas, getSala, createSala, deleteSala, updateSala, getCountSalas, searchSalas } from './salas.controllers.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
+import { moderateLimiter } from '../Middlewares/rateLimiter.js';
 
 const router = Router();
 
-router.get('/Salas', asyncHandler(getSalas));
+router.get('/Salas', moderateLimiter, asyncHandler(getSalas));
+
+router.get('/Salas/search', moderateLimiter, validateQuery(searchQuerySchema), asyncHandler(searchSalas));
+
 router.get('/Salas/count', asyncHandler(getCountSalas));
 
-router.get('/Sala/:param', asyncHandler(getSala));
+router.get('/Sala/:param', validateParams(salaParamSchema), asyncHandler(getSala));
 
 router.post(
   '/Sala',
@@ -29,6 +34,6 @@ router.put(
   asyncHandler(updateSala)
 );
 
-router.delete('/Sala/:id', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(deleteSala));
+router.delete('/Sala/:id', authMiddleware, authorizeRoles('ADMIN'), validateParams(idParamSchema), asyncHandler(deleteSala));
 
 export const salasRoutes = router;

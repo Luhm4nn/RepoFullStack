@@ -13,7 +13,6 @@ export default function SalasEditForm({ sala, onSubmit, onCancel }) {
   useEffect(() => {
     const fetchCurrentVipSeats = async () => {
       try {
-        // Importar la función de la API
         const asientos = await getAsientosBySala(sala.idSala);
         
         const vipSeatsFromDb = asientos
@@ -23,7 +22,6 @@ export default function SalasEditForm({ sala, onSubmit, onCancel }) {
         setCurrentVipSeats(vipSeatsFromDb);
         setVipSeats(vipSeatsFromDb);
       } catch (error) {
-        console.error("Error fetching current VIP seats:", error);
         // En caso de error, usar array vacío
         setCurrentVipSeats([]);
         setVipSeats([]);

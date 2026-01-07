@@ -1,60 +1,50 @@
-import api from './axiosInstance.js';
+import api from "./axiosInstance.js";
 
-// Auth API functions
 export const authAPI = {
   // Login
   login: async (email, password) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
-      const { token, user } = response.data;
+      const response = await api.post("/auth/login", { email, password });
+      const { user } = response.data;
+      localStorage.setItem("user", JSON.stringify(user));
 
-      // Guardar token y usuario
-      localStorage.setItem('accessToken', token);
-      localStorage.setItem('user', JSON.stringify(user));
-
-      return { token, user };
+      return { user };
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Error en el login');
+      throw new Error(error.response?.data?.message || "Error en el login");
     }
   },
 
   // Logout
   logout: async () => {
     try {
-      await api.post('/auth/logout');
+      await api.post("/auth/logout");
     } finally {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('user');
+      localStorage.removeItem("user");
     }
   },
 
   // Refresh token
   refreshToken: async () => {
     try {
-      const response = await api.post('/auth/refresh');
+      const response = await api.post("/auth/refresh");
       const { accessToken } = response.data;
-      localStorage.setItem('accessToken', accessToken);
       return accessToken;
     } catch (error) {
-      throw new Error('Error al refrescar token');
+      throw new Error("Error al refrescar token");
     }
   },
 
   // Verificar si hay sesión activa
   checkAuth: () => {
-    const token = localStorage.getItem('accessToken');
-    const user = localStorage.getItem('user');
+    const user = localStorage.getItem("user");
 
-    if (token && user) {
+    if (user) {
       try {
         return {
-          token,
           user: JSON.parse(user),
         };
       } catch (error) {
-        // Si hay error parseando el usuario, limpiar todo
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('user');
+        localStorage.removeItem("user");
         return null;
       }
     }
@@ -63,5 +53,4 @@ export const authAPI = {
   },
 };
 
-// Exportar la instancia de axios configurada para usar en otros lugares
 export default api;

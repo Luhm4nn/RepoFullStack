@@ -61,3 +61,13 @@ export const update = async (id, data) => {
 export const getCountAll = async () => {
   return await repository.countAll();
 };
+
+/**
+ * Busca salas por nombre
+ * @param {string} searchQuery - Término de búsqueda
+ * @param {number} limit - Límite de resultados (opcional)
+ * @returns {Promise<Array>} Lista de salas que coinciden
+ */
+export const search = async (searchQuery, limit) => {
+  return await repository.search(searchQuery, limit);
+};

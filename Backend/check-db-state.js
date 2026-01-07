@@ -1,15 +1,16 @@
 import prisma from './prisma/prisma.js';
+import logger from './utils/logger.js';
 
 async function checkDatabaseState() {
-    console.log('=== Verificando estado de la base de datos ===\n');
+    logger.info('=== Verificando estado de la base de datos ===\n');
 
     // Contar películas
     const totalPeliculas = await prisma.pelicula.count();
-    console.log(`📽️  Total de películas: ${totalPeliculas}`);
+    logger.info(`📽️  Total de películas: ${totalPeliculas}`);
 
     // Contar salas
     const totalSalas = await prisma.sala.count();
-    console.log(`🎭 Total de salas: ${totalSalas}`);
+    logger.info(`🎭 Total de salas: ${totalSalas}`);
 
     // Contar funciones por estado
     const funcionesPrivadas = await prisma.funcion.count({
@@ -23,10 +24,10 @@ async function checkDatabaseState() {
     });
     const totalFunciones = await prisma.funcion.count();
 
-    console.log(`\n🎬 Total de funciones: ${totalFunciones}`);
-    console.log(`   - Privadas: ${funcionesPrivadas}`);
-    console.log(`   - Públicas: ${funcionesPublicas}`);
-    console.log(`   - Inactivas: ${funcionesInactivas}`);
+    logger.info(`\n🎬 Total de funciones: ${totalFunciones}`);
+    logger.info(`   - Privadas: ${funcionesPrivadas}`);
+    logger.info(`   - Públicas: ${funcionesPublicas}`);
+    logger.info(`   - Inactivas: ${funcionesInactivas}`);
 
     // Películas en cartelera (con funciones públicas)
     const peliculasEnCartelera = await prisma.pelicula.findMany({
@@ -39,10 +40,10 @@ async function checkDatabaseState() {
         },
     });
 
-    console.log(`\n🎯 Películas en cartelera (con funciones públicas): ${peliculasEnCartelera.length}`);
+    logger.info(`\n🎯 Películas en cartelera (con funciones públicas): ${peliculasEnCartelera.length}`);
 
     // Mostrar algunas funciones de ejemplo
-    console.log('\n📋 Primeras 5 funciones:');
+    logger.info('\n📋 Primeras 5 funciones:');
     const funcionesEjemplo = await prisma.funcion.findMany({
         take: 5,
         include: {
@@ -52,16 +53,16 @@ async function checkDatabaseState() {
     });
 
     funcionesEjemplo.forEach((funcion, index) => {
-        console.log(`\n   ${index + 1}. ${funcion.pelicula.nombrePelicula}`);
-        console.log(`      Sala: ${funcion.sala.nombreSala}`);
-        console.log(`      Fecha: ${funcion.fechaHoraFuncion}`);
-        console.log(`      Estado: ${funcion.estado}`);
+        logger.info(`\n   ${index + 1}. ${funcion.pelicula.nombrePelicula}`);
+        logger.info(`      Sala: ${funcion.sala.nombreSala}`);
+        logger.info(`      Fecha: ${funcion.fechaHoraFuncion}`);
+        logger.info(`      Estado: ${funcion.estado}`);
     });
 
     await prisma.$disconnect();
 }
 
 checkDatabaseState().catch((error) => {
-    console.error('Error:', error);
+    logger.error('Error:', error);
     process.exit(1);
 });

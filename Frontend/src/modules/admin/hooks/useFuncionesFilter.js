@@ -1,74 +1,52 @@
-import { useState, useCallback } from 'react';
-import { debounce } from '../../shared/utils/debounce.js';
-import { searchPeliculas } from '../../../api/Peliculas.api';
-import { searchSalas } from '../../../api/Salas.api';
+import { useState, useCallback, useEffect } from 'react';
+import { getFunciones } from '../../../api/Funciones.api';
+import { useDebounce } from '../../shared/utils/debounce.js';
 
-export const useFuncionesFilter = (funcionesSinFiltrar, setFunciones) => {
+export const useFuncionesFilter = (funcionesSinFiltrar, setFunciones, mostrandoActivas = true) => {
   const [filtros, setFiltros] = useState({
     pelicula: '',
     sala: '',
     fechaDesde: '',
     fechaHasta: ''
   });
-  const [peliculasSugeridas, setPeliculasSugeridas] = useState([]);
-  const [salasSugeridas, setSalasSugeridas] = useState([]);
-  const [mostrarSugerenciasPeliculas, setMostrarSugerenciasPeliculas] = useState(false);
-  const [mostrarSugerenciasSalas, setMostrarSugerenciasSalas] = useState(false);
+  
+  // Debounce de los filtros de texto para no hacer tantas peticiones
+  const debouncedPelicula = useDebounce(filtros.pelicula, 500);
+  const debouncedSala = useDebounce(filtros.sala, 500);
 
-  // Apply filters to the functions list (synchronous)
-  const aplicarFiltros = useCallback(() => {
-    let funcionesFiltradas = [...funcionesSinFiltrar];
+  const aplicarFiltros = useCallback(async () => {
+    try {
+      if (!debouncedPelicula && !debouncedSala && !filtros.fechaDesde && !filtros.fechaHasta) {
+        setFunciones(funcionesSinFiltrar);
+        return;
+      }
 
-    // Filter by pelicula - check both search results and direct text match
-    if (filtros.pelicula.trim()) {
-      funcionesFiltradas = funcionesFiltradas.filter(funcion => {
-        if (!funcion.pelicula?.nombrePelicula) return false;
-        
-        // Direct text match (case insensitive)
-        const directMatch = funcion.pelicula.nombrePelicula.toLowerCase().includes(filtros.pelicula.toLowerCase());
-        
-        // Also check if it's in the suggestions
-        const inSuggestions = peliculasSugeridas.some(p => p.idPelicula === funcion.idPelicula);
-        
-        return directMatch || inSuggestions;
-      });
+      const backendFiltros = {
+        // Agregar estado según la pestaña actual
+        estado: mostrandoActivas ? 'activas' : 'inactivas'
+      };
+      if (debouncedPelicula.trim()) {
+        backendFiltros.nombrePelicula = debouncedPelicula.trim();
+      }
+      
+      if (debouncedSala.trim()) {
+        backendFiltros.nombreSala = debouncedSala.trim();
+      }
+      
+      if (filtros.fechaDesde) {
+        backendFiltros.fechaDesde = filtros.fechaDesde;
+      }
+      if (filtros.fechaHasta) {
+        backendFiltros.fechaHasta = filtros.fechaHasta;
+      }
+      
+      const funcionesFiltradas = await getFunciones(backendFiltros);
+      setFunciones(funcionesFiltradas);
+    } catch (error) {
+      setFunciones(funcionesSinFiltrar);
     }
+  }, [debouncedPelicula, debouncedSala, filtros.fechaDesde, filtros.fechaHasta, mostrandoActivas, setFunciones, funcionesSinFiltrar]);
 
-    // Filter by sala - check both search results and direct text match  
-    if (filtros.sala.trim()) {
-      funcionesFiltradas = funcionesFiltradas.filter(funcion => {
-        if (!funcion.sala?.nombreSala) return false;
-        
-        // Direct text match (case insensitive)
-        const directMatch = funcion.sala.nombreSala.toLowerCase().includes(filtros.sala.toLowerCase());
-        
-        // Also check if it's in the suggestions
-        const inSuggestions = salasSugeridas.some(s => s.idSala === funcion.idSala);
-        
-        return directMatch || inSuggestions;
-      });
-    }
-
-    // Filter by date from (unchanged - no API needed)
-    if (filtros.fechaDesde) {
-      const fechaDesde = new Date(filtros.fechaDesde + 'T00:00:00');
-      funcionesFiltradas = funcionesFiltradas.filter(
-        funcion => new Date(funcion.fechaHoraFuncion) >= fechaDesde
-      );
-    }
-
-    // Filter by date to (unchanged - no API needed)
-    if (filtros.fechaHasta) {
-      const fechaHasta = new Date(filtros.fechaHasta + 'T23:59:59');
-      funcionesFiltradas = funcionesFiltradas.filter(
-        funcion => new Date(funcion.fechaHoraFuncion) <= fechaHasta
-      );
-    }
-
-    setFunciones(funcionesFiltradas);
-  }, [filtros, funcionesSinFiltrar, peliculasSugeridas, salasSugeridas, setFunciones]);
-
-  // Clear all filters
   const limpiarFiltros = useCallback(() => {
     setFiltros({
       pelicula: '',
@@ -77,105 +55,35 @@ export const useFuncionesFilter = (funcionesSinFiltrar, setFunciones) => {
       fechaHasta: ''
     });
     setFunciones(funcionesSinFiltrar);
-    setPeliculasSugeridas([]);
-    setSalasSugeridas([]);
-    setMostrarSugerenciasPeliculas(false);
-    setMostrarSugerenciasSalas(false);
   }, [funcionesSinFiltrar, setFunciones]);
 
-  // Handle pelicula filter change with debounced autocomplete
-  const debouncedPeliculaSearch = useCallback(
-    debounce(async (query) => {
-      if (query.trim() && query.length >= 2) {
-        try {
-          const sugerencias = await searchPeliculas(query, 5);
-          setPeliculasSugeridas(sugerencias);
-          setMostrarSugerenciasPeliculas(true);
-        } catch (error) {
-          console.error('Error searching películas:', error);
-          setPeliculasSugeridas([]);
-          setMostrarSugerenciasPeliculas(false);
-        }
-      } else {
-        setPeliculasSugeridas([]);
-        setMostrarSugerenciasPeliculas(false);
-      }
-    }, 300), // 300ms delay
-    []
-  );
+  // Auto-aplicar filtros cuando cambien los valores debounced
+  useEffect(() => {
+    if (funcionesSinFiltrar.length > 0) {
+      aplicarFiltros();
+    }
+  }, [debouncedPelicula, debouncedSala, filtros.fechaDesde, filtros.fechaHasta, mostrandoActivas, aplicarFiltros, funcionesSinFiltrar]);
 
+  // Simple handlers that just update the filter state
   const handlePeliculaChange = useCallback((valor) => {
     setFiltros(prev => ({ ...prev, pelicula: valor }));
-    
-    // Trigger debounced search
-    debouncedPeliculaSearch(valor);
-  }, [debouncedPeliculaSearch]);
-
-  // Handle sala filter change with debounced autocomplete
-  const debouncedSalaSearch = useCallback(
-    debounce(async (query) => {
-      if (query.trim() && query.length >= 2) {
-        try {
-          const sugerencias = await searchSalas(query, 5);
-          setSalasSugeridas(sugerencias);
-          setMostrarSugerenciasSalas(true);
-        } catch (error) {
-          console.error('Error searching salas:', error);
-          setSalasSugeridas([]);
-          setMostrarSugerenciasSalas(false);
-        }
-      } else {
-        setSalasSugeridas([]);
-        setMostrarSugerenciasSalas(false);
-      }
-    }, 300), // 300ms delay
-    []
-  );
+  }, []);
 
   const handleSalaChange = useCallback((valor) => {
     setFiltros(prev => ({ ...prev, sala: valor }));
-    
-    // Trigger debounced search
-    debouncedSalaSearch(valor);
-  }, [debouncedSalaSearch]);
+  }, []);
 
-  // Handle filter input changes (for dates)
   const handleFilterChange = useCallback((campo, valor) => {
     setFiltros(prev => ({ ...prev, [campo]: valor }));
   }, []);
 
-  // Select suggestion handlers
-  const seleccionarSugerenciaPelicula = useCallback((pelicula) => {
-    setFiltros(prev => ({ ...prev, pelicula: pelicula.nombrePelicula }));
-    setPeliculasSugeridas([]);
-    setMostrarSugerenciasPeliculas(false);
-  }, []);
-
-  const seleccionarSugerenciaSala = useCallback((sala) => {
-    setFiltros(prev => ({ ...prev, sala: sala.nombreSala }));
-    setSalasSugeridas([]);
-    setMostrarSugerenciasSalas(false);
-  }, []);
-
   return {
-    // State
     filtros,
-    peliculasSugeridas,
-    salasSugeridas,
-    mostrarSugerenciasPeliculas,
-    mostrarSugerenciasSalas,
     
-    // Actions
     aplicarFiltros,
     limpiarFiltros,
     handlePeliculaChange,
     handleSalaChange,
-    handleFilterChange,
-    seleccionarSugerenciaPelicula,
-    seleccionarSugerenciaSala,
-    
-    // Setters for external control
-    setMostrarSugerenciasPeliculas,
-    setMostrarSugerenciasSalas
+    handleFilterChange
   };
 };

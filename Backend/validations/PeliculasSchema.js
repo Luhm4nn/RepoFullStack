@@ -1,18 +1,23 @@
 import * as Yup from 'yup';
+import xss from 'xss';
 
 // Esquema compartido para películas
 export const peliculaSchema = Yup.object().shape({
   nombrePelicula: Yup.string()
     .min(2, 'Muy corto')
     .max(100, 'Muy largo')
-    .required('El nombre es requerido'),
+    .required('El nombre es requerido')
+    .trim(),
 
   director: Yup.string()
     .min(2, 'Muy corto')
     .max(50, 'Muy largo')
-    .required('El director es requerido'),
+    .required('El director es requerido')
+    .trim(),
 
-  generoPelicula: Yup.string().required('El género es requerido'),
+  generoPelicula: Yup.string()
+    .required('El género es requerido')
+    .trim(),
 
   duracion: Yup.number()
     .positive('Debe ser un número positivo')
@@ -23,9 +28,17 @@ export const peliculaSchema = Yup.object().shape({
 
   fechaEstreno: Yup.date().nullable(),
 
-  sinopsis: Yup.string().max(1000, 'Máximo 1000 caracteres'),
+  sinopsis: Yup.string()
+    .max(1000, 'Máximo 1000 caracteres')
+    .trim()
+    .transform((value) => value ? xss(value) : null)
+    .nullable(),
 
-  trailerURL: Yup.string().url('Debe ser una URL válida').nullable(),
+  trailerURL: Yup.string()
+    .url('Debe ser una URL válida')
+    .trim()
+    .transform((value) => value ? xss(value) : null)
+    .nullable(),
 
   portada: Yup.mixed().nullable(),
 

@@ -272,6 +272,91 @@ async function getOneWithStats({ idSala, fechaHoraFuncion }) {
     gananciaTotal: Number(gananciaStats._sum.total) || 0,
   };
 
+ * Obtiene funciones con filtros dinámicos
+ * @param {Object} filters - Filtros de búsqueda
+ * @param {number} filters.idPelicula - ID de película (opcional)
+ * @param {number} filters.idSala - ID de sala (opcional)
+ * @param {string} filters.estado - Estado de la función (opcional)
+ * @param {string} filters.fechaDesde - Fecha desde (opcional)
+ * @param {string} filters.fechaHasta - Fecha hasta (opcional)
+ * @param {number} filters.limit - Límite de resultados (opcional)
+ * @returns {Promise<Array>} Lista de funciones filtradas
+ */
+async function getWithFilters(filters = {}) {
+  const where = {};
+
+  // Filtro por película (ID tiene prioridad sobre nombre)
+  if (filters.idPelicula) {
+    where.idPelicula = parseInt(filters.idPelicula, 10);
+  } else if (filters.nombrePelicula) {
+    // Filtro por nombre de película (texto)
+    where.pelicula = {
+      nombrePelicula: {
+        contains: filters.nombrePelicula,
+        mode: 'insensitive'
+      }
+    };
+  }
+
+  // Filtro por sala (ID, nombre o ubicación)
+  if (filters.idSala) {
+    where.idSala = parseInt(filters.idSala, 10);
+  } else if (filters.nombreSala) {
+    // Filtro por nombre de sala O ubicación (búsqueda en ambos campos)
+    where.sala = {
+      OR: [
+        {
+          nombreSala: {
+            contains: filters.nombreSala,
+            mode: 'insensitive'
+          }
+        },
+        {
+          ubicacion: {
+            contains: filters.nombreSala,
+            mode: 'insensitive'
+          }
+        }
+      ]
+    };
+  }
+
+  if (filters.estado) {
+    const estadoLower = filters.estado.toLowerCase();
+    // Funciones activas incluyen todas menos Inactivas
+    if (estadoLower === 'activas') {
+      where.estado = { not: 'Inactiva' };
+    }  else {
+      where.estado = filters.estado;
+    }
+  }
+
+  if (filters.fechaDesde || filters.fechaHasta) {
+    where.fechaHoraFuncion = {};
+    if (filters.fechaDesde) {
+      where.fechaHoraFuncion.gte = new Date(filters.fechaDesde);
+    }
+    if (filters.fechaHasta) {
+      where.fechaHoraFuncion.lte = new Date(filters.fechaHasta);
+    }
+  }
+
+  const options = {
+    where,
+    include: {
+      sala: true,
+      pelicula: true,
+    },
+    orderBy: {
+      fechaHoraFuncion: 'asc',
+    },
+  };
+
+  if (filters.limit && !isNaN(filters.limit) && filters.limit > 0) {
+    options.take = parseInt(filters.limit, 10);
+  }
+
+  return await prisma.funcion.findMany(options);
 }
 
 export {
@@ -289,4 +374,5 @@ export {
   getByPeliculaAndRange,
   countPublic,
   getOneWithStats,
+  getWithFilters,
 };

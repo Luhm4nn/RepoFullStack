@@ -277,3 +277,12 @@ const verificarSolapamientos = async (nuevaFuncion, funcionExistente = null) => 
 
   return null;
 };
+
+/**
+ * Obtiene funciones con filtros dinámicos
+ * @param {Object} filters - Filtros de búsqueda
+ * @returns {Promise<Array>} Lista de funciones filtradas
+ */
+export const getWithFilters = async (filters) => {
+  return await repository.getWithFilters(filters);
+};

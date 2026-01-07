@@ -1,4 +1,5 @@
 import * as repository from './reservas.repository.js';
+import logger from '../utils/logger.js';
 
 /**
  * Valida que el usuario tenga permiso para acceder al recurso
@@ -7,20 +8,20 @@ import * as repository from './reservas.repository.js';
  * @throws {Error} Si no tiene permiso
  */
 function validateOwnership(user, targetDNI) {
-  console.log('=== VALIDATE OWNERSHIP ===');
-  console.log('User:', user);
-  console.log('Target DNI:', targetDNI);
-  console.log('User rol:', user?.rol);
-  console.log('User id:', user?.id);
-  console.log('Parsed target DNI:', parseInt(targetDNI));
+  logger.debug('=== VALIDATE OWNERSHIP ===');
+  logger.debug('User:', user);
+  logger.debug('Target DNI:', targetDNI);
+  logger.debug('User rol:', user?.rol);
+  logger.debug('User id:', user?.id);
+  logger.debug('Parsed target DNI:', parseInt(targetDNI));
 
   if (user.rol === 'ADMIN') {
-    console.log('Usuario es ADMIN, acceso permitido');
+    logger.debug('Usuario es ADMIN, acceso permitido');
     return;
   }
 
   if (user.id !== parseInt(targetDNI)) {
-    console.error('Acceso denegado: user.id !== targetDNI', {
+    logger.error('Acceso denegado: user.id !== targetDNI', {
       userId: user.id,
       targetDNI: parseInt(targetDNI)
     });
@@ -29,7 +30,7 @@ function validateOwnership(user, targetDNI) {
     throw error;
   }
 
-  console.log('Validación exitosa: usuario es dueño del recurso');
+  logger.debug('Validación exitosa: usuario es dueño del recurso');
 }
 
 /**
@@ -74,24 +75,24 @@ export async function getReserva(params, user) {
  * @returns {Promise<Object>} Reserva creada
  */
 export async function createReserva(data, user) {
-  console.log('=== CREATE RESERVA SERVICE ===');
-  console.log('Data recibida:', JSON.stringify(data, null, 2));
-  console.log('User recibido:', JSON.stringify(user, null, 2));
+  logger.debug('=== CREATE RESERVA SERVICE ===');
+  logger.debug('Data recibida:', JSON.stringify(data, null, 2));
+  logger.debug('User recibido:', JSON.stringify(user, null, 2));
 
   const { DNI } = data;
-  console.log('DNI de la reserva:', DNI);
-  console.log('User ID:', user?.id);
-  console.log('User rol:', user?.rol);
+  logger.debug('DNI de la reserva:', DNI);
+  logger.debug('User ID:', user?.id);
+  logger.debug('User rol:', user?.rol);
 
   try {
     validateOwnership(user, DNI);
-    console.log('Validación de ownership exitosa');
+    logger.debug('Validación de ownership exitosa');
 
     const result = await repository.create(data);
-    console.log('Reserva creada exitosamente:', result);
+    logger.info('Reserva creada exitosamente:', result);
     return result;
   } catch (error) {
-    console.error('Error en createReserva service:', error.message);
+    logger.error('Error en createReserva service:', error.message);
     throw error;
   }
 }
@@ -142,15 +143,18 @@ export async function getLatestReservas(limit) {
 /**
  * Obtiene las reservas de un usuario específico
  * @param {number} userDNI - DNI del usuario
+ * @param {string} estado - Estado opcional para filtrar (CONFIRMADA, CANCELADA)
  * @returns {Promise<Array>} Lista de reservas del usuario
  */
-export async function getUserReservas(userDNI) {
+export async function getUserReservas(userDNI, estado = null) {
   const allReservas = await repository.getAll();
   
-  // Filtrar solo las reservas del usuario
-  const userReservas = allReservas.filter(r => r.DNI === parseInt(userDNI));
+  let userReservas = allReservas.filter(r => r.DNI === parseInt(userDNI));
   
-  // Ordenar por fecha más reciente primero
+  if (estado && (estado === 'CONFIRMADA' || estado === 'CANCELADA')) {
+    userReservas = userReservas.filter(r => r.estadoReserva === estado);
+  }
+  
   userReservas.sort((a, b) => 
     new Date(b.fechaHoraReserva) - new Date(a.fechaHoraReserva)
   );

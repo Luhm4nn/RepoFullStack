@@ -1,31 +1,30 @@
 import prisma from './prisma/prisma.js';
+import logger from './utils/logger.js';
 
 async function addPublicFunctions() {
-    console.log('=== Agregando funciones públicas ===\n');
+    logger.info('=== Agregando funciones públicas ===\n');
 
     try {
-        // Obtener todas las películas
         const peliculas = await prisma.pelicula.findMany({
             orderBy: { idPelicula: 'asc' }
         });
 
-        // Obtener todas las salas
         const salas = await prisma.sala.findMany({
             orderBy: { idSala: 'asc' }
         });
 
         if (peliculas.length === 0) {
-            console.log('❌ No hay películas en la base de datos');
+            logger.info('❌ No hay películas en la base de datos');
             return;
         }
 
         if (salas.length === 0) {
-            console.log('❌ No hay salas en la base de datos');
+            logger.info('❌ No hay salas en la base de datos');
             return;
         }
 
-        console.log(`📽️  Películas encontradas: ${peliculas.length}`);
-        console.log(`🎭 Salas encontradas: ${salas.length}\n`);
+        logger.info(`📽️  Películas encontradas: ${peliculas.length}`);
+        logger.info(`🎭 Salas encontradas: ${salas.length}\n`);
 
         // Crear funciones para las primeras películas
         const funcionesACrear = [];
@@ -59,7 +58,7 @@ async function addPublicFunctions() {
             });
         });
 
-        console.log(`📋 Funciones a crear: ${funcionesACrear.length}\n`);
+        logger.info(`📋 Funciones a crear: ${funcionesACrear.length}\n`);
 
         // Crear las funciones
         let creadas = 0;
@@ -78,7 +77,7 @@ async function addPublicFunctions() {
                 });
 
                 if (existente) {
-                    console.log(`⚠️  Ya existe: ${funcion.pelicula} en ${funcion.sala} - ${funcion.fechaHoraFuncion.toLocaleString('es-AR')}`);
+                    logger.info(`⚠️  Ya existe: ${funcion.pelicula} en ${funcion.sala} - ${funcion.fechaHoraFuncion.toLocaleString('es-AR')}`);
                     continue;
                 }
 
@@ -91,18 +90,18 @@ async function addPublicFunctions() {
                     }
                 });
 
-                console.log(`✅ Creada: ${funcion.pelicula} en ${funcion.sala} - ${funcion.fechaHoraFuncion.toLocaleString('es-AR')}`);
+                logger.info(`✅ Creada: ${funcion.pelicula} en ${funcion.sala} - ${funcion.fechaHoraFuncion.toLocaleString('es-AR')}`);
                 creadas++;
             } catch (error) {
-                console.log(`❌ Error: ${funcion.pelicula} - ${error.message}`);
+                logger.info(`❌ Error: ${funcion.pelicula} - ${error.message}`);
                 errores++;
             }
         }
 
-        console.log(`\n=== Resumen ===`);
-        console.log(`✅ Funciones creadas: ${creadas}`);
-        console.log(`❌ Errores: ${errores}`);
-        console.log(`⚠️  Ya existentes: ${funcionesACrear.length - creadas - errores}`);
+        logger.info(`\n=== Resumen ===`);
+        logger.info(`✅ Funciones creadas: ${creadas}`);
+        logger.info(`❌ Errores: ${errores}`);
+        logger.info(`⚠️  Ya existentes: ${funcionesACrear.length - creadas - errores}`);
 
         // Mostrar resumen final
         const totalFuncionesPublicas = await prisma.funcion.count({
@@ -119,12 +118,12 @@ async function addPublicFunctions() {
             }
         });
 
-        console.log(`\n📊 Estado final:`);
-        console.log(`   - Funciones públicas totales: ${totalFuncionesPublicas}`);
-        console.log(`   - Películas en cartelera: ${peliculasEnCartelera}`);
+        logger.info(`\n📊 Estado final:`);
+        logger.info(`   - Funciones públicas totales: ${totalFuncionesPublicas}`);
+        logger.info(`   - Películas en cartelera: ${peliculasEnCartelera}`);
 
     } catch (error) {
-        console.error('Error:', error);
+        logger.error('Error:', error);
         throw error;
     } finally {
         await prisma.$disconnect();
@@ -132,6 +131,6 @@ async function addPublicFunctions() {
 }
 
 addPublicFunctions().catch((error) => {
-    console.error('Error fatal:', error);
+    logger.error('Error fatal:', error);
     process.exit(1);
 });

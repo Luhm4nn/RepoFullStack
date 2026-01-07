@@ -41,7 +41,7 @@ const UserNavbar = ({ user, onLogout }) => {
     try {
       if (onLogout) await onLogout();
     } catch (e) {
-      console.error('Logout error', e);
+      // Error handling
     } finally {
       navigate('/Cartelera');
     }

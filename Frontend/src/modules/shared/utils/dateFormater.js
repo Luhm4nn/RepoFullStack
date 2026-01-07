@@ -79,7 +79,6 @@ export const formatDateTimeForBackend = (fechaHoraString) => {
   return fechaLocal.toISOString(); 
 };
 
-// Get current datetime in datetime-local format
 export const getCurrentDateTime = () => {
   const now = new Date();
   const year = now.getFullYear();

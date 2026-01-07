@@ -28,7 +28,6 @@ export const getLatestReservas = async (limit = 5) => {
     const response = await api.get(`/Reservas/latest?limit=${limit}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching latest reservas:", error);
     throw error;
   }
 };
@@ -79,17 +78,18 @@ export const getReservasByUser = async (DNI) => {
     const response = await api.get(`/Reservas?DNI=${DNI}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching user reservas:', error);
     throw error;
   }
 };
 
-export const getUserReservas = async () => {
+export const getUserReservas = async (estado = null) => {
   try {
-    const response = await api.get('/Reservas/user');
+    const url = estado 
+      ? `/Reservas/user?estado=${estado}` 
+      : '/Reservas/user';
+    const response = await api.get(url);
     return response.data;
   } catch (error) {
-    console.error('Error fetching user reservas:', error);
     throw error;
   }
 };
