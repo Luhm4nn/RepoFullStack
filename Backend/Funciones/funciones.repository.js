@@ -218,6 +218,60 @@ async function countPublic() {
 }
 
 /**
+ * Obtiene una función con estadísticas de ocupación y ganancia
+ * @param {Object} params - Parámetros de búsqueda
+ * @param {number} params.idSala - ID de la sala
+ * @param {string|Date} params.fechaHoraFuncion - Fecha y hora de la función
+ * @returns {Promise\u003cObject|null\u003e} Función con estadísticas o null
+ */
+async function getOneWithStats({ idSala, fechaHoraFuncion }) {
+  const funcionDate = new Date(fechaHoraFuncion);
+  funcionDate.setMilliseconds(0);
+
+  // Obtener la función con sus relaciones
+  const funcion = await prisma.funcion.findUnique({
+    where: {
+      idSala_fechaHoraFuncion: {
+        idSala: parseInt(idSala, 10),
+        fechaHoraFuncion: funcionDate,
+      },
+    },
+    include: {
+      sala: true,
+      pelicula: true,
+    },
+  });
+
+  if (!funcion) {
+    return null;
+  }
+
+  // Contar asientos reservados
+  const asientosReservados = await prisma.asiento_reserva.count({
+    where: {
+      idSala: parseInt(idSala, 10),
+      fechaHoraFuncion: funcionDate,
+    },
+  });
+
+  // Sumar ganancia de reservas activas
+  const gananciaStats = await prisma.reserva.aggregate({
+    where: {
+      idSala: parseInt(idSala, 10),
+      fechaHoraFuncion: funcionDate,
+      estado: 'ACTIVA',
+    },
+    _sum: {
+      total: true,
+    },
+  });
+
+  return {
+    ...funcion,
+    asientosReservados: asientosReservados || 0,
+    gananciaTotal: Number(gananciaStats._sum.total) || 0,
+  };
+
  * Obtiene funciones con filtros dinámicos
  * @param {Object} filters - Filtros de búsqueda
  * @param {number} filters.idPelicula - ID de película (opcional)
@@ -319,5 +373,6 @@ export {
   getByPeliculaAndFecha,
   getByPeliculaAndRange,
   countPublic,
+  getOneWithStats,
   getWithFilters,
 };

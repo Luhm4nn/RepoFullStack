@@ -102,3 +102,12 @@ export const getCountFuncionesPublicas = async () => {
     throw error;
   }
 };
+
+export const getDetallesFuncion = async (idSala, fechaHoraFuncion) => {
+  try {
+    const response = await api.get(`/Funcion/${idSala}/${dateFormaterBackend(fechaHoraFuncion)}/detalles`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

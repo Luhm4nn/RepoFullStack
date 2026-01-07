@@ -17,6 +17,8 @@ import ModalPublishFuncion from "./ModalPublishFuncion";
 import FuncionesForm from "./FuncionesForm";
 import ErrorModal from "../../shared/components/ErrorModal.jsx";
 import FuncionesInlineFilters from "./FuncionesInlineFilters";
+import DetalleFuncionModal from "./DetalleFuncionModal";
+import { getDetallesFuncion } from "../../../api/Funciones.api";
 
 import { useFuncionesFetch } from "../hooks/useFuncionesFetch.js";
 import { useFuncionesFilter } from "../hooks/useFuncionesFilter.js";
@@ -26,6 +28,12 @@ import { Skeleton, TableSkeleton } from "../../shared/components/Skeleton";
 
 function FuncionesList() {
   const [mostrandoActivas, setMostrandoActivas] = useState(true);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [funcionToDetail, setFuncionToDetail] = useState(null);
+  const [detallesFuncion, setDetallesFuncion] = useState(null);
+  const [loadingDetalles, setLoadingDetalles] = useState(false);
+
+  // Custom hooks
   const notify = useNotification();
 
   const {
@@ -110,6 +118,28 @@ function FuncionesList() {
       }
     }
   };
+
+  const openDetailModal = async (funcion) => {
+    setFuncionToDetail(funcion);
+    setShowDetailModal(true);
+    setLoadingDetalles(true);
+    try {
+      const detalles = await getDetallesFuncion(funcion.idSala, funcion.fechaHoraFuncion);
+      setDetallesFuncion(detalles);
+    } catch (error) {
+      console.error("Error cargando detalles:", error);
+      alert("Error al cargar los detalles de la función");
+    } finally {
+      setLoadingDetalles(false);
+    }
+  };
+
+  const closeDetailModal = () => {
+    setShowDetailModal(false);
+    setFuncionToDetail(null);
+    setDetallesFuncion(null);
+  };
+
 
   // No necesita useEffect aquí - el hook ya aplica filtros automáticamente con debounce
 
@@ -244,14 +274,24 @@ function FuncionesList() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        {funcion.estado !== "Inactiva" && (
+                        <Button
+                          size="sm"
+                          className="w-full sm:w-auto text-sm bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                          onClick={() => openDetailModal(funcion)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 mr-1">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Ver Detalle
+                        </Button>
+                        {funcion.estado !== 'Inactiva' && (
                           <Button
                             size="sm"
-                            className={`w-full sm:w-auto text-sm ${
-                              funcion.estado === "Privada"
-                                ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-                                : "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
-                            }`}
+                            className={`w-full sm:w-auto text-sm ${funcion.estado === 'Privada'
+                              ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
+                              : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
+                              }`}
                             onClick={() => openPublishModal(funcion)}
                           >
                             <svg
@@ -282,7 +322,7 @@ function FuncionesList() {
                           </Button>
                         )}
 
-                        {funcion.estado === "Privada" && (
+                        {funcion.estado === 'Privada' && (
                           <Button
                             size="sm"
                             className="w-full sm:w-auto text-sm bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600"
@@ -452,14 +492,24 @@ function FuncionesList() {
                 </div>
 
                 <div className="flex flex-col gap-2 pt-2">
-                  {funcion.estado !== "Inactiva" && (
+                  <Button
+                    size="sm"
+                    className="w-full text-sm bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    onClick={() => openDetailModal(funcion)}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4 mr-2 text-white">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Ver Detalle
+                  </Button>
+                  {funcion.estado !== 'Inactiva' && (
                     <Button
                       size="sm"
-                      className={`w-full text-sm ${
-                        funcion.estado === "Privada"
-                          ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-                          : "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
-                      }`}
+                      className={`w-full text-sm ${funcion.estado === 'Privada'
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
+                        : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
+                        }`}
                       onClick={() => openPublishModal(funcion)}
                     >
                       <svg
@@ -594,6 +644,17 @@ function FuncionesList() {
 
       {/* Error modal */}
       <ErrorModal error={modalError} onClose={hideError} />
+
+      {/* Detail modal */}
+      {showDetailModal && funcionToDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <DetalleFuncionModal
+            funcion={funcionToDetail}
+            detalles={detallesFuncion}
+            onClose={closeDetailModal}
+          />
+        </div>
+      )}
     </div>
   );
 }

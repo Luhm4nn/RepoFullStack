@@ -11,7 +11,9 @@ import {
   getPublicFuncionesEndpoint,
   getFuncionesSemana,
   getCountPublicFunciones,
+  getDetallesFuncion,
 } from './funciones.controllers.js';
+
 
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { validateBody, validateQuery } from '../Middlewares/validateRequest.js';
@@ -31,6 +33,15 @@ router.get('/Funciones/publicas/count', asyncHandler(getCountPublicFunciones));
 router.get('/Funciones/:idPelicula/semana', moderateLimiter, asyncHandler(getFuncionesSemana));
 router.get('/Funciones/:idPelicula/:fecha', moderateLimiter, asyncHandler(getFuncionesByPeliculaAndFecha));
 router.get('/Funcion/:idSala/:fechaHoraFuncion', asyncHandler(getFuncion));
+
+// Ruta protegida para detalles de función (ADMIN)
+router.get(
+  '/Funcion/:idSala/:fechaHoraFuncion/detalles',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
+  asyncHandler(getDetallesFuncion)
+);
+
 
 // Rutas protegidas (ADMIN)
 router.get(
