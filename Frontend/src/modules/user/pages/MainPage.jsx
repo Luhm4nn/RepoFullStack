@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Carousel } from "flowbite-react";
 import { getPeliculasEnCartelera } from "../../user";
+import { CenteredSpinner } from "../../shared/components/Spinner";
 
 function MainPage() {
   const [peliculas, setPeliculas] = useState([]);
@@ -24,22 +25,32 @@ function MainPage() {
           ¡Bienvenido a <span className="text-purple-400">Cutzy Cinema</span>!
         </h1>
         <p className="text-2xl md:text-3xl text-gray-200 mb-12 text-center max-w-3xl">
-          Tu lugar para vivir la mejor experiencia de cine. Disfruta de los últimos estrenos, reserva tus asientos y sumérgete en la magia del séptimo arte.
+          Tu lugar para vivir la mejor experiencia de cine. Disfruta de los
+          últimos estrenos, reserva tus asientos y sumérgete en la magia del
+          séptimo arte.
         </p>
         <div className="w-full max-w-4xl mb-12">
           {loading ? (
             <div className="flex justify-center items-center h-96">
-              <span className="text-white text-2xl">Cargando cartelera...</span>
+              <CenteredSpinner message="Cargando cartelera..." />
             </div>
           ) : (
-            <Carousel slideInterval={3500} className="rounded-2xl shadow-2xl overflow-hidden h-96">
+            <Carousel
+              slideInterval={3500}
+              className="rounded-2xl shadow-2xl overflow-hidden h-96"
+            >
               {peliculas.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-96 bg-slate-800">
-                  <span className="text-gray-400 text-2xl">No hay películas en cartelera.</span>
+                  <span className="text-gray-400 text-2xl">
+                    No hay películas en cartelera.
+                  </span>
                 </div>
               ) : (
                 peliculas.map((pelicula) => (
-                  <div key={pelicula.idPelicula} className="relative h-96 flex items-center justify-center bg-black">
+                  <div
+                    key={pelicula.idPelicula}
+                    className="relative h-96 flex items-center justify-center bg-black"
+                  >
                     <img
                       src={pelicula.portada || "/placeholder.svg"}
                       alt={pelicula.nombrePelicula}
@@ -49,7 +60,9 @@ function MainPage() {
                       <h2 className="text-4xl font-bold text-white mb-4 drop-shadow-2xl">
                         {pelicula.nombrePelicula}
                       </h2>
-                      <p className="text-gray-200 text-lg line-clamp-2 mb-4">{pelicula.sinopsis}</p>
+                      <p className="text-gray-200 text-lg line-clamp-2 mb-4">
+                        {pelicula.sinopsis}
+                      </p>
                       <span className="text-purple-300 text-lg font-semibold bg-purple-900/40 rounded px-3 py-1 inline-block mb-2">
                         {pelicula.generoPelicula}
                       </span>
