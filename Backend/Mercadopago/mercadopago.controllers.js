@@ -33,7 +33,7 @@ export const createPaymentPreference = async (req, res) => {
         failure: `${process.env.FRONTEND_URL}/reserva/failure`,
         pending: `${process.env.FRONTEND_URL}/reserva/pending`,
       },
-      notification_url: `${process.env.NGROK_URL}/mercadopago/webhooks`,
+      notification_url: `${process.env.BACKEND_URL}/mercadopago/webhooks`,
       metadata: {
         id_sala: reserva.idSala.toString(),
         fecha_hora_funcion: reserva.fechaHoraFuncion,
