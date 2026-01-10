@@ -5,7 +5,6 @@ import { errorHandler } from './Middlewares/errorHandler.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
-import logger from './utils/logger.js';
 
 const app = express();
 
@@ -30,7 +29,7 @@ app.use(
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'https://localhost:5173',
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );
