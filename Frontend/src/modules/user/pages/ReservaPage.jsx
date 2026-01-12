@@ -117,7 +117,7 @@ function ReservaPage() {
   const handlePaymentSuccess = () => {
     // El webhook del backend ya creó la reserva cuando el pago fue aprobado
     notify.success("¡Pago exitoso! Tu reserva ha sido confirmada.");
-    navigate("/MisReservas");
+    navigate("/mis-reservas");
   };
 
   const handleBackToSeats = () => {

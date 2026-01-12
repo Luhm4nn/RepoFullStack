@@ -158,14 +158,14 @@ export default function MiPerfilPage() {
 
                   <div className="mt-3 flex flex-wrap gap-3 items-center">
                     <button
-                      onClick={() => navigate("/Perfil/Editar")}
+                      onClick={() => navigate("/mi-perfil/editar")}
                       className="px-3 py-2 bg-slate-800/70 border border-slate-700 text-white rounded-md text-sm hover:bg-slate-800 transition"
                     >
                       Editar Perfil
                     </button>
 
                     <button
-                      onClick={() => navigate("/MisReservas")}
+                      onClick={() => navigate("/mis-reservas")}
                       className="px-3 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-md text-sm hover:opacity-95 transition"
                     >
                       Ver mis reservas

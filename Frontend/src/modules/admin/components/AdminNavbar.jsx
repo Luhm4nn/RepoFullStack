@@ -29,7 +29,7 @@ const AdminNavbar = ({ user, onLogout }) => {
     } catch (e) {
       // Error handling
     } finally {
-      navigate('/Cartelera');
+      navigate('/cartelera');
     }
   };
 

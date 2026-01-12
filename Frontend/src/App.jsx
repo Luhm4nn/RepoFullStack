@@ -87,12 +87,12 @@ function AppRoutes() {
         path="/register"
         element={<RegisterPage onRegister={register} loading={loading} />}
       />
-      <Route path="/Cartelera" element={<CarteleraPage />} />
+      <Route path="/cartelera" element={<CarteleraPage />} />
       <Route path="/reserva/success" element={<ReservaSuccessPage />} />
       <Route path="/reserva/failure" element={<ReservaFailurePage />} />
       <Route path="/reserva/pending" element={<ReservaPendingPage />} />
       <Route
-        path="/MiPerfil"
+        path="/mi-perfil"
         element={
           <AuthenticatedRoute>
             <MiPerfilPage />
@@ -100,7 +100,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/MisReservas"
+        path="/mis-reservas"
         element={
           <AuthenticatedRoute>
             <div>
@@ -110,7 +110,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/Reservar/:id"
+        path="/reservar/:id"
         element={
           <AuthenticatedRoute>
             <ReservaPage />
@@ -118,7 +118,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/Dashboard"
+        path="/dashboard"
         element={
           <AdminRoute>
             <DashboardPage />
@@ -126,7 +126,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/Peliculas"
+        path="/peliculas"
         element={
           <AdminRoute>
             <PeliculasPage />
@@ -134,7 +134,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/Salas"
+        path="/salas"
         element={
           <AdminRoute>
             <SalasPage />
@@ -142,7 +142,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/Funciones"
+        path="/funciones"
         element={
           <AdminRoute>
             <FuncionesPage />
@@ -150,17 +150,17 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/Configuracion"
+        path="/configuracion"
         element={
           <AdminRoute>
             <ConfiguracionPage />
           </AdminRoute>
         }
       />
-      <Route path="/Terminos" element={<Terminos />} />
-      <Route path="/Privacity" element={<Privacity />} />
-      <Route path="/AboutMe" element={<AboutMe />} />
-      <Route path="/FAQ" element={<FAQ />} />
+      <Route path="/terminos" element={<Terminos />} />
+      <Route path="/privacity" element={<Privacity />} />
+      <Route path="/about-me" element={<AboutMe />} />
+      <Route path="/faq" element={<FAQ />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
