@@ -1,48 +1,60 @@
-import { 
-    getOne as getOneDB, 
-    getAll as getAllDB, 
-    createOne as createOneDB, 
-    deleteOne as deleteOneDB, 
-    updateOne as updateOneDB 
-} from './tarifas.repository.js';
+import * as repository from './tarifas.repository.js';
 
+/**
+ * Obtiene todas las tarifas
+ * @returns {Promise<Array>} Lista de tarifas
+ */
 export const getAll = async () => {
-    const tarifas = await getAllDB();
-    return tarifas;
+  return await repository.getAll();
 };
 
+/**
+ * Obtiene una tarifa por su ID
+ * @param {number} id - ID de la tarifa
+ * @returns {Promise<Object>} Tarifa encontrada
+ * @throws {Error} Si la tarifa no existe (404)
+ */
 export const getOne = async (id) => {
-    const tarifa = await getOneDB(id);
-    return tarifa;
+  const tarifa = await repository.getOne(id);
+  if (!tarifa) {
+    const error = new Error('Tarifa no encontrada.');
+    error.status = 404;
+    throw error;
+  }
+  return tarifa;
 };
 
-export const createOne = async (data) => {
-    // TODO: Implementar validaciones de negocio aquí
-    // Ejemplo: validar precios positivos, rangos de edad válidos, etc.
-    
-    const newTarifa = await createOneDB(data);
-    return newTarifa;
+/**
+ * Crea una nueva tarifa
+ * @param {Object} data - Datos de la tarifa
+ * @returns {Promise<Object>} Tarifa creada
+ */
+export const create = async (data) => {
+  return await repository.create(data);
 };
 
+/**
+ * Actualiza una tarifa existente
+ * @param {number} id - ID de la tarifa
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>} Tarifa actualizada
+ * @throws {Error} Si la tarifa no existe (404)
+ */
+export const update = async (id, data) => {
+  const tarifaExistente = await repository.getOne(id);
+  if (!tarifaExistente) {
+    const error = new Error('Tarifa no encontrada.');
+    error.status = 404;
+    throw error;
+  }
+  return await repository.update(id, data);
+};
+
+/**
+ * Elimina una tarifa
+ * @param {number} id - ID de la tarifa
+ * @returns {Promise<Object>} Tarifa eliminada
+ */
 export const deleteOne = async (id) => {
-    // TODO: Implementar validaciones de negocio aquí
-    // Ejemplo: verificar que no esté siendo usada en reservas activas
-    
-    const deletedTarifa = await deleteOneDB(id);
-    return deletedTarifa;
-};
-
-export const updateOne = async (id, data) => {
-    const tarifaExistente = await getOneDB(id);
-    if (!tarifaExistente) {
-        const error = new Error("Tarifa no encontrada.");
-        error.status = 404;
-        throw error;
-    }
-    
-    // TODO: Implementar validaciones de negocio aquí
-    // Ejemplo: validar cambios de precio, impacto en reservas existentes, etc.
-    
-    const updatedTarifa = await updateOneDB(id, data);
-    return updatedTarifa;
+  return await repository.deleteOne(id);
 };

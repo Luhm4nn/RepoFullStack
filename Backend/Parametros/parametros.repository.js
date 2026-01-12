@@ -1,42 +1,65 @@
-import prisma from "../prisma/prisma.js";
+import prisma from '../prisma/prisma.js';
 
-// Repository for Parametros
-
+/**
+ * Obtiene todos los parámetros del sistema
+ * @returns {Promise<Array>} Lista de parámetros
+ */
 async function getAll() {
-  const parametros = await prisma.parametro.findMany();
-  return parametros;
+  return await prisma.parametro.findMany();
 }
 
+/**
+ * Obtiene un parámetro por su ID
+ * @param {number} id - ID del parámetro
+ * @returns {Promise<Object|null>} Parámetro encontrado o null
+ */
 async function getOne(id) {
-  const parametro = await prisma.parametro.findUnique({
+  return await prisma.parametro.findUnique({
     where: {
       idParametro: parseInt(id, 10),
     },
   });
-  return parametro;
 }
 
-async function createOne(data) {
-  const newParametro = await prisma.parametro.create({
+/**
+ * Crea un nuevo parámetro
+ * @param {Object} data - Datos del parámetro
+ * @param {string} data.descripcionParametro - Descripción del parámetro
+ * @param {string} data.valor - Valor del parámetro
+ * @returns {Promise<Object>} Parámetro creado
+ */
+async function create(data) {
+  return await prisma.parametro.create({
     data: {
       descripcionParametro: data.descripcionParametro,
       valor: data.valor,
     },
   });
-  return newParametro;
 }
 
+/**
+ * Elimina un parámetro por su ID
+ * @param {number} id - ID del parámetro
+ * @returns {Promise<Object>} Parámetro eliminado
+ */
 async function deleteOne(id) {
-  const deletedParametro = await prisma.parametro.delete({
+  return await prisma.parametro.delete({
     where: {
       idParametro: parseInt(id, 10),
     },
   });
-  return deletedParametro;
 }
 
-async function updateOne(id, data) {
-  const updatedParametro = await prisma.parametro.update({
+/**
+ * Actualiza un parámetro existente
+ * @param {number} id - ID del parámetro
+ * @param {Object} data - Datos a actualizar
+ * @param {string} [data.descripcionParametro] - Nueva descripción
+ * @param {string} [data.valor] - Nuevo valor
+ * @returns {Promise<Object>} Parámetro actualizado
+ */
+async function update(id, data) {
+  return await prisma.parametro.update({
     where: {
       idParametro: parseInt(id, 10),
     },
@@ -45,7 +68,6 @@ async function updateOne(id, data) {
       valor: data.valor,
     },
   });
-  return updatedParametro;
 }
 
-export { getOne, getAll, createOne, deleteOne, updateOne };
+export { getAll, getOne, create, update, deleteOne };

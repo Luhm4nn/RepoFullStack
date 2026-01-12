@@ -1,0 +1,20 @@
+# Ignorar node_modules
+node_modules/
+
+# Ignorar archivos generados
+dist/
+build/
+generated/
+
+# Ignorar archivos de Prisma generados
+prisma/migrations/
+*.prisma
+
+# Ignorar archivos de entorno
+.env
+.env.local
+.env.*.local
+
+# Ignorar package-lock
+package-lock.json
+yarn.lock

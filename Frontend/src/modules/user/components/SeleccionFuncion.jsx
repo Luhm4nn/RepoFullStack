@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { formatDateTime } from "../../shared";
 import { getFuncionesSemana } from "../../../api/Funciones.api";
+import { InlineSpinner } from "../../shared/components/Spinner";
 
 function getDaysOfWeek() {
   const days = [];
@@ -10,17 +11,18 @@ function getDaysOfWeek() {
     d.setDate(today.getDate() + i);
     days.push({
       date: d.toISOString().slice(0, 10),
-      label: d.toLocaleDateString("es-AR", { weekday: "short", day: "numeric", month: "short" }),
+      label: d.toLocaleDateString("es-AR", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+      }),
       isToday: i === 0,
     });
   }
   return days;
 }
 
-function SeleccionFuncion({
-  idPelicula,
-  onSelectFuncion,
-}) {
+function SeleccionFuncion({ idPelicula, onSelectFuncion }) {
   const [funcionesSemana, setFuncionesSemana] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,22 +33,24 @@ function SeleccionFuncion({
     setLoading(true);
     setError(null);
     getFuncionesSemana(idPelicula)
-      .then(data => setFuncionesSemana(data))
-      .catch(() => setError("No se pudieron cargar las funciones de la semana."))
+      .then((data) => setFuncionesSemana(data))
+      .catch(() =>
+        setError("No se pudieron cargar las funciones de la semana.")
+      )
       .finally(() => setLoading(false));
   }, [idPelicula]);
 
   const days = getDaysOfWeek();
 
   // Filtrar funciones por el día seleccionado
-  const funcionesFiltradas = funcionesSemana.filter(f =>
-    f.fechaHoraFuncion && f.fechaHoraFuncion.startsWith(selectedDay)
+  const funcionesFiltradas = funcionesSemana.filter(
+    (f) => f.fechaHoraFuncion && f.fechaHoraFuncion.startsWith(selectedDay)
   );
 
   return (
     <>
       <div className="mb-6 flex gap-2 overflow-x-auto scrollbar-thin">
-        {days.map(day => (
+        {days.map((day) => (
           <button
             key={day.date}
             onClick={() => setSelectedDay(day.date)}
@@ -57,11 +61,17 @@ function SeleccionFuncion({
             }`}
           >
             {day.label}
-            {day.isToday && <span className="ml-2 text-xs text-green-300">(Hoy)</span>}
+            {day.isToday && (
+              <span className="ml-2 text-xs text-green-300">(Hoy)</span>
+            )}
           </button>
         ))}
       </div>
-      {loading && <p className="mt-4 text-white">Cargando funciones...</p>}
+      {loading && (
+        <div className="mt-4">
+          <InlineSpinner text="Cargando funciones" />
+        </div>
+      )}
       {error && <p className="mt-4 text-red-400">{error}</p>}
       <div className="space-y-6">
         {funcionesFiltradas.length > 0 ? (
@@ -69,17 +79,38 @@ function SeleccionFuncion({
             {funcionesFiltradas.map((funcion, idx) => {
               const { hora } = formatDateTime(funcion.fechaHoraFuncion);
               return (
-                <div key={funcion.idFuncion || idx} className="bg-slate-700/50 border border-slate-600 rounded-lg p-4 flex flex-col gap-2">
+                <div
+                  key={funcion.idFuncion || idx}
+                  className="bg-slate-700/50 border border-slate-600 rounded-lg p-4 flex flex-col gap-2"
+                >
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="text-2xl font-bold text-purple-400">{hora}</div>
+                    <div className="text-2xl font-bold text-purple-400">
+                      {hora}
+                    </div>
                     <div className="text-sm text-gray-300 flex items-center gap-1">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2h5" /></svg>
-                      {funcion.sala?.nombreSala || funcion.sala || funcion.idSala}
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M17 20h5v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2h5"
+                        />
+                      </svg>
+                      {funcion.sala?.nombreSala ||
+                        funcion.sala ||
+                        funcion.idSala}
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-400 flex items-center gap-1">
-                      <span className="text-green-400">{funcion.asientosDisponibles ?? "-"} disponibles</span>
+                      <span className="text-green-400">
+                        {funcion.asientosDisponibles ?? "-"} disponibles
+                      </span>
                     </div>
                     <button
                       className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded font-semibold"
@@ -93,10 +124,9 @@ function SeleccionFuncion({
             })}
           </div>
         ) : (
-          !loading && !error && (
-            <p className="text-gray-400">
-              No hay funciones para este día.
-            </p>
+          !loading &&
+          !error && (
+            <p className="text-gray-400">No hay funciones para este día.</p>
           )
         )}
       </div>

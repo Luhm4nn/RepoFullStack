@@ -1,29 +1,29 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { authAPI } from '../api/login.api.js';
-import { usuariosAPI } from '../api/usuarios.api.js';
+import { createContext, useContext, useState, useEffect } from "react";
+import { authAPI } from "../api/login.api.js";
+import { usuariosAPI } from "../api/usuarios.api.js";
+import { api } from "../api/axiosInstance.js";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    checkAuthStatus();
+    initializeAuth();
   }, []);
 
-  const checkAuthStatus = () => {
+  const initializeAuth = async () => {
     try {
+      // Verificar autenticación
       const authData = authAPI.checkAuth();
       if (authData) {
         setUser(authData.user);
-        setToken(authData.token);
         setIsAuthenticated(true);
       }
     } catch (error) {
-  // Error verificando autenticación
+      console.error("Error initializing auth:", error);
       logout();
     } finally {
       setLoading(false);
@@ -33,18 +33,16 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setLoading(true);
-      const { token: newToken, user: userData } = await authAPI.login(email, password);
-      
+      const { user: userData } = await authAPI.login(email, password);
+
       setUser(userData);
-      setToken(newToken);
       setIsAuthenticated(true);
-      
+
       return { success: true, user: userData };
     } catch (error) {
-  // Error en login
-      return { 
-        success: false, 
-        error: error.message || 'Error en el login' 
+      return {
+        success: false,
+        error: error.message || "Error en el login",
       };
     } finally {
       setLoading(false);
@@ -56,10 +54,9 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       await authAPI.logout();
     } catch (error) {
-  // Error en logout
+      // Error en logout
     } finally {
       setUser(null);
-      setToken(null);
       setIsAuthenticated(false);
       setLoading(false);
     }
@@ -67,7 +64,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateUser = (updatedUser) => {
     setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+    localStorage.setItem("user", JSON.stringify(updatedUser));
   };
 
   const hasRole = (role) => {
@@ -75,11 +72,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAdmin = () => {
-    return hasRole('ADMIN');
+    return hasRole("ADMIN");
   };
 
   const isClient = () => {
-    return hasRole('CLIENTE');
+    return hasRole("CLIENTE");
   };
 
   const register = async (userData) => {
@@ -87,13 +84,12 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       const result = await usuariosAPI.register(userData);
       setUser(result.user);
-      setToken(result.token);
       setIsAuthenticated(true);
       return { success: true, ...result };
     } catch (error) {
       return {
         success: false,
-        error: error.message || 'Error en el registro'
+        error: error.message || "Error en el registro",
       };
     } finally {
       setLoading(false);
@@ -102,7 +98,6 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
-    token,
     loading,
     isAuthenticated,
     login,
@@ -112,20 +107,16 @@ export const AuthProvider = ({ children }) => {
     hasRole,
     isAdmin,
     isClient,
-    checkAuthStatus
+    initializeAuth,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth debe ser usado dentro de AuthProvider');
+    throw new Error("useAuth debe ser usado dentro de AuthProvider");
   }
   return context;
 };

@@ -38,9 +38,6 @@ export const ERROR_METADATA = {
   
 };
 
-/**
- * Función helper para obtener metadatos de error
- */
 export const getErrorMetadata = (errorCode) => {
   return ERROR_METADATA[errorCode] || {
     title: 'Error',

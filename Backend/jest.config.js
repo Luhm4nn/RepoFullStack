@@ -1,0 +1,20 @@
+export default {
+  testEnvironment: 'node',
+  testMatch: ['**/__tests__/**/*.test.js'],
+  verbose: true,
+  forceExit: true,
+  clearMocks: true,
+  resetMocks: true,
+  restoreMocks: true,
+  maxWorkers: 1,
+  globalTeardown: './__tests__/globalTeardown.js',
+  collectCoverageFrom: [
+    '**/*.js',
+    '!**/node_modules/**',
+    '!**/generated/**',
+    '!**/__tests__/**',
+    '!**/coverage/**',
+  ],
+  coverageDirectory: 'coverage',
+  testTimeout: 10000,
+};

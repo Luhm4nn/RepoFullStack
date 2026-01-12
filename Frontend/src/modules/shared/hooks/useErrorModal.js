@@ -46,4 +46,5 @@ const useErrorModal = () => {
   };
 };
 
+export { useErrorModal };
 export default useErrorModal;

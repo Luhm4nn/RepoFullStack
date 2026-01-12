@@ -1,48 +1,80 @@
-import { 
-    getOne as getOneDB, 
-    getAll as getAllDB, 
-    createOne as createOneDB, 
-    deleteOne as deleteOneDB, 
-    updateOne as updateOneDB 
-} from './usuarios.repository.js';
-import bcrypt from "bcryptjs";
+import * as repository from './usuarios.repository.js';
+import bcrypt from 'bcryptjs';
 
+/**
+ * Valida que el usuario tenga permiso para acceder al recurso
+ * @param {Object} user - Usuario autenticado
+ * @param {number} targetDNI - DNI del recurso objetivo
+ * @throws {Error} Si no tiene permiso (403)
+ */
+function validateOwnership(user, targetDNI) {
+  if (user.rol === 'ADMIN') {
+    return;
+  }
+
+  if (user.id !== parseInt(targetDNI)) {
+    const error = new Error('No puedes acceder a recursos de otros usuarios');
+    error.status = 403;
+    throw error;
+  }
+}
+
+/**
+ * Obtiene todos los usuarios
+ * @returns {Promise<Array>} Lista de usuarios
+ */
 export const getAll = async () => {
-    const usuarios = await getAllDB();
-    return usuarios;
+  return await repository.getAll();
 };
 
-export const getOne = async (id) => {
-    const usuario = await getOneDB(id);
-    return usuario;
+/**
+ * Obtiene un usuario por DNI
+ * @param {number} dni - DNI del usuario
+ * @param {Object} user - Usuario autenticado (para validación)
+ * @returns {Promise<Object>} Usuario encontrado
+ */
+export const getOne = async (dni, user) => {
+  validateOwnership(user, dni);
+  return await repository.getOne(dni);
 };
 
-export const createOne = async (data) => {
-    const hashedPassword = await bcrypt.hash(data.contrasena, 10); 
-    const usuarioData = { ...data, contrasena: hashedPassword };
-    const newUsuario = await createOneDB(usuarioData);
-    return newUsuario;
+/**
+ * Crea un nuevo usuario
+ * @param {Object} data - Datos del usuario
+ * @returns {Promise<Object>} Usuario creado
+ */
+export const create = async (data) => {
+  const hashedPassword = await bcrypt.hash(data.contrasena, 10);
+  const usuarioData = { ...data, contrasena: hashedPassword };
+  return await repository.create(usuarioData);
 };
 
+/**
+ * Elimina un usuario
+ * @param {number} id - DNI del usuario
+ * @returns {Promise<Object>} Usuario eliminado
+ */
 export const deleteOne = async (id) => {
-    // TODO: Implementar validaciones de negocio aquí
-    // Ejemplo: verificar que no tenga reservas activas antes de eliminar
-
-    const deletedUsuario = await deleteOneDB(id);
-    return deletedUsuario;
+  return await repository.deleteOne(id);
 };
 
-export const updateOne = async (id, data) => {
-    const usuarioExistente = await getOneDB(id);
-    if (!usuarioExistente) {
-        const error = new Error("Usuario no encontrado.");
-        error.status = 404;
-        throw error;
-    }
-    
-    // TODO: Implementar validaciones de negocio aquí
-    // Ejemplo: validar cambios de email, verificar unicidad, etc.
+/**
+ * Actualiza un usuario existente
+ * @param {number} dni - DNI del usuario
+ * @param {Object} data - Datos a actualizar
+ * @param {Object} user - Usuario autenticado (para validación)
+ * @returns {Promise<Object>} Usuario actualizado
+ * @throws {Error} Si el usuario no existe (404)
+ */
+export const update = async (dni, data, user) => {
+  validateOwnership(user, dni);
 
-    const updatedUsuario = await updateOneDB(id, data);
-    return updatedUsuario;
+  const usuarioExistente = await repository.getOne(dni);
+  if (!usuarioExistente) {
+    const error = new Error('Usuario no encontrado.');
+    error.status = 404;
+    throw error;
+  }
+
+  return await repository.update(dni, data);
 };

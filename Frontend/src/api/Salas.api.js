@@ -1,91 +1,80 @@
-import axios from "axios";
-
-const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+import api from './axiosInstance.js';
 
 export const getSalas = async () => {
   try {
-    const response = await axios.get(`${VITE_API_URL}/Salas`);
+    const response = await api.get('/Salas');
     return response.data;
   } catch (error) {
-    console.error("Error fetching salas:", error);
     throw error;
   }
-}
+};
 
+export const getSala = async (id) => {
+  try {
+    const response = await api.get(`/Sala/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const searchSalas = async (query, limit = 5) => {
   try {
     if (!query || query.length < 2) {
       return [];
     }
-    
-    // Por ahora usamos la API existente y filtramos en frontend
-    // TODO: Implementar endpoint /Salas/search en backend
-    const response = await axios.get(`${VITE_API_URL}/Salas`);
-    const salas = response.data;
-    
-    // Filtrado client-side (temporal hasta que tengamos /search en backend)
-    const filteredSalas = salas
-      .filter(sala => 
-        sala.nombreSala && 
-        sala.nombreSala.toLowerCase().includes(query.toLowerCase())
-      )
-      .slice(0, limit);
-      
-    return filteredSalas;
-  } catch (error) {
-    console.error("Error searching salas:", error);
-    throw error;
-  }
-};
 
-export const getSala = async (param) => {
-  try {
-    const response = await axios.get(`${VITE_API_URL}/Sala/${param}`);
-    return response.data;
+    const response = await api.get(`/Salas/search?q=${encodeURIComponent(query)}&limit=${limit}`);
+    const salas = response.data;
+
+    return salas;
   } catch (error) {
-    console.error("Error fetching sala:", error);
     throw error;
   }
 };
 
 export const createSala = async (sala) => {
   try {
-    const response = await axios.post(`${VITE_API_URL}/Sala`, sala);
+    const response = await api.post('/Sala', sala);
     return response.data;
   } catch (error) {
-    console.error("Error creating sala:", error);
     throw error;
   }
-}
+};
 
 export const updateSala = async (id, sala) => {
   try {
-    const response = await axios.put(`${VITE_API_URL}/Sala/${id}`, sala);
+    const response = await api.put(`/Sala/${id}`, sala);
     return response.data;
   } catch (error) {
-    console.error("Error updating sala:", error);
     throw error;
   }
-}
+};
 
 export const deleteSala = async (id) => {
   try {
-    const response = await axios.delete(`${VITE_API_URL}/Sala/${id}`);
+    const response = await api.delete(`/Sala/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error deleting sala:", error);
     throw error;
   }
-}
+};
 
 export const getAsientosBySala = async (id) => {
   try {
     const idSala = parseInt(id, 10);
-    const response = await axios.get(`${VITE_API_URL}/Sala/${idSala}/Asientos`);
+    const response = await api.get(`/Sala/${idSala}/Asientos`);
     return response.data;
   } catch (error) {
-    console.error("Error al obtener los asientos de la sala:", error);
+    throw error;
+  }
+};
+
+export const getCountSalas = async () => {
+  try {
+    const response = await api.get('/Salas/count');
+    return response.data.count;
+  } catch (error) {
     throw error;
   }
 };

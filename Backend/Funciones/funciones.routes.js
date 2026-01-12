@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router } from 'express';
 import {
   getFunciones,
   getFuncion,
@@ -8,52 +8,70 @@ import {
   getActiveFuncionesEndpoint,
   getInactiveFuncionesEndpoint,
   getFuncionesByPeliculaAndFecha,
-  getFuncionesSemana
-} from "./funciones.controllers.js";
+  getPublicFuncionesEndpoint,
+  getFuncionesSemana,
+  getCountPublicFunciones,
+  getDetallesFuncion,
+} from './funciones.controllers.js';
 
-import { asyncHandler } from "../Middlewares/asyncHandler.js";
-import { validateBody } from "../Middlewares/validateRequest.js";
-import { funcionesSchema } from "../validations/FuncionesSchema.js";
+
+import { asyncHandler } from '../Middlewares/asyncHandler.js';
+import { validateBody, validateQuery } from '../Middlewares/validateRequest.js';
+import { funcionesSchema } from '../validations/FuncionesSchema.js';
+import { funcionesFilterSchema } from '../validations/CommonSchemas.js';
+import { authMiddleware } from '../Middlewares/authMiddleware.js';
+import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
+import { moderateLimiter } from '../Middlewares/rateLimiter.js';
+
 const router = Router();
 
+// Rutas públicas de lectura
+router.get('/Funciones', moderateLimiter, validateQuery(funcionesFilterSchema), asyncHandler(getFunciones));
+router.get('/Funciones/activas', asyncHandler(getActiveFuncionesEndpoint));
+router.get('/Funciones/publicas', moderateLimiter, asyncHandler(getPublicFuncionesEndpoint));
+router.get('/Funciones/publicas/count', asyncHandler(getCountPublicFunciones));
+router.get('/Funciones/:idPelicula/semana', moderateLimiter, asyncHandler(getFuncionesSemana));
+router.get('/Funciones/:idPelicula/:fecha', moderateLimiter, asyncHandler(getFuncionesByPeliculaAndFecha));
+router.get('/Funcion/:idSala/:fechaHoraFuncion', asyncHandler(getFuncion));
 
-router.get("/Funciones/:idPelicula/semana", asyncHandler(getFuncionesSemana));
-
-
-router.get("/Funciones", asyncHandler(getFunciones));
-
+// Ruta protegida para detalles de función (ADMIN)
 router.get(
-  "/Funcion/:idSala/:fechaHoraFuncion",
-  asyncHandler(getFuncion)
+  '/Funcion/:idSala/:fechaHoraFuncion/detalles',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
+  asyncHandler(getDetallesFuncion)
 );
 
-router.post("/Funcion", validateBody(funcionesSchema), asyncHandler(createFuncion));
+
+// Rutas protegidas (ADMIN)
+router.get(
+  '/Funciones/inactivas',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
+  asyncHandler(getInactiveFuncionesEndpoint)
+);
+
+router.post(
+  '/Funcion',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
+  validateBody(funcionesSchema),
+  asyncHandler(createFuncion)
+);
 
 router.put(
-  "/Funcion/:idSala/:fechaHoraFuncion",
+  '/Funcion/:idSala/:fechaHoraFuncion',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
   validateBody(funcionesSchema),
   asyncHandler(updateFuncion)
 );
 
 router.delete(
-  "/Funcion/:idSala/:fechaHoraFuncion",
+  '/Funcion/:idSala/:fechaHoraFuncion',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
   asyncHandler(deleteFuncion)
-);
-
-router.get(
-  "/Funciones/activas",
-  asyncHandler(getActiveFuncionesEndpoint)
-);
-
-router.get(
-  "/Funciones/inactivas",
-  asyncHandler(getInactiveFuncionesEndpoint)
-);
-
-
-router.get(
-  "/Funciones/:idPelicula/:fecha",
-  asyncHandler(getFuncionesByPeliculaAndFecha)
 );
 
 export const funcionesRoutes = router;

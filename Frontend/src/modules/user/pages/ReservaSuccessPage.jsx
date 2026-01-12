@@ -10,7 +10,6 @@ function ReservaSuccessPage() {
 
   useEffect(() => {
     // Opcional: Verificar el pago con el backend
-    console.log('Pago exitoso:', { paymentId, status });
   }, [paymentId, status]);
 
   return (

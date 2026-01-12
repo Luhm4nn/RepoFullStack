@@ -7,7 +7,11 @@
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@mercadopago/sdk-react": "^1.0.6",
@@ -17,9 +21,11 @@
     "flowbite": "^3.1.2",
     "flowbite-react": "^0.12.6",
     "formik": "^2.4.6",
+    "lucide-react": "^0.553.0",
     "react": "^19.1.0",
     "react-aria-components": "^1.11.0",
     "react-dom": "^19.1.0",
+    "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.7.1",
     "tailwind-merge": "^3.3.1",
@@ -27,12 +33,15 @@
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-react-aria-components": "^2.0.0",
     "vite-plugin-mkcert": "^1.17.9",
+    "xss": "^1.0.15",
     "yup": "^1.6.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
+    "@playwright/test": "^1.57.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-basic-ssl": "^2.1.0",
     "@vitejs/plugin-react": "^4.6.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.30.1",

@@ -1,23 +1,47 @@
-import prisma from "../prisma/prisma.js";
+import prisma from '../prisma/prisma.js';
 
-// Repository for Peliculas
-
-async function getAll() {
-  const peliculas = await prisma.pelicula.findMany();
-  return peliculas;
+/**
+ * Parse ID de forma segura
+ * @param {*} id - ID a parsear
+ * @param {string} fieldName - Nombre del campo para el error
+ * @returns {number} ID parseado
+ */
+function safeParseInt(id, fieldName = 'ID') {
+  const parsed = parseInt(id, 10);
+  if (isNaN(parsed)) {
+    throw new Error(`${fieldName} inválido`);
+  }
+  return parsed;
 }
 
+/**
+ * Obtiene todas las películas
+ * @returns {Promise<Array>} Lista de películas
+ */
+async function getAll() {
+  return await prisma.pelicula.findMany();
+}
+
+/**
+ * Obtiene una película por ID
+ * @param {number} id - ID de la película
+ * @returns {Promise<Object|null>} Película encontrada o null
+ */
 async function getOne(id) {
-  const pelicula = await prisma.pelicula.findUnique({
+  return await prisma.pelicula.findUnique({
     where: {
-      idPelicula: parseInt(id, 10),
+      idPelicula: safeParseInt(id, 'ID de película'),
     },
   });
-  return pelicula;
 }
 
-async function createOne(data) {
-  const newPelicula = await prisma.pelicula.create({
+/**
+ * Crea una nueva película
+ * @param {Object} data - Datos de la película
+ * @returns {Promise<Object>} Película creada
+ */
+async function create(data) {
+  return await prisma.pelicula.create({
     data: {
       nombrePelicula: data.nombrePelicula,
       duracion: data.duracion,
@@ -26,26 +50,36 @@ async function createOne(data) {
       fechaEstreno: data.fechaEstreno,
       sinopsis: data.sinopsis,
       trailerURL: data.trailerURL,
-      portada: data.portada, 
+      portada: data.portada,
       portadaPublicId: data.portadaPublicId,
       MPAA: data.MPAA,
     },
   });
-  return newPelicula;
-}
-async function deleteOne(id) {
-  const deletedPelicula = await prisma.pelicula.delete({
-    where: {
-      idPelicula: parseInt(id, 10),
-    },
-  });
-  return deletedPelicula;
 }
 
-async function updateOne(id, data) {
-  const updatedPelicula = await prisma.pelicula.update({
+/**
+ * Elimina una película por ID
+ * @param {number} id - ID de la película
+ * @returns {Promise<Object>} Película eliminada
+ */
+async function deleteOne(id) {
+  return await prisma.pelicula.delete({
     where: {
-      idPelicula: parseInt(id, 10),
+      idPelicula: safeParseInt(id, 'ID de película'),
+    },
+  });
+}
+
+/**
+ * Actualiza una película existente
+ * @param {number} id - ID de la película
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>} Película actualizada
+ */
+async function update(id, data) {
+  return await prisma.pelicula.update({
+    where: {
+      idPelicula: safeParseInt(id, 'ID de película'),
     },
     data: {
       nombrePelicula: data.nombrePelicula,
@@ -60,20 +94,68 @@ async function updateOne(id, data) {
       MPAA: data.MPAA,
     },
   });
-  return updatedPelicula;
 }
 
+/**
+ * Obtiene películas que tienen funciones públicas (en cartelera)
+ * @returns {Promise<Array>} Lista de películas en cartelera
+ */
 async function getAllEnCartelera() {
-  const peliculas = await prisma.pelicula.findMany({
+  return await prisma.pelicula.findMany({
     where: {
       funcion: {
         some: {
-          estado: "Publica",
+          estado: 'Publica',
         },
       },
     },
   });
-  return peliculas;
 }
 
-export { getOne, getAll, createOne, deleteOne, updateOne, getAllEnCartelera };
+/**
+ * Cuenta películas que tienen funciones públicas (en cartelera)
+ * @returns {Promise<number>} Cantidad de películas en cartelera
+ */
+async function countEnCartelera() {
+  return await prisma.pelicula.count({
+    where: {
+      funcion: {
+        some: {
+          estado: 'Publica',
+        },
+      },
+    },
+  });
+}
+
+/**
+ * Busca películas por nombre con límite opcional
+ * @param {string} searchQuery - Término de búsqueda
+ * @param {number} limit - Límite de resultados (opcional)
+ * @returns {Promise<Array>} Lista de películas que coinciden con la búsqueda
+ */
+async function search(searchQuery, limit) {
+  const where = searchQuery
+    ? {
+        nombrePelicula: {
+          contains: searchQuery,
+          mode: 'insensitive',
+        },
+      }
+    : {};
+
+  const options = {
+    where,
+    orderBy: {
+      nombrePelicula: 'asc',
+    },
+  };
+
+  if (limit && !isNaN(limit) && limit > 0) {
+    options.take = parseInt(limit, 10);
+  }
+
+  return await prisma.pelicula.findMany(options);
+}
+
+export { getOne, getAll, create, deleteOne, update, getAllEnCartelera, countEnCartelera, search };

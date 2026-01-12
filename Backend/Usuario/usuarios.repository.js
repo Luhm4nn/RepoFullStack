@@ -1,29 +1,39 @@
-import prisma from "../prisma/prisma.js";
+import prisma from '../prisma/prisma.js';
 
-// Repository for Usuarios
-
+/**
+ * Obtiene todos los usuarios
+ * @returns {Promise<Array>} Lista de usuarios
+ */
 async function getAll() {
-  const usuarios = await prisma.usuario.findMany({
+  return await prisma.usuario.findMany({
     include: {
       _count: {
         select: { reserva: true },
       },
     },
   });
-  return usuarios;
 }
 
+/**
+ * Obtiene un usuario por DNI
+ * @param {number} dni - DNI del usuario
+ * @returns {Promise<Object|null>} Usuario encontrado o null
+ */
 async function getOne(dni) {
-  const usuario = await prisma.usuario.findUnique({
+  return await prisma.usuario.findUnique({
     where: {
       DNI: parseInt(dni, 10),
     },
   });
-  return usuario;
 }
 
-async function createOne(data) {
-  const newUsuario = await prisma.usuario.create({
+/**
+ * Crea un nuevo usuario
+ * @param {Object} data - Datos del usuario
+ * @returns {Promise<Object>} Usuario creado
+ */
+async function create(data) {
+  return await prisma.usuario.create({
     data: {
       DNI: parseInt(data.DNI, 10),
       nombreUsuario: data.nombreUsuario,
@@ -34,20 +44,29 @@ async function createOne(data) {
       telefono: data.telefono,
     },
   });
-  return newUsuario;
 }
 
+/**
+ * Elimina un usuario por DNI
+ * @param {number} dni - DNI del usuario
+ * @returns {Promise<Object>} Usuario eliminado
+ */
 async function deleteOne(dni) {
-  const deletedUsuario = await prisma.usuario.delete({
+  return await prisma.usuario.delete({
     where: {
       DNI: parseInt(dni, 10),
     },
   });
-  return deletedUsuario;
 }
 
-async function updateOne(dni, data) {
-  const updatedUsuario = await prisma.usuario.update({
+/**
+ * Actualiza un usuario existente
+ * @param {number} dni - DNI del usuario
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>} Usuario actualizado
+ */
+async function update(dni, data) {
+  return await prisma.usuario.update({
     where: {
       DNI: parseInt(dni, 10),
     },
@@ -61,7 +80,6 @@ async function updateOne(dni, data) {
       telefono: data.telefono,
     },
   });
-  return updatedUsuario;
 }
 
-export { getOne, getAll, createOne, deleteOne, updateOne };
+export { getOne, getAll, create, deleteOne, update };
