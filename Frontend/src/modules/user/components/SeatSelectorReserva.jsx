@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getAsientosBySala } from "../../../api/Salas.api";
 import { getAsientosReservadosPorFuncion } from "../../../api/AsientoReservas.api";
 import { useNotification } from "../../../context/NotificationContext";
+import { CenteredSpinner } from "../../shared/components/Spinner";
 
 const SeatSelectorReserva = ({
   idSala,
