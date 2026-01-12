@@ -43,7 +43,7 @@ const UserNavbar = ({ user, onLogout }) => {
     } catch (e) {
       // Error handling
     } finally {
-      navigate('/Cartelera');
+      navigate('/cartelera');
     }
   };
 

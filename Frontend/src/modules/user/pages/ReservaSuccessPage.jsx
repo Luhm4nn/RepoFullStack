@@ -34,7 +34,7 @@ function ReservaSuccessPage() {
 
           <div className="flex gap-4">
             <button
-              onClick={() => navigate('/MisReservas')}
+              onClick={() => navigate('/mis-reservas')}
               className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg font-semibold"
             >
               Ver mis reservas

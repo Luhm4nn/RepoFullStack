@@ -9,7 +9,7 @@ const LoginPage = ({ onLogin, user, isAuthenticated, loading }) => {
   useEffect(() => {
     if (isAuthenticated && user) {
       if (user.rol === "ADMIN") {
-        navigate("/Dashboard", { replace: true });
+        navigate("/dashboard", { replace: true });
       } else {
         navigate("/", { replace: true });
       }
