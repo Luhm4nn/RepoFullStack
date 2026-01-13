@@ -19,6 +19,7 @@ import ErrorModal from "../../shared/components/ErrorModal.jsx";
 import FuncionesInlineFilters from "./FuncionesInlineFilters";
 import DetalleFuncionModal from "./DetalleFuncionModal";
 import { getDetallesFuncion } from "../../../api/Funciones.api";
+import { Pagination } from "../../shared";
 
 import { useFuncionesFetch } from "../hooks/useFuncionesFetch.js";
 import { useFuncionesFilter } from "../hooks/useFuncionesFilter.js";
@@ -40,8 +41,6 @@ function FuncionesList() {
     funciones,
     setFunciones,
     funcionesSinFiltrar,
-    peliculas,
-    salas,
     loading,
     error,
     modalError,
@@ -50,12 +49,20 @@ function FuncionesList() {
     handleDeleteFuncion,
     handleUpdateFuncion,
     handlePublishFuncion,
+    currentPage,
+    pagination,
+    handlePageChange,
+    handlePaginationChange,
+    itemsPerPage,
   } = useFuncionesFetch(mostrandoActivas);
 
   const filterHook = useFuncionesFilter(
     funcionesSinFiltrar,
     setFunciones,
-    mostrandoActivas
+    mostrandoActivas,
+    currentPage,
+    itemsPerPage,
+    handlePaginationChange
   );
 
   const {
@@ -644,6 +651,19 @@ function FuncionesList() {
 
       {/* Error modal */}
       <ErrorModal error={modalError} onClose={hideError} />
+
+      {/* Paginaci\u00f3n */}
+      {pagination && pagination.totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalItems={pagination.total}
+          itemsPerPage={pagination.limit}
+          onPageChange={(page) => {
+            filterHook.aplicarFiltros(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+      )}
 
       {/* Detail modal */}
       {showDetailModal && funcionToDetail && (

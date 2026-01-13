@@ -7,6 +7,7 @@ import { dateFormaterBackend } from "../../shared/utils/dateFormater.js";
 import useErrorModal from "../../shared/hooks/useErrorModal";
 import ErrorModal from "../../shared/components/ErrorModal.jsx";
 import { useNotification } from "../../../context/NotificationContext";
+import { CLASIFICACIONES_MPAA } from "../../../constants";
 
 function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
   const [showModal, setShowModal] = useState(false);
@@ -244,11 +245,15 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                       </label>
                       <Field as={Select} name="MPAA" disabled={isSubmitting} color className="bg-slate-700 hover:bg-white/10 text-white rounded-lg">
                         <option value="" className="bg-slate-700 border-slate-600 hover:bg-white/10 text-white">Selecciona la clasificación</option>
-                        <option value="G" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">G - Apto para toda la familia</option>
-                        <option value="PG" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">PG - Se recomienda supervisión parental</option>
-                        <option value="PG-13" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">PG-13 - Mayores de 13 años</option>
-                        <option value="R" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">R - Restringida (menores acompañados)</option>
-                        <option value="NC-17" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">NC-17 - Solo para adultos (+18)</option>
+                        {CLASIFICACIONES_MPAA.map((clasificacion) => (
+                          <option 
+                            key={clasificacion.value} 
+                            value={clasificacion.value} 
+                            className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white"
+                          >
+                            {clasificacion.label}
+                          </option>
+                        ))}
                       </Field>
                       <ErrorMessage name="MPAA" component="div" className="text-red-500 text-sm mt-1" />
                     </div>

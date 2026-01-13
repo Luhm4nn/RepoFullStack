@@ -1,4 +1,3 @@
-import { getPeliculas } from "../../../api/Peliculas.api";
 import {
   Table,
   TableBody,
@@ -8,35 +7,46 @@ import {
   TableRow,
   Button,
 } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { formatDate } from "../../shared";
 import ModalPeliculas from "./ModalPeliculas";
 import ModalDeletePeliculas from "./ModalDeletePeliculas";
 import { TableSkeleton } from "../../shared/components/Skeleton";
+import { Pagination } from "../../shared";
+import { usePeliculasFetch } from "../hooks/usePeliculasFetch.js";
+import { usePeliculasFilter } from "../hooks/usePeliculasFilter.js";
+import PeliculasInlineFilters from "./PeliculasInlineFilters";
 
 function PeliculasList({ refreshTrigger }) {
-  const [peliculas, setPeliculas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [peliculaToEdit, setPeliculaToEdit] = useState(null);
   const [peliculaToDelete, setPeliculaToDelete] = useState(null);
 
-  useEffect(() => {
-    fetchPeliculas();
-  }, [refreshTrigger]);
+  // Custom hooks
+  const {
+    peliculas,
+    setPeliculas,
+    peliculasSinFiltrar,
+    loading,
+    error,
+    modalError,
+    hideError,
+    fetchPeliculas,
+    handleDeletePelicula,
+    handleUpdatePelicula,
+    currentPage,
+    pagination,
+    handlePageChange,
+    handlePaginationChange,
+    itemsPerPage,
+  } = usePeliculasFetch();
 
-  const fetchPeliculas = async () => {
-    try {
-      setLoading(true);
-      const data = await getPeliculas();
-      setPeliculas(data);
-      setError(null);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filterHook = usePeliculasFilter(
+    peliculasSinFiltrar,
+    setPeliculas,
+    currentPage,
+    itemsPerPage,
+    handlePaginationChange
+  );
 
   const handleEdit = (pelicula) => {
     setPeliculaToEdit(pelicula);
@@ -54,13 +64,13 @@ function PeliculasList({ refreshTrigger }) {
     setPeliculaToDelete(null);
   };
 
-  const handleEditSuccess = () => {
-    fetchPeliculas();
+  const handleEditSuccess = async () => {
+    await fetchPeliculas(currentPage);
     setPeliculaToEdit(null);
   };
 
-  const handleRefresh = () => {
-    fetchPeliculas();
+  const handleRefresh = async () => {
+    await fetchPeliculas(currentPage);
     setPeliculaToDelete(null);
   };
 
@@ -90,6 +100,8 @@ function PeliculasList({ refreshTrigger }) {
 
   return (
     <div className="w-full">
+      <PeliculasInlineFilters filterHook={filterHook} />
+
       {/* Vista escritorio */}
       <div className="hidden md:block overflow-x-auto">
         <Table>
@@ -380,6 +392,19 @@ function PeliculasList({ refreshTrigger }) {
           pelicula={peliculaToDelete}
           onSuccess={handleRefresh}
           onClose={handleCloseDelete}
+        />
+      )}
+
+      {/* Paginación */}
+      {pagination && pagination.totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalItems={pagination.total}
+          itemsPerPage={pagination.limit}
+          onPageChange={(page) => {
+            filterHook.aplicarFiltros(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
         />
       )}
     </div>
