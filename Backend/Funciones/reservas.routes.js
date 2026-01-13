@@ -11,14 +11,14 @@ import {
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
-import { strictLimiter } from '../Middlewares/rateLimiter.js';
+import { strictLimiter, moderateLimiter } from '../Middlewares/rateLimiter.js';
 import { validateBody, validateQuery } from '../Middlewares/validateRequest.js';
 import { reservaCreateSchema } from '../validations/ReservasSchema.js';
 import { reservasFilterSchema } from '../validations/CommonSchemas.js';
 
 const router = Router();
 
-router.get('/Reservas/user', authMiddleware, validateQuery(reservasFilterSchema), asyncHandler(getUserReservas));
+router.get('/Reservas/user', authMiddleware, moderateLimiter, validateQuery(reservasFilterSchema), asyncHandler(getUserReservas));
 
 router.get('/Reservas', authMiddleware, authorizeRoles('ADMIN'), validateQuery(reservasFilterSchema), asyncHandler(getReservas));
 
@@ -35,6 +35,7 @@ router.post('/Reserva', authMiddleware, strictLimiter, validateBody(reservaCreat
 router.put(
   '/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva',
   authMiddleware,
+  moderateLimiter,
   asyncHandler(cancellReserva)
 );
 

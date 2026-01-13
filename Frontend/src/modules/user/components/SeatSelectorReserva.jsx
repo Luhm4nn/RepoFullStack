@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getAsientosBySala } from "../../../api/Salas.api";
 import { getAsientosReservadosPorFuncion } from "../../../api/AsientoReservas.api";
 import { useNotification } from "../../../context/NotificationContext";
+import { CenteredSpinner } from "../../shared/components/Spinner";
 
 const SeatSelectorReserva = ({
   idSala,
@@ -17,16 +18,24 @@ const SeatSelectorReserva = ({
   const [totalPrice, setTotalPrice] = useState(0);
   const [filas, setFilas] = useState([]);
   const [asientosPorFila, setAsientosPorFila] = useState(0);
+  const notify = useNotification();
+  
+  // Usar ref para mantener referencia estable a onSeatsChange
+  const onSeatsChangeRef = useRef(onSeatsChange);
+  useEffect(() => {
+    onSeatsChangeRef.current = onSeatsChange;
+  });
 
   // Efecto para resetear selección cuando cambia la función
   useEffect(() => {
     setSelectedSeats(new Set());
     setTotalPrice(0);
-    if (onSeatsChange) {
-      onSeatsChange({ seats: [], total: 0, count: 0 });
+    if (onSeatsChangeRef.current) {
+      onSeatsChangeRef.current({ seats: [], total: 0, count: 0 });
     }
   }, [idSala, fechaHoraFuncion]);
 
+  // Efecto para cargar asientos de la sala y reservados
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -58,10 +67,7 @@ const SeatSelectorReserva = ({
         );
 
         const reservadosSet = new Set(
-          reservadosData.map((ar) => {
-            const key = `${ar.filaAsiento}${ar.nroAsiento}`;
-            return key;
-          })
+          reservadosData.map((ar) => `${ar.filaAsiento}${ar.nroAsiento}`)
         );
         setAsientosReservados(reservadosSet);
       } catch (err) {
@@ -73,13 +79,31 @@ const SeatSelectorReserva = ({
 
     if (idSala && fechaHoraFuncion) {
       fetchData();
-      setSelectedSeats(new Set());
-      setTotalPrice(0);
-      if (onSeatsChange) {
-        onSeatsChange({ seats: [], total: 0, count: 0 });
-      }
     }
   }, [idSala, fechaHoraFuncion]);
+
+  // Efecto para notificar cambios al padre cuando cambian los asientos seleccionados
+  useEffect(() => {
+    const selectedAsientos = [];
+    selectedSeats.forEach((id) => {
+      const f = id.charAt(0);
+      const n = id.slice(1);
+      const asiento = asientos.find(
+        (a) => a.filaAsiento === f && a.nroAsiento === parseInt(n)
+      );
+      if (asiento) {
+        selectedAsientos.push(asiento);
+      }
+    });
+
+    if (onSeatsChangeRef.current) {
+      onSeatsChangeRef.current({
+        seats: selectedAsientos,
+        total: totalPrice,
+        count: selectedSeats.size,
+      });
+    }
+  }, [selectedSeats, totalPrice, asientos]);
 
   const getSeatId = (fila, numero) => `${fila}${numero}`;
 
@@ -97,57 +121,39 @@ const SeatSelectorReserva = ({
       return;
     }
 
+    const asientoInfo = getAsientoInfo(fila, numero);
+    if (!asientoInfo) return;
+
+    const precio = parseFloat(asientoInfo.tarifa?.precio) || 0;
+    const isCurrentlySelected = selectedSeats.has(seatId);
+
+    // Si está intentando agregar pero ya alcanzó el límite
+    if (!isCurrentlySelected && selectedSeats.size >= maxSeats) {
+      notify.warning(`Máximo ${maxSeats} asientos por reserva`);
+      return;
+    }
+
+    // Actualizar asientos seleccionados
     setSelectedSeats((prev) => {
       const newSelected = new Set(prev);
-      const asientoInfo = getAsientoInfo(fila, numero);
-
-      if (newSelected.has(seatId)) {
+      if (isCurrentlySelected) {
         newSelected.delete(seatId);
       } else {
-        // Verificar límite de asientos
-        if (newSelected.size >= maxSeats) {
-          notify.warning(`Máximo ${maxSeats} asientos por reserva`);
-          return prev;
-        }
         newSelected.add(seatId);
       }
-
-      // Calcular precio total
-      let total = 0;
-      const selectedAsientos = [];
-
-      newSelected.forEach((id) => {
-        const f = id.charAt(0);
-        const n = id.slice(1);
-        const asiento = getAsientoInfo(f, parseInt(n));
-        if (asiento) {
-          selectedAsientos.push(asiento);
-          const precio = parseFloat(asiento.tarifa?.precio) || 0;
-          total += precio;
-        }
-      });
-
-      setTotalPrice(total);
-
-      // Notificar cambios al componente padre
-      if (onSeatsChange) {
-        onSeatsChange({
-          seats: selectedAsientos,
-          total: total,
-          count: newSelected.size,
-        });
-      }
-
       return newSelected;
     });
+
+    // Actualizar precio de forma separada
+    setTotalPrice((prevPrice) => 
+      isCurrentlySelected ? prevPrice - precio : prevPrice + precio
+    );
   };
 
   const clearSelection = () => {
     setSelectedSeats(new Set());
     setTotalPrice(0);
-    if (onSeatsChange) {
-      onSeatsChange({ seats: [], total: 0, count: 0 });
-    }
+    // El useEffect se encargará de notificar al padre
   };
 
   const getSeatStatus = (fila, numero) => {
