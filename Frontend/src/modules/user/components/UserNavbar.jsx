@@ -102,7 +102,7 @@ const UserNavbar = ({ user, onLogout }) => {
                     <li>
                       <button
                         type="button"
-                        onClick={() => { handleNavigation('/MiPerfil'); setIsDropdownOpen(false); }}
+                        onClick={() => { handleNavigation('/mi-perfil'); setIsDropdownOpen(false); }}
                         className="block px-4 py-2 text-sm !text-white hover:!bg-white/5 w-full text-left"
                       >
                         Mi Perfil
