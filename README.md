@@ -39,33 +39,59 @@ Para la gestión del proyecto se adoptó una **metodología ágil adaptada**, ba
 
 ### Para Administradores
 
-- **Gestión de Películas**: CRUD completo con carga de imágenes (Cloudinary)
-- **Gestión de Salas**: Crear y configurar salas con asientos VIP
-- **Programación de Funciones**: Asignar películas a salas y horarios
-- **Gestión de Tarifas**: Configurar precios para asientos normales y VIP
+- **Gestion de Peliculas**: CRUD completo con carga de imagenes (Cloudinary)
+- **Gestion de Salas**: Crear y configurar salas con asientos VIP
+- **Programacion de Funciones**: Asignar peliculas a salas y horarios con validaciones de solapamiento
+- **Gestion de Tarifas**: Configurar precios para asientos normales y VIP
+- **Paginacion**: Navegacion eficiente en listados de peliculas y funciones (10 items/pagina)
+- **Filtros Avanzados**: Busqueda por nombre/director/genero en peliculas, por pelicula/sala/fecha en funciones
 
 ## Sistema de Notificaciones
 
-Sistema híbrido que combina:
+Sistema hibrido que combina:
 - **React Hot Toast**: Notificaciones simples (success, error, warning, info)
-- **Modales Personalizados**: Errores de lógica de negocio con códigos específicos
+- **Modales Personalizados**: Errores de logica de negocio con codigos especificos
 
 ```javascript
 const notify = useNotification();
-notify.success('Operación exitosa');
+notify.success('Operacion exitosa');
 notify.handleError(error); // Auto-detecta si usar modal o toast
 ```
 
+## Arquitectura Frontend
+
+### Estructura de Carpetas
+
+```
+src/
+  ├── constants/      # Constantes globales (generos, clasificaciones, estados)
+  ├── utils/          # Utilidades (dateFormater, debounce, formatearPrecio)
+  ├── api/            # Configuracion de Axios y endpoints
+  ├── context/        # Context API (Auth, Notifications)
+  ├── validations/    # Schemas de validacion (Yup)
+  └── modules/
+      ├── admin/      # Panel administrativo
+      ├── user/       # Panel de usuario
+      └── shared/     # Componentes/hooks compartidos
+```
+
+### Patrones Implementados
+
+- **Custom Hooks**: Separacion de logica (useFetch, useFilter, useModals)
+- **Paginacion Reutilizable**: Backend-driven con componente generico
+- **Filtros con Debounce**: 500ms para optimizar peticiones
+- **Constantes Globalizadas**: Sin duplicacion, facil mantenimiento
+
 > 📖 **Para ejemplos de uso completos** y lista de errores estandarizados, consulta [documentacion.md](/docs/documentacion.md)
 
-## Tecnologías
+## Tecnologias
 
 ### Frontend
 
 - **React 18** - Biblioteca de UI
 - **Vite** - Build tool y dev server
 - **React Router v6** - Enrutamiento
-- **Axios** - Cliente HTTP
+- **Axios** - Cliente HTTP con interceptores
 - **React Hot Toast** - Sistema de notificaciones
 - **Tailwind CSS** - Framework de estilos
 - **Flowbite React** - Componentes UI
@@ -75,23 +101,26 @@ notify.handleError(error); // Auto-detecta si usar modal o toast
 
 - **Node.js** - Runtime de JavaScript
 - **Express.js** - Framework web
-- **Prisma ORM** - Base de datos
-- **PostgreSQL** - Base de datos relacional
-- **JWT** - Autenticación
+- **Prisma ORM** - ORM para base de datos
+- **PostgreSQL** - Base de datos relacional (Neon en produccion)
+- **JWT** - Autenticacion con tokens
 - **Bcrypt** - Hashing de contraseñas
 - **Cookie-Parser** - Manejo de cookies seguras
-- **Yup** - Validación de schemas
-- **Mercado Pago SDK** - Integración de pagos
-- **Cloudinary** - Almacenamiento de imágenes
+- **Yup** - Validacion de schemas
+- **Mercado Pago SDK** - Integracion de pagos
+- **Cloudinary** - Almacenamiento de imagenes
+- **Node-Cron** - Tareas programadas (estados de funciones)
 
-## Seguridad y Autenticación
+## Seguridad y Autenticacion
 
-El sistema implementa múltiples capas de seguridad:
+El sistema implementa multiples capas de seguridad:
 
-- **JWT en cookies httpOnly**: Protección contra XSS, tokens no accesibles desde JavaScript
-- **Protección CSRF**: Validación de tokens en operaciones mutantes
-- **Refresh Token Rotation**: Detección de robo de sesión
-- **Vite Proxy**: Comunicación segura entre HTTPS frontend y HTTP backend en desarrollo
+- **JWT en cookies httpOnly**: Proteccion contra XSS, tokens no accesibles desde JavaScript
+- **Proteccion CSRF**: Validacion de tokens en operaciones mutantes
+- **Refresh Token Rotation**: Deteccion de robo de sesion
+- **Vite Proxy**: Comunicacion segura entre HTTPS frontend y HTTP backend en desarrollo
+- **Rate Limiting**: Proteccion contra fuerza bruta (express-rate-limit)
+- **Validacion Backend**: Schemas Yup en todas las rutas criticas
 
 > 📖 **Para detalles técnicos completos** (interceptores, flujos de autenticación, configuración CSRF), consulta [documentacion.md](/docs/documentacion.md)
 
