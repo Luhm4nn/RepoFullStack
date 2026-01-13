@@ -25,9 +25,10 @@ export const usePeliculasFetch = () => {
       const response = await getPeliculas(params);
       
       // El backend devuelve { data, pagination }
-      setPeliculas(response.data);
-      setPeliculasSinFiltrar(response.data);
-      setPagination(response.pagination);
+      // Asegurar que data sea siempre un array
+      setPeliculas(Array.isArray(response?.data) ? response.data : []);
+      setPeliculasSinFiltrar(Array.isArray(response?.data) ? response.data : []);
+      setPagination(response?.pagination || null);
       setCurrentPage(page);
       setError(null);
     } catch (error) {

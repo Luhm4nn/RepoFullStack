@@ -48,16 +48,19 @@ export const useFuncionesFilter = (
       const response = await getFunciones(backendFiltros);
       
       // Si hay paginación, actualizar
-      if (response.data && response.pagination) {
-        setFunciones(response.data);
+      if (response?.data && response?.pagination) {
+        const funcionesArray = Array.isArray(response.data) ? response.data : [];
+        setFunciones(funcionesArray);
         if (onPaginationChange) {
           onPaginationChange(response.pagination, page);
         }
       } else {
         // Backward compatibility: si no hay paginación, usar respuesta directa
-        setFunciones(response);
+        const funcionesArray = Array.isArray(response) ? response : [];
+        setFunciones(funcionesArray);
       }
     } catch (error) {
+      console.error("Error aplicando filtros de funciones:", error);
       setFunciones([]);
       if (onPaginationChange) {
         onPaginationChange(null, 1);

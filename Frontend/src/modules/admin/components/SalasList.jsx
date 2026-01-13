@@ -40,11 +40,14 @@ function SalasList() {
     try {
       setLoading(true);
       const data = await getSalas();
-      data.sort((a, b) => a.nombreSala.localeCompare(b.nombreSala));
-      setSalas(data);
+      // Asegurar que data sea siempre un array
+      const salasArray = Array.isArray(data) ? data : [];
+      salasArray.sort((a, b) => a.nombreSala.localeCompare(b.nombreSala));
+      setSalas(salasArray);
       setError(null);
     } catch (error) {
       setError(error.message);
+      setSalas([]);
     } finally {
       setLoading(false);
     }

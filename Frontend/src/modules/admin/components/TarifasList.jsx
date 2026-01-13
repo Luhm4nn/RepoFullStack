@@ -31,10 +31,12 @@ function TarifasList() {
     try {
       setLoading(true);
       const data = await getTarifas();
-      setTarifas(data);
+      // Asegurar que data sea siempre un array
+      setTarifas(Array.isArray(data) ? data : []);
       setError(null);
     } catch (error) {
       setError(error.message);
+      setTarifas([]);
     } finally {
       setLoading(false);
     }

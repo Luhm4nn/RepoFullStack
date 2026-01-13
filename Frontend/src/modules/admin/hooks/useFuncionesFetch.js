@@ -26,9 +26,10 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
       const response = await getFunciones(params);
       
       // El backend devuelve { data, pagination }
-      setFunciones(response.data);
-      setFuncionesSinFiltrar(response.data);
-      setPagination(response.pagination);
+      const funcionesArray = Array.isArray(response?.data) ? response.data : [];
+      setFunciones(funcionesArray);
+      setFuncionesSinFiltrar(funcionesArray);
+      setPagination(response?.pagination || null);
       setCurrentPage(page);
       setError(null);
     } catch (error) {

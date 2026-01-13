@@ -33,10 +33,14 @@ function SeleccionFuncion({ idPelicula, onSelectFuncion }) {
     setLoading(true);
     setError(null);
     getFuncionesSemana(idPelicula)
-      .then((data) => setFuncionesSemana(data))
-      .catch(() =>
-        setError("No se pudieron cargar las funciones de la semana.")
-      )
+      .then((data) => {
+        setFuncionesSemana(Array.isArray(data) ? data : []);
+      })
+      .catch((error) => {
+        console.error("Error cargando funciones:", error);
+        setFuncionesSemana([]);
+        setError("No se pudieron cargar las funciones de la semana.");
+      })
       .finally(() => setLoading(false));
   }, [idPelicula]);
 
