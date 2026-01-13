@@ -19,7 +19,7 @@ function PeliculasInlineFilters({ filterHook }) {
         {/* Búsqueda por nombre o director */}
         <div>
           <label htmlFor="busqueda" className="block text-sm font-medium text-white mb-2">
-            🔍 Buscar
+             Buscar
           </label>
           <TextInput
             id="busqueda"
@@ -34,7 +34,7 @@ function PeliculasInlineFilters({ filterHook }) {
         {/* Filtro por género */}
         <div>
           <label htmlFor="genero" className="block text-sm font-medium text-white mb-2">
-            🎭 Género
+             Género
           </label>
           <Select
             id="genero"
