@@ -200,6 +200,20 @@ function FuncionesList() {
       {/* Inline filters */}
       <FuncionesInlineFilters filterHook={filterHook} />
 
+      {/* Paginación superior - visible en mobile */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="md:hidden mb-4">
+          <Pagination
+            currentPage={currentPage}
+            totalItems={pagination.total}
+            itemsPerPage={pagination.limit}
+            onPageChange={(page) => {
+              filterHook.aplicarFiltros(page);
+            }}
+          />
+        </div>
+      )}
+
       <div className="hidden md:block overflow-x-auto">
         <Table>
           <TableHead>
@@ -652,17 +666,19 @@ function FuncionesList() {
       {/* Error modal */}
       <ErrorModal error={modalError} onClose={hideError} />
 
-      {/* Paginaci\u00f3n */}
+      {/* Paginación inferior - solo desktop */}
       {pagination && pagination.totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalItems={pagination.total}
-          itemsPerPage={pagination.limit}
-          onPageChange={(page) => {
-            filterHook.aplicarFiltros(page);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-        />
+        <div className="hidden md:block">
+          <Pagination
+            currentPage={currentPage}
+            totalItems={pagination.total}
+            itemsPerPage={pagination.limit}
+            onPageChange={(page) => {
+              filterHook.aplicarFiltros(page);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        </div>
       )}
 
       {/* Detail modal */}
