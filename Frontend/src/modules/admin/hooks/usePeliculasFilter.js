@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { getPeliculas } from '../../../api/Peliculas.api';
-import { useDebounce } from '../../shared/utils/debounce.js';
+import { useDebounce } from '../../../utils/debounce.js';
 
 export const usePeliculasFilter = (
   peliculasSinFiltrar, 

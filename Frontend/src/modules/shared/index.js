@@ -19,9 +19,9 @@ export { useAuth, useRole, useIsAdmin } from './hooks/useAuth';
 export { useErrorModal } from './hooks/useErrorModal';
 
 // Utils
-export { dateFormaterBackend, formatDate, formatDateTime } from './utils/dateFormater.js';
-export { debounce } from './utils/debounce.js';
-export { formatearPrecio } from './utils/formatearPrecio.js';
+export { dateFormaterBackend, formatDate, formatDateTime } from '../../utils/dateFormater.js';
+export { debounce } from '../../utils/debounce.js';
+export { formatearPrecio } from '../../utils/formatearPrecio.js';
 
 // Constants
 export { ERROR_CODES, getErrorMetadata } from '../../constants/errorCodes.js';
