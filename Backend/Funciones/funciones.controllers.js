@@ -3,7 +3,7 @@ import {
   getAll,
   create,
   deleteOne,
-  update,
+  updateOne,
   getFuncionesByPeliculaAndFechaService,
   getActiveFunciones as getActiveFuncionesService,
   getInactiveFunciones as getInactiveFuncionesService,
@@ -36,39 +36,40 @@ export const getFuncionesSemana = async (req, res) => {
  * @query {string} nombreSala - Nombre de sala (opcional)
  * @query {string} fechaDesde - Fecha desde (opcional)
  * @query {string} fechaHasta - Fecha hasta (opcional)
- * @query {number} limit - Límite de resultados (opcional)
+ * @query {number} page - Número de página (opcional, default: 1)
+ * @query {number} limit - Límite de resultados por página (opcional, default: 10)
  */
 export const getFunciones = async (req, res) => {
-  const { estado, idPelicula, nombrePelicula, idSala, nombreSala, fechaDesde, fechaHasta, limit } = req.query;
+  const { estado, idPelicula, nombrePelicula, idSala, nombreSala, fechaDesde, fechaHasta, page = 1, limit = 10 } = req.query;
 
-  // Si hay filtros avanzados, usar el nuevo servicio
-  if (idPelicula || nombrePelicula || idSala || nombreSala || fechaDesde || fechaHasta || limit) {
-    const filters = { estado, idPelicula, nombrePelicula, idSala, nombreSala, fechaDesde, fechaHasta, limit };
-    const funciones = await getWithFiltersService(filters);
+  // Si hay filtros avanzados (que no sean estado, page o limit), usar el nuevo servicio
+  if (idPelicula || nombrePelicula || idSala || nombreSala || fechaDesde || fechaHasta) {
+    const filters = { estado, idPelicula, nombrePelicula, idSala, nombreSala, fechaDesde, fechaHasta };
+    const funciones = await getWithFiltersService(filters, parseInt(page), parseInt(limit));
     return res.json(funciones);
   }
 
-  // Comportamiento legacy para mantener compatibilidad
-  let funciones;
+  // Endpoints con paginación según estado
+  let result;
   switch (estado?.toLowerCase()) {
     case 'activas':
-      funciones = await getActiveFuncionesService();
+      result = await getActiveFuncionesService(parseInt(page), parseInt(limit));
       break;
     case 'inactivas':
-      funciones = await getInactiveFuncionesService();
+      result = await getInactiveFuncionesService(parseInt(page), parseInt(limit));
       break;
     case 'publicas':
-      funciones = await getPublicFuncionesService();
+      result = await getPublicFuncionesService();
       break;
     case 'todas':
-      funciones = await getAll();
+      result = await getAll();
       break;
     default:
-      funciones = await getActiveFuncionesService();
+      result = await getActiveFuncionesService(parseInt(page), parseInt(limit));
       break;
   }
 
-  res.json(funciones);
+  res.json(result);
 };
 
 /**

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { cancelReserva } from "../../../api/Reservas.api";
-import { formatDateTime } from "../../shared/utils/dateFormater";
+import { formatDateTime } from "../../../utils/dateFormater";
 import DetalleReservaModal from "./DetalleReservaModal";
 import { useNotification } from '../../../context/NotificationContext';
 

@@ -1,4 +1,4 @@
-import { formatDateTime } from "../../shared/utils/dateFormater";
+import { formatDateTime } from "../../../utils/dateFormater";
 
 function FuncionesReservaCard({ funcion, onReservar }) {
   // Determinar el campo de fecha/hora correcto

@@ -1,6 +1,6 @@
 import { PeliculaCard } from "../../shared";
 import { useEffect, useState } from "react";
-import { getPeliculasEnCartelera } from "../../user";
+import { getPeliculasEnCartelera } from "../../../api/Peliculas.api";
 import { CenteredSpinner } from "../components/Spinner";
 
 function CarteleraPage() {

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 
 /**
- * Debounce utility - Retrasa la ejecución de una función hasta que pasen X ms sin que se llame
- * @param {Function} func - Función a ejecutar
+ * Debounce utility - Retrasa la ejecucion de una funcion hasta que pasen X ms sin que se llame
+ * @param {Function} func - Funcion a ejecutar
  * @param {number} delay - Tiempo en ms a esperar
- * @returns {Function} - Función debounced
+ * @returns {Function} - Funcion debounced
  */
 export const debounce = (func, delay) => {
   let timeoutId;

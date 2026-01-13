@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ERROR_CODES } from '../constants/errorCodes';
+import { ERROR_CODES } from '../../../constants/errorCodes';
 
 // Custom hook to manage a unified error modal
 

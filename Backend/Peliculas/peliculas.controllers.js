@@ -2,11 +2,31 @@ import * as service from './peliculas.service.js';
 import logger from '../utils/logger.js';
 
 /**
- * Obtiene todas las películas
+ * Obtiene todas las películas con soporte para paginación y filtros
  * @param {Object} req - Request
  * @param {Object} res - Response
+ * @query {number} page - Número de página (opcional, default: 1)
+ * @query {number} limit - Límite de resultados por página (opcional, default: 10)
+ * @query {string} busqueda - Búsqueda por nombre de película o director (opcional)
+ * @query {string} genero - Filtro por género (opcional)
  */
 export const getPeliculas = async (req, res) => {
+  const { page = 1, limit = 10, busqueda, genero } = req.query;
+
+  // Si hay filtros, usar el servicio con filtros
+  if (busqueda || genero) {
+    const filters = { busqueda, genero };
+    const result = await service.getWithFilters(filters, parseInt(page), parseInt(limit));
+    return res.json(result);
+  }
+
+  // Si se solicita paginación (page o limit presentes), usar servicio paginado
+  if (req.query.page || req.query.limit) {
+    const result = await service.getPaginated(parseInt(page), parseInt(limit));
+    return res.json(result);
+  }
+
+  // Sin parámetros, devolver todas (backward compatibility)
   const peliculas = await service.getAll();
   res.json(peliculas);
 };

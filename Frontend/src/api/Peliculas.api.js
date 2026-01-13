@@ -1,8 +1,8 @@
 import api from './axiosInstance.js';
 
-export const getPeliculas = async () => {
+export const getPeliculas = async (params = {}) => {
   try {
-    const response = await api.get('/Peliculas');
+    const response = await api.get('/Peliculas', { params });
     return response.data;
   } catch (error) {
     throw error;

@@ -121,31 +121,79 @@ async function getByPelicula(idPelicula) {
 }
 
 /**
- * Obtiene funciones inactivas
- * @returns {Promise<Array>} Lista de funciones inactivas
+ * Obtiene funciones inactivas con paginación
+ * @param {number} page - Número de página (default: 1)
+ * @param {number} limit - Items por página (default: 10)
+ * @returns {Promise<Object>} Objeto con data y pagination
  */
-async function getInactive() {
-  return await prisma.funcion.findMany({
-    where: { estado: 'Inactiva' },
-    include: {
-      sala: true,
-      pelicula: true,
+async function getInactive(page = 1, limit = 10) {
+  const skip = (page - 1) * limit;
+  
+  const [data, total] = await Promise.all([
+    prisma.funcion.findMany({
+      where: { estado: 'Inactiva' },
+      include: {
+        sala: true,
+        pelicula: true,
+      },
+      orderBy: {
+        fechaHoraFuncion: 'asc',
+      },
+      skip,
+      take: limit,
+    }),
+    prisma.funcion.count({
+      where: { estado: 'Inactiva' },
+    }),
+  ]);
+
+  return {
+    data,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
     },
-  });
+  };
 }
 
 /**
- * Obtiene funciones activas (no inactivas)
- * @returns {Promise<Array>} Lista de funciones activas
+ * Obtiene funciones activas (no inactivas) con paginación
+ * @param {number} page - Número de página (default: 1)
+ * @param {number} limit - Items por página (default: 10)
+ * @returns {Promise<Object>} Objeto con data y pagination
  */
-async function getActive() {
-  return await prisma.funcion.findMany({
-    where: { estado: { not: 'Inactiva' } },
-    include: {
-      sala: true,
-      pelicula: true,
+async function getActive(page = 1, limit = 10) {
+  const skip = (page - 1) * limit;
+  
+  const [data, total] = await Promise.all([
+    prisma.funcion.findMany({
+      where: { estado: { not: 'Inactiva' } },
+      include: {
+        sala: true,
+        pelicula: true,
+      },
+      orderBy: {
+        fechaHoraFuncion: 'asc',
+      },
+      skip,
+      take: limit,
+    }),
+    prisma.funcion.count({
+      where: { estado: { not: 'Inactiva' } },
+    }),
+  ]);
+
+  return {
+    data,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
     },
-  });
+  };
 }
 
 /**
@@ -284,7 +332,7 @@ async function getOneWithStats({ idSala, fechaHoraFuncion }) {
  * @param {number} filters.limit - Límite de resultados (opcional)
  * @returns {Promise<Array>} Lista de funciones filtradas
  */
-async function getWithFilters(filters = {}) {
+async function getWithFilters(filters = {}, page = 1, limit = 10) {
   const where = {};
 
   // Filtro por película (ID tiene prioridad sobre nombre)
@@ -343,22 +391,33 @@ async function getWithFilters(filters = {}) {
     }
   }
 
-  const options = {
-    where,
-    include: {
-      sala: true,
-      pelicula: true,
-    },
-    orderBy: {
-      fechaHoraFuncion: 'asc',
+  const skip = (page - 1) * limit;
+
+  const [data, total] = await Promise.all([
+    prisma.funcion.findMany({
+      where,
+      include: {
+        sala: true,
+        pelicula: true,
+      },
+      orderBy: {
+        fechaHoraFuncion: 'asc',
+      },
+      skip,
+      take: limit,
+    }),
+    prisma.funcion.count({ where }),
+  ]);
+
+  return {
+    data,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
     },
   };
-
-  if (filters.limit && !isNaN(filters.limit) && filters.limit > 0) {
-    options.take = parseInt(filters.limit, 10);
-  }
-
-  return await prisma.funcion.findMany(options);
 }
 
 export {

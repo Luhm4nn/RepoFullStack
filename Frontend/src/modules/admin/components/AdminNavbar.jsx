@@ -83,8 +83,8 @@ const AdminNavbar = ({ user, onLogout }) => {
                   Administrador
                 </span>
               </DropdownHeader>
-              <DropdownItem className="!text-white hover:!bg-white/5">Dashboard</DropdownItem>
-              <DropdownItem className="!text-white hover:!bg-white/5">Configuraciones</DropdownItem>
+              <DropdownItem onClick={() => handleNavigation('/Dashboard')} className="!text-white hover:!bg-white/5">Dashboard</DropdownItem>
+              <DropdownItem onClick={() => handleNavigation('/Configuracion')} className="!text-white hover:!bg-white/5">Configuración</DropdownItem>
               <DropdownDivider />
               <DropdownItem onClick={handleLogoutRequest} className="!text-red-400 hover:!bg-red-500/10">
                 Cerrar Sesión
@@ -100,6 +100,14 @@ const AdminNavbar = ({ user, onLogout }) => {
               <DrawerHeader title="Menú" className="!bg-gray-900 !text-white" />
               <DrawerItems className="!bg-gray-900 !text-white">
                 <ul className="flex flex-col gap-2 mt-4">
+                  <li>
+                    <button
+                      onClick={() => { handleNavigation('/Dashboard') }}
+                      className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Dashboard') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'}`}
+                    >
+                      Dashboard
+                    </button>
+                  </li>
                   <li>
                     <button
                       onClick={() => { handleNavigation('/') }}
