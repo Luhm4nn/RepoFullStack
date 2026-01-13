@@ -13,9 +13,27 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
   const fetchFunciones = async () => {
     try {
       setLoading(true);
+<<<<<<< Updated upstream
       const funcionesData = mostrandoActivas ? await getFuncionesActivas() : await getFuncionesInactivas();
       setFunciones(funcionesData);
       setFuncionesSinFiltrar(funcionesData);
+=======
+      
+      const params = {
+        estado: mostrandoActivas ? 'activas' : 'inactivas',
+        page,
+        limit: itemsPerPage
+      };
+
+      const response = await getFunciones(params);
+      
+      // El backend devuelve { data, pagination }
+      // Asegurar que data sea siempre un array
+      setFunciones(Array.isArray(response?.data) ? response.data : []);
+      setFuncionesSinFiltrar(Array.isArray(response?.data) ? response.data : []);
+      setPagination(response?.pagination || null);
+      setCurrentPage(page);
+>>>>>>> Stashed changes
       setError(null);
     } catch (error) {
       setError(error.message);

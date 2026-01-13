@@ -30,10 +30,12 @@ function ParametrosList({ onAddClick }) {
     try {
       setLoading(true);
       const data = await getParametros();
-      setParametros(data);
+      // Asegurar que data sea siempre un array
+      setParametros(Array.isArray(data) ? data : []);
       setError(null);
     } catch (error) {
       setError(error.message);
+      setParametros([]);
     } finally {
       setLoading(false);
     }
