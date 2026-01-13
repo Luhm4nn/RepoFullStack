@@ -10,10 +10,16 @@ function CarteleraPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    getPeliculasEnCartelera().then((data) => {
-      setPeliculas(data);
-      setLoading(false);
-    });
+    getPeliculasEnCartelera()
+      .then((data) => {
+        setPeliculas(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error cargando películas:', error);
+        setPeliculas([]);
+        setLoading(false);
+      });
   }, []);
 
   // Auto-advance carousel
