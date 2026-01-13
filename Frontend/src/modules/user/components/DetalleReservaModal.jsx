@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getAsientosReservadosPorFuncion } from "../../../api/AsientoReservas.api";
 import { formatDateTime } from "../../../utils/dateFormater";
+import { CenteredSpinner } from "../../shared/components/Spinner";
 
 function DetalleReservaModal({ reserva, onClose, onCancelar }) {
   const [asientos, setAsientos] = useState([]);

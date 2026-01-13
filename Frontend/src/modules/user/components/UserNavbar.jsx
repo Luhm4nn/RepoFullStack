@@ -111,7 +111,7 @@ const UserNavbar = ({ user, onLogout }) => {
                     <li>
                       <button
                         type="button"
-                        onClick={() => { handleNavigation('/MisReservas'); setIsDropdownOpen(false); }}
+                        onClick={() => { handleNavigation('/mis-reservas'); setIsDropdownOpen(false); }}
                         className="block px-4 py-2 text-sm !text-white hover:!bg-white/5 w-full text-left"
                       >
                         Mis Reservas
@@ -149,8 +149,8 @@ const UserNavbar = ({ user, onLogout }) => {
                   </li>
                   <li>
                     <button
-                      onClick={() => handleNavigation('/MisReservas')}
-                      className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/MisReservas') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'} !bg-gray-900`}
+                      onClick={() => handleNavigation('/mis-reservas')}
+                      className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/mis-reservas') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'} !bg-gray-900`}
                     >
                       Mis Reservas
                     </button>
@@ -182,8 +182,8 @@ const UserNavbar = ({ user, onLogout }) => {
               <li className="flex items-center navbar-btn-space">
                 <button
                   type="button"
-                  onClick={() => handleNavigation('/MisReservas')}
-                  className={`flex items-center gap-2 py-2 px-4 text-xl rounded md:p-0 transition-colors nav-underline cursor-pointer ${isActive('/MisReservas') ? 'active !text-white bg-white/5 md:!bg-transparent' : 'text-white hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'}`}
+                  onClick={() => handleNavigation('/mis-reservas')}
+                  className={`flex items-center gap-2 py-2 px-4 text-xl rounded md:p-0 transition-colors nav-underline cursor-pointer ${isActive('/mis-reservas') ? 'active !text-white bg-white/5 md:!bg-transparent' : 'text-white hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'}`}
                 >
                   Mis Reservas
                 </button>
