@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button, Modal, ModalBody } from "flowbite-react";
-import { FuncionesList, FuncionesForm, createFuncion } from "../../admin";
+import FuncionesList from "../components/FuncionesList.jsx";
+import FuncionesForm from "../components/FuncionesForm.jsx";
+import { createFuncion } from "../../../api/Funciones.api.js";
 import { ErrorModal, useErrorModal } from "../../shared";
 import { useNotification } from "../../../context/NotificationContext";
 

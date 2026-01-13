@@ -21,19 +21,23 @@ export const getOne = async (params) => {
 };
 
 /**
- * Obtiene funciones activas
- * @returns {Promise<Array>} Lista de funciones activas
+ * Obtiene funciones activas con paginación
+ * @param {number} page - Número de página
+ * @param {number} limit - Items por página
+ * @returns {Promise<Object>} Objeto con data y pagination
  */
-export const getActiveFunciones = async () => {
-  return await repository.getActive();
+export const getActiveFunciones = async (page = 1, limit = 10) => {
+  return await repository.getActive(page, limit);
 };
 
 /**
- * Obtiene funciones inactivas
- * @returns {Promise<Array>} Lista de funciones inactivas
+ * Obtiene funciones inactivas con paginación
+ * @param {number} page - Número de página
+ * @param {number} limit - Items por página
+ * @returns {Promise<Object>} Objeto con data y pagination
  */
-export const getInactiveFunciones = async () => {
-  return await repository.getInactive();
+export const getInactiveFunciones = async (page = 1, limit = 10) => {
+  return await repository.getInactive(page, limit);
 };
 
 /**
@@ -106,7 +110,7 @@ export const getFuncionesByPeliculaId = async (idPelicula) => {
  * @returns {Promise<Object|Error>} Función actualizada o Error
  * @throws {Error} Si no existe o validación falla
  */
-export const update = async (params, data) => {
+export const updateOne = async (params, data) => {
   const funcionExistente = await repository.getOne(params);
   if (!funcionExistente) {
     const error = new Error('Función no encontrada.');
@@ -281,8 +285,10 @@ const verificarSolapamientos = async (nuevaFuncion, funcionExistente = null) => 
 /**
  * Obtiene funciones con filtros dinámicos
  * @param {Object} filters - Filtros de búsqueda
- * @returns {Promise<Array>} Lista de funciones filtradas
+ * @param {number} page - Número de página (default: 1)
+ * @param {number} limit - Items por página (default: 10)
+ * @returns {Promise<Object>} Objeto con data y pagination
  */
-export const getWithFilters = async (filters) => {
-  return await repository.getWithFilters(filters);
+export const getWithFilters = async (filters, page = 1, limit = 10) => {
+  return await repository.getWithFilters(filters, page, limit);
 };

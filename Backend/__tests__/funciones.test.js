@@ -16,7 +16,13 @@ describe('Funciones API', () => {
       const response = await request(app).get('/Funciones');
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveProperty('data');
+      expect(response.body).toHaveProperty('pagination');
+      expect(Array.isArray(response.body.data)).toBe(true);
+      expect(response.body.pagination).toHaveProperty('page');
+      expect(response.body.pagination).toHaveProperty('limit');
+      expect(response.body.pagination).toHaveProperty('total');
+      expect(response.body.pagination).toHaveProperty('totalPages');
     });
 
     test('debe filtrar por nombrePelicula', async () => {
@@ -25,8 +31,9 @@ describe('Funciones API', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      response.body.forEach((funcion) => {
+      expect(response.body).toHaveProperty('data');
+      expect(Array.isArray(response.body.data)).toBe(true);
+      response.body.data.forEach((funcion) => {
         if (funcion.pelicula?.nombrePelicula) {
           expect(
             funcion.pelicula.nombrePelicula.toLowerCase()
@@ -41,8 +48,9 @@ describe('Funciones API', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      response.body.forEach((funcion) => {
+      expect(response.body).toHaveProperty('data');
+      expect(Array.isArray(response.body.data)).toBe(true);
+      response.body.data.forEach((funcion) => {
         if (funcion.sala) {
           const matchNombre = funcion.sala.nombreSala?.toLowerCase().includes('sala');
           const matchUbicacion = funcion.sala.ubicacion?.toLowerCase().includes('sala');
@@ -57,8 +65,9 @@ describe('Funciones API', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      response.body.forEach((funcion) => {
+      expect(response.body).toHaveProperty('data');
+      expect(Array.isArray(response.body.data)).toBe(true);
+      response.body.data.forEach((funcion) => {
         expect(funcion.estado).not.toBe('Inactiva');
       });
     });
@@ -69,8 +78,9 @@ describe('Funciones API', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      response.body.forEach((funcion) => {
+      expect(response.body).toHaveProperty('data');
+      expect(Array.isArray(response.body.data)).toBe(true);
+      response.body.data.forEach((funcion) => {
         expect(funcion.estado).toBe('Inactiva');
       });
     });
@@ -96,8 +106,9 @@ describe('Funciones API', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      response.body.forEach((funcion) => {
+      expect(response.body).toHaveProperty('data');
+      expect(Array.isArray(response.body.data)).toBe(true);
+      response.body.data.forEach((funcion) => {
         const fechaFuncion = new Date(funcion.fechaHoraFuncion);
         expect(fechaFuncion.getTime()).toBeGreaterThanOrEqual(
           fechaDesde.getTime()
@@ -114,8 +125,9 @@ describe('Funciones API', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      response.body.forEach((funcion) => {
+      expect(response.body).toHaveProperty('data');
+      expect(Array.isArray(response.body.data)).toBe(true);
+      response.body.data.forEach((funcion) => {
         const fechaFuncion = new Date(funcion.fechaHoraFuncion);
         expect(fechaFuncion.getTime()).toBeLessThanOrEqual(
           fechaHasta.getTime()
@@ -135,8 +147,9 @@ describe('Funciones API', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      response.body.forEach((funcion) => {
+      expect(response.body).toHaveProperty('data');
+      expect(Array.isArray(response.body.data)).toBe(true);
+      response.body.data.forEach((funcion) => {
         expect(funcion.estado).not.toBe('Inactiva');
         const fechaFuncion = new Date(funcion.fechaHoraFuncion);
         expect(fechaFuncion.getTime()).toBeGreaterThanOrEqual(

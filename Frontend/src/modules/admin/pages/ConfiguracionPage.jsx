@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ParametrosList, TarifasList } from "../../admin";
+import ParametrosList from "../components/ParametrosList.jsx";
+import TarifasList from "../components/TarifasList.jsx";
 
 function ConfiguracionPage() {
   const [refreshList, setRefreshList] = useState(0);

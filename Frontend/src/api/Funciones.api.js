@@ -20,6 +20,7 @@ export const getFunciones = async (filtros = {}) => {
     if (filtros.nombreSala) params.append('nombreSala', filtros.nombreSala);
     if (filtros.fechaDesde) params.append('fechaDesde', filtros.fechaDesde);
     if (filtros.fechaHasta) params.append('fechaHasta', filtros.fechaHasta);
+    if (filtros.page) params.append('page', filtros.page);
     if (filtros.limit) params.append('limit', filtros.limit);
     
     const queryString = params.toString();
@@ -32,12 +33,12 @@ export const getFunciones = async (filtros = {}) => {
   }
 };
 
-export const getFuncionesActivas = async () => {
-  return getFunciones({ estado: 'activas' });
+export const getFuncionesActivas = async (page = 1, limit = 10) => {
+  return getFunciones({ estado: 'activas', page, limit });
 };
 
-export const getFuncionesInactivas = async () => {
-  return getFunciones({ estado: 'inactivas' });
+export const getFuncionesInactivas = async (page = 1, limit = 10) => {
+  return getFunciones({ estado: 'inactivas', page, limit });
 };
 
 export const getTodasLasFunciones = async () => {

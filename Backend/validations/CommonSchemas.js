@@ -1,5 +1,31 @@
 import * as Yup from 'yup';
 
+// Schema de paginación reutilizable
+export const paginationSchema = Yup.object().shape({
+  page: Yup.number()
+    .positive('La página debe ser positiva')
+    .integer('La página debe ser un número entero')
+    .default(1)
+    .transform((value, originalValue) => {
+      if (originalValue === '' || originalValue === null || originalValue === undefined) {
+        return 1;
+      }
+      return value;
+    }),
+  
+  limit: Yup.number()
+    .positive('El límite debe ser positivo')
+    .integer('El límite debe ser un número entero')
+    .max(100, 'El límite máximo es 100')
+    .default(10)
+    .transform((value, originalValue) => {
+      if (originalValue === '' || originalValue === null || originalValue === undefined) {
+        return 10;
+      }
+      return value;
+    }),
+});
+
 export const searchQuerySchema = Yup.object().shape({
   q: Yup.string()
     .trim()
@@ -50,12 +76,28 @@ export const funcionesFilterSchema = Yup.object().shape({
   
   fechaHasta: Yup.date().nullable(),
   
+  page: Yup.number()
+    .positive('La página debe ser positiva')
+    .integer('La página debe ser un número entero')
+    .default(1)
+    .transform((value, originalValue) => {
+      if (originalValue === '' || originalValue === null || originalValue === undefined) {
+        return 1;
+      }
+      return value;
+    }),
+  
   limit: Yup.number()
-    .positive()
-    .integer()
-    .max(100)
+    .positive('El límite debe ser positivo')
+    .integer('El límite debe ser un número entero')
+    .max(100, 'El límite máximo es 100')
     .default(10)
-    .transform((value, originalValue) => originalValue === '' ? 10 : value),
+    .transform((value, originalValue) => {
+      if (originalValue === '' || originalValue === null || originalValue === undefined) {
+        return 10;
+      }
+      return value;
+    }),
 });
 
 export const reservasFilterSchema = Yup.object().shape({

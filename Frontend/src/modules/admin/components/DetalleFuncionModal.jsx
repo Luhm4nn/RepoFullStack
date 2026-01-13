@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getAsientosReservadosPorFuncion } from "../../../api/AsientoReservas.api";
-import { formatDateTime } from "../../shared/utils/dateFormater";
+import { formatDateTime } from "../../../utils/dateFormater";
 
 function DetalleFuncionModal({ funcion, onClose, detalles }) {
     const [asientos, setAsientos] = useState([]);

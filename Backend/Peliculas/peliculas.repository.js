@@ -23,6 +23,40 @@ async function getAll() {
 }
 
 /**
+ * Obtiene películas con paginación
+ * @param {number} page - Número de página (default: 1)
+ * @param {number} limit - Items por página (default: 10)
+ * @returns {Promise<Object>} Objeto con data y pagination
+ */
+async function getPaginated(page = 1, limit = 10) {
+  // Asegurar que page y limit sean números válidos
+  const validPage = parseInt(page) || 1;
+  const validLimit = parseInt(limit) || 10;
+  const skip = (validPage - 1) * validLimit;
+  
+  const [data, total] = await Promise.all([
+    prisma.pelicula.findMany({
+      orderBy: {
+        nombrePelicula: 'asc',
+      },
+      skip,
+      take: validLimit,
+    }),
+    prisma.pelicula.count(),
+  ]);
+
+  return {
+    data,
+    pagination: {
+      page: validPage,
+      limit: validLimit,
+      total,
+      totalPages: Math.ceil(total / validLimit),
+    },
+  };
+}
+
+/**
  * Obtiene una película por ID
  * @param {number} id - ID de la película
  * @returns {Promise<Object|null>} Película encontrada o null
@@ -158,4 +192,70 @@ async function search(searchQuery, limit) {
   return await prisma.pelicula.findMany(options);
 }
 
-export { getOne, getAll, create, deleteOne, update, getAllEnCartelera, countEnCartelera, search };
+/**
+ * Obtiene películas con filtros dinámicos y paginación
+ * @param {Object} filters - Filtros de búsqueda
+ * @param {string} filters.busqueda - Búsqueda por nombre de película o director
+ * @param {string} filters.genero - Filtro por género
+ * @param {number} page - Número de página (default: 1)
+ * @param {number} limit - Items por página (default: 10)
+ * @returns {Promise<Object>} Objeto con data y pagination
+ */
+async function getWithFilters(filters = {}, page = 1, limit = 10) {
+  const where = {};
+
+  // Filtro de búsqueda: busca en nombre de película O director
+  if (filters.busqueda) {
+    where.OR = [
+      {
+        nombrePelicula: {
+          contains: filters.busqueda,
+          mode: 'insensitive'
+        }
+      },
+      {
+        director: {
+          contains: filters.busqueda,
+          mode: 'insensitive'
+        }
+      }
+    ];
+  }
+
+  // Filtro por género
+  if (filters.genero) {
+    where.generoPelicula = {
+      contains: filters.genero,
+      mode: 'insensitive'
+    };
+  }
+
+  // Asegurar que page y limit sean números válidos
+  const validPage = parseInt(page) || 1;
+  const validLimit = parseInt(limit) || 10;
+  const skip = (validPage - 1) * validLimit;
+
+  const [data, total] = await Promise.all([
+    prisma.pelicula.findMany({
+      where,
+      orderBy: {
+        nombrePelicula: 'asc',
+      },
+      skip,
+      take: validLimit,
+    }),
+    prisma.pelicula.count({ where }),
+  ]);
+
+  return {
+    data,
+    pagination: {
+      page: validPage,
+      limit: validLimit,
+      total,
+      totalPages: Math.ceil(total / validLimit),
+    },
+  };
+}
+
+export { getOne, getAll, getPaginated, create, deleteOne, update, getAllEnCartelera, countEnCartelera, search, getWithFilters };
