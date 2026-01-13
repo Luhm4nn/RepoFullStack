@@ -40,7 +40,8 @@ export default function MiPerfilPage() {
         setUser(auth.user);
         try {
           // Usar endpoint optimizado que ya filtra por usuario
-          const my = await getUserReservas();
+          const data = await getUserReservas();
+          const my = Array.isArray(data) ? data : [];
           my.sort(
             (a, b) =>
               new Date(a.funcion?.fechaHoraFuncion) -
@@ -48,6 +49,7 @@ export default function MiPerfilPage() {
           );
           setReservas(my);
         } catch (e) {
+          console.error("Error cargando reservas:", e);
           setReservas([]);
         }
       } finally {

@@ -33,10 +33,12 @@ function MisReservasPage() {
 
       // Backend filtra por estado, frontend solo filtra fecha si es necesario
       if (filter === "canceladas") {
-        misReservas = await getUserReservas("CANCELADA");
+        const data = await getUserReservas("CANCELADA");
+        misReservas = Array.isArray(data) ? data : [];
       } else if (filter === "activas" || filter === "pasadas") {
         // Traer solo confirmadas y filtrar por fecha en frontend
-        const confirmadas = await getUserReservas("CONFIRMADA");
+        const data = await getUserReservas("CONFIRMADA");
+        const confirmadas = Array.isArray(data) ? data : [];
         if (filter === "activas") {
           misReservas = confirmadas.filter(
             (r) => new Date(r.funcion?.fechaHoraFuncion) >= ahora
@@ -48,16 +50,19 @@ function MisReservasPage() {
         }
       } else {
         // todas
-        misReservas = await getUserReservas();
+        const data = await getUserReservas();
+        misReservas = Array.isArray(data) ? data : [];
       }
 
-      setReservas(misReservas);
+      setReservas(Array.isArray(misReservas) ? misReservas : []);
 
       // Si es la primera carga, guardar todas para los contadores
       if (filter === "todas") {
         setTodasReservas(misReservas);
       }
     } catch (err) {
+      console.error("Error al cargar reservas:", err);
+      setReservas([]);
       if (err.response?.status === 404) {
         setReservas([]);
       } else {

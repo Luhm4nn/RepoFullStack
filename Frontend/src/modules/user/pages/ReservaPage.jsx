@@ -80,11 +80,14 @@ function ReservaPage() {
         pelicula.idPelicula,
         fecha
       );
-      setFunciones(data);
-      if (data.length === 0) {
+      const funcionesArray = Array.isArray(data) ? data : [];
+      setFunciones(funcionesArray);
+      if (funcionesArray.length === 0) {
         setError("No hay funciones disponibles para la fecha seleccionada.");
       }
     } catch (err) {
+      console.error("Error al obtener funciones:", err);
+      setFunciones([]);
       setError("Error al obtener funciones para la fecha seleccionada.");
     } finally {
       setLoading(false);
