@@ -12,6 +12,27 @@ export const getAll = async () => {
 };
 
 /**
+ * Obtiene películas con paginación
+ * @param {number} page - Número de página (default: 1)
+ * @param {number} limit - Items por página (default: 10)
+ * @returns {Promise<Object>} Objeto con data y pagination
+ */
+export const getPaginated = async (page = 1, limit = 10) => {
+  return await repository.getPaginated(page, limit);
+};
+
+/**
+ * Obtiene películas con filtros y paginación
+ * @param {Object} filters - Filtros a aplicar (busqueda, genero)
+ * @param {number} page - Número de página (default: 1)
+ * @param {number} limit - Items por página (default: 10)
+ * @returns {Promise<Object>} Objeto con data y pagination
+ */
+export const getWithFilters = async (filters, page = 1, limit = 10) => {
+  return await repository.getWithFilters(filters, page, limit);
+};
+
+/**
  * Obtiene una película por ID
  * @param {number} id - ID de la película
  * @returns {Promise<Object>} Película encontrada

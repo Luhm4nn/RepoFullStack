@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getFuncionesActivas, getFuncionesInactivas, deleteFuncion, updateFuncion } from '../../../api/Funciones.api';
+import { getFunciones, deleteFuncion, updateFuncion } from '../../../api/Funciones.api';
 import useErrorModal from '../../shared/hooks/useErrorModal.js';
 
 export const useFuncionesFetch = (mostrandoActivas = true) => {
@@ -7,30 +7,55 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
   const [funcionesSinFiltrar, setFuncionesSinFiltrar] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
+  const itemsPerPage = 10;
   
   const { error: modalError, handleApiError, hideError } = useErrorModal();
 
-  const fetchFunciones = async () => {
+  const fetchFunciones = async (page = 1) => {
     try {
       setLoading(true);
-      const funcionesData = mostrandoActivas ? await getFuncionesActivas() : await getFuncionesInactivas();
-      setFunciones(funcionesData);
-      setFuncionesSinFiltrar(funcionesData);
+      
+      const params = {
+        estado: mostrandoActivas ? 'activas' : 'inactivas',
+        page,
+        limit: itemsPerPage
+      };
+
+      const response = await getFunciones(params);
+      
+      // El backend devuelve { data, pagination }
+      setFunciones(response.data);
+      setFuncionesSinFiltrar(response.data);
+      setPagination(response.pagination);
+      setCurrentPage(page);
       setError(null);
     } catch (error) {
       setError(error.message);
+      setFunciones([]);
+      setPagination(null);
     } finally {
       setLoading(false);
     }
   };
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    // No llamar fetchFunciones aquí, será llamado por useFuncionesFilter
+  };
+
+  const handlePaginationChange = (newPagination, newPage) => {
+    setPagination(newPagination);
+    setCurrentPage(newPage);
+  };
   const handleDeleteFuncion = async (funcionToDelete) => {
     try {
       const idSala = funcionToDelete.idSala;
       const fechaHoraFuncion = funcionToDelete.fechaHoraFuncion;
 
       await deleteFuncion(idSala, fechaHoraFuncion);
-      await fetchFunciones();
+      await fetchFunciones(currentPage);
       return { success: true };
     } catch (error) {
       return { success: false, error: 'Error eliminando función' };
@@ -43,7 +68,7 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
       const fechaHoraOriginal = funcionOriginal.fechaHoraFuncion;
       
       await updateFuncion(idSalaOriginal, fechaHoraOriginal, funcionActualizada);
-      await fetchFunciones();
+      await fetchFunciones(currentPage);
       return { success: true };
     } catch (error) {
       const wasHandled = handleApiError(error);
@@ -67,7 +92,9 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
   };
 
   useEffect(() => {
-    fetchFunciones();
+    setCurrentPage(1);
+    setPagination(null);
+    fetchFunciones(1);
   }, [mostrandoActivas]);
 
   return {
@@ -75,11 +102,17 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
     funciones,
     setFunciones,
     funcionesSinFiltrar,
-    setFuncionesSinFiltrar,
     loading,
     error,
     modalError,
     hideError,
+    
+    // Paginación
+    currentPage,
+    pagination,
+    handlePageChange,
+    handlePaginationChange,
+    itemsPerPage,
     
     // Actions
     fetchFunciones,
