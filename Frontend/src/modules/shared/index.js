@@ -1,4 +1,9 @@
-// Entry point for shared module
+/**
+ * Modulo Compartido
+ * 
+ * Exporta componentes, hooks y utilidades compartidas entre admin y user.
+ * NO duplica utils/constants globales, solo los re-exporta para conveniencia.
+ */
 
 // Components
 export { default as ClaquetaPersonaje } from './components/ClaquetaPersonaje.jsx';
@@ -18,12 +23,12 @@ export { default as ScrollToTop } from './components/ScrollToTop.jsx';
 export { useAuth, useRole, useIsAdmin } from './hooks/useAuth';
 export { useErrorModal } from './hooks/useErrorModal';
 
-// Utils
+// Utils (re-exportados desde src/utils/ global)
 export { dateFormaterBackend, formatDate, formatDateTime } from '../../utils/dateFormater.js';
 export { debounce } from '../../utils/debounce.js';
 export { formatearPrecio } from '../../utils/formatearPrecio.js';
 
-// Constants
+// Constants (re-exportados desde src/constants/ global)
 export { ERROR_CODES, getErrorMetadata } from '../../constants/errorCodes.js';
 
 
