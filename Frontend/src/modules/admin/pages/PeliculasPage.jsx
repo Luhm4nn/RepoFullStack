@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { PeliculasList, ModalPeliculas } from "../../admin";
+import PeliculasList from "../components/PeliculasList.jsx";
+import ModalPeliculas from "../components/ModalPeliculas.jsx";
 
 function PeliculasPage() {
   const [refreshList, setRefreshList] = useState(0);

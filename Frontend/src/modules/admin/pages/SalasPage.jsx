@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button, Modal, ModalBody } from "flowbite-react";
-import { SalasList, SalasForm, createSala } from "../../admin";
+import SalasList from "../components/SalasList.jsx";
+import SalasForm from "../components/SalasForm.jsx";
+import { createSala } from "../../../api/Salas.api.js";
 import { useNotification } from '../../../context/NotificationContext';
 
 function SalasPage() {

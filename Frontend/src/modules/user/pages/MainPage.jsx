@@ -2,7 +2,7 @@ import { ClaquetaPersonaje } from "../../shared";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Carousel } from "flowbite-react";
-import { getPeliculasEnCartelera } from "../../user";
+import { getPeliculasEnCartelera } from "../../../api/Peliculas.api";
 import { CenteredSpinner } from "../../shared/components/Spinner";
 
 function MainPage() {

@@ -9,8 +9,8 @@ import {
   formatDateTimeForBackend,
   getCurrentDateTime,
   formatDateForInput,
-} from "../../shared/utils/dateFormater.js";
-import { debounce } from "../../shared/utils/debounce.js";
+} from "../../../utils/dateFormater.js";
+import { debounce } from "../../../utils/debounce.js";
 
 export default function FuncionesForm({
   onSubmit,

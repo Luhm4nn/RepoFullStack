@@ -11,7 +11,7 @@ import {
   TextInput,
 } from "flowbite-react";
 import { useEffect, useState } from "react";
-import { formatDateTime } from "../../shared/utils/dateFormater.js";
+import { formatDateTime } from "../../../utils/dateFormater.js";
 import ModalDeleteFuncion from "./ModalDeleteFuncion";
 import ModalPublishFuncion from "./ModalPublishFuncion";
 import FuncionesForm from "./FuncionesForm";
