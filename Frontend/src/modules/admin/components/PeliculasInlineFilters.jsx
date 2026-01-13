@@ -19,7 +19,7 @@ function PeliculasInlineFilters({ filterHook }) {
         {/* Búsqueda por nombre o director */}
         <div>
           <label htmlFor="busqueda" className="block text-sm font-medium text-white mb-2">
-             Buscar
+             Buscar (director o título)
           </label>
           <TextInput
             id="busqueda"
