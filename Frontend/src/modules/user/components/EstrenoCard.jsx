@@ -35,7 +35,7 @@ function EstrenoCard({ estrenos = [] }) {
 
   return (
     <div className="w-full relative rounded-xl">
-      <div className="absolute inset-1 bg-slate-800/60 border border-slate-700 rounded-xl opacity-75"></div>
+      <div className="absolute inset-1 border border-slate-700 rounded-xl opacity-65"></div>
 
       <div className="relative bg-slate-800/60 rounded-xl border-slate-700 shadow-lg overflow-hidden">
         {/* Slider container */}
