@@ -8,6 +8,7 @@ import {
   getPeliculasEnCartelera,
   getCountPeliculasEnCartelera,
   searchPeliculas,
+  getEstrenos,
 } from './peliculas.controllers.js';
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { handleMoviePosterUpload } from '../Middlewares/uploadHandler.js';
@@ -22,6 +23,7 @@ const router = Router();
 
 router.get('/Peliculas', moderateLimiter, asyncHandler(getPeliculas));
 router.get('/Peliculas/search', moderateLimiter, validateQuery(searchQuerySchema), asyncHandler(searchPeliculas));
+router.get('/Peliculas/estrenos', moderateLimiter, asyncHandler(getEstrenos));
 router.get('/Pelicula/:id', validateParams(idParamSchema), asyncHandler(getPelicula));
 router.get('/Peliculas/cartelera', moderateLimiter, asyncHandler(getPeliculasEnCartelera));
 router.get('/Peliculas/cartelera/count', asyncHandler(getCountPeliculasEnCartelera));

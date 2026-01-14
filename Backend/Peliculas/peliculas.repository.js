@@ -258,4 +258,23 @@ async function getWithFilters(filters = {}, page = 1, limit = 10) {
   };
 }
 
-export { getOne, getAll, getPaginated, create, deleteOne, update, getAllEnCartelera, countEnCartelera, search, getWithFilters };
+/**
+ * Obtiene películas cuya fecha de estreno es posterior a hoy
+ * @returns {Promise<Array>} Lista de películas próximas a estrenarse
+ */
+async function getEstrenos() {
+  const today = new Date();
+  
+  return await prisma.pelicula.findMany({
+    where: {
+      fechaEstreno: {
+        gt: today,
+      },
+    },
+    orderBy: {
+      fechaEstreno: 'asc',
+    },
+  });
+}
+
+export { getOne, getAll, getPaginated, create, deleteOne, update, getAllEnCartelera, countEnCartelera, search, getWithFilters, getEstrenos };

@@ -142,6 +142,14 @@ export const search = async (searchQuery, limit) => {
 };
 
 /**
+ * Obtiene películas próximas a estrenarse (fecha futura)
+ * @returns {Promise<Array>} Lista de películas con estreno futuro
+ */
+export const getEstrenos = async () => {
+  return await repository.getEstrenos();
+};
+
+/**
  * Valida cambios en fecha de estreno
  * @param {Object} data - Datos de la película
  * @returns {Error|null} Error si la validación falla
