@@ -30,7 +30,7 @@ router.post(
   '/Pelicula',
   authMiddleware,
   authorizeRoles('ADMIN'),
-  handleMoviePosterUpload,
+  asyncHandler(handleMoviePosterUpload),
   validateBody(peliculaSchema),
   asyncHandler(createPelicula)
 );
@@ -39,7 +39,7 @@ router.put(
   '/Pelicula/:id',
   authMiddleware,
   authorizeRoles('ADMIN'),
-  handleMoviePosterUpload,
+  asyncHandler(handleMoviePosterUpload),
   validateBody(peliculaSchema),
   asyncHandler(updatePelicula)
 );
