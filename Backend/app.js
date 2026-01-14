@@ -5,6 +5,7 @@ import { errorHandler } from './Middlewares/errorHandler.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import './config/cloudinary.js';
 
 const app = express();
 

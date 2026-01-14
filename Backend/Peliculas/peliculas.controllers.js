@@ -129,3 +129,13 @@ export const searchPeliculas = async (req, res) => {
   const peliculas = await service.search(q, limit);
   res.json(peliculas);
 };
+
+/**
+ * Obtiene películas próximas a estrenarse
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ */
+export const getEstrenos = async (req, res) => {
+  const peliculas = await service.getEstrenos();
+  res.json(peliculas);
+};

@@ -15,6 +15,7 @@ export { default as ProtectedRoute } from './components/ProtectedRoute.jsx';
 export { PrivateRoute, RoleRoute, AdminRoute, ClientRoute, AuthenticatedRoute } from './components/ProtectedRoute.jsx';
 export { ModalCierreSesion } from './components/ModalCierreSesion.jsx';
 export { default as PeliculaCard } from '../user/components/PeliculaCard.jsx';
+export { default as EstrenoCard } from '../user/components/EstrenoCard.jsx';
 export { default as PublicNavbar } from './components/PublicNavbar.jsx';
 export { default as RegisterForm } from './components/RegisterForm.jsx';
 export { default as ScrollToTop } from './components/ScrollToTop.jsx';
