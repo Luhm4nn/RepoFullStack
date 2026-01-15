@@ -27,6 +27,7 @@ import ReservaFailurePage from "./modules/user/pages/ReservaFailurePage.jsx";
 import ReservaPendingPage from "./modules/user/pages/ReservaPendingPage.jsx";
 import MiPerfilPage from "./modules/user/pages/MiPerfilPage.jsx";
 import { NotificationProvider } from "./context/NotificationContext.jsx";
+import ScannerNavbar from "./modules/scanner/components/ScannerNavbar.jsx";
 
 function NavbarWrapper() {
   const { user, isAuthenticated, logout, loading } = useAuth();
@@ -58,6 +59,20 @@ function NavbarWrapper() {
       />
     );
   }
+  if (
+      isAuthenticated &&
+      user?.rol &&
+      user.rol.trim().toUpperCase() === "ESCANER"
+    ) {
+      return (
+        <ScannerNavbar
+          user={user}
+          onLogout={logout}
+          currentPath={location.pathname}
+        />
+      );
+    }
+
   return (
     <PublicNavbar
       user={user}

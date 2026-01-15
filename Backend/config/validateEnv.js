@@ -13,7 +13,6 @@ export const validateEnv = () => {
     'CLOUDINARY_API_KEY',
     'CLOUDINARY_API_SECRET',
     'MERCADOPAGO_ACCESS_TOKEN',
-    'NGROK_URL',
   ];
 
   const missing = requiredEnvVars.filter((varName) => !process.env[varName]);
