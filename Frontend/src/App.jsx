@@ -18,9 +18,10 @@ import RegisterPage from "./modules/user/pages/RegisterPage.jsx";
 import ReservaPage from "./modules/user/pages/ReservaPage.jsx";
 import MisReservasPage from "./modules/user/pages/MisReservasPage.jsx";
 import CarteleraPage from "./modules/shared/pages/CarteleraPage.jsx";
+import ScannerPage from "./modules/scanner/pages/ScannerPage.jsx";
 import ScrollToTop from "./modules/shared/components/ScrollToTop";
 import { useAuth } from "./modules/shared/hooks/useAuth.js";
-import { AuthenticatedRoute, AdminRoute } from "./modules/shared";
+import { AuthenticatedRoute, AdminRoute, ScannerRoute } from "./modules/shared";
 import ReservaSuccessPage from "./modules/user/pages/ReservaSuccessPage.jsx";
 import ReservaFailurePage from "./modules/user/pages/ReservaFailurePage.jsx";
 import ReservaPendingPage from "./modules/user/pages/ReservaPendingPage.jsx";
@@ -157,6 +158,14 @@ function AppRoutes() {
           <AdminRoute>
             <ConfiguracionPage />
           </AdminRoute>
+        }
+      />
+      <Route
+        path="/scanner"
+        element={
+          <ScannerRoute>
+            <ScannerPage />
+          </ScannerRoute>
         }
       />
       <Route path="/terminos" element={<Terminos />} />
