@@ -189,5 +189,13 @@ const AuthenticatedRoute = ({ children, ...props }) => {
   );
 };
 
-export { PrivateRoute, RoleRoute, AdminRoute, ClientRoute, AuthenticatedRoute };
+const ScannerRoute = ({ children, ...props }) => {
+  return (
+    <RoleRoute allowedRoles={["ESCANER", "ADMIN"]} {...props}>
+      {children}
+    </RoleRoute>
+  );
+};
+
+export { PrivateRoute, RoleRoute, AdminRoute, ClientRoute, AuthenticatedRoute, ScannerRoute };
 export default PrivateRoute;

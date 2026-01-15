@@ -12,7 +12,7 @@ export { default as FooterComp } from './components/FooterComp.jsx';
 export { default as LoginForm } from './components/LoginForm.jsx';
 export { Pagination } from './components/Pagination.jsx';
 export { default as ProtectedRoute } from './components/ProtectedRoute.jsx';
-export { PrivateRoute, RoleRoute, AdminRoute, ClientRoute, AuthenticatedRoute } from './components/ProtectedRoute.jsx';
+export { PrivateRoute, RoleRoute, AdminRoute, ClientRoute, AuthenticatedRoute, ScannerRoute } from './components/ProtectedRoute.jsx';
 export { ModalCierreSesion } from './components/ModalCierreSesion.jsx';
 export { default as PeliculaCard } from '../user/components/PeliculaCard.jsx';
 export { default as EstrenoCard } from '../user/components/EstrenoCard.jsx';

@@ -53,24 +53,13 @@ export async function generateReservaQR(params, user) {
         throw error;
     }
 
-    // Construir payload con datos de la reserva
+    // Construir payload con datos mínimos para validación
+    // Solo IDs necesarios para buscar la reserva en BD
     const qrData = {
-        reserva: {
-            estado: reserva.estado,
-        },
-        funcion: {
-            pelicula: reserva.funcion.pelicula.nombrePelicula,
-            sala: reserva.funcion.sala.nombreSala,
-            fechaHoraFuncion: reserva.funcion.fechaHoraFuncion,
-        },
-        cliente: {
-            nombreUsuario: reserva.usuario.nombreUsuario,
-            apellidoUsuario: reserva.usuario.apellidoUsuario,
-        },
-        asientos: reserva.asiento_reserva.map((ar) => ({
-            fila: ar.filaAsiento,
-            numero: ar.nroAsiento,
-        })),
+        idSala: reserva.idSala,
+        fechaHoraFuncion: reserva.fechaHoraFuncion.toISOString(),
+        DNI: reserva.DNI,
+        fechaHoraReserva: reserva.fechaHoraReserva.toISOString(),
     };
 
     // Encriptar datos
