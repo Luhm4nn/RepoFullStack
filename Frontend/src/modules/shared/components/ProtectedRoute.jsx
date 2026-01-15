@@ -2,9 +2,11 @@ import { useAuth } from "../hooks/useAuth.js";
 import { CenteredSpinner } from "./Spinner";
 
 const PrivateRoute = ({ children, redirectTo = "/login", fallback = null }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
+  // ...existing code...
 
   if (loading) {
+    // ...existing code...
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
@@ -16,6 +18,7 @@ const PrivateRoute = ({ children, redirectTo = "/login", fallback = null }) => {
   }
 
   if (!isAuthenticated) {
+    // ...existing code...
     return (
       fallback || (
         <div className="min-h-screen bg-slate-900 flex items-center justify-center">

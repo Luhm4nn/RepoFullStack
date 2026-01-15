@@ -2,7 +2,6 @@ import prisma from '../prisma/prisma.js';
 import bcrypt from 'bcryptjs';
 import { generateAccessToken, generateRefreshToken } from './refreshToken.service.js';
 import { saveRefreshToken } from './refreshToken.repository.js';
-import logger from '../utils/logger.js';
 
 /**
  * Autentica un usuario y genera tokens

@@ -4,12 +4,13 @@ export const authAPI = {
   // Login
   login: async (email, password) => {
     try {
+      // ...existing code...
       const response = await api.post("/auth/login", { email, password });
+      // ...existing code...
       const { user } = response.data;
-      localStorage.setItem("user", JSON.stringify(user));
-
       return { user };
     } catch (error) {
+      console.error("[authAPI] login: error", error);
       throw new Error(error.response?.data?.message || "Error en el login");
     }
   },
@@ -19,7 +20,6 @@ export const authAPI = {
     try {
       await api.post("/auth/logout");
     } finally {
-      localStorage.removeItem("user");
     }
   },
 
@@ -35,21 +35,21 @@ export const authAPI = {
   },
 
   // Verificar si hay sesión activa
-  checkAuth: () => {
-    const user = localStorage.getItem("user");
-
-    if (user) {
-      try {
+  checkAuth: async () => {
+    try {
+      // ...existing code...
+      const response = await api.get("/auth/me");
+      // ...existing code...
+      if (response.data) {
         return {
-          user: JSON.parse(user),
+          user: response.data
         };
-      } catch (error) {
-        localStorage.removeItem("user");
-        return null;
       }
+      return null;
+    } catch (error) {
+      console.error("[authAPI] checkAuth: error", error);
+      return null;
     }
-
-    return null;
   },
 };
 

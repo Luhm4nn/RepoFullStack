@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { authAPI } from "../api/login.api.js";
 import { usuariosAPI } from "../api/usuarios.api.js";
-import { api } from "../api/axiosInstance.js";
 
 const AuthContext = createContext();
 
@@ -11,19 +10,26 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    // ...existing code...
     initializeAuth();
   }, []);
 
   const initializeAuth = async () => {
     try {
       // Verificar autenticación
-      const authData = authAPI.checkAuth();
+      // ...existing code...
+      const authData = await authAPI.checkAuth();
+      // ...existing code...
       if (authData) {
-        setUser(authData.user);
-        setIsAuthenticated(true);
+        let userPlano = authData.user;
+        if (userPlano && userPlano.user) {
+          userPlano = userPlano.user;
+        }
+        setUser(userPlano);
+        setIsAuthenticated(!!userPlano);
       }
     } catch (error) {
-      console.error("Error initializing auth:", error);
+      console.error("[AuthContext] Error initializing auth:", error);
       logout();
     } finally {
       setLoading(false);
@@ -33,13 +39,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setLoading(true);
+      // ...existing code...
       const { user: userData } = await authAPI.login(email, password);
-
+      // ...existing code...
       setUser(userData);
       setIsAuthenticated(true);
-
       return { success: true, user: userData };
     } catch (error) {
+      console.error("[AuthContext] login: error en login", error);
       return {
         success: false,
         error: error.message || "Error en el login",
@@ -64,7 +71,6 @@ export const AuthProvider = ({ children }) => {
 
   const updateUser = (updatedUser) => {
     setUser(updatedUser);
-    localStorage.setItem("user", JSON.stringify(updatedUser));
   };
 
   const hasRole = (role) => {

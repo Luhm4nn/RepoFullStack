@@ -10,9 +10,9 @@ function SalasPage() {
 
   const handleSubmit = async (values) => {
     try {
-      console.log('Enviando sala:', values);
+      // ...existing code...
       await createSala(values);
-      console.log('Sala creada exitosamente');
+      // ...existing code...
       
       setMostrarFormulario(false);
       setRefreshList(prev => prev + 1);

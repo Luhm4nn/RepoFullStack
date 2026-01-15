@@ -13,7 +13,6 @@ export const useAuth = () => {
 
 export const useRole = (requiredRole) => {
   const { user, isAuthenticated } = useAuth();
-  
   return {
     hasRole: isAuthenticated && user?.rol === requiredRole,
     userRole: user?.rol,

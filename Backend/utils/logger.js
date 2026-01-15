@@ -26,7 +26,7 @@ export const logger = {
    */
   info: (...args) => {
     if (!isProd) {
-      console.log('[INFO]', ...args);
+      // ...existing code...
     }
   },
 
@@ -35,7 +35,7 @@ export const logger = {
    */
   debug: (...args) => {
     if (!isProd) {
-      console.log('[DEBUG]', ...args);
+      // ...existing code...
     }
   },
 
@@ -86,7 +86,7 @@ export const logger = {
       success: metadata.success !== undefined ? metadata.success : null,
     };
 
-    console.log('[SECURITY]', JSON.stringify(safeMetadata));
+    // ...existing code...
   },
 
   /**
@@ -94,10 +94,10 @@ export const logger = {
    */
   http: (method, path, statusCode, duration) => {
     if (!isProd) {
-      console.log(`[HTTP] ${method} ${path} ${statusCode} - ${duration}ms`);
+      // ...existing code...
     } else {
       if (statusCode >= 400) {
-        console.log(`[HTTP] ${method} ${statusCode}`);
+        // ...existing code...
       }
     }
   },
@@ -107,9 +107,9 @@ export const logger = {
    */
   success: (message, details = {}) => {
     if (!isProd) {
-      console.log('[SUCCESS]', message, details);
+      // ...existing code...
     } else {
-      console.log('[SUCCESS]', message);
+      // ...existing code...
     }
   },
 };

@@ -76,10 +76,12 @@ function AppRoutes() {
         path="/login"
         element={
           <LoginPage
+
             onLogin={login}
             user={user}
             isAuthenticated={isAuthenticated}
             loading={loading}
+            logout={logout}
           />
         }
       />
