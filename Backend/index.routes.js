@@ -10,6 +10,7 @@ import { asientosRoutes } from './Salas/asientos.routes.js';
 import { reservasRoutes } from './Funciones/reservas.routes.js';
 import { asientoReservasRoutes } from './Funciones/asientoreservas.routes.js';
 import { mercadopagoRoutes } from './Mercadopago/mercadopago.routes.js';
+import { qrRoutes } from './Funciones/qr.routes.js';
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use(asientosRoutes);
 router.use(reservasRoutes);
 router.use(asientoReservasRoutes);
 router.use(mercadopagoRoutes);
+router.use(qrRoutes);
 
 export const indexRoutes = router;

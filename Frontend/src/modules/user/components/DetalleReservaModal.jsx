@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getAsientosReservadosPorFuncion } from "../../../api/AsientoReservas.api";
+import { getReservaQR } from "../../../api/Reservas.api";
 import { formatDateTime } from "../../../utils/dateFormater";
 import { CenteredSpinner } from "../../shared/components/Spinner";
 
@@ -7,6 +8,9 @@ function DetalleReservaModal({ reserva, onClose, onCancelar }) {
   const [asientos, setAsientos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [qrCode, setQrCode] = useState(null);
+  const [qrLoading, setQrLoading] = useState(false);
+  const [qrError, setQrError] = useState(null);
 
   const { fecha, hora } = formatDateTime(reserva.fechaHoraFuncion);
   const { fecha: fechaReserva } = formatDateTime(reserva.fechaHoraReserva);
@@ -46,6 +50,29 @@ function DetalleReservaModal({ reserva, onClose, onCancelar }) {
     };
 
     cargarAsientos();
+  }, [reserva]);
+
+  useEffect(() => {
+    const cargarQR = async () => {
+      setQrLoading(true);
+      setQrError(null);
+      try {
+        const response = await getReservaQR(
+          reserva.idSala,
+          reserva.fechaHoraFuncion,
+          reserva.DNI,
+          reserva.fechaHoraReserva
+        );
+        setQrCode(response.qrCode);
+      } catch (err) {
+        console.error("Error cargando QR:", err);
+        setQrError("No se pudo generar el código QR");
+      } finally {
+        setQrLoading(false);
+      }
+    };
+
+    cargarQR();
   }, [reserva]);
 
   return (
@@ -233,6 +260,47 @@ function DetalleReservaModal({ reserva, onClose, onCancelar }) {
                 </svg>
               </div>
             </div>
+          </div>
+
+          {/* Código QR */}
+          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 mb-6">
+            <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <svg
+                className="w-5 h-5 text-purple-400"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                />
+              </svg>
+              Código QR de la Reserva
+            </h4>
+
+            {qrLoading ? (
+              <div className="flex justify-center py-8">
+                <CenteredSpinner size="sm" />
+              </div>
+            ) : qrError ? (
+              <div className="text-red-400 text-center py-4">{qrError}</div>
+            ) : qrCode ? (
+              <div className="flex flex-col items-center">
+                <div className="bg-white p-4 rounded-lg mb-3">
+                  <img
+                    src={qrCode}
+                    alt="QR Code de la reserva"
+                    className="w-48 h-48"
+                  />
+                </div>
+                <p className="text-gray-400 text-sm text-center">
+                  Presenta este código QR en la entrada del cine
+                </p>
+              </div>
+            ) : null}
           </div>
 
           {/* Instrucciones */}
