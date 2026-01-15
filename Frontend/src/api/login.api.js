@@ -4,9 +4,7 @@ export const authAPI = {
   // Login
   login: async (email, password) => {
     try {
-      // ...existing code...
       const response = await api.post("/auth/login", { email, password });
-      // ...existing code...
       const { user } = response.data;
       return { user };
     } catch (error) {
@@ -37,9 +35,7 @@ export const authAPI = {
   // Verificar si hay sesión activa
   checkAuth: async () => {
     try {
-      // ...existing code...
       const response = await api.get("/auth/me");
-      // ...existing code...
       if (response.data) {
         return {
           user: response.data

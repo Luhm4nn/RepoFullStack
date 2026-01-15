@@ -15,8 +15,10 @@ import {
   Skeleton,
   ReservaCardSkeleton,
 } from "../../shared/components/Skeleton";
+import { useNavigate } from "react-router-dom";
 
 const DashboardPage = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalPeliculas: 0,
     totalSalas: 0,
@@ -217,7 +219,7 @@ const DashboardPage = () => {
             return (
               <button
                 key={index}
-                onClick={() => (window.location.href = item.link)}
+                onClick={() => (navigate(item.link))}
                 className="bg-slate-800/50 hover:bg-white/10 border border-slate-700 rounded-lg p-4 md:p-6 text-left transition-all duration-200 group"
               >
                 <div

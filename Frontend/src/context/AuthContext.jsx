@@ -10,16 +10,13 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // ...existing code...
     initializeAuth();
   }, []);
 
   const initializeAuth = async () => {
     try {
       // Verificar autenticación
-      // ...existing code...
       const authData = await authAPI.checkAuth();
-      // ...existing code...
       if (authData) {
         let userPlano = authData.user;
         if (userPlano && userPlano.user) {
@@ -39,9 +36,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setLoading(true);
-      // ...existing code...
       const { user: userData } = await authAPI.login(email, password);
-      // ...existing code...
       setUser(userData);
       setIsAuthenticated(true);
       return { success: true, user: userData };
