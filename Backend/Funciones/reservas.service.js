@@ -75,20 +75,53 @@ export async function getReserva(params, user) {
  * @returns {Promise<Object>} Reserva creada
  */
 export async function createReserva(data, user) {
-  logger.debug('=== CREATE RESERVA SERVICE ===');
-  logger.debug('Data recibida:', JSON.stringify(data, null, 2));
-  logger.debug('User recibido:', JSON.stringify(user, null, 2));
-
-  const { DNI } = data;
-  logger.debug('DNI de la reserva:', DNI);
-  logger.debug('User ID:', user?.id);
-  logger.debug('User rol:', user?.rol);
-
+  //Validaciones antes de confirmar la reserva
   try {
     validateOwnership(user, DNI);
     logger.debug('Validación de ownership exitosa');
 
-    const result = await repository.create(data);
+    // 1. Obtener asientos reservados para este usuario, función y sala
+    const asientosService = await import('./asientoreservas.service.js');
+    const asientosReservados = await asientosService.getByFuncion(idSala, fechaHoraFuncion);
+    const asientosUsuario = asientosReservados.filter(a => a.DNI === DNI);
+
+    if (asientosUsuario.length === 0) {
+      logger.error('No hay asientos reservados para este usuario en esta función');
+      const error = new Error('No hay asientos reservados para este usuario en esta función');
+      error.status = 400;
+      throw error;
+    }
+
+    // 2. Calcular el total sumando la tarifa de cada asiento
+    const tarifaRepo = await import('../Tarifas/tarifas.repository.js');
+    let totalCalculado = 0;
+    for (const asiento of asientosUsuario) {
+      if (!asiento.idTarifa) {
+        logger.error(`El asiento ${asiento.filaAsiento}${asiento.nroAsiento} no tiene tarifa asignada`);
+        const error = new Error(`El asiento ${asiento.filaAsiento}${asiento.nroAsiento} no tiene tarifa asignada`);
+        error.status = 400;
+        throw error;
+      }
+      const tarifa = await tarifaRepo.getOne(asiento.idTarifa);
+      if (!tarifa) {
+        logger.error(`Tarifa no encontrada para asiento ${asiento.filaAsiento}${asiento.nroAsiento}`);
+        const error = new Error(`Tarifa no encontrada para asiento ${asiento.filaAsiento}${asiento.nroAsiento}`);
+        error.status = 400;
+        throw error;
+      }
+      totalCalculado += parseFloat(tarifa.precio);
+    }
+
+    // 3. Validar el total recibido
+    if (parseFloat(total) !== totalCalculado) {
+      logger.error('El total recibido no coincide con el calculado');
+      const error = new Error('El total recibido no coincide con el calculado');
+      error.status = 400;
+      throw error;
+    }
+
+    // 4. Crear la reserva principal con el total calculado
+    const result = await repository.create({ ...data, total: totalCalculado });
     logger.info('Reserva creada exitosamente:', result);
     return result;
   } catch (error) {
