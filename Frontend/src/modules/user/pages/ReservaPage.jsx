@@ -8,7 +8,6 @@ import PaymentStep from "../components/PaymentStep";
 import { authAPI } from "../../../api/login.api";
 import SeleccionFuncion from "../components/SeleccionFuncion";
 import { useNotification } from "../../../context/NotificationContext";
-import { Skeleton } from "../../shared/components/Skeleton";
 import { CenteredSpinner } from "../../shared/components/Spinner";
 
 function ReservaPage() {
@@ -46,13 +45,14 @@ function ReservaPage() {
       }
     };
     fetchPelicula();
-
-    // Verificar autenticación
-    const auth = authAPI.checkAuth();
-    if (auth && auth.user && auth.user.DNI) {
-      setUserDNI(auth.user.DNI);
+    const fetchUser = async () => {
+      const res = await authAPI.checkAuth();
+      if (res.user) {
+      setUserDNI(res.user.DNI);
     }
-  }, [id]);
+    };
+    fetchUser();
+  }, []);
 
   const handleFechaChange = (e) => {
     setFecha(e.target.value);

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import { createPaymentPreference } from "../../../api/MercadoPago.api";
 import { CenteredSpinner } from "../../shared/components/Spinner";
+import CountdownTimer from "./CountdownTimer";
 
 // Inicializar MercadoPago con tu public key
 const MERCADOPAGO_PUBLIC_KEY = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
@@ -18,6 +19,7 @@ function PaymentStep({
   const [preferenceId, setPreferenceId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expired, setExpired] = useState(false);
 
   useEffect(() => {
     createPreference();
@@ -26,10 +28,8 @@ function PaymentStep({
   const createPreference = async () => {
     setLoading(true);
     setError(null);
-
     try {
       const { fecha, hora } = formatDateTime(funcion.fechaHoraFuncion);
-
       const paymentData = {
         reserva: {
           nombrePelicula: pelicula.nombrePelicula,
@@ -48,7 +48,6 @@ function PaymentStep({
           precio: s.tarifa?.precio || 0,
         })),
       };
-
       const response = await createPaymentPreference(paymentData);
       setPreferenceId(response.id);
     } catch (err) {
@@ -57,6 +56,48 @@ function PaymentStep({
       setLoading(false);
     }
   };
+
+
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
+          <svg
+            className="w-16 h-16 text-red-400 mx-auto mb-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77-1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <h3 className="text-xl font-bold text-red-400 mb-2">{error}</h3>
+        </div>
+        {/* Si el error es por timeout, no muestres botones */}
+        {error !== "El tiempo para completar el pago ha expirado." && (
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={onBack}
+              className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-semibold transition-all"
+            >
+              Volver
+            </button>
+            <button
+              onClick={createPreference}
+              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all"
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
@@ -121,6 +162,23 @@ function PaymentStep({
   return (
     <div className="space-y-6">
       {/* Resumen de la compra */}
+      <div>
+        <h2 className="text-2xl font-bold text-white mb-2">
+          Tiempo restante para completar el pago:
+        </h2>
+        <div className="flex justify-center items-center mt-2 mb-4">
+          <CountdownTimer
+            initialSeconds={15 * 60}
+            onExpire={() => {
+              setExpired(true);
+              setError("El tiempo para completar el pago ha expirado.");
+              setTimeout(() => {
+                onBack();
+              }, 2000);
+            }}
+          />
+        </div>
+      </div>
       <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
         <h3 className="text-xl font-bold text-white mb-4">
           Resumen de tu compra
@@ -201,7 +259,7 @@ function PaymentStep({
       </div>
 
       {/* Botón de pago de MercadoPago */}
-      {preferenceId && (
+      {!expired && preferenceId && (
         <div className="flex flex-col items-center gap-4">
           <Wallet
             initialization={{ preferenceId: preferenceId }}
@@ -234,7 +292,7 @@ function PaymentStep({
           </a>
         </p>
       </div>
-    </div>
+	</div>
   );
 }
 
