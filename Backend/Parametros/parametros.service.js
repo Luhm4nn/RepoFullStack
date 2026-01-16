@@ -68,7 +68,7 @@ export const update = async (id, data) => {
  * @throws {Error} Si no se encuentra el parámetro (404)
  */
 export const getTiempoLimiteReserva = async () => {
-  const parametro = await repository.getOne(1);
+  const parametro = await repository.getOne(2);
   if (!parametro) {
     const error = new Error('Parámetro de tiempo límite de reserva no encontrado.');
     error.status = 404;

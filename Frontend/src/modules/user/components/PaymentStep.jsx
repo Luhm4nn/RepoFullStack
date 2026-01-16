@@ -31,7 +31,7 @@ function PaymentStep({
     const fetchTiempoLimite = async () => {
       try {
         const data = await getTiempoLimiteReserva();
-        setTiempoLimiteReserva(data.tiempoLimiteReserva);
+        setTiempoLimiteReserva(data.tiempoLimiteReserva * 60);
       } catch (err) {
         console.error("Error al obtener el tiempo límite de reserva:", err);
       }
