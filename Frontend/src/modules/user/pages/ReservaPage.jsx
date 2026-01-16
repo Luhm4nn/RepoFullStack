@@ -10,6 +10,9 @@ import SeleccionFuncion from "../components/SeleccionFuncion";
 import { useNotification } from "../../../context/NotificationContext";
 import { CenteredSpinner } from "../../shared/components/Spinner";
 
+const STORAGE_KEY = "reserva_step3";
+const TIMER_KEY = "countdown_expiry";
+
 function ReservaPage() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -30,6 +33,21 @@ function ReservaPage() {
     count: 0,
   });
   const [userDNI, setUserDNI] = useState(null);
+
+  // Restaurar estado si hay datos en localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const { step, funcion, seatsInfo } = JSON.parse(saved);
+        if (step === 3 && funcion && seatsInfo) {
+          setStep(3);
+          setSelectedFuncion(funcion);
+          setSelectedSeatsInfo(seatsInfo);
+        }
+      } catch {}
+    }
+  }, []);
 
   useEffect(() => {
     const fetchPelicula = async () => {
@@ -114,23 +132,38 @@ function ReservaPage() {
       notify.warning("Debes seleccionar al menos un asiento");
       return;
     }
+    // Guardar en localStorage
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      step: 3,
+      funcion: selectedFuncion,
+      seatsInfo: selectedSeatsInfo,
+    }));
     setStep(3);
   };
 
-  const handlePaymentSuccess = () => {
-    // El webhook del backend ya creó la reserva cuando el pago fue aprobado
-    notify.success("¡Pago exitoso! Tu reserva ha sido confirmada.");
-    navigate("/mis-reservas");
-  };
-
   const handleBackToSeats = () => {
+    // Limpiar localStorage de step3 y timer
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(TIMER_KEY);
     setStep(2);
   };
 
   const handleBackToFunctions = () => {
+    // Limpiar localStorage de step3 y timer
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(TIMER_KEY);
     setSelectedFuncion(null);
     setSelectedSeatsInfo({ seats: [], total: 0, count: 0 });
     setStep(1);
+  };
+
+  const handlePaymentSuccess = () => {
+    // Limpiar localStorage de step3 y timer
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(TIMER_KEY);
+    // El webhook del backend ya creó la reserva cuando el pago fue aprobado
+    notify.success("¡Pago exitoso! Tu reserva ha sido confirmada.");
+    navigate("/mis-reservas");
   };
 
   return (

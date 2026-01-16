@@ -50,6 +50,11 @@ function PaymentStep({
       };
       const response = await createPaymentPreference(paymentData);
       setPreferenceId(response.id);
+      // Guardar datos de reserva y preferenceId en localStorage
+      localStorage.setItem("reserva_pago", JSON.stringify({
+        paymentData,
+        preferenceId: response.id
+      }));
     } catch (err) {
       setError("Error al iniciar el pago. Por favor, intenta nuevamente.");
     } finally {
@@ -261,6 +266,7 @@ function PaymentStep({
       {/* Botón de pago de MercadoPago */}
       {!expired && preferenceId && (
         <div className="flex flex-col items-center gap-4">
+          {/* Widget Wallet principal */}
           <Wallet
             initialization={{ preferenceId: preferenceId }}
             customization={{
@@ -269,6 +275,16 @@ function PaymentStep({
               },
             }}
           />
+
+          {/* Opción secundaria: abrir en nueva pestaña */}
+          <a
+            href={`https://www.mercadopago.com.ar/checkout/v1/redirect?preference-id=${preferenceId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300 text-xs underline mt-2"
+          >
+            ¿Problemas? Abrir MercadoPago en otra pestaña
+          </a>
 
           <button
             onClick={onBack}
