@@ -5,6 +5,7 @@ import {
   createParametro,
   deleteParametro,
   updateParametro,
+  getTiempoLimiteReserva
 } from './parametros.controllers.js';
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { validateBody, validateParams } from '../Middlewares/validateRequest.js';
@@ -12,6 +13,7 @@ import { parametrosSchema } from '../validations/ParametrosSchema.js';
 import { idParamSchema } from '../validations/CommonSchemas.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
+
 const router = Router();
 
 router.get('/Parametros', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(getParametros));
@@ -24,4 +26,5 @@ router.put('/Parametro/:id', authMiddleware, authorizeRoles('ADMIN'), validatePa
 
 router.delete('/Parametro/:id', authMiddleware, authorizeRoles('ADMIN'), validateParams(idParamSchema), asyncHandler(deleteParametro));
 
+router.get('/Parametros/tiempo-limite-reserva', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(getTiempoLimiteReserva));
 export const parametrosRoutes = router;

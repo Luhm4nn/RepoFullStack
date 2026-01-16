@@ -3,6 +3,7 @@ import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import { createPaymentPreference } from "../../../api/MercadoPago.api";
 import { CenteredSpinner } from "../../shared/components/Spinner";
 import CountdownTimer from "./CountdownTimer";
+import { getTiempoLimiteReserva } from "../../../api/Parametros.api";
 
 // Inicializar MercadoPago con tu public key
 const MERCADOPAGO_PUBLIC_KEY = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
@@ -20,9 +21,22 @@ function PaymentStep({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expired, setExpired] = useState(false);
+  const [tiempoLimiteReserva, setTiempoLimiteReserva] = useState(null);
 
   useEffect(() => {
     createPreference();
+  }, []);
+
+  useEffect(() => {
+    const fetchTiempoLimite = async () => {
+      try {
+        const data = await getTiempoLimiteReserva();
+        setTiempoLimiteReserva(data.tiempoLimiteReserva);
+      } catch (err) {
+        console.error("Error al obtener el tiempo límite de reserva:", err);
+      }
+    };
+    fetchTiempoLimite();
   }, []);
 
   const createPreference = async () => {
@@ -173,7 +187,7 @@ function PaymentStep({
         </h2>
         <div className="flex justify-center items-center mt-2 mb-4">
           <CountdownTimer
-            initialSeconds={15 * 60}
+            initialSeconds={tiempoLimiteReserva|| 900} // 15 minutos por defecto
             onExpire={() => {
               setExpired(true);
               setError("El tiempo para completar el pago ha expirado.");
