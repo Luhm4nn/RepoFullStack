@@ -9,7 +9,6 @@ import { authAPI } from "../../../api/login.api";
 import SeleccionFuncion from "../components/SeleccionFuncion";
 import { CenteredSpinner } from "../../shared/components/Spinner";
 import { createReserva, deletePendingReserva } from "../../../api/Reservas.api";
-import { createAsientosReservados } from "../../../api/AsientoReservas.api";
 import { getTiempoLimiteReserva } from "../../../api/Parametros.api";
 import { useNotification } from "../../../context/NotificationContext";
 
@@ -148,8 +147,8 @@ function ReservaPage() {
     try {
       const fechaHoraReserva = new Date().toISOString();
       
-      // 1. Crear Reserva PENDIENTE
-      const reservaData = {
+      // Datos de la reserva para el envío atómico
+      const reservaPayload = {
         idSala: selectedFuncion.idSala,
         fechaHoraFuncion: selectedFuncion.fechaHoraFuncion,
         DNI: userDNI,
@@ -157,27 +156,21 @@ function ReservaPage() {
         fechaHoraReserva
       };
 
-      const createdReserva = await createReserva(reservaData);
+      // 1. Crear Reserva y Bloquear Asientos en un solo paso (Atómico)
+      const createdReserva = await createReserva(reservaPayload, selectedSeatsInfo.seats);
 
-      // 2. Bloquear Asientos (usando datos normalizados del backend)
-      const asientosData = selectedSeatsInfo.seats.map((seat) => ({
-        idSala: createdReserva.idSala,
-        filaAsiento: seat.filaAsiento,
-        nroAsiento: seat.nroAsiento,
-        fechaHoraFuncion: createdReserva.fechaHoraFuncion,
-        DNI: createdReserva.DNI,
-        fechaHoraReserva: createdReserva.fechaHoraReserva,
-      }));
-
-      await createAsientosReservados(asientosData);
-
-      // 3. Configurar Timer y Almacenamiento
+      // 2. Configurar Timer y Almacenamiento
       const paramData = await getTiempoLimiteReserva();
       const limitMinutes = paramData?.tiempoLimiteReserva || 15;
       const expiry = Date.now() + limitMinutes * 60 * 1000;
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         step: 3,
+        idSala: createdReserva.idSala,
+        fechaHoraFuncion: createdReserva.fechaHoraFuncion,
+        DNI: createdReserva.DNI,
+        fechaHoraReserva: createdReserva.fechaHoraReserva,
+        // Guardamos el objeto completo para reconstruir la UI
         funcion: selectedFuncion,
         seatsInfo: selectedSeatsInfo,
         reservaData: createdReserva,
@@ -188,8 +181,10 @@ function ReservaPage() {
       setExpiryTimestamp(expiry);
       setStep(3);
     } catch (err) {
-      const msg = err.response?.data?.message || "Error al bloquear los asientos. Intenta con otros.";
+      const msg = err.response?.data?.message || err.message || "Error al procesar la reserva. Intenta de nuevo.";
       notify.error(msg);
+      // Forzar recarga de asientos por si fue un error de disponibilidad
+      setRefreshSeatsNum(prev => prev + 1);
     } finally {
       setLoading(false);
     }

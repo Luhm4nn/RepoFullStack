@@ -44,48 +44,70 @@ const removeMilliseconds = (date) => {
 };
 
 /**
- * Crea una nueva reserva
- * @param {Object} data - Datos de la reserva
- * @returns {Promise<Object>} Reserva creada
+ * Crea una reserva y bloquea los asientos de forma atómica (Transacción)
+ * @param {Object} reservaData - Datos de la reserva
+ * @param {Array} asientos - Lista de asientos a bloquear
  */
-async function create(data) {
-  if (!data.idSala || !data.fechaHoraFuncion || !data.DNI || data.total === undefined || data.total === null) {
-    const error = new Error('Faltan datos requeridos para crear la reserva');
-    error.status = 400;
-    throw error;
-  }
+async function createWithSeats(reservaData, asientos) {
+  return await prisma.$transaction(async (tx) => {
+    const idSala = parseInt(reservaData.idSala, 10);
+    const DNI = parseInt(reservaData.DNI, 10);
+    const total = parseFloat(reservaData.total);
+    const subFunc = new Date(reservaData.fechaHoraFuncion);
+    const subRes = removeMilliseconds(reservaData.fechaHoraReserva || new Date());
 
-  const idSala = parseInt(data.idSala, 10);
-  const DNI = parseInt(data.DNI, 10);
-  const total = parseFloat(data.total);
+    // 1. Limpieza de cualquier reserva pendiente previa del usuario (Single active policy)
+    await tx.reserva.deleteMany({
+      where: {
+        DNI: DNI,
+        estado: 'PENDIENTE',
+      },
+    });
 
-  if (isNaN(idSala) || isNaN(DNI) || isNaN(total)) {
-    const error = new Error('Datos numéricos inválidos');
-    error.status = 400;
-    throw error;
-  }
+    // 2. Verificar disponibilidad de asientos (Double-check concurrente)
+    for (const asiento of asientos) {
+      const busy = await tx.asiento_reserva.findUnique({
+        where: {
+          idSala_filaAsiento_nroAsiento_fechaHoraFuncion: {
+            idSala,
+            filaAsiento: asiento.filaAsiento,
+            nroAsiento: parseInt(asiento.nroAsiento, 10),
+            fechaHoraFuncion: subFunc
+          }
+        }
+      });
+      if (busy) {
+        throw new Error(`El asiento ${asiento.filaAsiento}${asiento.nroAsiento} ya no está disponible.`);
+      }
+    }
 
-  // Procesar fechas
-  const fechaFuncionDate = new Date(data.fechaHoraFuncion);
-  const fechaReservaDate = data.fechaHoraReserva
-    ? removeMilliseconds(data.fechaHoraReserva)
-    : removeMilliseconds(new Date());
+    // 3. Crear la Reserva
+    const newReserva = await tx.reserva.create({
+      data: {
+        idSala,
+        fechaHoraFuncion: subFunc,
+        DNI,
+        estado: 'PENDIENTE',
+        fechaHoraReserva: subRes,
+        total,
+      },
+    });
 
-  if (!fechaFuncionDate || !fechaReservaDate) {
-    const error = new Error('Fechas inválidas');
-    error.status = 400;
-    throw error;
-  }
-
-  return await prisma.reserva.create({
-    data: {
+    // 4. Crear los registros de Asientos Reservados
+    const asientosToCreate = asientos.map(a => ({
       idSala,
-      fechaHoraFuncion: fechaFuncionDate,
+      filaAsiento: a.filaAsiento,
+      nroAsiento: parseInt(a.nroAsiento, 10),
+      fechaHoraFuncion: subFunc,
       DNI,
-      estado: 'PENDIENTE',
-      fechaHoraReserva: fechaReservaDate,
-      total,
-    },
+      fechaHoraReserva: subRes
+    }));
+
+    await tx.asiento_reserva.createMany({
+      data: asientosToCreate
+    });
+
+    return newReserva;
   });
 }
 
@@ -203,4 +225,4 @@ async function deletePendingByUser(DNI) {
   });
 }
 
-export { getOne, getAll, create, deleteOne, cancel, getLatest, confirm, deletePendingByUser };
+export { getOne, getAll, createWithSeats, deleteOne, cancel, getLatest, confirm, deletePendingByUser };

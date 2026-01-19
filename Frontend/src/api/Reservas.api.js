@@ -32,14 +32,20 @@ export const getLatestReservas = async (limit = 5) => {
   }
 };
 
-export const createReserva = async (reservaData) => {
+export const createReserva = async (reservaData, asientos) => {
   try {
     const response = await api.post('/Reserva', {
-      idSala: reservaData.idSala,
-      fechaHoraFuncion: reservaData.fechaHoraFuncion,
-      DNI: reservaData.DNI,
-      total: reservaData.total,
-      fechaHoraReserva: reservaData.fechaHoraReserva,
+      reserva: {
+        idSala: reservaData.idSala,
+        fechaHoraFuncion: reservaData.fechaHoraFuncion,
+        DNI: reservaData.DNI,
+        total: reservaData.total,
+        fechaHoraReserva: reservaData.fechaHoraReserva,
+      },
+      asientos: asientos.map(a => ({
+        filaAsiento: a.filaAsiento,
+        nroAsiento: a.nroAsiento
+      }))
     });
     return response.data;
   } catch (error) {
