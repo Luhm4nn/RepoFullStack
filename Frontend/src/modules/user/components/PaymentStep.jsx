@@ -16,28 +16,34 @@ function PaymentStep({
   pelicula,
   onPaymentSuccess,
   onBack,
+  expiryTimestamp,
 }) {
   const [preferenceId, setPreferenceId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expired, setExpired] = useState(false);
-  const [tiempoLimiteReserva, setTiempoLimiteReserva] = useState(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(null);
 
   useEffect(() => {
     createPreference();
-  }, []);
-
-  useEffect(() => {
-    const fetchTiempoLimite = async () => {
-      try {
-        const data = await getTiempoLimiteReserva();
-        setTiempoLimiteReserva(data.tiempoLimiteReserva * 60);
-      } catch (err) {
-        console.error("Error al obtener el tiempo límite de reserva:", err);
-      }
-    };
-    fetchTiempoLimite();
-  }, []);
+    
+    // Sincronizar el timer con el timestamp de expiración centralizado
+    if (expiryTimestamp) {
+      const seconds = Math.floor((expiryTimestamp - Date.now()) / 1000);
+      setRemainingSeconds(seconds > 0 ? seconds : 0);
+    } else {
+      // Fallback a tiempo por defecto desde parámetros si no hay timestamp
+      const fetchTiempo = async () => {
+        try {
+          const data = await getTiempoLimiteReserva();
+          setRemainingSeconds(data.tiempoLimiteReserva * 60);
+        } catch (err) {
+          setRemainingSeconds(900); // 15 min fallback
+        }
+      };
+      fetchTiempo();
+    }
+  }, [expiryTimestamp]);
 
   const createPreference = async () => {
     setLoading(true);
@@ -62,253 +68,163 @@ function PaymentStep({
           precio: s.tarifa?.precio || 0,
         })),
       };
+
       const response = await createPaymentPreference(paymentData);
       setPreferenceId(response.id);
-      // Guardar datos de reserva y preferenceId en localStorage
-      localStorage.setItem("reserva_pago", JSON.stringify({
-        paymentData,
-        preferenceId: response.id
-      }));
     } catch (err) {
-      setError("Error al iniciar el pago. Por favor, intenta nuevamente.");
+      const errorMsg = err.response?.data?.error || "Error al conectar con Mercado Pago.";
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
   };
 
-
-
-  if (error) {
-    return (
-      <div className="space-y-6">
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
-          <svg
-            className="w-16 h-16 text-red-400 mx-auto mb-4"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77-1.333.192 3 1.732 3z"
-            />
-          </svg>
-          <h3 className="text-xl font-bold text-red-400 mb-2">{error}</h3>
-        </div>
-        {/* Si el error es por timeout, no muestres botones */}
-        {error !== "El tiempo para completar el pago ha expirado." && (
-          <div className="flex gap-3 justify-end">
-            <button
-              onClick={onBack}
-              className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-semibold transition-all"
-            >
-              Volver
-            </button>
-            <button
-              onClick={createPreference}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all"
-            >
-              Reintentar
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
-    const fecha = date.toLocaleDateString("es-AR");
-    const hora = date.toLocaleTimeString("es-AR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    return { fecha, hora };
+    return {
+      fecha: date.toLocaleDateString("es-AR"),
+      hora: date.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }),
+    };
   };
 
-  if (loading) {
+  if (loading || !reservaData) {
     return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <CenteredSpinner size="lg" />
-        <h3 className="text-2xl font-bold text-white mb-2 mt-6">
-          Preparando pago...
-        </h3>
-        <p className="text-gray-400">Estamos configurando tu método de pago</p>
+      <div className="flex flex-col items-center justify-center py-12 animate-pulse">
+        <CenteredSpinner size="lg" message="Preparando pasarela de pago..." />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="space-y-6">
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
-          <svg
-            className="w-16 h-16 text-red-400 mx-auto mb-4"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
+      <div className="space-y-6 max-w-md mx-auto">
+        <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-8 text-center">
+          <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <h3 className="text-xl font-bold text-red-400 mb-2">{error}</h3>
+          <h3 className="text-xl font-bold text-white mb-2">{error}</h3>
+          <p className="text-gray-400">Si el problema persiste, intenta reiniciar tu reserva.</p>
         </div>
 
-        <div className="flex gap-3 justify-end">
+        <div className="flex gap-4">
           <button
             onClick={onBack}
-            className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-semibold transition-all"
+            className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-semibold transition-all"
           >
             Volver
           </button>
-          <button
-            onClick={createPreference}
-            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all"
-          >
-            Reintentar
-          </button>
+          {!expired && (
+            <button
+              onClick={createPreference}
+              className="flex-1 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold shadow-lg transition-all"
+            >
+              Reintentar
+            </button>
+          )}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Resumen de la compra */}
-      <div>
-        <h2 className="text-2xl font-bold text-white mb-2">
-          Tiempo restante para completar el pago:
-        </h2>
-        <div className="flex justify-center items-center mt-2 mb-4">
-          <CountdownTimer
-            initialSeconds={tiempoLimiteReserva|| 900} // 15 minutos por defecto
-            onExpire={() => {
-              setExpired(true);
-              setError("El tiempo para completar el pago ha expirado.");
-              setTimeout(() => {
-                onBack();
-              }, 2000);
-            }}
-          />
-        </div>
-      </div>
-      <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
-        <h3 className="text-xl font-bold text-white mb-4">
-          Resumen de tu compra
-        </h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Resumen */}
+      <div className="space-y-6">
+        <div className="bg-slate-800/60 border border-white/5 rounded-2xl p-6 shadow-xl">
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <span className="w-1.5 h-6 bg-green-500 rounded-full" />
+            Resumen de Compra
+          </h3>
 
-        <div className="space-y-3 mb-6">
-          <div className="flex justify-between text-gray-300">
-            <span>Película:</span>
-            <span className="text-white font-semibold">
-              {pelicula.nombrePelicula}
-            </span>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center text-sm">
+               <span className="text-gray-400">Película</span>
+               <span className="text-white font-medium">{pelicula.nombrePelicula}</span>
+            </div>
+            <div className="flex justify-between items-center text-sm">
+               <span className="text-gray-400">Función</span>
+               <span className="text-white font-medium">{formatDateTime(funcion.fechaHoraFuncion).fecha} - {formatDateTime(funcion.fechaHoraFuncion).hora}</span>
+            </div>
+            <div className="flex justify-between items-center text-sm">
+               <span className="text-gray-400">Asientos</span>
+               <span className="text-white font-medium">{selectedSeatsData.seats.map(s => `${s.filaAsiento}${s.nroAsiento}`).join(", ")}</span>
+            </div>
           </div>
-          <div className="flex justify-between text-gray-300">
-            <span>Fecha y hora:</span>
-            <span className="text-white font-semibold">
-              {formatDateTime(funcion.fechaHoraFuncion).fecha} -{" "}
-              {formatDateTime(funcion.fechaHoraFuncion).hora}
-            </span>
-          </div>
-          <div className="flex justify-between text-gray-300">
-            <span>Sala:</span>
-            <span className="text-white font-semibold">
-              {funcion.sala?.nombreSala || `Sala ${funcion.idSala}`}
-            </span>
-          </div>
-          <div className="flex justify-between text-gray-300">
-            <span>Asientos:</span>
-            <span className="text-white font-semibold">
-              {selectedSeatsData.seats
-                .map((s) => `${s.filaAsiento}${s.nroAsiento}`)
-                .join(", ")}
-            </span>
-          </div>
-          <div className="flex justify-between text-gray-300">
-            <span>Cantidad:</span>
-            <span className="text-white font-semibold">
-              {selectedSeatsData.count} asientos
-            </span>
+
+          <div className="mt-8 pt-6 border-t border-white/10 flex justify-between items-end">
+            <span className="text-gray-400 font-medium">Monto Total</span>
+            <span className="text-4xl font-black text-green-400">${selectedSeatsData.total}</span>
           </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-600">
-          <div className="flex justify-between items-center">
-            <span className="text-xl font-bold text-white">Total:</span>
-            <span className="text-3xl font-bold text-green-400">
-              ${selectedSeatsData.total}
-            </span>
-          </div>
+        <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 flex gap-4 items-start">
+           <svg className="w-6 h-6 text-blue-400 mt-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+           </svg>
+           <p className="text-blue-200 text-sm leading-snug">
+              Tu pago es procesado de forma segura por <strong>Mercado Pago</strong>. Aceptamos todas las tarjetas y medios electrónicos.
+           </p>
         </div>
       </div>
 
-      {/* Info sobre MercadoPago */}
-      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-        <div className="flex gap-3">
-          <svg
-            className="w-6 h-6 text-blue-400 flex-shrink-0"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-            />
-          </svg>
-          <div>
-            <p className="text-blue-300 font-semibold mb-1">
-              Pago seguro con MercadoPago
-            </p>
-            <p className="text-blue-200 text-sm">
-              Tus datos están protegidos. Puedes pagar con tarjeta de crédito,
-              débito o efectivo.
-            </p>
+      {/* Pago */}
+      <div className="flex flex-col justify-center items-center bg-white/5 rounded-3xl p-8 sm:p-12 border border-white/10 shadow-2xl relative overflow-hidden">
+        {/* Decoración de fondo */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+        
+        <div className="text-center space-y-4 mb-10 w-full">
+            <p className="text-gray-500 uppercase tracking-[0.2em] text-[10px] font-bold">Tiempo para pagar</p>
+            <div className="inline-block transform transition-transform hover:scale-105 duration-300">
+              <CountdownTimer
+                initialSeconds={remainingSeconds || 900}
+                onExpire={() => {
+                  setExpired(true);
+                  setError("Tu reserva ha expirado por tiempo excedido.");
+                  setTimeout(() => onBack(), 2500);
+                }}
+              />
+            </div>
+        </div>
+
+        {!expired && preferenceId && (
+          <div className="w-full max-w-xs space-y-8 flex flex-col items-center">
+            <div className="w-full transform transition-all hover:brightness-110">
+              <Wallet
+                initialization={{ preferenceId: preferenceId }}
+                customization={{ 
+                  texts: { valueProp: "smart_option" },
+                  visual: {
+                    buttonBackground: 'default',
+                    borderRadius: '16px',
+                  }
+                }}
+              />
+            </div>
+            
+            <div className="text-center">
+              <a
+                href={`https://www.mercadopago.com.ar/checkout/v1/redirect?preference-id=${preferenceId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-purple-400 text-[11px] transition-colors flex items-center gap-2 justify-center"
+              >
+                <span>¿Deseas pagar en una pestaña aparte?</span>
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            </div>
           </div>
-        </div>
+        )}
+
+        <button
+          onClick={onBack}
+          className="mt-12 text-gray-500 hover:text-red-400 transition-colors text-sm font-medium border-b border-transparent hover:border-red-400/30 pb-1"
+        >
+          ← Cancelar y elegir otros asientos
+        </button>
       </div>
-
-      {/* Botón de pago de MercadoPago */}
-      {!expired && preferenceId && (
-        <div className="flex flex-col items-center gap-4">
-          {/* Widget Wallet principal */}
-          <Wallet
-            initialization={{ preferenceId: preferenceId }}
-            customization={{
-              texts: {
-                valueProp: "smart_option",
-              },
-            }}
-          />
-
-          {/* Opción secundaria: abrir en nueva pestaña */}
-          <a
-            href={`https://www.mercadopago.com.ar/checkout/v1/redirect?preference-id=${preferenceId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300 text-xs underline mt-2"
-          >
-            ¿Problemas? Abrir MercadoPago en otra pestaña
-          </a>
-
-          <button
-            onClick={onBack}
-            className="text-gray-400 hover:text-white text-sm transition-colors"
-          >
-            ← Volver a editar la reserva
-          </button>
-        </div>
-      )}
-	</div>
+    </div>
   );
 }
 

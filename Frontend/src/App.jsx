@@ -28,6 +28,7 @@ import ReservaPendingPage from "./modules/user/pages/ReservaPendingPage.jsx";
 import MiPerfilPage from "./modules/user/pages/MiPerfilPage.jsx";
 import { NotificationProvider } from "./context/NotificationContext.jsx";
 import ScannerNavbar from "./modules/scanner/components/ScannerNavbar.jsx";
+import { useReservaCleanup } from "./modules/user/hooks/useReservaCleanup.js";
 
 function NavbarWrapper() {
   const { user, isAuthenticated, logout, loading } = useAuth();
@@ -193,6 +194,7 @@ function AppRoutes() {
 }
 
 function App() {
+  useReservaCleanup();
   return (
     <NotificationProvider>
       <ScrollToTop />

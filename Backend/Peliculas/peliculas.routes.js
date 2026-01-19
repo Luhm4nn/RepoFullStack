@@ -13,7 +13,7 @@ import {
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { handleMoviePosterUpload } from '../Middlewares/uploadHandler.js';
 import { validateBody, validateQuery, validateParams } from '../Middlewares/validateRequest.js';
-import { peliculaSchema } from '../validations/PeliculasSchema.js';
+import { peliculaSchema } from "../validations/PeliculasSchema.js";
 import { searchQuerySchema, idParamSchema } from '../validations/CommonSchemas.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';

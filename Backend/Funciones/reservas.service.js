@@ -77,52 +77,15 @@ export async function getReserva(params, user) {
 export async function createReserva(data, user) {
   //Validaciones antes de confirmar la reserva
   try {
+    const { DNI } = data;
     validateOwnership(user, DNI);
-    logger.debug('Validación de ownership exitosa');
+    logger.debug('Validación de ownership exitosa. Limpiando reservas pendientes previas...');
 
-    // 1. Obtener asientos reservados para este usuario, función y sala
-    const asientosService = await import('./asientoreservas.service.js');
-    const asientosReservados = await asientosService.getByFuncion(idSala, fechaHoraFuncion);
-    const asientosUsuario = asientosReservados.filter(a => a.DNI === DNI);
+    // Limpiar cualquier reserva pendiente previa del usuario para evitar bloqueos múltiples
+    await repository.deletePendingByUser(DNI);
 
-    if (asientosUsuario.length === 0) {
-      logger.error('No hay asientos reservados para este usuario en esta función');
-      const error = new Error('No hay asientos reservados para este usuario en esta función');
-      error.status = 400;
-      throw error;
-    }
-
-    // 2. Calcular el total sumando la tarifa de cada asiento
-    const tarifaRepo = await import('../Tarifas/tarifas.repository.js');
-    let totalCalculado = 0;
-    for (const asiento of asientosUsuario) {
-      if (!asiento.idTarifa) {
-        logger.error(`El asiento ${asiento.filaAsiento}${asiento.nroAsiento} no tiene tarifa asignada`);
-        const error = new Error(`El asiento ${asiento.filaAsiento}${asiento.nroAsiento} no tiene tarifa asignada`);
-        error.status = 400;
-        throw error;
-      }
-      const tarifa = await tarifaRepo.getOne(asiento.idTarifa);
-      if (!tarifa) {
-        logger.error(`Tarifa no encontrada para asiento ${asiento.filaAsiento}${asiento.nroAsiento}`);
-        const error = new Error(`Tarifa no encontrada para asiento ${asiento.filaAsiento}${asiento.nroAsiento}`);
-        error.status = 400;
-        throw error;
-      }
-      totalCalculado += parseFloat(tarifa.precio);
-    }
-
-    // 3. Validar el total recibido
-    if (parseFloat(total) !== totalCalculado) {
-      logger.error('El total recibido no coincide con el calculado');
-      const error = new Error('El total recibido no coincide con el calculado');
-      error.status = 400;
-      throw error;
-    }
-
-    // 4. Crear la reserva principal con el total calculado
-    const result = await repository.create({ ...data, total: totalCalculado });
-    logger.info('Reserva creada exitosamente:', result);
+    const result = await repository.create(data);
+    logger.info('Reserva PENDIENTE creada exitosamente:', result);
     return result;
   } catch (error) {
     logger.error('Error en createReserva service:', error.message);
@@ -165,6 +128,31 @@ export async function deleteReserva(params) {
 }
 
 /**
+ * Elimina una reserva PENDIENTE (usado por el usuario al cancelar/timeout)
+ * @param {Object} params - Parámetros de búsqueda
+ * @param {Object} user - Usuario autenticado
+ */
+export async function deletePendingReserva(params, user) {
+  const { DNI } = params;
+  validateOwnership(user, DNI);
+
+  const reserva = await repository.getOne(params);
+  if (!reserva) {
+    const error = new Error('Reserva no encontrada.');
+    error.status = 404;
+    throw error;
+  }
+
+  if (reserva.estado !== 'PENDIENTE') {
+    const error = new Error('Solo se pueden eliminar reservas en estado PENDIENTE por esta vía');
+    error.status = 400;
+    throw error;
+  }
+
+  return await repository.deleteOne(params);
+}
+
+/**
  * Obtiene las últimas reservas
  * @param {number} limit - Límite de resultados
  * @returns {Promise<Array>} Lista de reservas
@@ -193,4 +181,29 @@ export async function getUserReservas(userDNI, estado = null) {
   );
   
   return userReservas;
+}
+/**
+ * Confirma una reserva (pasa de PENDIENTE a CONFIRMADA)
+ * @param {Object} params - Parámetros de búsqueda
+ * @param {Object} user - Usuario autenticado
+ * @returns {Promise<Object>} Reserva confirmada
+ */
+export async function confirmReserva(params, user) {
+  const { DNI } = params;
+  validateOwnership(user, DNI);
+  
+  const reserva = await repository.getOne(params);
+  if (!reserva) {
+    const error = new Error('Reserva no encontrada.');
+    error.status = 404;
+    throw error;
+  }
+
+  if (reserva.estado !== 'PENDIENTE') {
+    const error = new Error(`No se puede confirmar una reserva en estado ${reserva.estado}`);
+    error.status = 400;
+    throw error;
+  }
+
+  return await repository.confirm(params);
 }

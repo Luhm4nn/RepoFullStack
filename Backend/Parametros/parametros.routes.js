@@ -26,5 +26,5 @@ router.put('/Parametro/:id', authMiddleware, authorizeRoles('ADMIN'), validatePa
 
 router.delete('/Parametro/:id', authMiddleware, authorizeRoles('ADMIN'), validateParams(idParamSchema), asyncHandler(deleteParametro));
 
-router.get('/Parametros/tiempo-limite-reserva', authMiddleware, authorizeRoles('ADMIN'), asyncHandler(getTiempoLimiteReserva));
+router.get('/Parametros/tiempo-limite-reserva', authMiddleware, authorizeRoles('ADMIN', 'CLIENTE'), asyncHandler(getTiempoLimiteReserva));
 export const parametrosRoutes = router;

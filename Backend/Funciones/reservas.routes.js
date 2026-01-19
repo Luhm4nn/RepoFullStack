@@ -5,8 +5,10 @@ import {
   createReserva,
   cancellReserva,
   deleteReserva,
+  deletePendingReserva,
   getLatestReservas,
-  getUserReservas
+  getUserReservas,
+  confirmReserva
 } from './reservas.controllers.js';
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
@@ -44,6 +46,19 @@ router.delete(
   authMiddleware,
   authorizeRoles('ADMIN'),
   asyncHandler(deleteReserva)
+);
+
+router.delete(
+  '/Reserva/pending/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva',
+  authMiddleware,
+  asyncHandler(deletePendingReserva)
+);
+
+router.patch(
+  '/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva/confirm',
+  authMiddleware,
+  moderateLimiter,
+  asyncHandler(confirmReserva)
 );
 
 

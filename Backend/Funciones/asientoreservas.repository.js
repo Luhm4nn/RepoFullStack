@@ -1,4 +1,6 @@
 import prisma from '../prisma/prisma.js';
+import * as parametrosRepo from '../Parametros/parametros.repository.js';
+import logger from '../utils/logger.js';
 
 /**
  * Obtiene todos los asientos reservados
@@ -10,15 +12,40 @@ async function getAll() {
 
 const removeMilliseconds = (date) => {
   if (!date) return null;
-  if (date instanceof Date) {
-    const newDate = new Date(date);
-    newDate.setMilliseconds(0);
-    return newDate;
-  }
   const newDate = new Date(date);
   newDate.setMilliseconds(0);
   return newDate;
 };
+
+/**
+ * Limpia las reservas en estado PENDIENTE que han superado el tiempo límite
+ * El tiempo límite se obtiene del Parámetro ID 2 (minutos)
+ */
+async function cleanupExpiredReservations() {
+  try {
+    const paramTimeout = await parametrosRepo.getOne(2);
+    const timeoutMinutes = paramTimeout ? parseInt(paramTimeout.valor, 10) : 15; // 15 min por defecto si no existe
+
+    const cutoffDate = new Date();
+    cutoffDate.setMinutes(cutoffDate.getMinutes() - timeoutMinutes);
+
+    const deleted = await prisma.reserva.deleteMany({
+      where: {
+        estado: 'PENDIENTE',
+        fechaHoraReserva: {
+          lt: cutoffDate,
+        },
+      },
+    });
+
+    if (deleted.count > 0) {
+      logger.info(`Limpieza On-Demand: Se eliminaron ${deleted.count} reservas pendientes expiradas.`);
+    }
+  } catch (error) {
+    logger.error('Error en cleanupExpiredReservations:', error);
+    // No lanzamos el error para no bloquear la consulta principal de asientos
+  }
+}
 
 /**
  * Obtiene asientos reservados por función
@@ -27,14 +54,23 @@ const removeMilliseconds = (date) => {
  * @returns {Promise<Array>} Lista de asientos reservados
  */
 async function getByFuncion(idSala, fechaFuncionDate) {
+  await cleanupExpiredReservations();
+
   const fecha = new Date(fechaFuncionDate);
-  fecha.setMilliseconds(0);
   
   return await prisma.asiento_reserva.findMany({
     where: {
       idSala: parseInt(idSala, 10),
       fechaHoraFuncion: fecha,
     },
+    include: {
+      reserva: {
+        select: {
+          estado: true,
+          fechaHoraReserva: true
+        }
+      }
+    }
   });
 }
 
@@ -71,7 +107,7 @@ async function createMany(reservasArray) {
       throw new Error(`Datos inválidos en asiento ${index}`);
     }
 
-    const fechaFuncion = removeMilliseconds(item.fechaHoraFuncion);
+    const fechaFuncion = new Date(item.fechaHoraFuncion);
     const fechaReserva = removeMilliseconds(item.fechaHoraReserva);
 
     if (!fechaFuncion || !fechaReserva) {
