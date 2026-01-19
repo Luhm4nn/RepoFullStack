@@ -308,20 +308,6 @@ function PaymentStep({
           </button>
         </div>
       )}
-
-      {/* Términos y condiciones */}
-      <div className="text-center text-xs text-gray-400">
-        <p>
-          Al completar el pago, aceptas nuestros{" "}
-          <a href="#" className="text-purple-400 hover:text-purple-300">
-            Términos y Condiciones
-          </a>{" "}
-          y{" "}
-          <a href="#" className="text-purple-400 hover:text-purple-300">
-            Política de Cancelación
-          </a>
-        </p>
-      </div>
 	</div>
   );
 }
