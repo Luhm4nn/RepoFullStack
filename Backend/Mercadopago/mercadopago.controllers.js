@@ -1,6 +1,5 @@
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
-import { create as createReserva } from '../Funciones/reservas.repository.js';
-import { createMany as createAsientosReservados } from '../Funciones/asientoreservas.repository.js';
+import { confirm as confirmReservaRepo, getOne as getReservaRepo } from '../Funciones/reservas.repository.js';
 import logger from '../utils/logger.js';
 
 const client = new MercadoPagoConfig({
@@ -9,13 +8,23 @@ const client = new MercadoPagoConfig({
 
 /**
  * Crea una preferencia de pago en Mercado Pago
- * @param {Object} req - Request
- * @param {Object} res - Response
  */
 export const createPaymentPreference = async (req, res) => {
   const { reserva, asientos } = req.body;
 
   try {
+    // Validar integridad antes de crear la preferencia
+    const reservaDB = await getReservaRepo({
+      idSala: reserva.idSala,
+      fechaHoraFuncion: reserva.fechaHoraFuncion,
+      DNI: reserva.DNI,
+      fechaHoraReserva: reserva.fechaHoraReserva
+    });
+
+    if (!reservaDB || reservaDB.estado !== 'PENDIENTE') {
+      return res.status(400).json({ error: 'La reserva ya no está disponible para pago.' });
+    }
+
     const preference = new Preference(client);
 
     const body = {
@@ -23,8 +32,8 @@ export const createPaymentPreference = async (req, res) => {
         {
           title: `Reserva - ${reserva.nombrePelicula}`,
           description: `Función: ${reserva.fecha} ${reserva.hora} - ${reserva.sala}`,
-          quantity: asientos.length,
-          unit_price: parseFloat(reserva.total) / asientos.length,
+          quantity: 1,
+          unit_price: parseFloat(reserva.total),
           currency_id: 'ARS',
         },
       ],
@@ -39,106 +48,55 @@ export const createPaymentPreference = async (req, res) => {
         fecha_hora_funcion: reserva.fechaHoraFuncion,
         dni: reserva.DNI.toString(),
         fecha_hora_reserva: reserva.fechaHoraReserva,
-        asientos: JSON.stringify(asientos),
       },
     };
 
     const response = await preference.create({ body });
-
-    return res.json({
-      id: response.id,
-      init_point: response.init_point,
-    });
+    return res.json({ id: response.id });
   } catch (error) {
-    logger.error('Error creando preferencia de pago:', error);
-    return res.status(500).json({ error: 'Error al crear preferencia de pago' });
+    logger.error('Error creando preferencia:', error);
+    return res.status(500).json({ error: 'Error al procesar el pago' });
   }
 };
 
 /**
  * Webhook para notificaciones de pago
- * @param {Object} req - Request
- * @param {Object} res - Response
  */
 export const handleWebhook = async (req, res) => {
   const { type, data } = req.body;
 
   try {
     if (type === 'payment') {
-      const paymentId = data.id;
-
       const payment = new Payment(client);
-      const result = await payment.get({ id: paymentId });
-
-      logger.info('Webhook recibido:', {
-        paymentId: result.id,
-        status: result.status,
-        metadata: result.metadata
-      });
+      const result = await payment.get({ id: data.id });
 
       if (result.status === 'approved') {
-        const metadata = result.metadata;
-
-        const asientos = JSON.parse(metadata.asientos);
-
-        const fechaFuncionDate = new Date(metadata.fecha_hora_funcion);
-        fechaFuncionDate.setMilliseconds(0);
-
-        const fechaReservaDate = new Date(metadata.fecha_hora_reserva);
-        fechaReservaDate.setMilliseconds(0);
-
-        const reservaData = {
+        const { metadata } = result;
+        const subParams = {
           idSala: parseInt(metadata.id_sala, 10),
-          fechaHoraFuncion: fechaFuncionDate,
+          fechaHoraFuncion: metadata.fecha_hora_funcion,
           DNI: parseInt(metadata.dni, 10),
-          fechaHoraReserva: fechaReservaDate,
-          total: result.transaction_amount.toString(), // Convert to string for Decimal
+          fechaHoraReserva: metadata.fecha_hora_reserva
         };
 
-        logger.info('Intentando crear reserva con datos:', reservaData);
-
-        try {
-          const reservaCreada = await createReserva(reservaData);
-          logger.info('Reserva creada exitosamente:', {
-            idSala: reservaCreada.idSala,
-            fechaHoraFuncion: reservaCreada.fechaHoraFuncion,
-            DNI: reservaCreada.DNI
-          });
-
-          const asientosData = asientos.map((asiento) => ({
-            idSala: parseInt(metadata.id_sala, 10),
-            filaAsiento: asiento.filaAsiento,
-            nroAsiento: parseInt(asiento.nroAsiento, 10),
-            fechaHoraFuncion: fechaFuncionDate,
-            DNI: parseInt(metadata.dni, 10),
-            fechaHoraReserva: fechaReservaDate,
-          }));
-
-          await createAsientosReservados(asientosData);
-
-          logger.info('Reserva completada exitosamente:', {
-            asientosCount: asientosData.length,
-            paymentId: result.id,
-          });
-        } catch (createError) {
-          logger.error('Error al crear reserva/asientos:', {
-            error: createError.message,
-            stack: createError.stack,
-            reservaData: reservaData
-          });
-          throw createError;
+        const reservaDB = await getReservaRepo(subParams);
+        
+        if (reservaDB && reservaDB.estado === 'PENDIENTE') {
+          // Confirmar solo si el monto coincide
+          if (Math.abs(parseFloat(result.transaction_amount) - parseFloat(reservaDB.total)) < 0.01) {
+            await confirmReservaRepo(subParams);
+            logger.info('Pago aprobado. Reserva confirmada:', subParams);
+          } else {
+            logger.error('Mismatch de monto en el pago:', result.transaction_amount, reservaDB.total);
+          }
+        } else {
+          logger.warn('Intento de confirmar reserva inexistente o ya procesada:', subParams);
         }
-      } else {
-        logger.info(`Pago recibido con estado: ${result.status}`);
       }
     }
-
     res.sendStatus(200);
   } catch (error) {
-    logger.error('Error manejando webhook de Mercado Pago:', {
-      error: error.message,
-      stack: error.stack
-    });
+    logger.error('Error en webhook de Mercado Pago:', error.message);
     res.sendStatus(500);
   }
 };

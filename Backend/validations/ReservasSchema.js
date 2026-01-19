@@ -37,32 +37,27 @@ export const reservaCreateSchema = Yup.object().shape({
 
 export const asientosReservadosSchema = Yup.array().of(
   Yup.object().shape({
-    idSala: Yup.number()
-      .required('El ID de sala es requerido')
-      .positive()
-      .integer(),
-    
-    filaAsiento: Yup.string()
-      .required('La fila del asiento es requerida')
-      .length(1, 'La fila debe ser una sola letra')
-      .matches(/^[A-Z]$/, 'La fila debe ser una letra mayúscula')
-      .uppercase()
-      .trim(),
-    
-    nroAsiento: Yup.number()
-      .required('El número de asiento es requerido')
-      .positive()
-      .integer(),
-    
-    fechaHoraFuncion: Yup.date()
-      .required('La fecha y hora de la función es requerida'),
-    
-    DNI: Yup.number()
-      .required('El DNI es requerido')
-      .positive()
-      .integer(),
-    
-    fechaHoraReserva: Yup.date()
-      .required('La fecha y hora de reserva es requerida'),
+    idSala: Yup.number().required().positive().integer(),
+    filaAsiento: Yup.string().required().length(1).uppercase().trim(),
+    nroAsiento: Yup.number().required().positive().integer(),
+    fechaHoraFuncion: Yup.date().required(),
+    DNI: Yup.number().required().positive().integer(),
+    fechaHoraReserva: Yup.date().required(),
   })
 ).min(1, 'Debe seleccionar al menos un asiento');
+
+export const atomicReservaCreateSchema = Yup.object().shape({
+  reserva: Yup.object().shape({
+    idSala: Yup.number().required().positive().integer(),
+    fechaHoraFuncion: Yup.date().required(),
+    DNI: Yup.number().required().positive().integer(),
+    total: Yup.number().required().positive(),
+    fechaHoraReserva: Yup.date().required(),
+  }).required(),
+  asientos: Yup.array().of(
+    Yup.object().shape({
+      filaAsiento: Yup.string().required().length(1).uppercase(),
+      nroAsiento: Yup.number().required().positive().integer(),
+    })
+  ).min(1, 'Debe seleccionar al menos un asiento').required(),
+});

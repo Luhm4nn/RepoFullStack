@@ -61,3 +61,18 @@ export const update = async (id, data) => {
   }
   return await repository.update(id, data);
 };
+
+/**
+ * Obtiene el tiempo límite de reserva
+ * @returns {Promise<number>} Tiempo límite de reserva en minutos
+ * @throws {Error} Si no se encuentra el parámetro (404)
+ */
+export const getTiempoLimiteReserva = async () => {
+  const parametro = await repository.getOne(2);
+  if (!parametro) {
+    const error = new Error('Parámetro de tiempo límite de reserva no encontrado.');
+    error.status = 404;
+    throw error;
+  }
+  return parseInt(parametro.valor, 10);
+};

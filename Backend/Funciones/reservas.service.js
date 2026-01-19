@@ -8,52 +8,30 @@ import logger from '../utils/logger.js';
  * @throws {Error} Si no tiene permiso
  */
 function validateOwnership(user, targetDNI) {
-  logger.debug('=== VALIDATE OWNERSHIP ===');
-  logger.debug('User:', user);
-  logger.debug('Target DNI:', targetDNI);
-  logger.debug('User rol:', user?.rol);
-  logger.debug('User id:', user?.id);
-  logger.debug('Parsed target DNI:', parseInt(targetDNI));
-
-  if (user.rol === 'ADMIN') {
-    logger.debug('Usuario es ADMIN, acceso permitido');
-    return;
-  }
+  if (user.rol === 'ADMIN') return;
 
   if (user.id !== parseInt(targetDNI)) {
-    logger.error('Acceso denegado: user.id !== targetDNI', {
-      userId: user.id,
-      targetDNI: parseInt(targetDNI)
-    });
     const error = new Error('No puedes acceder a recursos de otros usuarios');
     error.status = 403;
     throw error;
   }
-
-  logger.debug('Validación exitosa: usuario es dueño del recurso');
 }
 
 /**
  * Obtiene todas las reservas (solo ADMIN)
- * @returns {Promise<Array>} Lista de reservas
  */
 export async function getAllReservas() {
   const reservas = await repository.getAll();
-
   if (!reservas || reservas.length === 0) {
     const error = new Error('No existen reservas cargadas aún.');
     error.status = 404;
     throw error;
   }
-
   return reservas;
 }
 
 /**
  * Obtiene una reserva específica
- * @param {Object} params - Parámetros de búsqueda
- * @param {Object} user - Usuario autenticado
- * @returns {Promise<Object>} Reserva encontrada
  */
 export async function getReserva(params, user) {
   const { DNI } = params;
@@ -64,32 +42,19 @@ export async function getReserva(params, user) {
     error.status = 404;
     throw error;
   }
-
   return reserva;
 }
 
 /**
- * Crea una nueva reserva
- * @param {Object} data - Datos de la reserva
- * @param {Object} user - Usuario autenticado
- * @returns {Promise<Object>} Reserva creada
+ * Crea una nueva reserva con sus asientos (Atómico)
  */
 export async function createReserva(data, user) {
-  logger.debug('=== CREATE RESERVA SERVICE ===');
-  logger.debug('Data recibida:', JSON.stringify(data, null, 2));
-  logger.debug('User recibido:', JSON.stringify(user, null, 2));
-
-  const { DNI } = data;
-  logger.debug('DNI de la reserva:', DNI);
-  logger.debug('User ID:', user?.id);
-  logger.debug('User rol:', user?.rol);
-
   try {
-    validateOwnership(user, DNI);
-    logger.debug('Validación de ownership exitosa');
-
-    const result = await repository.create(data);
-    logger.info('Reserva creada exitosamente:', result);
+    const { reserva, asientos } = data;
+    validateOwnership(user, reserva.DNI);
+    logger.debug('Iniciando creación atómica de reserva y asientos...');
+    const result = await repository.createWithSeats(reserva, asientos);
+    logger.info('Reserva PENDIENTE y asientos creados (Atómico):', result.idSala, result.DNI);
     return result;
   } catch (error) {
     logger.error('Error en createReserva service:', error.message);
@@ -99,9 +64,6 @@ export async function createReserva(data, user) {
 
 /**
  * Cancela una reserva
- * @param {Object} params - Parámetros de búsqueda
- * @param {Object} user - Usuario autenticado
- * @returns {Promise<Object>} Reserva cancelada
  */
 export async function cancelReserva(params, user) {
   const { DNI, fechaHoraFuncion } = params;
@@ -112,29 +74,44 @@ export async function cancelReserva(params, user) {
   const horasHastaFuncion = (fechaFuncion - now) / (1000 * 60 * 60);
 
   if (horasHastaFuncion < 2) {
-    const error = new Error(
-      'No se puede cancelar una reserva con menos de 2 horas de anticipación'
-    );
+    const error = new Error('No se puede cancelar una reserva con menos de 2 horas de anticipación');
     error.status = 400;
     throw error;
   }
-
   return await repository.cancel(params);
 }
 
 /**
  * Elimina permanentemente una reserva (solo ADMIN)
- * @param {Object} params - Parámetros de búsqueda
- * @returns {Promise<Object>} Reserva eliminada
  */
 export async function deleteReserva(params) {
   return await repository.deleteOne(params);
 }
 
 /**
+ * Elimina una reserva PENDIENTE (usado por el usuario al cancelar/timeout)
+ */
+export async function deletePendingReserva(params, user) {
+  const { DNI } = params;
+  validateOwnership(user, DNI);
+
+  const reserva = await repository.getOne(params);
+  if (!reserva) {
+    const error = new Error('Reserva no encontrada.');
+    error.status = 404;
+    throw error;
+  }
+
+  if (reserva.estado !== 'PENDIENTE') {
+    const error = new Error('Solo se pueden eliminar reservas en estado PENDIENTE por esta vía');
+    error.status = 400;
+    throw error;
+  }
+  return await repository.deleteOne(params);
+}
+
+/**
  * Obtiene las últimas reservas
- * @param {number} limit - Límite de resultados
- * @returns {Promise<Array>} Lista de reservas
  */
 export async function getLatestReservas(limit) {
   return await repository.getLatest(limit);
@@ -142,22 +119,37 @@ export async function getLatestReservas(limit) {
 
 /**
  * Obtiene las reservas de un usuario específico
- * @param {number} userDNI - DNI del usuario
- * @param {string} estado - Estado opcional para filtrar (CONFIRMADA, CANCELADA)
- * @returns {Promise<Array>} Lista de reservas del usuario
  */
 export async function getUserReservas(userDNI, estado = null) {
   const allReservas = await repository.getAll();
-  
   let userReservas = allReservas.filter(r => r.DNI === parseInt(userDNI));
   
   if (estado && (estado === 'CONFIRMADA' || estado === 'CANCELADA')) {
-    userReservas = userReservas.filter(r => r.estadoReserva === estado);
+    userReservas = userReservas.filter(r => r.estado === estado);
   }
   
-  userReservas.sort((a, b) => 
-    new Date(b.fechaHoraReserva) - new Date(a.fechaHoraReserva)
-  );
-  
+  userReservas.sort((a, b) => new Date(b.fechaHoraReserva) - new Date(a.fechaHoraReserva));
   return userReservas;
+}
+
+/**
+ * Confirma una reserva (pasa de PENDIENTE a CONFIRMADA)
+ */
+export async function confirmReserva(params, user) {
+  const { DNI } = params;
+  validateOwnership(user, DNI);
+  
+  const reserva = await repository.getOne(params);
+  if (!reserva) {
+    const error = new Error('Reserva no encontrada.');
+    error.status = 404;
+    throw error;
+  }
+
+  if (reserva.estado !== 'PENDIENTE') {
+    const error = new Error(`No se puede confirmar una reserva en estado ${reserva.estado}`);
+    error.status = 400;
+    throw error;
+  }
+  return await repository.confirm(params);
 }

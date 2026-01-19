@@ -1,4 +1,5 @@
 import prisma from '../prisma/prisma.js';
+import logger from '../utils/logger.js';
 
 /**
  * Obtiene todas las reservas
@@ -27,9 +28,9 @@ async function getOne({ idSala, fechaHoraFuncion, DNI, fechaHoraReserva }) {
     where: {
       idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
         idSala: parseInt(idSala, 10),
-        fechaHoraFuncion: fechaHoraFuncion,
+        fechaHoraFuncion: new Date(fechaHoraFuncion),
         DNI: parseInt(DNI, 10),
-        fechaHoraReserva: fechaHoraReserva,
+        fechaHoraReserva: removeMilliseconds(fechaHoraReserva),
       },
     },
   });
@@ -43,50 +44,70 @@ const removeMilliseconds = (date) => {
 };
 
 /**
- * Crea una nueva reserva
- * @param {Object} data - Datos de la reserva
- * @returns {Promise<Object>} Reserva creada
+ * Crea una reserva y bloquea los asientos de forma atómica (Transacción)
+ * @param {Object} reservaData - Datos de la reserva
+ * @param {Array} asientos - Lista de asientos a bloquear
  */
-async function create(data) {
-  if (!data.idSala || !data.fechaHoraFuncion || !data.DNI || !data.total) {
-    const error = new Error('Faltan datos requeridos para crear la reserva');
-    error.status = 400;
-    throw error;
-  }
+async function createWithSeats(reservaData, asientos) {
+  return await prisma.$transaction(async (tx) => {
+    const idSala = parseInt(reservaData.idSala, 10);
+    const DNI = parseInt(reservaData.DNI, 10);
+    const total = parseFloat(reservaData.total);
+    const subFunc = new Date(reservaData.fechaHoraFuncion);
+    const subRes = removeMilliseconds(reservaData.fechaHoraReserva || new Date());
 
-  const idSala = parseInt(data.idSala, 10);
-  const DNI = parseInt(data.DNI, 10);
-  const total = parseFloat(data.total);
+    // 1. Limpieza de cualquier reserva pendiente previa del usuario (Single active policy)
+    await tx.reserva.deleteMany({
+      where: {
+        DNI: DNI,
+        estado: 'PENDIENTE',
+      },
+    });
 
-  if (isNaN(idSala) || isNaN(DNI) || isNaN(total)) {
-    const error = new Error('Datos numéricos inválidos');
-    error.status = 400;
-    throw error;
-  }
+    // 2. Verificar disponibilidad de asientos (Double-check concurrente)
+    for (const asiento of asientos) {
+      const busy = await tx.asiento_reserva.findUnique({
+        where: {
+          idSala_filaAsiento_nroAsiento_fechaHoraFuncion: {
+            idSala,
+            filaAsiento: asiento.filaAsiento,
+            nroAsiento: parseInt(asiento.nroAsiento, 10),
+            fechaHoraFuncion: subFunc
+          }
+        }
+      });
+      if (busy) {
+        throw new Error(`El asiento ${asiento.filaAsiento}${asiento.nroAsiento} ya no está disponible.`);
+      }
+    }
 
-  // Procesar fechas
-  const fechaFuncionDate = removeMilliseconds(data.fechaHoraFuncion);
-  const fechaReservaDate = data.fechaHoraReserva
-    ? removeMilliseconds(data.fechaHoraReserva)
-    : removeMilliseconds(new Date());
+    // 3. Crear la Reserva
+    const newReserva = await tx.reserva.create({
+      data: {
+        idSala,
+        fechaHoraFuncion: subFunc,
+        DNI,
+        estado: 'PENDIENTE',
+        fechaHoraReserva: subRes,
+        total,
+      },
+    });
 
-  if (!fechaFuncionDate || !fechaReservaDate) {
-    const error = new Error('Fechas inválidas');
-    error.status = 400;
-    throw error;
-  }
+    // 4. Crear los registros de Asientos Reservados
+    const asientosToCreate = asientos.map(a => ({
+      idSala,
+      filaAsiento: a.filaAsiento,
+      nroAsiento: parseInt(a.nroAsiento, 10),
+      fechaHoraFuncion: subFunc,
+      DNI,
+      fechaHoraReserva: subRes
+    }));
 
-  const reservaData = {
-    idSala,
-    fechaHoraFuncion: fechaFuncionDate,
-    DNI,
-    estado: 'ACTIVA',
-    fechaHoraReserva: fechaReservaDate,
-    total,
-  };
+    await tx.asiento_reserva.createMany({
+      data: asientosToCreate
+    });
 
-  return await prisma.reserva.create({
-    data: reservaData,
+    return newReserva;
   });
 }
 
@@ -96,16 +117,21 @@ async function create(data) {
  * @returns {Promise<Object>} Reserva eliminada
  */
 async function deleteOne({ idSala, fechaHoraFuncion, DNI, fechaHoraReserva }) {
-  return await prisma.reserva.delete({
-    where: {
-      idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
-        idSala: parseInt(idSala, 10),
-        fechaHoraFuncion: fechaHoraFuncion,
-        DNI: parseInt(DNI, 10),
-        fechaHoraReserva: fechaHoraReserva,
-      },
+  const where = {
+    idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
+      idSala: parseInt(idSala, 10),
+      fechaHoraFuncion: new Date(fechaHoraFuncion),
+      DNI: parseInt(DNI, 10),
+      fechaHoraReserva: removeMilliseconds(fechaHoraReserva),
     },
-  });
+  };
+
+  try {
+    return await prisma.reserva.delete({ where });
+  } catch (error) {
+    logger.error('Error eliminando reserva:', error.message);
+    throw error;
+  }
 }
 
 /**
@@ -114,16 +140,18 @@ async function deleteOne({ idSala, fechaHoraFuncion, DNI, fechaHoraReserva }) {
  * @returns {Promise<Object>} Reserva cancelada
  */
 async function cancel({ idSala, fechaHoraFuncion, DNI, fechaHoraReserva }) {
+  const where = {
+    idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
+      idSala: parseInt(idSala, 10),
+      fechaHoraFuncion: new Date(fechaHoraFuncion),
+      DNI: parseInt(DNI, 10),
+      fechaHoraReserva: removeMilliseconds(fechaHoraReserva),
+    },
+  };
+
   return await prisma.$transaction(async (tx) => {
     const cancelledReserva = await tx.reserva.update({
-      where: {
-        idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
-          idSala: parseInt(idSala, 10),
-          fechaHoraFuncion: fechaHoraFuncion,
-          DNI: parseInt(DNI, 10),
-          fechaHoraReserva: fechaHoraReserva,
-        },
-      },
+      where,
       data: {
         estado: 'CANCELADA',
         fechaHoraCancelacion: new Date(),
@@ -133,9 +161,9 @@ async function cancel({ idSala, fechaHoraFuncion, DNI, fechaHoraReserva }) {
     await tx.asiento_reserva.deleteMany({
       where: {
         idSala: parseInt(idSala, 10),
-        fechaHoraFuncion: fechaHoraFuncion,
+        fechaHoraFuncion: new Date(fechaHoraFuncion),
         DNI: parseInt(DNI, 10),
-        fechaHoraReserva: fechaHoraReserva,
+        fechaHoraReserva: removeMilliseconds(fechaHoraReserva),
       },
     });
 
@@ -168,4 +196,33 @@ async function getLatest(limit = 5) {
   });
 }
 
-export { getOne, getAll, create, deleteOne, cancel, getLatest };
+async function confirm({ idSala, fechaHoraFuncion, DNI, fechaHoraReserva }) {
+  return await prisma.reserva.update({
+    where: {
+      idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
+        idSala: parseInt(idSala, 10),
+        fechaHoraFuncion: new Date(fechaHoraFuncion),
+        DNI: parseInt(DNI, 10),
+        fechaHoraReserva: new Date(fechaHoraReserva),
+      },
+    },
+    data: {
+      estado: 'CONFIRMADA',
+    },
+  });
+}
+
+/**
+ * Elimina todas las reservas PENDIENTES de un usuario
+ * @param {number} DNI - DNI del usuario
+ */
+async function deletePendingByUser(DNI) {
+  return await prisma.reserva.deleteMany({
+    where: {
+      DNI: parseInt(DNI, 10),
+      estado: 'PENDIENTE',
+    },
+  });
+}
+
+export { getOne, getAll, createWithSeats, deleteOne, cancel, getLatest, confirm, deletePendingByUser };
