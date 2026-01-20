@@ -109,7 +109,6 @@ export const getInactiveFuncionesEndpoint = async (req, res) => {
  * @param {Object} req - Request
  * @param {Object} res - Response
  */
-// import { getCache, setCache } from '../utils/cache.js';
 
 export const getPublicFuncionesEndpoint = async (req, res) => {
   const funciones = await getPublicFuncionesService();
