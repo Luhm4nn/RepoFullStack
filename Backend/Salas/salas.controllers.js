@@ -10,7 +10,6 @@ export const getSala = async (req, res) => {
 };
 import * as service from './salas.service.js';
 import { createManyForSala, updateManyForSala } from './asientos.repository.js';
-// import { getCache, setCache, delCache } from '../utils/cache.js';
 
 /**
  * Obtiene todas las salas

@@ -95,16 +95,8 @@ export const updatePelicula = async (req, res) => {
  */
 
 export const getPeliculasEnCartelera = async (req, res) => {
-  const cacheKey = 'peliculas:cartelera';
   try {
-    const cached = await getCache(cacheKey);
-    if (cached) {
-      logger.info('Cache HIT', { cacheKey, endpoint: '/Peliculas/cartelera', hit: true });
-      return res.json(cached);
-    }
     const peliculas = await service.getAllEnCartelera();
-    await setCache(cacheKey, peliculas, 300); // TTL 5 min
-    logger.info('Cache MISS', { cacheKey, endpoint: '/Peliculas/cartelera', hit: false });
     res.json(peliculas);
   } catch (error) {
     logger.error('Error fetching peliculas en cartelera:', error);
