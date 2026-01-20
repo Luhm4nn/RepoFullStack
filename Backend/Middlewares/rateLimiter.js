@@ -1,6 +1,7 @@
 import rateLimit from 'express-rate-limit';
 
-//middleware para limitar el numero de peticiones
+// Función para determinar si se debe saltar el límite (solo en desarrollo)
+const skipIfDev = () => process.env.NODE_ENV !== 'production';
 
 export const loginLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
@@ -9,6 +10,7 @@ export const loginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: false,
+  skip: skipIfDev,
 });
 
 export const registerLimiter = rateLimit({
@@ -17,6 +19,7 @@ export const registerLimiter = rateLimit({
   message: 'Demasiados intentos de registro desde esta IP. Por favor intenta más tarde.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipIfDev,
 });
 
 export const generalLimiter = rateLimit({
@@ -25,6 +28,7 @@ export const generalLimiter = rateLimit({
   message: 'Demasiadas peticiones desde esta IP. Por favor intenta más tarde.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipIfDev,
 });
 
 export const strictLimiter = rateLimit({
@@ -33,6 +37,7 @@ export const strictLimiter = rateLimit({
   message: 'Has excedido el límite de peticiones. Intenta más tarde.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipIfDev,
 });
 
 export const moderateLimiter = rateLimit({
@@ -41,4 +46,5 @@ export const moderateLimiter = rateLimit({
   message: 'Has excedido el límite de peticiones. Intenta más tarde.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipIfDev,
 });

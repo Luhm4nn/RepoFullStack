@@ -62,3 +62,13 @@ export const deleteParametro = async (req, res) => {
   await service.deleteOne(req.params.id);
   res.status(200).json({ message: 'Parámetro eliminado correctamente.' });
 };
+
+/**
+ * Obtiene el tiempo límite de reserva
+ * @param {Object} req - Request de Express
+ * @param {Object} res - Response de Express
+ */
+export const getTiempoLimiteReserva = async (req, res) => {
+  const tiempoLimite = await service.getTiempoLimiteReserva();
+  res.json({ tiempoLimiteReserva: tiempoLimite });
+}

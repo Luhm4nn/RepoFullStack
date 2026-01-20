@@ -151,19 +151,24 @@ export const updateOne = async (params, data) => {
 };
 
 /**
- * Obtiene funciones por película y fecha (o semana)
+ * Obtiene funciones públicas por película y fecha (o semana)
  * @param {number} idPelicula - ID de la película
  * @param {string} fecha - Fecha o 'semana'
- * @returns {Promise<Array>} Lista de funciones
+ * @returns {Promise<Array>} Lista de funciones públicas
  */
 export const getFuncionesByPeliculaAndFechaService = async (idPelicula, fecha) => {
+  let funciones;
+  
   if (fecha === 'semana') {
     const hoy = new Date();
     const sieteDiasDespues = new Date();
     sieteDiasDespues.setDate(hoy.getDate() + 7);
-    return await repository.getByPeliculaAndRange(idPelicula, hoy, sieteDiasDespues);
+    funciones = await repository.getByPeliculaAndRange(idPelicula, hoy, sieteDiasDespues);
+  } else {
+    funciones = await repository.getByPeliculaAndFecha(idPelicula, fecha);
   }
-  return await repository.getByPeliculaAndFecha(idPelicula, fecha);
+  // Filtrar solo funciones públicas
+  return funciones.filter(funcion => funcion.estado === 'Publica');
 };
 
 /**

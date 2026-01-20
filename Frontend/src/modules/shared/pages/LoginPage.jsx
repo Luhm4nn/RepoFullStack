@@ -10,6 +10,9 @@ const LoginPage = ({ onLogin, user, isAuthenticated, loading }) => {
     if (isAuthenticated && user) {
       if (user.rol === "ADMIN") {
         navigate("/dashboard", { replace: true });
+      }
+      else if (user.rol === "ESCANER") {
+        navigate("/scanner", { replace: true });
       } else {
         navigate("/", { replace: true });
       }

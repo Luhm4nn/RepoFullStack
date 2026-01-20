@@ -32,14 +32,20 @@ export const getLatestReservas = async (limit = 5) => {
   }
 };
 
-export const createReserva = async (reservaData) => {
+export const createReserva = async (reservaData, asientos) => {
   try {
     const response = await api.post('/Reserva', {
-      idSala: reservaData.idSala,
-      fechaHoraFuncion: reservaData.fechaHoraFuncion,
-      DNI: reservaData.DNI,
-      total: reservaData.total,
-      fechaHoraReserva: reservaData.fechaHoraReserva,
+      reserva: {
+        idSala: reservaData.idSala,
+        fechaHoraFuncion: reservaData.fechaHoraFuncion,
+        DNI: reservaData.DNI,
+        total: reservaData.total,
+        fechaHoraReserva: reservaData.fechaHoraReserva,
+      },
+      asientos: asientos.map(a => ({
+        filaAsiento: a.filaAsiento,
+        nroAsiento: a.nroAsiento
+      }))
     });
     return response.data;
   } catch (error) {
@@ -84,8 +90,8 @@ export const getReservasByUser = async (DNI) => {
 
 export const getUserReservas = async (estado = null) => {
   try {
-    const url = estado 
-      ? `/Reservas/user?estado=${estado}` 
+    const url = estado
+      ? `/Reservas/user?estado=${estado}`
       : '/Reservas/user';
     const response = await api.get(url);
     return response.data;
@@ -94,4 +100,53 @@ export const getUserReservas = async (estado = null) => {
   }
 };
 
+/**
+ * Obtiene el código QR de una reserva
+ * @param {number} idSala - ID de la sala
+ * @param {string} fechaHoraFuncion - Fecha y hora de la función
+ * @param {number} DNI - DNI del usuario
+ * @param {string} fechaHoraReserva - Fecha y hora de la reserva
+ * @returns {Promise<Object>} Objeto con el QR code en formato data URL
+ */
+export const getReservaQR = async (idSala, fechaHoraFuncion, DNI, fechaHoraReserva) => {
+  try {
+    const encodedFechaFuncion = encodeURIComponent(dateFormaterBackend(fechaHoraFuncion));
+    const encodedFechaReserva = encodeURIComponent(dateFormaterBackend(fechaHoraReserva));
 
+    const url = `/Reserva/${idSala}/${encodedFechaFuncion}/${DNI}/${encodedFechaReserva}/qr`;
+    const response = await api.get(url);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+/**
+ * Confirma una reserva pendiente
+ */
+export const confirmReserva = async (idSala, fechaHoraFuncion, DNI, fechaHoraReserva) => {
+  try {
+    const encodedFechaFuncion = encodeURIComponent(dateFormaterBackend(fechaHoraFuncion));
+    const encodedFechaReserva = encodeURIComponent(dateFormaterBackend(fechaHoraReserva));
+
+    const url = `/Reserva/${idSala}/${encodedFechaFuncion}/${DNI}/${encodedFechaReserva}/confirm`;
+    const response = await api.patch(url);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+/**
+ * Elimina una reserva pendiente del usuario (limpieza)
+ */
+export const deletePendingReserva = async (idSala, fechaHoraFuncion, DNI, fechaHoraReserva) => {
+  try {
+    const encodedFechaFuncion = encodeURIComponent(dateFormaterBackend(fechaHoraFuncion));
+    const encodedFechaReserva = encodeURIComponent(dateFormaterBackend(fechaHoraReserva));
+
+    const url = `/Reserva/pending/${idSala}/${encodedFechaFuncion}/${DNI}/${encodedFechaReserva}`;
+    const response = await api.delete(url);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

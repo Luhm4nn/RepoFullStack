@@ -1,6 +1,7 @@
 import { PeliculaCard } from "../../shared";
+import { EstrenoCard } from "../../shared";
 import { useEffect, useState } from "react";
-import { getPeliculasEnCartelera } from "../../../api/Peliculas.api";
+import { getPeliculasEnCartelera, getEstrenos } from "../../../api/Peliculas.api";
 import { CenteredSpinner } from "../components/Spinner";
 
 function CarteleraPage() {
@@ -8,6 +9,7 @@ function CarteleraPage() {
   const [loading, setLoading] = useState(true);
   const [expandedSynopsis, setExpandedSynopsis] = useState({});
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [estrenos, setEstrenos] = useState([]);
 
   useEffect(() => {
     getPeliculasEnCartelera()
@@ -21,6 +23,19 @@ function CarteleraPage() {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    getEstrenos()
+      .then((data) => { 
+        setEstrenos(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error cargando estrenos:', error);
+        setEstrenos([]);
+        setLoading(false);
+      });
+}, []);
 
   // Auto-advance carousel
   useEffect(() => {
@@ -332,7 +347,26 @@ function CarteleraPage() {
             ))
           )}
         </div>
+
+        {/* Peliculas a estrenar */}
+        <div className="w-full rounded-xl max-w-6xl mx-auto mt-8">
+          <div className="mb-8 md:mb-12">
+            <h3 className="text-2xl md:text-4xl font-semibold text-white mt-4 mb-4 text-center px-4">
+              Próximos estrenos...
+            </h3>
+          </div>
+          {estrenos.length === 0 ? (
+            <div className="rounded-xl text-gray-400 text-xl md:text-2xl">
+              No hay películas próximas a estrenarse.
+            </div>
+          ) : (
+            <EstrenoCard estrenos={estrenos} />
+          )}
+        </div>
+        
       </div>
+
+      
 
       <style>
         {`

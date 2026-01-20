@@ -120,7 +120,12 @@ export const update = async (id, data) => {
  * @returns {Promise<Array>} Lista de películas
  */
 export const getAllEnCartelera = async () => {
-  return await repository.getAllEnCartelera();
+  const inicio = new Date();
+  inicio.setHours(0, 0, 0, 0);
+  const fin = new Date();
+  fin.setDate(fin.getDate() + 6);
+  fin.setHours(23, 59, 59, 999);
+  return await repository.getAllEnCartelera(inicio, fin);
 };
 
 /**
@@ -128,7 +133,12 @@ export const getAllEnCartelera = async () => {
  * @returns {Promise<number>} Cantidad de películas en cartelera
  */
 export const getCountEnCartelera = async () => {
-  return await repository.countEnCartelera();
+  const inicio = new Date();
+  inicio.setHours(0, 0, 0, 0);
+  const fin = new Date();
+  fin.setDate(fin.getDate() + 6);
+  fin.setHours(23, 59, 59, 999);
+  return await repository.countEnCartelera(inicio, fin);
 };
 
 /**
@@ -139,6 +149,14 @@ export const getCountEnCartelera = async () => {
  */
 export const search = async (searchQuery, limit) => {
   return await repository.search(searchQuery, limit);
+};
+
+/**
+ * Obtiene películas próximas a estrenarse (fecha futura)
+ * @returns {Promise<Array>} Lista de películas con estreno futuro
+ */
+export const getEstrenos = async () => {
+  return await repository.getEstrenos();
 };
 
 /**

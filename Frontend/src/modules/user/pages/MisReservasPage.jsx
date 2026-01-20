@@ -15,6 +15,7 @@ function MisReservasPage() {
   const [todasReservas, setTodasReservas] = useState([]); // Cache de todas para contar
 
   useEffect(() => {
+    console.log('[MisReservasPage] useEffect: filter', filter);
     fetchReservas();
   }, [filter]);
 
@@ -22,8 +23,10 @@ function MisReservasPage() {
     setLoading(true);
     setError(null);
     try {
-      const auth = authAPI.checkAuth();
+      const auth = await authAPI.checkAuth();
+      console.log('[MisReservasPage] checkAuth:', auth);
       if (!auth || !auth.user || !auth.user.DNI) {
+        console.log('[MisReservasPage] Redirigiendo a /login por falta de usuario');
         navigate("/login");
         return;
       }
@@ -61,7 +64,7 @@ function MisReservasPage() {
         setTodasReservas(misReservas);
       }
     } catch (err) {
-      console.error("Error al cargar reservas:", err);
+      console.error('[MisReservasPage] Error al cargar reservas:', err);
       setReservas([]);
       if (err.response?.status === 404) {
         setReservas([]);

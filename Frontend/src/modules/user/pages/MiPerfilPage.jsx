@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { authAPI } from "../../../api/login.api";
 import { getUserReservas } from "../../../api/Reservas.api";
 import ClaquetaPersonaje from "../../shared/components/ClaquetaPersonaje";
-import { CircleSkeleton, Skeleton } from "../../shared/components/Skeleton";
+import { CenteredSpinner } from "../../shared/components/Spinner";
 
 export default function MiPerfilPage() {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ export default function MiPerfilPage() {
     const load = async () => {
       setLoading(true);
       try {
-        const auth = authAPI.checkAuth();
+        const auth = await authAPI.checkAuth();
         if (!auth?.user) {
           navigate("/login");
           return;
@@ -62,9 +62,9 @@ export default function MiPerfilPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="text-center text-gray-300">
-          <CircleSkeleton className="w-20 h-20 mx-auto mb-4" />
-          <Skeleton className="h-4 w-32 mx-auto" />
+        <div className="text-center">
+          <CenteredSpinner size="md" />
+          <p className="text-white mt-4">Cargando perfil...</p>
         </div>
       </div>
     );

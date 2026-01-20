@@ -28,7 +28,7 @@ model asiento_reserva {
   fechaHoraFuncion DateTime
   DNI              Int
   fechaHoraReserva DateTime
-  reserva          reserva  @relation(fields: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], references: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], onDelete: NoAction, onUpdate: NoAction)
+  reserva          reserva  @relation(fields: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], references: [idSala, fechaHoraFuncion, DNI, fechaHoraReserva], onDelete: Cascade, onUpdate: NoAction)
   asiento          asiento  @relation(fields: [idSala, filaAsiento, nroAsiento], references: [idSala, filaAsiento, nroAsiento], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([idSala, filaAsiento, nroAsiento, fechaHoraFuncion])

@@ -134,11 +134,15 @@ async function update(id, data) {
  * Obtiene películas que tienen funciones públicas (en cartelera)
  * @returns {Promise<Array>} Lista de películas en cartelera
  */
-async function getAllEnCartelera() {
+async function getAllEnCartelera(hoy, semana) {
   return await prisma.pelicula.findMany({
     where: {
       funcion: {
         some: {
+          fechaHoraFuncion: {
+            gte: hoy,
+            lte: semana,
+          },
           estado: 'Publica',
         },
       },
@@ -150,11 +154,15 @@ async function getAllEnCartelera() {
  * Cuenta películas que tienen funciones públicas (en cartelera)
  * @returns {Promise<number>} Cantidad de películas en cartelera
  */
-async function countEnCartelera() {
+async function countEnCartelera(hoy, semana) {
   return await prisma.pelicula.count({
     where: {
       funcion: {
         some: {
+          fechaHoraFuncion: {
+            gte: hoy,
+            lte: semana,
+          },
           estado: 'Publica',
         },
       },
@@ -258,4 +266,23 @@ async function getWithFilters(filters = {}, page = 1, limit = 10) {
   };
 }
 
-export { getOne, getAll, getPaginated, create, deleteOne, update, getAllEnCartelera, countEnCartelera, search, getWithFilters };
+/**
+ * Obtiene películas cuya fecha de estreno es posterior a hoy
+ * @returns {Promise<Array>} Lista de películas próximas a estrenarse
+ */
+async function getEstrenos() {
+  const today = new Date();
+  
+  return await prisma.pelicula.findMany({
+    where: {
+      fechaEstreno: {
+        gt: today,
+      },
+    },
+    orderBy: {
+      fechaEstreno: 'asc',
+    },
+  });
+}
+
+export { getOne, getAll, getPaginated, create, deleteOne, update, getAllEnCartelera, countEnCartelera, search, getWithFilters, getEstrenos };

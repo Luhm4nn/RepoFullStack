@@ -23,7 +23,6 @@ api.interceptors.response.use(
         await api.post("/auth/refresh", {});
         return api(originalRequest);
       } catch (refreshError) {
-        localStorage.removeItem("user");
         window.location.href = "/login";
         return Promise.reject(error);
       }

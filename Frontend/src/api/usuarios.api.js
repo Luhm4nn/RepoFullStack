@@ -80,9 +80,7 @@ export const usuariosAPI = {
       // Asumiendo que implementarás PUT /usuarios/profile en el backend
       const response = await api.put('/usuarios/profile', userData);
       
-      const updatedUser = response.data;
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      
+      const updatedUser = response.data;      
       return updatedUser;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Error al actualizar perfil');

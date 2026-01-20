@@ -133,7 +133,8 @@ Este documento contiene un registro de las reuniones realizadas para la planific
 - Emiliano, Diego: Implementar Valibot.
 
 ---
-## 📅 Reunión 6 - 06/09/2025
+
+## 📅 Reunión 7 - 28/09/2025
 
 **Participantes:** Emiliano, Diego
 **Objetivos:**
@@ -168,8 +169,117 @@ Este documento contiene un registro de las reuniones realizadas para la planific
 - Implementar un Auth Context / hook useAuth para manejar estado de autenticación en el front.
 - Redirigir al usuario a /login si intenta acceder a rutas protegidas.
 - Implementar layout diferente según rol:
-    Usuario no logueado → puede ver cartelera.
-    Cliente logueado → puede reservar funciones.
-    Admin → accede al dashboard con gestión de películas, funciones, etc.
+  Usuario no logueado → puede ver cartelera.
+  Cliente logueado → puede reservar funciones.
+  Admin → accede al dashboard con gestión de películas, funciones, etc.
 
 ---
+
+## 📅 Reunión 8 - 20/10/2025
+
+**Participantes:** Emiliano, Diego
+**Objetivos:**
+
+- Iniciar el desarrollo del Dashboard administrativo.
+- Implementar la cartelera pública dinámica para los clientes.
+
+**Decisiones tomadas:**
+
+- Se utilizará un layout de dashboard con métricas rápidas (ventas del día, funciones activas).
+- La cartelera filtrará películas que tengan funciones vigentes.
+- Se implementará un buscador por título de película.
+
+**Próximas tareas:**
+
+- Diego: Crear estructura del Dashboard y componentes de estadísticas.
+- Diego: Implementar Grid de películas en el home.
+- Emiliano: Crear endpoints de estadísticas (ventas totales, ocupación).
+- Emiliano: Optimizar búsqueda de películas en el backend.
+
+---
+
+## 📅 Reunión 9 - 12/11/2025
+
+**Participantes:** Emiliano, Diego
+**Objetivos:**
+
+- Desarrollar el sistema interactivo de selección de asientos.
+- Definir el flujo de pre-reserva antes del pago.
+
+**Decisiones tomadas:**
+
+- Se representará la sala mediante un mapa de asientos reactivo (SVG/Divs).
+- Los asientos cambiarán de color según disponibilidad (Libre, Ocupado, Seleccionado).
+- Al seleccionar, se bloqueará temporalmente el asiento para evitar duplicidad.
+
+**Próximas tareas:**
+
+- Diego: Implementar interfaz del mapa de asientos en el frontend.
+- Emiliano: Crear lógica de validación de disponibilidad de asientos en tiempo real.
+- Emiliano: Implementar temporizador de reserva temporal (10-15 min).
+
+---
+
+## 📅 Reunión 10 - 05/12/2025
+
+**Participantes:** Emiliano, Diego
+**Objetivos:**
+
+- Integrar pasarela de pagos con Mercado Pago.
+- Manejar la confirmación de la reserva y estados de pago.
+
+**Decisiones tomadas:**
+
+- Se utilizará la integración de Checkout Pro.
+- Se implementará un Webhook para recibir notificaciones de Mercado Pago y actualizar el estado de la reserva de forma asíncrona.
+- Al confirmar el pago, se generará un código único para la entrada.
+
+**Próximas tareas:**
+
+- Emiliano: Integrar SDK de Mercado Pago en el backend y configurar el webhook.
+- Emiliano: Crear lógica de actualización automática de reservas (`PAGADA`, `CANCELADA`).
+- Diego: Crear página de éxito/error de pago y resumen de reserva.
+
+---
+
+## 📅 Reunión 11 - 23/12/2025
+
+**Participantes:** Emiliano, Diego
+**Objetivos:**
+
+- Reforzar la seguridad y robustez del sistema de reservas (Transacciones Atómicas).
+- Cierre de funcionalidades del MVP para el fin de año.
+
+**Decisiones tomadas:**
+
+- Utilizar transacciones de Prisma para asegurar que el pago y la creación de asientos sean una operación única.
+- Endurecer el Webhook de Mercado Pago para evitar recreación de reservas duplicadas.
+- Limpieza de `localStorage` y manejo de sesiones de reserva.
+
+**Próximas tareas:**
+
+- Emiliano: Implementar `prisma.$transaction` en el repositorio de reservas.
+- Emiliano: Hardening del Webhook (validación estricta de IDs).
+- Diego: Pulir estética de botones, dropdowns y transiciones visuales.
+
+---
+
+## 📅 Reunión 12 - 10/01/2026
+
+**Participantes:** Emiliano, Diego
+**Objetivos:**
+
+- Implementar el escáner de QR para validación de entradas.
+- Revisión final de la UI de administración y correcciones menores.
+
+**Decisiones tomadas:**
+
+- El personal del cine podrá escanear el QR desde el usuario Escaner.
+- Se usará una librería de escaneo de cámara en el navegador.
+- El escaneo marcará la reserva como "UTILIZADA".
+
+**Próximas tareas:**
+
+- Diego: Integrar escáner QR en la sección de administración.
+- Emiliano: Crear endpoint de validación de token QR con firma de seguridad.
+- Emiliano, Diego: Ajustes finales de estilo y documentación completa del sistema.

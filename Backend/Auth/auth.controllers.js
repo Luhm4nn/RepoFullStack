@@ -5,6 +5,7 @@ import {
   revokeAllSessions,
 } from './refreshToken.service.js';
 import logger from '../utils/logger.js';
+import prisma from '../prisma/prisma.js';
 
 /**
  * Inicia sesión de usuario
@@ -38,3 +39,21 @@ export const login = async (req, res) => {
 export const refresh = handleRefreshToken;
 export const logout = revokeRefreshToken;
 export const logoutAllSessions = revokeAllSessions;
+
+export const getUsuarioLoggedIn = async (req, res) => {
+  const user = await prisma.usuario.findUnique({
+    where: { DNI: req.user.id },
+    select: {
+      DNI: true,
+      nombreUsuario: true,
+      apellidoUsuario: true,
+      email: true,
+      rol: true,
+      telefono: true,
+    }
+  });
+  if (!user) {
+    return res.status(404).json({ message: 'Usuario no encontrado' });
+  }
+  res.json(user);
+};

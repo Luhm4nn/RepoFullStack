@@ -35,3 +35,13 @@ export const deleteParametro = async (id) => {
     throw error;
   }
 };
+
+export const getTiempoLimiteReserva = async () => {
+  try {
+    const response = await api.get('/Parametros/tiempo-limite-reserva');
+    return response.data;
+  }
+  catch (error) {
+    throw error;
+  }
+};

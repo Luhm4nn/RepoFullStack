@@ -3,9 +3,11 @@ import {
   getAllReservas as getAllReservasService,
   createReserva as createReservaService,
   deleteReserva as deleteReservaService,
+  deletePendingReserva as deletePendingReservaService,
   cancelReserva as cancelReservaService,
   getLatestReservas as getLatestReservasService,
-  getUserReservas as getUserReservasService
+  getUserReservas as getUserReservasService,
+  confirmReserva as confirmReservaService
 } from "./reservas.service.js";
 
 /**
@@ -82,4 +84,22 @@ export const getUserReservas = async (req, res) => {
 export const deleteReserva = async (req, res) => {
   const deletedReserva = await deleteReservaService(req.params);
   res.status(200).json(deletedReserva);
+};
+
+/**
+ * Elimina una reserva pendiente del usuario
+ */
+export const deletePendingReserva = async (req, res) => {
+  const deletedReserva = await deletePendingReservaService(req.params, req.user);
+  res.status(200).json(deletedReserva);
+};
+
+/**
+ * Confirma una reserva
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ */
+export const confirmReserva = async (req, res) => {
+  const confirmedReserva = await confirmReservaService(req.params, req.user);
+  res.json(confirmedReserva);
 };

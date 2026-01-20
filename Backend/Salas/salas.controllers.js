@@ -1,16 +1,3 @@
-import * as service from './salas.service.js';
-import { createManyForSala, updateManyForSala } from './asientos.repository.js';
-
-/**
- * Obtiene todas las salas
- * @param {Object} req - Request
- * @param {Object} res - Response
- */
-export const getSalas = async (req, res) => {
-  const salas = await service.getAll();
-  res.json(salas);
-};
-
 /**
  * Obtiene una sala por ID o Nombre
  * @param {Object} req - Request
@@ -21,6 +8,20 @@ export const getSala = async (req, res) => {
   const sala = await service.getOne(param);
   res.json(sala);
 };
+import * as service from './salas.service.js';
+import { createManyForSala, updateManyForSala } from './asientos.repository.js';
+// import { getCache, setCache, delCache } from '../utils/cache.js';
+
+/**
+ * Obtiene todas las salas
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ */
+
+export const getSalas = async (req, res) => {
+  const salas = await service.getAll();
+  res.json(salas);
+};
 
 /**
  * Crea una nueva sala y sus asientos
@@ -29,16 +30,13 @@ export const getSala = async (req, res) => {
  */
 export const createSala = async (req, res) => {
   const newSala = await service.create(req.body);
-
   await createManyForSala(
     newSala.idSala,
     req.body.filas,
     req.body.asientosPorFila,
     req.body.vipSeats || []
   );
-
   res.status(201).json(newSala);
-
 };
 
 /**
@@ -58,13 +56,10 @@ export const deleteSala = async (req, res) => {
  */
 export const updateSala = async (req, res) => {
   const { vipSeats, ...salaData } = req.body;
-
   const updatedSala = await service.update(req.params.id, salaData);
-
   if (vipSeats !== undefined) {
     await updateManyForSala(req.params.id, vipSeats || []);
   }
-
   res.status(200).json(updatedSala);
 };
 
