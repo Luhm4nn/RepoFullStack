@@ -14,6 +14,17 @@ El objetivo de esta documentación es dejar registro del alcance del proyecto, m
 - [Tracking de tareas y bugs](https://github.com/users/Luhm4nn/projects/1)
 - [Documentación de la API](api.md)
 - [Instrucciones de instalación](instrucciones.md)
+- [Documentación interactiva de la API (Swagger)](http://localhost:4000/api-docs)
+
+---
+
+## Acceso a la documentación Swagger
+
+La documentación técnica y de endpoints de la API REST está disponible en formato interactivo con Swagger/OpenAPI.
+
+- Levanta el backend y accede a: [http://localhost:4000/api-docs](http://localhost:4000/api-docs)
+- Incluye detalles de rutas, parámetros, validaciones, ejemplos y seguridad.
+- Se actualiza automáticamente con cada cambio en los endpoints.
 
 ---
 
@@ -25,5 +36,3 @@ Para la gestión del proyecto se adoptó una **metodología ágil adaptada**, ba
 - **Uso de GitHub Projects** como tablero Kanban para gestionar features, bugs e issues.
 - **Programación en pareja** en tareas complejas y revisión cruzada de código (code review).
 - Registro de reuniones y acuerdos en `minutas.md`.
-
----

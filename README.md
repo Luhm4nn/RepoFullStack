@@ -352,6 +352,25 @@ Verifica que `FRONTEND_URL` en el backend `.env` sea exactamente `https://localh
 
 Verifica las credenciales de Cloudinary en el archivo `.env` del backend.
 
+## Documentación de la API (Swagger)
+
+A partir de la versión actual, la documentación de la API REST está generada y disponible en formato interactivo usando **Swagger/OpenAPI**.
+
+- Accede a la documentación interactiva en tiempo real levantando el backend y visitando:
+
+  - [http://localhost:4000/api-docs](http://localhost:4000/api-docs)
+
+- La documentación incluye:
+  - Descripción de todos los endpoints (CRUD y consultas)
+  - Esquemas de request/response y validaciones
+  - Ejemplos de payloads
+  - Requerimientos de autenticación y roles
+  - Códigos de error y respuestas esperadas
+
+> **Nota:** La documentación Swagger se genera automáticamente a partir de los archivos en `Backend/docs/api/*.docs.js` y se actualiza con cada cambio en los endpoints.
+
+Para detalles técnicos sobre cómo se configura Swagger en este proyecto, revisa `Backend/config/swagger.js`.
+
 ## Notas Adicionales
 
 - **Seguridad**: Los archivos `.env` están en `.gitignore` y NO deben compartirse
