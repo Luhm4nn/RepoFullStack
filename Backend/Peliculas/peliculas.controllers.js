@@ -1,5 +1,4 @@
 import * as service from './peliculas.service.js';
-import { delCache } from '../utils/cache.js';
 import logger from '../utils/logger.js';
 
 /**
@@ -94,7 +93,6 @@ export const updatePelicula = async (req, res) => {
  * @param {Object} req - Request
  * @param {Object} res - Response
  */
-import { getCache, setCache } from '../utils/cache.js';
 
 export const getPeliculasEnCartelera = async (req, res) => {
   const cacheKey = 'peliculas:cartelera';
