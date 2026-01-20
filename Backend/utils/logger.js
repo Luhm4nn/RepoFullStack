@@ -26,7 +26,7 @@ export const logger = {
    */
   info: (...args) => {
     if (!isProd) {
-      // ...existing code...
+      console.log('[INFO]', ...args);
     }
   },
 
@@ -35,7 +35,7 @@ export const logger = {
    */
   debug: (...args) => {
     if (!isProd) {
-      // ...existing code...
+      console.debug('[DEBUG]', ...args);
     }
   },
 
@@ -94,10 +94,10 @@ export const logger = {
    */
   http: (method, path, statusCode, duration) => {
     if (!isProd) {
-      // ...existing code...
+      console.log('[HTTP]', method, path, statusCode, `${duration}ms`);
     } else {
       if (statusCode >= 400) {
-        // ...existing code...
+        console.warn('[HTTP]', method, path, statusCode, `${duration}ms`);
       }
     }
   },
@@ -107,9 +107,9 @@ export const logger = {
    */
   success: (message, details = {}) => {
     if (!isProd) {
-      // ...existing code...
+      console.log('[SUCCESS]', message, details);
     } else {
-      // ...existing code...
+      console.log('[SUCCESS]', message);
     }
   },
 };

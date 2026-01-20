@@ -1,1 +1,0 @@
-// Archivo eliminado: Redis cache removido

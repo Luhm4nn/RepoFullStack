@@ -10,6 +10,8 @@ const PORT = process.env.PORT || 4000;
 
 iniciarCronFunciones();
 
-app.listen(PORT, () => {
-  logger.info(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, (err) => {
+    logger.info(`Server is running on http://localhost:${PORT}`);
+    logger.info(`API Docs available at http://localhost:${PORT}/api-docs`);
+  
 });

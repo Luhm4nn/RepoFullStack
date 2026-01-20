@@ -6,7 +6,6 @@ import { authMiddleware } from '../Middlewares/authMiddleware.js';
 import { validateBody } from '../Middlewares/validateRequest.js';
 import { loginSchema } from '../validations/AuthSchema.js';
 
-
 const router = Router();
 
 router.post('/auth/login', loginLimiter, validateBody(loginSchema), asyncHandler(login));

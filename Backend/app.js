@@ -6,6 +6,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import './config/cloudinary.js';
+import { swaggerUi, swaggerSpec } from './config/swagger.js';
+
 
 const app = express();
 
@@ -39,7 +41,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(indexRoutes);
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(errorHandler);
 
 export default app;
