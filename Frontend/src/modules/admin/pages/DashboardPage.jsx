@@ -307,9 +307,9 @@ const DashboardPage = () => {
               </div>
             ) : (
               <div className="space-y-3 md:space-y-4">
-                {ultimasReservas.map((reserva) => (
+                {ultimasReservas.map((reserva, idx) => (
                   <div
-                    key={reserva.id}
+                    key={`${reserva.id}-${idx}`}
                     className="bg-slate-700/50 rounded-lg p-3 md:p-4 border border-slate-600 hover:border-slate-500 transition-colors"
                   >
                     <div className="flex justify-between items-start mb-2">

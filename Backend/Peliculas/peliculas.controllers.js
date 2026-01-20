@@ -76,7 +76,6 @@ export const deletePelicula = async (req, res) => {
  */
 export const updatePelicula = async (req, res) => {
   const updatedPelicula = await service.update(req.params.id, req.body);
-  await delCache('peliculas:cartelera');
   if (updatedPelicula) {
     if (updatedPelicula.name === 'FECHA_ESTRENO') {
       return res.status(updatedPelicula.status).json({
@@ -97,8 +96,6 @@ export const updatePelicula = async (req, res) => {
 export const getPeliculasEnCartelera = async (req, res) => {
   try {
     const peliculas = await service.getAllEnCartelera();
-    await setCache(cacheKey, peliculas, 300); // TTL 5 min
-    logger.info('Cache MISS', { cacheKey, endpoint: '/Peliculas/cartelera', hit: false });
     res.json(peliculas);
   } catch (error) {
     logger.error('Error fetching peliculas en cartelera:', error);

@@ -12,7 +12,7 @@ function MisReservasPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState("todas"); // todas, activas, canceladas, pasadas
-  const [todasReservas, setTodasReservas] = useState([]); // Cache de todas para contar
+  const [todasReservas, setTodasReservas] = useState([]); 
 
   useEffect(() => {
     console.log('[MisReservasPage] useEffect: filter', filter);
