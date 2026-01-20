@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import prisma from './prisma/prisma.js';
 import { peliculasRoutes } from './Peliculas/peliculas.routes.js';
 import { salasRoutes } from './Salas/salas.routes.js';
 import { tarifasRoutes } from './Tarifas/tarifas.routes.js';
@@ -16,6 +17,25 @@ const router = Router();
 
 router.get('/', (req, res) => {
   res.send('Welcome to the Backend API');
+});
+
+router.get('/health', async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).json({
+      status: 'ok',
+      uptime: process.uptime(),
+      timestamp: new Date(),
+      db: 'ok'
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      uptime: process.uptime(),
+      timestamp: new Date(),
+      db: 'error'
+    });
+  }
 });
 
 router.use(peliculasRoutes);
