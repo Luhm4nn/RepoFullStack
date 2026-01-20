@@ -1,25 +1,24 @@
 import * as service from './salas.service.js';
 import { createManyForSala, updateManyForSala } from './asientos.repository.js';
+import { getCache, setCache, delCache } from '../utils/cache.js';
 
 /**
  * Obtiene todas las salas
  * @param {Object} req - Request
  * @param {Object} res - Response
  */
-export const getSalas = async (req, res) => {
-  const salas = await service.getAll();
-  res.json(salas);
-};
 
-/**
- * Obtiene una sala por ID o Nombre
- * @param {Object} req - Request
- * @param {Object} res - Response
- */
-export const getSala = async (req, res) => {
-  const { param } = req.params;
-  const sala = await service.getOne(param);
-  res.json(sala);
+export const getSalas = async (req, res) => {
+  const cacheKey = 'salas:all';
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    logger.info('Cache HIT', { cacheKey, endpoint: '/Salas', hit: true });
+    return res.json(cached);
+  }
+  const salas = await service.getAll();
+  await setCache(cacheKey, salas, 600); // TTL 10 min
+  logger.info('Cache MISS', { cacheKey, endpoint: '/Salas', hit: false });
+  res.json(salas);
 };
 
 /**
@@ -29,16 +28,14 @@ export const getSala = async (req, res) => {
  */
 export const createSala = async (req, res) => {
   const newSala = await service.create(req.body);
-
   await createManyForSala(
     newSala.idSala,
     req.body.filas,
     req.body.asientosPorFila,
     req.body.vipSeats || []
   );
-
+  await delCache('salas:all');
   res.status(201).json(newSala);
-
 };
 
 /**
@@ -48,6 +45,7 @@ export const createSala = async (req, res) => {
  */
 export const deleteSala = async (req, res) => {
   await service.deleteOne(req.params.id);
+  await delCache('salas:all');
   res.status(200).json({ message: 'Sala eliminada correctamente.' });
 };
 
@@ -58,13 +56,11 @@ export const deleteSala = async (req, res) => {
  */
 export const updateSala = async (req, res) => {
   const { vipSeats, ...salaData } = req.body;
-
   const updatedSala = await service.update(req.params.id, salaData);
-
   if (vipSeats !== undefined) {
     await updateManyForSala(req.params.id, vipSeats || []);
   }
-
+  await delCache('salas:all');
   res.status(200).json(updatedSala);
 };
 

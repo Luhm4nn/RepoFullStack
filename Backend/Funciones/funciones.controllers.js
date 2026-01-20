@@ -1,4 +1,5 @@
 import {
+  import { delCache } from '../utils/cache.js';
   getOne,
   getAll,
   create,
@@ -108,8 +109,18 @@ export const getInactiveFuncionesEndpoint = async (req, res) => {
  * @param {Object} req - Request
  * @param {Object} res - Response
  */
+import { getCache, setCache } from '../utils/cache.js';
+
 export const getPublicFuncionesEndpoint = async (req, res) => {
+  const cacheKey = 'funciones:publicas';
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    logger.info('Cache HIT', { cacheKey, endpoint: '/Funciones/publicas', hit: true });
+    return res.json(cached);
+  }
   const funciones = await getPublicFuncionesService();
+  await setCache(cacheKey, funciones, 300); // TTL 5 min
+  logger.info('Cache MISS', { cacheKey, endpoint: '/Funciones/publicas', hit: false });
   res.json(funciones);
 };
 
@@ -155,6 +166,7 @@ export const getDetallesFuncion = async (req, res) => {
  * @param {Object} res - Response
  */
 export const createFuncion = async (req, res) => {
+    await delCache('funciones:publicas');
   const newFuncion = await create(req.body);
 
   if (newFuncion && (newFuncion.name === 'SOLAPAMIENTO_FUNCIONES' || newFuncion.name === 'FECHA_ESTRENO_INVALIDA')) {
@@ -173,6 +185,7 @@ export const createFuncion = async (req, res) => {
  * @param {Object} res - Response
  */
 export const deleteFuncion = async (req, res) => {
+    await delCache('funciones:publicas');
   await deleteOne(req.params);
   res.status(200).json({ message: 'Función eliminada correctamente.' });
 };
@@ -183,6 +196,7 @@ export const deleteFuncion = async (req, res) => {
  * @param {Object} res - Response
  */
 export const updateFuncion = async (req, res) => {
+    await delCache('funciones:publicas');
   const funcion = await getOne(req.params);
   
   if (req.body.estado && (req.body.estado === 'Privada' || req.body.estado === 'Publica')) {

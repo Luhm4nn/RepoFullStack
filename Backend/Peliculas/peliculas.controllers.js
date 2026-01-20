@@ -1,4 +1,5 @@
 import * as service from './peliculas.service.js';
+import { delCache } from '../utils/cache.js';
 import logger from '../utils/logger.js';
 
 /**
@@ -76,6 +77,7 @@ export const deletePelicula = async (req, res) => {
  */
 export const updatePelicula = async (req, res) => {
   const updatedPelicula = await service.update(req.params.id, req.body);
+  await delCache('peliculas:cartelera');
   if (updatedPelicula) {
     if (updatedPelicula.name === 'FECHA_ESTRENO') {
       return res.status(updatedPelicula.status).json({
@@ -83,7 +85,7 @@ export const updatePelicula = async (req, res) => {
         errorCode: updatedPelicula.name,
       });
     }
-    res.status(200).json(updatedPelicula);
+    return res.status(200).json(updatedPelicula);
   }
 };
 
@@ -92,9 +94,19 @@ export const updatePelicula = async (req, res) => {
  * @param {Object} req - Request
  * @param {Object} res - Response
  */
+import { getCache, setCache } from '../utils/cache.js';
+
 export const getPeliculasEnCartelera = async (req, res) => {
+  const cacheKey = 'peliculas:cartelera';
   try {
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      logger.info('Cache HIT', { cacheKey, endpoint: '/Peliculas/cartelera', hit: true });
+      return res.json(cached);
+    }
     const peliculas = await service.getAllEnCartelera();
+    await setCache(cacheKey, peliculas, 300); // TTL 5 min
+    logger.info('Cache MISS', { cacheKey, endpoint: '/Peliculas/cartelera', hit: false });
     res.json(peliculas);
   } catch (error) {
     logger.error('Error fetching peliculas en cartelera:', error);
