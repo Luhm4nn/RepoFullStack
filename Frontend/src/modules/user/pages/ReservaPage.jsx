@@ -108,16 +108,19 @@ function ReservaPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getFuncionesPorPeliculaYFecha(pelicula.idPelicula, fecha);
+      const data = await getFuncionesPorPeliculaYFecha(
+        pelicula.idPelicula,
+        fecha
+      );
       const funcionesArray = Array.isArray(data) ? data : [];
       setFunciones(funcionesArray);
-      
       if (funcionesArray.length === 0) {
-        setError("No hay funciones disponibles para esta fecha.");
+        setError("No hay funciones disponibles para la fecha seleccionada.");
       }
     } catch (err) {
+      console.error("Error al obtener funciones:", err);
       setFunciones([]);
-      setError("No se pudieron cargar las funciones. Intenta de nuevo.");
+      setError("Error al obtener funciones para la fecha seleccionada.");
     } finally {
       setLoading(false);
     }

@@ -49,6 +49,7 @@ export default function MiPerfilPage() {
           );
           setReservas(my);
         } catch (e) {
+          console.error("Error cargando reservas:", e);
           setReservas([]);
         }
       } finally {
