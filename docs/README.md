@@ -12,7 +12,6 @@ El objetivo de esta documentación es dejar registro del alcance del proyecto, m
 - [Propuesta actualizada](https://github.com/Luhm4nn/TP-DSW-lez-Luh/blob/main/proposal.md)
 - [Minutas de reuniones](minutas.md)
 - [Tracking de tareas y bugs](https://github.com/users/Luhm4nn/projects/1)
-- [Documentación de la API](api.md)
 - [Instrucciones de instalación](instrucciones.md)
 - [Documentación interactiva de la API (Swagger)](http://localhost:4000/api-docs)
 
