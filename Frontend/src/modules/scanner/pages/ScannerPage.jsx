@@ -29,7 +29,6 @@ function ScannerPage() {
 
         // Callback cuando se detecta un QR
         const onScanSuccess = async (decodedText) => {
-            console.log('QR detectado:', decodedText);
             setLoading(true);
             setError(null);
 
@@ -91,7 +90,6 @@ function ScannerPage() {
             const html5QrCode = new Html5Qrcode('qr-reader-file');
 
             const decodedText = await html5QrCode.scanFile(file, true);
-            console.log('QR detectado desde archivo:', decodedText);
 
             // Validar QR con el backend
             const response = await validateQR(decodedText);
@@ -238,10 +236,6 @@ function ScannerPage() {
                                 <div className="flex justify-between border-b border-slate-700 pb-2">
                                     <span className="text-gray-400">Cliente:</span>
                                     <span className="text-white font-semibold">{result.reserva?.cliente}</span>
-                                </div>
-                                <div className="flex justify-between border-b border-slate-700 pb-2">
-                                    <span className="text-gray-400">Total:</span>
-                                    <span className="text-green-400 font-bold">${result.reserva?.total}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-gray-400">Estado:</span>

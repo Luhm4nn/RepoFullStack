@@ -134,13 +134,13 @@ async function update(id, data) {
  * Obtiene películas que tienen funciones públicas (en cartelera)
  * @returns {Promise<Array>} Lista de películas en cartelera
  */
-async function getAllEnCartelera(hoy, semana) {
+async function getAllEnCartelera(ahora, semana) {
   return await prisma.pelicula.findMany({
     where: {
       funcion: {
         some: {
           fechaHoraFuncion: {
-            gte: hoy,
+            gte: ahora,
             lte: semana,
           },
           estado: 'Publica',

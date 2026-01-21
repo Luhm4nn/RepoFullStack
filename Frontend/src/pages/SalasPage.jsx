@@ -10,10 +10,7 @@ function SalasPage() {
 
   const handleSubmit = async (values) => {
     try {
-      // ...existing code...
       await createSala(values);
-      // ...existing code...
-      
       setMostrarFormulario(false);
       setRefreshList(prev => prev + 1);
       

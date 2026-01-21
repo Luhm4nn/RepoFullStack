@@ -121,7 +121,6 @@ export const update = async (id, data) => {
  */
 export const getAllEnCartelera = async () => {
   const inicio = new Date();
-  inicio.setHours(0, 0, 0, 0);
   const fin = new Date();
   fin.setDate(fin.getDate() + 6);
   fin.setHours(23, 59, 59, 999);

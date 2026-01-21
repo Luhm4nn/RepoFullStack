@@ -86,7 +86,6 @@ export const logger = {
       success: metadata.success !== undefined ? metadata.success : null,
     };
 
-    // ...existing code...
   },
 
   /**

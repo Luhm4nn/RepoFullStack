@@ -20,6 +20,7 @@ export async function getReservaWithDetails({ idSala, fechaHoraFuncion, DNI, fec
                 include: {
                     sala: true,
                     pelicula: true,
+                    fechaHoraFuncion: true,
                 },
             },
             usuario: {

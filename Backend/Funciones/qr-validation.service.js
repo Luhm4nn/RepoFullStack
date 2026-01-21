@@ -33,10 +33,29 @@ export async function validateAndUseQR(encryptedData, user) {
 
         // Obtener reserva actual de la base de datos
         const reserva = await repository.getReservaWithDetails(params);
+        const ahora = new Date();
 
         if (!reserva) {
             const error = new Error('Reserva no encontrada');
             error.status = 404;
+            throw error;
+        }
+
+        // Validar que la función ya haya comenzado o este a 15 minutos de comenzar y que no haya finalizado
+        const quinceMinutosAntes = new Date(reserva.funcion.fechaHoraFuncion);
+        quinceMinutosAntes.setMinutes(quinceMinutosAntes.getMinutes() - 15);
+        if (quinceMinutosAntes > ahora) {
+            const error = new Error('La función aún no ha comenzado');
+            error.status = 400;
+            error.code = 'FUNCTION_NOT_STARTED';
+            throw error;
+        }
+        const horaDeFinalizacion = new Date(reserva.funcion.fechaHoraFuncion);
+        horaDeFinalizacion.setMinutes(horaDeFinalizacion.getMinutes() + reserva.funcion.pelicula.duracion);
+        if (horaDeFinalizacion < ahora) {
+            const error = new Error('La función ya ha finalizado');
+            error.status = 400;
+            error.code = 'FUNCTION_ALREADY_ENDED';
             throw error;
         }
 
@@ -51,7 +70,14 @@ export async function validateAndUseQR(encryptedData, user) {
         if (reserva.estado === 'CANCELADA') {
             const error = new Error('Esta reserva fue cancelada');
             error.status = 400;
-            error.code = 'CANCELLED';
+            error.code = 'RESERVATION_CANCELLED';
+            throw error;
+        }
+
+        if (reserva.estado !== 'ACTIVA') {
+            const error = new Error('Esta reserva no está activa');
+            error.status = 400;
+            error.code = 'NOT_ACTIVE';
             throw error;
         }
 
@@ -70,12 +96,11 @@ export async function validateAndUseQR(encryptedData, user) {
             reserva: {
                 idSala: updatedReserva.idSala,
                 DNI: updatedReserva.DNI,
-                estado: updatedReserva.estado,
-                total: updatedReserva.total.toString(),
                 pelicula: updatedReserva.funcion.pelicula.nombrePelicula,
                 sala: updatedReserva.funcion.sala.nombreSala,
                 fechaHoraFuncion: updatedReserva.funcion.fechaHoraFuncion,
                 cliente: `${updatedReserva.usuario.nombreUsuario} ${updatedReserva.usuario.apellidoUsuario}`,
+                estado: updatedReserva.estado,
             },
         };
     } catch (error) {

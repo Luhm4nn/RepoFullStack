@@ -15,7 +15,6 @@ function MisReservasPage() {
   const [todasReservas, setTodasReservas] = useState([]); 
 
   useEffect(() => {
-    console.log('[MisReservasPage] useEffect: filter', filter);
     fetchReservas();
   }, [filter]);
 
@@ -24,9 +23,7 @@ function MisReservasPage() {
     setError(null);
     try {
       const auth = await authAPI.checkAuth();
-      console.log('[MisReservasPage] checkAuth:', auth);
       if (!auth || !auth.user || !auth.user.DNI) {
-        console.log('[MisReservasPage] Redirigiendo a /login por falta de usuario');
         navigate("/login");
         return;
       }

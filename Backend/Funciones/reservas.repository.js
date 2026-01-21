@@ -50,13 +50,25 @@ const removeMilliseconds = (date) => {
  */
 async function createWithSeats(reservaData, asientos) {
   return await prisma.$transaction(async (tx) => {
+    const now = new Date();
     const idSala = parseInt(reservaData.idSala, 10);
     const DNI = parseInt(reservaData.DNI, 10);
-    const total = parseFloat(reservaData.total);
     const subFunc = new Date(reservaData.fechaHoraFuncion);
-    const subRes = removeMilliseconds(reservaData.fechaHoraReserva || new Date());
+    const subRes = removeMilliseconds(now);
 
-    // 1. Limpieza de cualquier reserva pendiente previa del usuario (Single active policy)
+    //---- COMIENZO VALIDACIONES ----//
+    
+    // Verificar que el ussuario exista
+    const usuario = await tx.usuario.findUnique({
+      where: {
+        DNI: DNI,
+      },
+    });
+    if (!usuario) {
+      throw new Error('El usuario especificado no existe.');
+    }
+
+    //Limpieza de cualquier reserva pendiente previa del usuario (Single active policy)
     await tx.reserva.deleteMany({
       where: {
         DNI: DNI,
@@ -64,7 +76,41 @@ async function createWithSeats(reservaData, asientos) {
       },
     });
 
-    // 2. Verificar disponibilidad de asientos (Double-check concurrente)
+    //Verificar que la función no haya comenzado
+    if (subFunc <= now) {
+      throw new Error('No se puede reservar para una función que ya ha comenzado.');
+    }
+
+    //verificar que la sala sea correcta para la función
+    const funcion = await tx.funcion.findUnique({
+      where: {
+        idSala_fechaHoraFuncion: {
+          idSala: idSala,
+          fechaHoraFuncion: subFunc,
+        },
+      },
+    });
+    if (!funcion) {
+      throw new Error('La función especificada no existe en la sala indicada.');
+    }
+
+    //Verificar que los asientos existen en la sala
+    for (const asiento of asientos) {
+      const asientoExistente = await tx.asiento.findUnique({
+        where: {
+          idSala_filaAsiento_nroAsiento: {
+            idSala: idSala,
+            filaAsiento: asiento.filaAsiento,
+            nroAsiento: parseInt(asiento.nroAsiento, 10),
+          },
+        },
+      });
+      if (!asientoExistente) {
+        throw new Error(`El asiento ${asiento.filaAsiento}${asiento.nroAsiento} no existe en la sala ${idSala}.`);
+      }
+    }
+
+    //Verificar disponibilidad de asientos (Double-check concurrente)
     for (const asiento of asientos) {
       const busy = await tx.asiento_reserva.findUnique({
         where: {
@@ -74,26 +120,54 @@ async function createWithSeats(reservaData, asientos) {
             nroAsiento: parseInt(asiento.nroAsiento, 10),
             fechaHoraFuncion: subFunc
           }
-        }
+        },
+
       });
       if (busy) {
         throw new Error(`El asiento ${asiento.filaAsiento}${asiento.nroAsiento} ya no está disponible.`);
       }
     }
 
-    // 3. Crear la Reserva
+    // Calcular total
+    var total = 0;
+    for (const asiento of asientos) {
+      const asientoInfo = await tx.asiento.findUnique({
+        where: {
+          idSala_filaAsiento_nroAsiento: {
+            idSala,
+            filaAsiento: asiento.filaAsiento,
+            nroAsiento: parseInt(asiento.nroAsiento, 10),
+          },
+        },
+        include: {
+          tarifa: true,
+        },
+      });
+    
+      total += asientoInfo.tarifa.precio;
+    }
+    total = parseFloat(total);
+    //---- FIN VALIDACIONES ----//
+    
+    //Crear la Reserva
     const newReserva = await tx.reserva.create({
       data: {
-        idSala,
-        fechaHoraFuncion: subFunc,
-        DNI,
         estado: 'PENDIENTE',
         fechaHoraReserva: subRes,
         total,
+        usuario: {
+          connect: { DNI }
+        },
+        funcion: {
+          connect: { idSala_fechaHoraFuncion: {
+          idSala: idSala,
+          fechaHoraFuncion: subFunc,
+        }}
+        }
       },
     });
 
-    // 4. Crear los registros de Asientos Reservados
+    //Crear los registros de Asientos Reservados
     const asientosToCreate = asientos.map(a => ({
       idSala,
       filaAsiento: a.filaAsiento,
