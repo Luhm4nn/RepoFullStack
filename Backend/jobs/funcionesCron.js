@@ -13,7 +13,7 @@ export const iniciarCronFunciones = () => {
   }
 
   // Corre cada 2 horas para verificar funciones finalizadas
-  cron.schedule("*/120 * * * *", async () => {
+  cron.schedule('*/120 * * * *', async () => {
     try {
       const ahora = new Date();
 
@@ -28,7 +28,7 @@ export const iniciarCronFunciones = () => {
         },
         include: {
           pelicula: true,
-          reservas: true,
+          reserva: true,
         },
       });
 
@@ -38,7 +38,7 @@ export const iniciarCronFunciones = () => {
         const fechaFin = new Date(
           funcion.fechaHoraFuncion.getTime() + funcion.pelicula.duracion * 60000
         );
-        const reservas = funcion.reservas;
+        const reservas = funcion.reserva;
         // if pelicula ended changes estado to Inactiva
         if (ahora > fechaFin) {
           await prisma.funcion.update({
@@ -50,20 +50,25 @@ export const iniciarCronFunciones = () => {
             },
             data: { estado: 'Inactiva' },
           });
-          
+
           funcionesActualizadas++;
           logger.info(
             `Función finalizada: ${funcion.pelicula.nombrePelicula} - Sala ${funcion.idSala} - ${funcion.fechaHoraFuncion.toLocaleString()}`
           );
           for (const reserva of reservas) {
             await prisma.reserva.update({
-              where: { idReserva: reserva.idReserva },
-              data: { estado: 'Finalizada' },
+              where: {
+                idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
+                  idSala: reserva.idSala,
+                  fechaHoraFuncion: reserva.fechaHoraFuncion,
+                  DNI: reserva.DNI,
+                  fechaHoraReserva: reserva.fechaHoraReserva,
+                },
+              },
+              data: { estado: 'NO_ASISTIDA' },
             });
           }
-          logger.info(
-            `Se finalizaron ${reservas.length} reservas asociadas a la función.`
-          );
+          logger.info(`Se finalizaron ${reservas.length} reservas asociadas a la función.`);
         }
       }
       if (funcionesActualizadas > 0) {

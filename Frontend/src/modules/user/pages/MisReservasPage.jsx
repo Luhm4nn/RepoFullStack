@@ -35,19 +35,28 @@ function MisReservasPage() {
       if (filter === "canceladas") {
         const data = await getUserReservas("CANCELADA");
         misReservas = Array.isArray(data) ? data : [];
-      } else if (filter === "activas" || filter === "pasadas") {
-        // Traer solo confirmadas y filtrar por fecha en frontend
-        const data = await getUserReservas("CONFIRMADA");
+      } else if (filter === "activas") {
+        const data = await getUserReservas("ACTIVA");
         const confirmadas = Array.isArray(data) ? data : [];
-        if (filter === "activas") {
-          misReservas = confirmadas.filter(
+        misReservas = confirmadas.filter(
             (r) => new Date(r.funcion?.fechaHoraFuncion) >= ahora
           );
-        } else {
-          misReservas = confirmadas.filter(
+      } else if (filter === "finalizadas") {
+        // Finalizadas son las reservas activas y confirmadas cuya función ya pasó (si quedó activa significa que el cron no la desactivó aún)
+        const activas = await getUserReservas("ACTIVA");
+        const confirmadas = await getUserReservas("CONFIRMADA");
+        const noAsistidas = await getUserReservas("NO_ASISTIDA");
+        misReservas = [
+          ...Array.isArray(activas) ? activas.filter(
             (r) => new Date(r.funcion?.fechaHoraFuncion) < ahora
-          );
-        }
+          ) : [],
+          ...Array.isArray(confirmadas) ? confirmadas.filter(
+            (r) => new Date(r.funcion?.fechaHoraFuncion) < ahora
+          ) : [],
+          ...Array.isArray(noAsistidas) ? noAsistidas.filter(
+            (r) => new Date(r.funcion?.fechaHoraFuncion) < ahora
+          ) : [],
+        ];
       } else {
         // todas
         const data = await getUserReservas();

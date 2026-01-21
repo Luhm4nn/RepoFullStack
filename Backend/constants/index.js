@@ -1,6 +1,5 @@
 /**
- * Constantes globales del proyecto frontend
- *
+ * Constantes globales del proyecto backend
  */
 
 // Generos de peliculas
@@ -44,9 +43,9 @@ export const ESTADOS_FUNCION = {
 
 // Estados de reservas
 export const ESTADOS_RESERVA = {
-  PENDIENTE: 'Pendiente',
-  ACTIVA: 'Activa',
-  CANCELADA: 'Cancelada',
-  ASISTIDA: 'Asistida',
-  NO_ASISTIDA: 'No_asistida',
+  PENDIENTE: 'PENDIENTE',
+  ACTIVA: 'ACTIVA',
+  CANCELADA: 'CANCELADA',
+  ASISTIDA: 'ASISTIDA',
+  NO_ASISTIDA: 'NO_ASISTIDA',
 };

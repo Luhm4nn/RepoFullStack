@@ -7,8 +7,8 @@ import {
   cancelReserva as cancelReservaService,
   getLatestReservas as getLatestReservasService,
   getUserReservas as getUserReservasService,
-  confirmReserva as confirmReservaService
-} from "./reservas.service.js";
+  confirmReserva as confirmReservaService,
+} from './reservas.service.js';
 
 /**
  * Obtiene todas las reservas
@@ -70,11 +70,10 @@ export const getLatestReservas = async (req, res) => {
 export const getUserReservas = async (req, res) => {
   const userDNI = req.user.id; // El DNI está en req.user.id
   const { estado } = req.query;
+  console.log(estado);
   const reservas = await getUserReservasService(userDNI, estado);
   res.json(reservas);
 };
-
-
 
 /**
  * Elimina una reserva

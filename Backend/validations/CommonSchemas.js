@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { ESTADOS_RESERVA, ESTADOS_FUNCION } from '../constants/index.js';
 
 // Schema de paginación reutilizable
 export const paginationSchema = Yup.object().shape({
@@ -12,7 +13,7 @@ export const paginationSchema = Yup.object().shape({
       }
       return value;
     }),
-  
+
   limit: Yup.number()
     .positive('El límite debe ser positivo')
     .integer('El límite debe ser un número entero')
@@ -27,11 +28,8 @@ export const paginationSchema = Yup.object().shape({
 });
 
 export const searchQuerySchema = Yup.object().shape({
-  q: Yup.string()
-    .trim()
-    .max(100, 'El término de búsqueda es demasiado largo')
-    .nullable(),
-  
+  q: Yup.string().trim().max(100, 'El término de búsqueda es demasiado largo').nullable(),
+
   limit: Yup.number()
     .positive('El límite debe ser positivo')
     .integer('El límite debe ser un número entero')
@@ -46,36 +44,28 @@ export const searchQuerySchema = Yup.object().shape({
 });
 
 export const funcionesFilterSchema = Yup.object().shape({
-  estado: Yup.string()
-    .oneOf(['activas', 'inactivas', 'publicas'], 'Estado inválido')
-    .nullable(),
-  
+  estado: Yup.string().oneOf(Object.values(ESTADOS_FUNCION), 'Estado inválido').nullable(),
+
   idPelicula: Yup.number()
     .positive()
     .integer()
     .nullable()
-    .transform((value, originalValue) => originalValue === '' ? null : value),
-  
-  nombrePelicula: Yup.string()
-    .trim()
-    .max(100)
-    .nullable(),
-  
+    .transform((value, originalValue) => (originalValue === '' ? null : value)),
+
+  nombrePelicula: Yup.string().trim().max(100).nullable(),
+
   idSala: Yup.number()
     .positive()
     .integer()
     .nullable()
-    .transform((value, originalValue) => originalValue === '' ? null : value),
-  
-  nombreSala: Yup.string()
-    .trim()
-    .max(45)
-    .nullable(),
-  
+    .transform((value, originalValue) => (originalValue === '' ? null : value)),
+
+  nombreSala: Yup.string().trim().max(45).nullable(),
+
   fechaDesde: Yup.date().nullable(),
-  
+
   fechaHasta: Yup.date().nullable(),
-  
+
   page: Yup.number()
     .positive('La página debe ser positiva')
     .integer('La página debe ser un número entero')
@@ -86,7 +76,7 @@ export const funcionesFilterSchema = Yup.object().shape({
       }
       return value;
     }),
-  
+
   limit: Yup.number()
     .positive('El límite debe ser positivo')
     .integer('El límite debe ser un número entero')
@@ -101,16 +91,14 @@ export const funcionesFilterSchema = Yup.object().shape({
 });
 
 export const reservasFilterSchema = Yup.object().shape({
-  estado: Yup.string()
-    .oneOf(['CONFIRMADA', 'CANCELADA'], 'Estado inválido')
-    .nullable(),
-  
+  estado: Yup.string().oneOf(Object.values(ESTADOS_RESERVA), 'Estado inválido').nullable(),
+
   limit: Yup.number()
     .positive()
     .integer()
     .max(100)
     .default(5)
-    .transform((value, originalValue) => originalValue === '' ? 5 : value),
+    .transform((value, originalValue) => (originalValue === '' ? 5 : value)),
 });
 
 export const idParamSchema = Yup.object().shape({
@@ -128,13 +116,12 @@ export const dniParamSchema = Yup.object().shape({
 });
 
 export const salaParamSchema = Yup.object().shape({
-  param: Yup.mixed()
-    .test('id-or-name', 'Parámetro inválido', function(value) {
-      if (!value) return false;
-      // Puede ser un número (ID) o un string (nombre)
-      if (/^\d+$/.test(value)) {
-        return !isNaN(parseInt(value, 10));
-      }
-      return typeof value === 'string' && value.length > 0 && value.length <= 45;
-    }),
+  param: Yup.mixed().test('id-or-name', 'Parámetro inválido', function (value) {
+    if (!value) return false;
+    // Puede ser un número (ID) o un string (nombre)
+    if (/^\d+$/.test(value)) {
+      return !isNaN(parseInt(value, 10));
+    }
+    return typeof value === 'string' && value.length > 0 && value.length <= 45;
+  }),
 });

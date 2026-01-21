@@ -44,6 +44,37 @@ const removeMilliseconds = (date) => {
 };
 
 /**
+ * Obtiene reservas por ususario y estado
+ * @param {number} DNI - DNI del usuario
+ * @param {string} estado - Estado de la reserva
+ * @returns {Promise<Array>} Lista de reservas
+ */
+
+async function getByUserAndStatus(DNI, estado) {
+  const whereClause = {
+    DNI: parseInt(DNI, 10),
+  };
+  if (estado) {
+    whereClause.estado = estado;
+  }
+  console.log('WHERE CLAUSE EN REPO:', whereClause);
+  return await prisma.reserva.findMany({
+    where: whereClause,
+    include: {
+      funcion: {
+        include: {
+          sala: true,
+          pelicula: true,
+        },
+      },
+    },
+    orderBy: {
+      fechaHoraReserva: 'desc',
+    },
+  });
+}
+
+/**
  * Crea una reserva y bloquea los asientos de forma atómica (Transacción)
  * @param {Object} reservaData - Datos de la reserva
  * @param {Array} asientos - Lista de asientos a bloquear
@@ -57,7 +88,7 @@ async function createWithSeats(reservaData, asientos) {
     const subRes = removeMilliseconds(now);
 
     //---- COMIENZO VALIDACIONES ----//
-    
+
     // Verificar que el ussuario exista
     const usuario = await tx.usuario.findUnique({
       where: {
@@ -106,7 +137,9 @@ async function createWithSeats(reservaData, asientos) {
         },
       });
       if (!asientoExistente) {
-        throw new Error(`El asiento ${asiento.filaAsiento}${asiento.nroAsiento} no existe en la sala ${idSala}.`);
+        throw new Error(
+          `El asiento ${asiento.filaAsiento}${asiento.nroAsiento} no existe en la sala ${idSala}.`
+        );
       }
     }
 
@@ -118,13 +151,14 @@ async function createWithSeats(reservaData, asientos) {
             idSala,
             filaAsiento: asiento.filaAsiento,
             nroAsiento: parseInt(asiento.nroAsiento, 10),
-            fechaHoraFuncion: subFunc
-          }
+            fechaHoraFuncion: subFunc,
+          },
         },
-
       });
       if (busy) {
-        throw new Error(`El asiento ${asiento.filaAsiento}${asiento.nroAsiento} ya no está disponible.`);
+        throw new Error(
+          `El asiento ${asiento.filaAsiento}${asiento.nroAsiento} ya no está disponible.`
+        );
       }
     }
 
@@ -143,12 +177,12 @@ async function createWithSeats(reservaData, asientos) {
           tarifa: true,
         },
       });
-    
+
       total += asientoInfo.tarifa.precio;
     }
     total = parseFloat(total);
     //---- FIN VALIDACIONES ----//
-    
+
     //Crear la Reserva
     const newReserva = await tx.reserva.create({
       data: {
@@ -156,29 +190,31 @@ async function createWithSeats(reservaData, asientos) {
         fechaHoraReserva: subRes,
         total,
         usuario: {
-          connect: { DNI }
+          connect: { DNI },
         },
         funcion: {
-          connect: { idSala_fechaHoraFuncion: {
-          idSala: idSala,
-          fechaHoraFuncion: subFunc,
-        }}
-        }
+          connect: {
+            idSala_fechaHoraFuncion: {
+              idSala: idSala,
+              fechaHoraFuncion: subFunc,
+            },
+          },
+        },
       },
     });
 
     //Crear los registros de Asientos Reservados
-    const asientosToCreate = asientos.map(a => ({
+    const asientosToCreate = asientos.map((a) => ({
       idSala,
       filaAsiento: a.filaAsiento,
       nroAsiento: parseInt(a.nroAsiento, 10),
       fechaHoraFuncion: subFunc,
       DNI,
-      fechaHoraReserva: subRes
+      fechaHoraReserva: subRes,
     }));
 
     await tx.asiento_reserva.createMany({
-      data: asientosToCreate
+      data: asientosToCreate,
     });
 
     return newReserva;
@@ -253,7 +289,7 @@ async function cancel({ idSala, fechaHoraFuncion, DNI, fechaHoraReserva }) {
 async function getLatest(limit = 5) {
   return await prisma.reserva.findMany({
     where: {
-      estado: 'ACTIVA'
+      estado: 'ACTIVA',
     },
     include: {
       funcion: {
@@ -264,9 +300,9 @@ async function getLatest(limit = 5) {
       },
     },
     orderBy: {
-      fechaHoraReserva: 'desc'
+      fechaHoraReserva: 'desc',
     },
-    take: limit
+    take: limit,
   });
 }
 
@@ -281,7 +317,7 @@ async function confirm({ idSala, fechaHoraFuncion, DNI, fechaHoraReserva }) {
       },
     },
     data: {
-      estado: 'CONFIRMADA',
+      estado: 'ACTIVA',
     },
   });
 }
@@ -299,4 +335,14 @@ async function deletePendingByUser(DNI) {
   });
 }
 
-export { getOne, getAll, createWithSeats, deleteOne, cancel, getLatest, confirm, deletePendingByUser };
+export {
+  getOne,
+  getAll,
+  createWithSeats,
+  deleteOne,
+  cancel,
+  getLatest,
+  confirm,
+  deletePendingByUser,
+  getByUserAndStatus,
+};

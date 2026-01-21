@@ -46,7 +46,7 @@ function MisReservasList({ reservas, onReservaActualizada }) {
   };
 
   const getEstadoBadge = (estado, funcionPasada) => {
-    // Si la función pasó, mostrar solo badge de "PASADA"
+    // Si la función pasó, mostrar solo badge de "FINALIZADA"
     if (funcionPasada && estado === "ACTIVA") {
       return null; // No mostrar badge de ACTIVA si ya pasó
     }
@@ -134,7 +134,7 @@ function MisReservasList({ reservas, onReservaActualizada }) {
                         )}
                         {funcionPasada && (
                           <span className="px-3 py-1 rounded-full text-xs font-semibold border bg-gray-500/20 text-gray-300 border-gray-500/30">
-                            PASADA
+                            FINALIZADA
                           </span>
                         )}
                       </div>

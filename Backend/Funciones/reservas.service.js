@@ -74,7 +74,9 @@ export async function cancelReserva(params, user) {
   const horasHastaFuncion = (fechaFuncion - now) / (1000 * 60 * 60);
 
   if (horasHastaFuncion < 2) {
-    const error = new Error('No se puede cancelar una reserva con menos de 2 horas de anticipación');
+    const error = new Error(
+      'No se puede cancelar una reserva con menos de 2 horas de anticipación'
+    );
     error.status = 400;
     throw error;
   }
@@ -120,15 +122,10 @@ export async function getLatestReservas(limit) {
 /**
  * Obtiene las reservas de un usuario específico
  */
-export async function getUserReservas(userDNI, estado = null) {
-  const allReservas = await repository.getAll();
-  let userReservas = allReservas.filter(r => r.DNI === parseInt(userDNI));
-  
-  if (estado && (estado === 'CONFIRMADA' || estado === 'CANCELADA')) {
-    userReservas = userReservas.filter(r => r.estado === estado);
-  }
-  
-  userReservas.sort((a, b) => new Date(b.fechaHoraReserva) - new Date(a.fechaHoraReserva));
+export async function getUserReservas(userDNI, estado) {
+  validateOwnership({ id: userDNI, rol: 'USER' }, userDNI);
+  console.log('USER DNI EN SERVICE:', userDNI, 'ESTADO:', estado);
+  let userReservas = await repository.getByUserAndStatus(userDNI, estado);
   return userReservas;
 }
 
@@ -138,7 +135,7 @@ export async function getUserReservas(userDNI, estado = null) {
 export async function confirmReserva(params, user) {
   const { DNI } = params;
   validateOwnership(user, DNI);
-  
+
   const reserva = await repository.getOne(params);
   if (!reserva) {
     const error = new Error('Reserva no encontrada.');
