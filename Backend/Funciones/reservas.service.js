@@ -130,7 +130,7 @@ export async function getUserReservas(userDNI, estado) {
 }
 
 /**
- * Confirma una reserva (pasa de PENDIENTE a CONFIRMADA)
+ * Confirma una reserva (pasa de PENDIENTE a ACTIVA)
  */
 export async function confirmReserva(params, user) {
   const { DNI } = params;

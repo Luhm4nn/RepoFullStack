@@ -47,15 +47,21 @@ function MisReservasList({ reservas, onReservaActualizada }) {
 
   const getEstadoBadge = (estado, funcionPasada) => {
     // Si la función pasó, mostrar solo badge de "FINALIZADA"
-    if (funcionPasada && estado === "ACTIVA") {
-      return null; // No mostrar badge de ACTIVA si ya pasó
+    if (funcionPasada && (estado === "ACTIVA" || estado === "ASISTIDA")) {
+      return null; // No mostrar badge de ACTIVA/ASISTIDA si ya pasó
     }
-    
+
     switch (estado) {
       case "ACTIVA":
         return "bg-green-500/20 text-green-300 border-green-500/30";
+      case "ASISTIDA":
+        return "bg-blue-500/20 text-blue-300 border-blue-500/30";
       case "CANCELADA":
         return "bg-red-500/20 text-red-300 border-red-500/30";
+      case "NO_ASISTIDA":
+        return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
+      case "FINALIZADA":
+        return "bg-gray-500/20 text-gray-300 border-gray-500/30";
       default:
         return "bg-gray-500/20 text-gray-300 border-gray-500/30";
     }
@@ -110,7 +116,7 @@ function MisReservasList({ reservas, onReservaActualizada }) {
                     alt={pelicula?.nombrePelicula || "Película"}
                     className="w-full h-full object-cover"
                   />
-                  {funcionPasada && reserva.estado === "ACTIVA" && (
+                  {funcionPasada && (
                     <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
                       <span className="text-white font-bold text-lg">FUNCIÓN FINALIZADA</span>
                     </div>

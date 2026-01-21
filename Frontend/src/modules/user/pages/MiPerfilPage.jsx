@@ -79,7 +79,7 @@ export default function MiPerfilPage() {
 
   const reservasActivas = reservas.filter(
     (r) =>
-      r.estadoReserva === "CONFIRMADA" &&
+      r.estadoReserva === "ASISTIDA" &&
       new Date(r.funcion?.fechaHoraFuncion) >= now
   );
   const reservasFinalizadas = reservas.filter(
@@ -93,7 +93,7 @@ export default function MiPerfilPage() {
   const proximaReserva = reservas
     .filter(
       (r) =>
-        r.estadoReserva === "CONFIRMADA" &&
+        r.estadoReserva === "ASISTIDA" &&
         new Date(r.funcion?.fechaHoraFuncion) >= now
     )
     .sort(
