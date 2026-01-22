@@ -43,8 +43,6 @@ function TarifasList() {
     } catch (error) {}
   };
 
-  // Eliminar función de crear tarifa
-
   const openEditModal = (tarifa) => {
     setTarifaEditar(tarifa);
     setMostrarFormulario(true);
@@ -54,8 +52,6 @@ function TarifasList() {
     setMostrarFormulario(false);
     setTarifaEditar(null);
   };
-
-  // Eliminar funciones de eliminar tarifa
 
   return (
     <div className="w-full">
