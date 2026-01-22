@@ -53,10 +53,9 @@ async function update(id, data) {
       idTarifa: parseInt(id, 10),
     },
     data: {
-      nombreTarifa: data.nombreTarifa,
       precio: data.precio,
-      edadMinima: data.edadMinima,
-      edadMaxima: data.edadMaxima,
+      fechaDesde: data.fechaDesde,
+      descripcionTarifa: data.descripcionTarifa,
     },
   });
 }

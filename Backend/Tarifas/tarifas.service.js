@@ -47,6 +47,8 @@ export const update = async (id, data) => {
     error.status = 404;
     throw error;
   }
+  const hoy = new Date();
+  data.fechaDesde = hoy;
   return await repository.update(id, data);
 };
 

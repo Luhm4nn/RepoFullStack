@@ -13,8 +13,6 @@ router.get('/Tarifas', asyncHandler(getTarifas));
 
 router.get('/Tarifa/:id', validateParams(idParamSchema), asyncHandler(getTarifa));
 
-// Creation endpoint removed: tarifas can no longer be created via API
-
 router.put(
   '/Tarifa/:id',
   authMiddleware,
@@ -23,7 +21,5 @@ router.put(
   validateBody(tarifasSchema),
   asyncHandler(updateTarifa)
 );
-
-// Deletion endpoint removed: tarifas can no longer be deleted via API
 
 export const tarifasRoutes = router;
