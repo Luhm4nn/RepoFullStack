@@ -42,6 +42,9 @@ export const createTarifa = async (req, res) => {
  */
 export const updateTarifa = async (req, res) => {
   const updatedTarifa = await service.update(req.params.id, req.body);
+  if (!updatedTarifa) {
+    return res.status(204).send();
+  }
   res.status(200).json(updatedTarifa);
 };
 
