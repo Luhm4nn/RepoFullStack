@@ -18,27 +18,9 @@ export const getTarifa = async (idTarifa) => {
   }
 };
 
-export const createTarifa = async (tarifa) => {
-  try {
-    const response = await api.post('/Tarifa', tarifa);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
 export const updateTarifa = async (id, tarifa) => {
   try {
     const response = await api.put(`/Tarifa/${id}`, tarifa);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const deleteTarifa = async (id) => {
-  try {
-    const response = await api.delete(`/Tarifa/${id}`);
     return response.data;
   } catch (error) {
     throw error;

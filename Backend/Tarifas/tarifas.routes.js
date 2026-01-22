@@ -3,7 +3,7 @@ import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { validateBody, validateParams } from '../Middlewares/validateRequest.js';
 import { idParamSchema } from '../validations/CommonSchemas.js';
 import { tarifasSchema } from '../validations/TarifasSchema.js';
-import { getTarifas, getTarifa, createTarifa, deleteTarifa, updateTarifa } from './tarifas.controllers.js';
+import { getTarifas, getTarifa, updateTarifa } from './tarifas.controllers.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
 import { authorizeRoles } from '../Middlewares/authorizeRoles.js';
 
@@ -13,13 +13,7 @@ router.get('/Tarifas', asyncHandler(getTarifas));
 
 router.get('/Tarifa/:id', validateParams(idParamSchema), asyncHandler(getTarifa));
 
-router.post(
-  '/Tarifa',
-  authMiddleware,
-  authorizeRoles('ADMIN'),
-  validateBody(tarifasSchema),
-  asyncHandler(createTarifa)
-);
+// Creation endpoint removed: tarifas can no longer be created via API
 
 router.put(
   '/Tarifa/:id',
@@ -30,6 +24,6 @@ router.put(
   asyncHandler(updateTarifa)
 );
 
-router.delete('/Tarifa/:id', authMiddleware, authorizeRoles('ADMIN'), validateParams(idParamSchema), asyncHandler(deleteTarifa));
+// Deletion endpoint removed: tarifas can no longer be deleted via API
 
 export const tarifasRoutes = router;

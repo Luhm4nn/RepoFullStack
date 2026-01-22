@@ -79,35 +79,7 @@
  *     summary: Eliminar una tarifa
  *     tags: [Tarifas]
  *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: ID de la tarifa
- *     responses:
- *       200:
- *         description: Tarifa eliminada correctamente
- *       401:
- *         description: No autorizado
- *       403:
- *         description: Prohibido
- *       404:
- *         description: Tarifa no encontrada
- *       500:
- *         description: Error interno del servidor
- *
- * /Tarifa:
- *   post:
- *     summary: Crear una nueva tarifa
- *     tags: [Tarifas]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
+
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/TarifaInput'
