@@ -36,9 +36,9 @@ export const CLASIFICACIONES_MPAA = [
 
 // Estados de funciones
 export const ESTADOS_FUNCION = {
-  PUBLICA: 'Publica',
-  PRIVADA: 'Privada',
-  INACTIVA: 'Inactiva',
+  activas: 'activas',
+  inactivas: 'inactivas',
+  publicas: 'publicas',
 };
 
 // Estados de reservas

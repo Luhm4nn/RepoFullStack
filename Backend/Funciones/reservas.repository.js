@@ -57,7 +57,6 @@ async function getByUserAndStatus(DNI, estado) {
   if (estado) {
     whereClause.estado = estado;
   }
-  console.log('WHERE CLAUSE EN REPO:', whereClause);
   return await prisma.reserva.findMany({
     where: whereClause,
     include: {

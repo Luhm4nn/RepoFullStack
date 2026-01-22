@@ -91,7 +91,6 @@ export const getReservasByUser = async (DNI) => {
 export const getUserReservas = async (estado = null) => {
   try {
     const url = estado ? `/Reservas/user?estado=${estado}` : '/Reservas/user';
-    console.log('URL de getUserReservas:', url);
     const response = await api.get(url);
     return response.data;
   } catch (error) {

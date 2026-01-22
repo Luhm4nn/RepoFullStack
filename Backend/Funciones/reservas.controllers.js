@@ -70,7 +70,6 @@ export const getLatestReservas = async (req, res) => {
 export const getUserReservas = async (req, res) => {
   const userDNI = req.user.id; // El DNI está en req.user.id
   const { estado } = req.query;
-  console.log(estado);
   const reservas = await getUserReservasService(userDNI, estado);
   res.json(reservas);
 };
