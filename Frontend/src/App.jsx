@@ -8,6 +8,7 @@ import DashboardPage from "./modules/admin/pages/DashboardPage.jsx";
 import ConfiguracionPage from "./modules/admin/pages/ConfiguracionPage.jsx";
 import FuncionesPage from "./modules/admin/pages/FuncionesPage.jsx";
 import SalasPage from "./modules/admin/pages/SalasPage.jsx";
+import ReportsPage from "./modules/admin/pages/ReportsPage.jsx";
 import FooterComp from "./modules/shared/components/FooterComp";
 import Terminos from "./modules/shared/pages/FooterPages/Terminos";
 import Privacity from "./modules/shared/pages/FooterPages/Privacity";
@@ -173,6 +174,14 @@ function AppRoutes() {
         element={
           <AdminRoute>
             <ConfiguracionPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/reportes"
+        element={
+          <AdminRoute>
+            <ReportsPage />
           </AdminRoute>
         }
       />
