@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Button, Modal, ModalBody } from "flowbite-react";
-import SalasList from "../components/SalasList.jsx";
-import SalasForm from "../components/SalasForm.jsx";
-import { createSala } from "../../../api/Salas.api.js";
+import { useState } from 'react';
+import { Button, Modal, ModalBody } from 'flowbite-react';
+import SalasList from '../components/SalasList.jsx';
+import SalasForm from '../components/SalasForm.jsx';
+import { createSala } from '../../../api/Salas.api.js';
 import { useNotification } from '../../../context/NotificationContext';
 
 function SalasPage() {
@@ -14,10 +14,9 @@ function SalasPage() {
     try {
       await createSala(values);
       notify.success('Sala creada exitosamente');
-      
+
       setMostrarFormulario(false);
-      setRefreshList(prev => prev + 1);
-      
+      setRefreshList((prev) => prev + 1);
     } catch (error) {
       const errorMsg = error.response?.data?.message || error.message || 'Error al agregar sala';
       notify.error(`Error al agregar sala: ${errorMsg}`);
@@ -35,18 +34,18 @@ function SalasPage() {
         <span className="text-gray-300 block mb-3 mt-1">
           Aquí puedes gestionar las salas de cine, incluyendo su ubicación y tipos de asientos.
         </span>
-        
+
         <div className="mb-6">
-          <Button 
+          <Button
             onClick={() => setMostrarFormulario(true)}
             className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
           >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              strokeWidth="2.5" 
-              stroke="currentColor" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="2.5"
+              stroke="currentColor"
               className="size-4.5 mr-2.25"
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -56,18 +55,24 @@ function SalasPage() {
         </div>
 
         {/* Modal para Crear Sala */}
-        <Modal show={mostrarFormulario} onClose={closeModal} size="xl"
-        theme={{
-          content: {
-            base: "relative h-full w-full p-4 flex items-center justify-center min-h-screen",
-            inner: "relative rounded-lg bg-slate-800 shadow flex flex-col max-h-[90vh] w-full max-w-md mx-auto"
-          }
-        }}>
+        <Modal
+          show={mostrarFormulario}
+          onClose={closeModal}
+          size="xl"
+          theme={{
+            content: {
+              base: 'relative h-full w-full p-4 flex items-center justify-center min-h-screen',
+              inner:
+                'relative rounded-lg bg-slate-800 shadow flex flex-col max-h-[90vh] w-full max-w-md mx-auto',
+            },
+          }}
+        >
           <ModalBody className="p-0">
-            <SalasForm 
+            <SalasForm
               onSubmit={(data) => {
                 handleSubmit(data);
-              }} 
+              }}
+              onCancel={closeModal}
             />
           </ModalBody>
         </Modal>
