@@ -1,7 +1,7 @@
-import { useEffect, useState, useMemo } from "react";
-import { getAsientosReservadosPorFuncion } from "../../../api/AsientoReservas.api";
-import { getAsientosBySala } from "../../../api/Salas.api";
-import { CenteredSpinner } from "../../shared/components/Spinner";
+import { useEffect, useState, useMemo } from 'react';
+import { getAsientosReservadosPorFuncion } from '../../../api/AsientoReservas.api';
+import { getAsientosBySala } from '../../../api/Salas.api';
+import { CenteredSpinner } from '../../shared/components/Spinner';
 
 function SeatSelectorReserva({ idSala, fechaHoraFuncion, onSeatsChange }) {
   const [seats, setSeats] = useState([]);
@@ -20,7 +20,7 @@ function SeatSelectorReserva({ idSala, fechaHoraFuncion, onSeatsChange }) {
         setSeats(Array.isArray(seatsData) ? seatsData : []);
         setReservedSeats(Array.isArray(reservations) ? reservations : []);
       } catch (error) {
-        console.error("Error cargando mapa de asientos:", error);
+        console.error('Error cargando mapa de asientos:', error);
       } finally {
         setLoading(false);
       }
@@ -48,7 +48,9 @@ function SeatSelectorReserva({ idSala, fechaHoraFuncion, onSeatsChange }) {
         (s) => s.filaAsiento === seat.filaAsiento && s.nroAsiento === seat.nroAsiento
       );
       if (isSelected) {
-        return prev.filter((s) => !(s.filaAsiento === seat.filaAsiento && s.nroAsiento === seat.nroAsiento));
+        return prev.filter(
+          (s) => !(s.filaAsiento === seat.filaAsiento && s.nroAsiento === seat.nroAsiento)
+        );
       } else {
         return [...prev, seat];
       }
@@ -67,17 +69,13 @@ function SeatSelectorReserva({ idSala, fechaHoraFuncion, onSeatsChange }) {
   }, [selectedSeats, onSeatsChange]);
 
   const getSeatStatus = (fila, nro) => {
-    const isReserved = reservedSeats.some(
-      (rs) => rs.filaAsiento === fila && rs.nroAsiento === nro
-    );
-    if (isReserved) return "reserved";
+    const isReserved = reservedSeats.some((rs) => rs.filaAsiento === fila && rs.nroAsiento === nro);
+    if (isReserved) return 'reserved';
 
-    const isSelected = selectedSeats.some(
-      (s) => s.filaAsiento === fila && s.nroAsiento === nro
-    );
-    if (isSelected) return "selected";
+    const isSelected = selectedSeats.some((s) => s.filaAsiento === fila && s.nroAsiento === nro);
+    if (isSelected) return 'selected';
 
-    return "available";
+    return 'available';
   };
 
   if (loading) return <CenteredSpinner message="Preparando sala..." />;
@@ -85,80 +83,92 @@ function SeatSelectorReserva({ idSala, fechaHoraFuncion, onSeatsChange }) {
   const sortedRows = Object.keys(seatsByRow).sort();
 
   return (
-    <div className="flex flex-col items-center bg-slate-900/40 p-4 sm:p-10 rounded-3xl border border-white/5 shadow-2xl w-full overflow-hidden">
-      {/* Pantalla / Escenario */}
-      <div className="w-full max-w-xl mb-12 relative px-4">
-        <div className="h-1 sm:h-2 w-full bg-gradient-to-r from-transparent via-purple-500 to-transparent blur-[1px]" />
-        <div className="h-8 sm:h-12 w-full bg-gradient-to-b from-purple-500/10 to-transparent rounded-t-full mt-1" />
-        <p className="text-purple-300/40 text-[8px] sm:text-[10px] tracking-[0.4em] text-center font-bold uppercase -mt-4">
-          PANTALLA
-        </p>
+    <div className="bg-slate-700/40 border border-slate-700 rounded-lg p-4 space-y-4">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <h3 className="text-white text-lg font-semibold">Seleccionar Asientos</h3>
+        <div className="flex justify-center">
+          <div className="w-48 h-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-t-lg opacity-60"></div>
+        </div>
+        <p className="text-center text-gray-400 text-sm">PANTALLA</p>
       </div>
 
-      {/* Grid de Asientos con Scroll Horizontal para Mobile */}
-      <div className="w-full overflow-x-auto pb-6 px-2 scrollbar-thin scrollbar-thumb-purple-500/20">
-        <div className="inline-grid gap-2 sm:gap-4 min-w-full justify-center">
-          {sortedRows.map((row) => (
-            <div key={row} className="flex items-center gap-3 sm:gap-6">
-              <span className="w-4 sm:w-6 text-gray-600 font-bold text-xs sm:text-sm text-center">{row}</span>
-              <div className="flex gap-1.5 sm:gap-2.5">
-                {seatsByRow[row]
+      {/* Seat Map */}
+      <div className="space-y-2 max-h-96 overflow-y-auto scrollbar-thin">
+        {sortedRows.map((row) => {
+          const rowSeats = seatsByRow[row] || [];
+
+          return (
+            <div key={row} className="flex items-center w-fit mx-auto gap-1">
+              {/* Letra de fila */}
+              <button
+                type="button"
+                disabled
+                className="w-6 h-6 rounded text-xs font-mono font-bold bg-slate-700 text-gray-300 mr-1"
+              >
+                {row}
+              </button>
+
+              <div className="flex gap-0.5">
+                {rowSeats
                   .sort((a, b) => a.nroAsiento - b.nroAsiento)
                   .map((seat) => {
                     const status = getSeatStatus(seat.filaAsiento, seat.nroAsiento);
-                    const isVIP = seat.tipo === "VIP";
-                    
+                    const isVIP = seat.tipo === 'VIP';
+
                     return (
                       <button
+                        type="button"
                         key={`${seat.filaAsiento}${seat.nroAsiento}`}
                         onClick={() => toggleSeat(seat)}
-                        disabled={status === "reserved"}
-                        className={`
-                          relative w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-200
-                          ${status === "selected" 
-                            ? "bg-purple-600 text-white shadow-[0_0_10px_rgba(168,85,247,0.4)] z-10" 
-                            : ""}
-                          ${status === "reserved" 
-                            ? "bg-red-600/20 border border-red-600/30 text-red-600/40 cursor-not-allowed" 
-                            : ""}
-                          ${status === "available" 
-                            ? (isVIP 
-                                ? "bg-amber-500/10 border border-amber-500/30 text-amber-500 hover:bg-amber-500/20" 
-                                : "bg-slate-800 border border-white/5 text-gray-500 hover:border-purple-500/40") 
-                            : ""}
-                        `}
+                        disabled={status === 'reserved'}
+                        className={`w-7 h-7 rounded-t-lg text-xs font-mono transition-all duration-200 relative ${
+                          status === 'selected'
+                            ? 'bg-yellow-400 text-black shadow-lg shadow-yellow-500/30 font-bold'
+                            : status === 'reserved'
+                              ? 'bg-red-600 text-white shadow-lg shadow-red-500/30 font-bold cursor-not-allowed'
+                              : isVIP
+                                ? 'bg-yellow-400/50 text-yellow-200 hover:bg-yellow-400/70'
+                                : 'bg-slate-600 text-gray-300 hover:bg-slate-500'
+                        }`}
                       >
-                        <span className="text-[9px] sm:text-[10px] font-bold">{seat.nroAsiento}</span>
-                        {isVIP && status === "available" && (
-                          <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-amber-500 rounded-full border border-slate-900" />
-                        )}
+                        {seat.nroAsiento}
                       </button>
                     );
                   })}
               </div>
-              <span className="w-4 sm:w-6 text-gray-600 font-bold text-xs sm:text-sm text-center">{row}</span>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
-      {/* Leyenda */}
-      <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-8 pt-8 border-t border-white/5 w-full">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 sm:w-4 sm:h-4 bg-slate-800 border border-white/5 rounded" />
-          <span className="text-[10px] sm:text-xs text-gray-400 font-medium">Libre</span>
+      {/* Leyenda y controles */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-center gap-4 text-sm flex-wrap">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-slate-600 rounded-t-lg"></div>
+            <span className="text-gray-400">Libre</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-yellow-400 rounded-t-lg"></div>
+            <span className="text-gray-400">VIP</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-red-500/30 rounded"></div>
+            <span className="text-gray-400">Ocupado</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 sm:w-4 sm:h-4 bg-amber-500/20 border border-amber-500/50 rounded" />
-          <span className="text-[10px] sm:text-xs text-amber-500/80 font-medium">VIP</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 sm:w-4 sm:h-4 bg-purple-600 rounded shadow-[0_0_10px_rgba(168,85,247,0.3)]" />
-          <span className="text-[10px] sm:text-xs text-purple-300 font-medium">Seleccionado</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 sm:w-4 sm:h-4 bg-red-600/20 border border-red-600/30 rounded" />
-          <span className="text-[10px] sm:text-xs text-red-600/60 font-medium">Ocupado</span>
+
+        <div className="flex items-center justify-between text-sm text-gray-400">
+          <div className="flex flex-col gap-1">
+            <span>Asientos seleccionados: {selectedSeats.length}</span>
+            <span className="text-xs">
+              Total: $
+              {selectedSeats
+                .reduce((sum, s) => sum + (Number(s.tarifa?.precio) || 0), 0)
+                .toFixed(2)}
+            </span>
+          </div>
         </div>
       </div>
     </div>
