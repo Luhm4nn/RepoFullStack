@@ -2,17 +2,18 @@ import React, { useEffect, useRef, useState } from 'react';
 import ApexCharts from 'apexcharts';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
-const ReportCard = ({ 
-  title, 
-  stat, 
-  percentage, 
-  period = "Últimos 7 días", 
-  chartType = "area", 
-  series, 
-  options, 
+const ReportCard = ({
+  title,
+  stat,
+  percentage,
+  period = 'Últimos 7 días',
+  chartType = 'area',
+  series,
+  options,
   id,
   viewModes = null, // Array of view modes: [{ label: "Ingresos", seriesIndex: 1 }, ...]
-  defaultViewMode = 0
+  defaultViewMode = 0,
+  children,
 }) => {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
@@ -37,7 +38,7 @@ const ReportCard = ({
         chart: {
           height: 320,
           type: chartType,
-          fontFamily: "Inter, sans-serif",
+          fontFamily: 'Inter, sans-serif',
           toolbar: { show: false },
           zoom: { enabled: false },
         },
@@ -56,15 +57,15 @@ const ReportCard = ({
             left: 10,
             right: 10,
             top: 0,
-            bottom: 0
+            bottom: 0,
           },
         },
         xaxis: {
           labels: {
             style: {
               colors: '#94a3b8',
-              fontSize: '12px'
-            }
+              fontSize: '12px',
+            },
           },
           axisBorder: {
             show: false,
@@ -77,19 +78,19 @@ const ReportCard = ({
           labels: {
             style: {
               colors: '#94a3b8',
-              fontSize: '12px'
-            }
-          }
+              fontSize: '12px',
+            },
+          },
         },
       };
 
       // Merge with custom options
-      const mergedOptions = { 
-        ...baseOptions, 
+      const mergedOptions = {
+        ...baseOptions,
         ...options,
-        series: filteredSeries 
+        series: filteredSeries,
       };
-      
+
       chartInstance.current = new ApexCharts(chartRef.current, mergedOptions);
       chartInstance.current.render();
     }
@@ -113,9 +114,7 @@ const ReportCard = ({
         </div>
         <div
           className={`flex items-center px-2.5 py-1 text-sm font-semibold rounded ${
-            isPositive 
-              ? 'bg-green-500/10 text-green-400' 
-              : 'bg-red-500/10 text-red-400'
+            isPositive ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
           }`}
         >
           {isPositive ? (
@@ -146,20 +145,18 @@ const ReportCard = ({
         </div>
       )}
 
-      {/* Chart Container */}
-      <div ref={chartRef} id={id} className="w-full" style={{ minHeight: '320px' }} />
+      {/* Chart Container or Custom Content */}
+      {children ? (
+        <div className="w-full relative" style={{ minHeight: '320px' }}>
+          {children}
+        </div>
+      ) : (
+        <div ref={chartRef} id={id} className="w-full" style={{ minHeight: '320px' }} />
+      )}
 
       {/* Footer */}
-      <div className="grid grid-cols-1 items-center border-t border-slate-700 pt-4 mt-4">
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-400">{period}</span>
-          <button
-            onClick={() => console.log('Ver detalle:', title)}
-            className="text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
-          >
-            Ver Detalle →
-          </button>
-        </div>
+      <div className="border-t border-slate-700 pt-4 mt-4">
+        <span className="text-sm text-gray-400">{period}</span>
       </div>
     </div>
   );

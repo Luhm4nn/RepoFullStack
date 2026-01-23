@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { useNotification } from '../../../context/NotificationContext';
 import { getAsientosReservadosPorFuncion } from '../../../api/AsientoReservas.api';
 import { getAsientosBySala } from '../../../api/Salas.api';
 import { CenteredSpinner } from '../../shared/components/Spinner';
@@ -8,6 +9,7 @@ function SeatSelectorReserva({ idSala, fechaHoraFuncion, onSeatsChange }) {
   const [reservedSeats, setReservedSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [loading, setLoading] = useState(true);
+  const notify = useNotification();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,11 +49,18 @@ function SeatSelectorReserva({ idSala, fechaHoraFuncion, onSeatsChange }) {
       const isSelected = prev.some(
         (s) => s.filaAsiento === seat.filaAsiento && s.nroAsiento === seat.nroAsiento
       );
+
       if (isSelected) {
         return prev.filter(
           (s) => !(s.filaAsiento === seat.filaAsiento && s.nroAsiento === seat.nroAsiento)
         );
       } else {
+        if (prev.length >= 10) {
+          notify.warning('Solo puedes seleccionar hasta 10 asientos.', {
+            id: 'seat-limit-warning',
+          });
+          return prev;
+        }
         return [...prev, seat];
       }
     });
@@ -159,16 +168,20 @@ function SeatSelectorReserva({ idSala, fechaHoraFuncion, onSeatsChange }) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-sm text-gray-400">
+        <div className="flex items-center justify-between text-sm text-gray-400 border-t border-slate-600 pt-3">
           <div className="flex flex-col gap-1">
-            <span>Asientos seleccionados: {selectedSeats.length}</span>
-            <span className="text-xs">
-              Total: $
-              {selectedSeats
-                .reduce((sum, s) => sum + (Number(s.tarifa?.precio) || 0), 0)
-                .toFixed(2)}
-            </span>
+            <span>Asientos seleccionados: {selectedSeats.length} / 10</span>
           </div>
+
+          {selectedSeats.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedSeats([])}
+              className="px-3 py-1 text-xs bg-red-500/10 text-red-400 border border-red-500/20 rounded hover:bg-red-500/20 transition-colors"
+            >
+              Limpiar
+            </button>
+          )}
         </div>
       </div>
     </div>

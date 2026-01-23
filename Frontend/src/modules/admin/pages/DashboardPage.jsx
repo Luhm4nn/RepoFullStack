@@ -1,21 +1,12 @@
-import {
-  Film,
-  Calendar,
-  BarChart3,
-  Armchair,
-  Clock,
-  TrendingUp,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { getCountPeliculasEnCartelera } from "../../../api/Peliculas.api";
-import { getCountSalas } from "../../../api/Salas.api";
-import { getCountFuncionesPublicas } from "../../../api/Funciones.api";
-import { getLatestReservas } from "../../../api/Reservas.api";
-import {
-  Skeleton,
-  ReservaCardSkeleton,
-} from "../../shared/components/Skeleton";
-import { useNavigate } from "react-router-dom";
+import { Film, Calendar, BarChart3, Armchair, Clock, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { getCountPeliculasEnCartelera } from '../../../api/Peliculas.api';
+import { getCountSalas } from '../../../api/Salas.api';
+import { getCountFuncionesPublicas } from '../../../api/Funciones.api';
+import { getLatestReservas } from '../../../api/Reservas.api';
+import { getRankingPeliculasCartelera } from '../../../api/Reportes.api';
+import { Skeleton, ReservaCardSkeleton } from '../../shared/components/Skeleton';
+import { useNavigate } from 'react-router-dom';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -26,6 +17,7 @@ const DashboardPage = () => {
     reservasHoy: 0,
   });
   const [ultimasReservas, setUltimasReservas] = useState([]);
+  const [rankingPeliculas, setRankingPeliculas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingReservas, setLoadingReservas] = useState(true);
 
@@ -33,21 +25,23 @@ const DashboardPage = () => {
     const fetchDashboardData = async () => {
       try {
         // Fetch counts with individual error handling (optimized for performance)
-        const [countPeliculas, countSalas, countFunciones, reservas] =
-          await Promise.all([
-            getCountPeliculasEnCartelera().catch((err) => {
-              return 0;
-            }),
-            getCountSalas().catch((err) => {
-              return 0;
-            }),
-            getCountFuncionesPublicas().catch((err) => {
-              return 0;
-            }),
-            getLatestReservas(4).catch((err) => {
-              return [];
-            }),
-          ]);
+        const [countPeliculas, countSalas, countFunciones, reservas, ranking] = await Promise.all([
+          getCountPeliculasEnCartelera().catch((err) => {
+            return 0;
+          }),
+          getCountSalas().catch((err) => {
+            return 0;
+          }),
+          getCountFuncionesPublicas().catch((err) => {
+            return 0;
+          }),
+          getLatestReservas(4).catch((err) => {
+            return [];
+          }),
+          getRankingPeliculasCartelera().catch((err) => {
+            return { peliculas: [], asientos: [] };
+          }),
+        ]);
 
         // Contar reservas de hoy
         const hoy = new Date();
@@ -65,21 +59,23 @@ const DashboardPage = () => {
           reservasHoy: reservasHoy,
         });
 
+        // Formatear ranking para mostrar (top 4)
+        const rankingFormateado = ranking.peliculas.slice(0, 4).map((peli, index) => ({
+          nombre: peli,
+          asientos: ranking.asientos[index],
+        }));
+        setRankingPeliculas(rankingFormateado);
+
         // Formatear reservas para mostrar
         const reservasFormateadas = reservas.map((reserva) => ({
           id: `${reserva.idSala}-${reserva.DNI}`,
-          pelicula:
-            reserva.funcion?.pelicula?.nombrePelicula ||
-            "Película no disponible",
-          sala: reserva.funcion?.sala?.nombreSala || "N/A",
+          pelicula: reserva.funcion?.pelicula?.nombrePelicula || 'Película no disponible',
+          sala: reserva.funcion?.sala?.nombreSala || 'N/A',
           asientos: reserva.cantidadAsientos || 0,
-          hora: new Date(reserva.funcion?.fechaHoraFuncion).toLocaleTimeString(
-            "es-AR",
-            {
-              hour: "2-digit",
-              minute: "2-digit",
-            }
-          ),
+          hora: new Date(reserva.funcion?.fechaHoraFuncion).toLocaleTimeString('es-AR', {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
           cliente: `Cliente ${reserva.DNI}`,
           fechaReserva: new Date(reserva.fechaHoraReserva),
         }));
@@ -96,41 +92,34 @@ const DashboardPage = () => {
     fetchDashboardData();
   }, []);
 
-  const ocupacionSalas = [
-    { sala: "Sala 1", ocupacion: 85, capacidad: 120 },
-    { sala: "Sala 2", ocupacion: 92, capacidad: 150 },
-    { sala: "Sala 3", ocupacion: 67, capacidad: 100 },
-    { sala: "Sala 4", ocupacion: 45, capacidad: 80 },
-  ];
-
   const menuItems = [
     {
-      title: "Películas",
-      description: "Gestionar películas en cartelera",
+      title: 'Películas',
+      description: 'Gestionar películas en cartelera',
       icon: Film,
-      link: "/Peliculas",
-      gradient: "from-purple-600 to-blue-600",
+      link: '/Peliculas',
+      gradient: 'from-purple-600 to-blue-600',
     },
     {
-      title: "Salas",
-      description: "Configurar salas y capacidad",
+      title: 'Salas',
+      description: 'Configurar salas y capacidad',
       icon: Armchair,
-      link: "/Salas",
-      gradient: "from-green-600 to-teal-500",
+      link: '/Salas',
+      gradient: 'from-green-600 to-teal-500',
     },
     {
-      title: "Funciones",
-      description: "Programar horarios de funciones",
+      title: 'Funciones',
+      description: 'Programar horarios de funciones',
       icon: Calendar,
-      link: "/Funciones",
-      gradient: "from-blue-500 to-cyan-500",
+      link: '/Funciones',
+      gradient: 'from-blue-500 to-cyan-500',
     },
     {
-      title: "Reportes",
-      description: "Ver estadísticas y reportes",
+      title: 'Reportes',
+      description: 'Ver estadísticas y reportes',
       icon: BarChart3,
-      link: "/admin/reportes",
-      gradient: "from-orange-500 to-red-600",
+      link: '/admin/reportes',
+      gradient: 'from-orange-500 to-red-600',
     },
   ];
 
@@ -139,9 +128,7 @@ const DashboardPage = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 md:mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-            Dashboard Admin
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Dashboard Admin</h1>
           <p className="text-gray-400 text-sm md:text-base">
             Bienvenido al panel de administración de Cutzy
           </p>
@@ -160,9 +147,7 @@ const DashboardPage = () => {
                 </span>
               )}
             </div>
-            <p className="text-xs md:text-sm text-gray-300">
-              Películas en cartelera
-            </p>
+            <p className="text-xs md:text-sm text-gray-300">Películas en cartelera</p>
           </div>
 
           <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 md:p-6 hover:bg-white/10 transition-colors">
@@ -176,9 +161,7 @@ const DashboardPage = () => {
                 </span>
               )}
             </div>
-            <p className="text-xs md:text-sm text-gray-300">
-              Salas disponibles
-            </p>
+            <p className="text-xs md:text-sm text-gray-300">Salas disponibles</p>
           </div>
 
           <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 md:p-6 hover:bg-white/10 transition-colors">
@@ -192,9 +175,7 @@ const DashboardPage = () => {
                 </span>
               )}
             </div>
-            <p className="text-xs md:text-sm text-gray-300">
-              Funciones públicas
-            </p>
+            <p className="text-xs md:text-sm text-gray-300">Funciones públicas</p>
           </div>
 
           <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 md:p-6 hover:bg-white/10 transition-colors">
@@ -219,7 +200,7 @@ const DashboardPage = () => {
             return (
               <button
                 key={index}
-                onClick={() => (navigate(item.link))}
+                onClick={() => navigate(item.link)}
                 className="bg-slate-800/50 hover:bg-white/10 border border-slate-700 rounded-lg p-4 md:p-6 text-left transition-all duration-200 group"
               >
                 <div
@@ -230,9 +211,7 @@ const DashboardPage = () => {
                 <h3 className="text-lg md:text-xl font-semibold text-white mb-1 md:mb-2">
                   {item.title}
                 </h3>
-                <p className="text-gray-400 text-xs md:text-sm">
-                  {item.description}
-                </p>
+                <p className="text-gray-400 text-xs md:text-sm">{item.description}</p>
               </button>
             );
           })}
@@ -240,47 +219,50 @@ const DashboardPage = () => {
 
         {/* Sección de Ocupación y Reservas */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-          {/* Ocupación de Salas */}
+          {/* Ranking de Películas en Cartelera */}
           <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 md:p-6">
             <div className="flex items-center gap-3 mb-4 md:mb-6">
               <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-xl md:text-2xl font-bold text-white">
-                Ocupación de Salas
-              </h2>
+              <h2 className="text-xl md:text-2xl font-bold text-white">Películas Más Populares</h2>
             </div>
 
             <div className="space-y-4">
-              {ocupacionSalas.map((sala, index) => {
-                const porcentaje = Math.round(
-                  (sala.ocupacion / sala.capacidad) * 100
-                );
-                return (
-                  <div key={index}>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-white font-medium text-sm md:text-base">
-                        {sala.sala}
-                      </span>
-                      <span className="text-gray-400 text-xs md:text-sm">
-                        {sala.ocupacion}/{sala.capacidad} ({porcentaje}%)
-                      </span>
+              {rankingPeliculas.length === 0 ? (
+                <p className="text-gray-400 text-center py-4">No hay datos disponibles</p>
+              ) : (
+                rankingPeliculas.map((peli, index) => {
+                  const maxAsientos = Math.max(...rankingPeliculas.map((p) => p.asientos));
+                  const porcentaje =
+                    maxAsientos > 0 ? Math.round((peli.asientos / maxAsientos) * 100) : 0;
+
+                  return (
+                    <div key={index}>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-white font-medium text-sm md:text-base truncate max-w-[200px]">
+                          {peli.nombre}
+                        </span>
+                        <span className="text-gray-400 text-xs md:text-sm">
+                          {peli.asientos} asientos
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2 md:h-3 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            index === 0
+                              ? 'bg-gradient-to-r from-orange-600 to-red-600'
+                              : index === 1
+                                ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                                : 'bg-gradient-to-r from-green-600 to-teal-500'
+                          }`}
+                          style={{ width: `${porcentaje}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="w-full bg-slate-700 rounded-full h-2 md:h-3 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          porcentaje >= 80
-                            ? "bg-gradient-to-r from-orange-600 to-red-600"
-                            : porcentaje >= 50
-                              ? "bg-gradient-to-r from-yellow-500 to-orange-500"
-                              : "bg-gradient-to-r from-green-600 to-teal-500"
-                        }`}
-                        style={{ width: `${porcentaje}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -290,9 +272,7 @@ const DashboardPage = () => {
               <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-teal-500 rounded-lg flex items-center justify-center">
                 <Clock className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-xl md:text-2xl font-bold text-white">
-                Últimas Reservas
-              </h2>
+              <h2 className="text-xl md:text-2xl font-bold text-white">Últimas Reservas</h2>
             </div>
 
             {loadingReservas ? (
@@ -302,9 +282,7 @@ const DashboardPage = () => {
                 ))}
               </div>
             ) : ultimasReservas.length === 0 ? (
-              <div className="text-center py-8 text-gray-400">
-                No hay reservas recientes
-              </div>
+              <div className="text-center py-8 text-gray-400">No hay reservas recientes</div>
             ) : (
               <div className="space-y-3 md:space-y-4">
                 {ultimasReservas.map((reserva, idx) => (
@@ -317,9 +295,7 @@ const DashboardPage = () => {
                         <h4 className="text-white font-semibold text-sm md:text-base">
                           {reserva.pelicula}
                         </h4>
-                        <p className="text-gray-400 text-xs md:text-sm">
-                          {reserva.cliente}
-                        </p>
+                        <p className="text-gray-400 text-xs md:text-sm">{reserva.cliente}</p>
                       </div>
                       <span className="text-purple-400 font-mono text-xs md:text-sm">
                         {reserva.hora}

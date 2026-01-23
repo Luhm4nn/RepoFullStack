@@ -20,7 +20,6 @@ export const getVentasMensuales = async (req, res) => {
   }
 };
 
-
 export const getAsistenciaReservas = async (req, res) => {
   try {
     const data = await reportesService.getAsistenciaReservas();
@@ -38,5 +37,25 @@ export const getOcupacionSalas = async (req, res) => {
   } catch (error) {
     console.error('Error fetching room occupancy:', error);
     res.status(500).json({ message: 'Error fetching occupancy' });
+  }
+};
+
+export const getPeliculasMasReservadas = async (req, res) => {
+  try {
+    const data = await reportesService.getPeliculasMasReservadas();
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching top movies:', error);
+    res.status(500).json({ message: 'Error fetching top movies' });
+  }
+};
+
+export const getRankingPeliculasCartelera = async (req, res) => {
+  try {
+    const data = await reportesService.getRankingPeliculasCartelera();
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching movie ranking:', error);
+    res.status(500).json({ message: 'Error fetching movie ranking' });
   }
 };
