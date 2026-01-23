@@ -26,14 +26,14 @@ router.get('/health', async (req, res) => {
       status: 'ok',
       uptime: process.uptime(),
       timestamp: new Date(),
-      db: 'ok'
+      db: 'ok',
     });
   } catch (err) {
     res.status(500).json({
       status: 'error',
       uptime: process.uptime(),
       timestamp: new Date(),
-      db: 'error'
+      db: 'error',
     });
   }
 });
