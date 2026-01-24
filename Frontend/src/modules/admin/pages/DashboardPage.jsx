@@ -4,8 +4,9 @@ import { getCountPeliculasEnCartelera } from '../../../api/Peliculas.api';
 import { getCountSalas } from '../../../api/Salas.api';
 import { getCountFuncionesPublicas } from '../../../api/Funciones.api';
 import { getLatestReservas } from '../../../api/Reservas.api';
-import { getRankingPeliculasCartelera } from '../../../api/Reportes.api';
+import { getRankingPeliculasCartelera, getDashboardStats } from '../../../api/Reportes.api';
 import { Skeleton, ReservaCardSkeleton } from '../../shared/components/Skeleton';
+import { Pagination } from '../../shared/components/Pagination';
 import { useNavigate } from 'react-router-dom';
 
 const DashboardPage = () => {
@@ -21,20 +22,21 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [loadingReservas, setLoadingReservas] = useState(true);
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         // Fetch counts with individual error handling (optimized for performance)
-        const [countPeliculas, countSalas, countFunciones, reservas, ranking] = await Promise.all([
-          getCountPeliculasEnCartelera().catch((err) => {
-            return 0;
-          }),
-          getCountSalas().catch((err) => {
-            return 0;
-          }),
-          getCountFuncionesPublicas().catch((err) => {
-            return 0;
-          }),
+        const [statsData, reservas, ranking] = await Promise.all([
+          getDashboardStats().catch((err) => ({
+            totalPeliculas: 0,
+            totalSalas: 0,
+            totalFunciones: 0,
+            reservasHoy: 0,
+          })),
           getLatestReservas(4).catch((err) => {
             return [];
           }),
@@ -43,24 +45,15 @@ const DashboardPage = () => {
           }),
         ]);
 
-        // Contar reservas de hoy
-        const hoy = new Date();
-        hoy.setHours(0, 0, 0, 0);
-        const reservasHoy = reservas.filter((reserva) => {
-          const fechaReserva = new Date(reserva.fechaHoraReserva);
-          fechaReserva.setHours(0, 0, 0, 0);
-          return fechaReserva.getTime() === hoy.getTime();
-        }).length;
-
         setStats({
-          totalPeliculas: countPeliculas,
-          totalSalas: countSalas,
-          totalFunciones: countFunciones,
-          reservasHoy: reservasHoy,
+          totalPeliculas: statsData.totalPeliculas,
+          totalSalas: statsData.totalSalas,
+          totalFunciones: statsData.totalFunciones || 0, // Fallback if backend doesn't return this field yet
+          reservasHoy: statsData.reservasHoy,
         });
 
         // Formatear ranking para mostrar (top 4)
-        const rankingFormateado = ranking.peliculas.slice(0, 4).map((peli, index) => ({
+        const rankingFormateado = ranking.peliculas.map((peli, index) => ({
           nombre: peli,
           asientos: ranking.asientos[index],
         }));
@@ -232,36 +225,48 @@ const DashboardPage = () => {
               {rankingPeliculas.length === 0 ? (
                 <p className="text-gray-400 text-center py-4">No hay datos disponibles</p>
               ) : (
-                rankingPeliculas.map((peli, index) => {
-                  const maxAsientos = Math.max(...rankingPeliculas.map((p) => p.asientos));
-                  const porcentaje =
-                    maxAsientos > 0 ? Math.round((peli.asientos / maxAsientos) * 100) : 0;
+                <>
+                  {rankingPeliculas
+                    .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                    .map((peli, index) => {
+                      const actualIndex = (currentPage - 1) * itemsPerPage + index;
+                      const maxAsientos = Math.max(...rankingPeliculas.map((p) => p.asientos));
+                      const porcentaje =
+                        maxAsientos > 0 ? Math.round((peli.asientos / maxAsientos) * 100) : 0;
 
-                  return (
-                    <div key={index}>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-white font-medium text-sm md:text-base truncate max-w-[200px]">
-                          {peli.nombre}
-                        </span>
-                        <span className="text-gray-400 text-xs md:text-sm">
-                          {peli.asientos} asientos
-                        </span>
-                      </div>
-                      <div className="w-full bg-slate-700 rounded-full h-2 md:h-3 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            index === 0
-                              ? 'bg-gradient-to-r from-orange-600 to-red-600'
-                              : index === 1
-                                ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
-                                : 'bg-gradient-to-r from-green-600 to-teal-500'
-                          }`}
-                          style={{ width: `${porcentaje}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })
+                      return (
+                        <div key={actualIndex}>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-white font-medium text-sm md:text-base truncate max-w-[200px]">
+                              {peli.nombre}
+                            </span>
+                            <span className="text-gray-400 text-xs md:text-sm">
+                              {peli.asientos} asientos
+                            </span>
+                          </div>
+                          <div className="w-full bg-slate-700 rounded-full h-2 md:h-3 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${
+                                actualIndex === 0
+                                  ? 'bg-gradient-to-r from-orange-600 to-red-600'
+                                  : actualIndex === 1
+                                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                                    : 'bg-gradient-to-r from-green-600 to-teal-500'
+                              }`}
+                              style={{ width: `${porcentaje}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                  <Pagination
+                    currentPage={currentPage}
+                    totalItems={rankingPeliculas.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                  />
+                </>
               )}
             </div>
           </div>

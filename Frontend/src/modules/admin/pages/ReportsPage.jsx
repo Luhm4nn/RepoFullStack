@@ -43,11 +43,11 @@ const ReportsPage = () => {
   }, []);
 
   const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === 3 ? 0 : prevIndex + 1));
+    setCurrentIndex((prevIndex) => (prevIndex === 2 ? 0 : prevIndex + 1));
   };
 
   const prevSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === 0 ? 3 : prevIndex - 1));
+    setCurrentIndex((prevIndex) => (prevIndex === 0 ? 2 : prevIndex - 1));
   };
 
   if (loading) {
@@ -257,78 +257,6 @@ const ReportsPage = () => {
           },
         },
       },
-    },
-    {
-      title: 'Ranking Películas en Cartelera',
-      stat: rankingCarteleraData?.peliculas?.[0] || 'Sin datos',
-      percentage: 0,
-      period: 'Últimos 30 días',
-      children: (
-        <div className="space-y-3 overflow-y-auto max-h-[320px] pr-2 mt-4 scrollbar-thin">
-          {rankingCarteleraData?.peliculas?.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">No hay datos disponibles</div>
-          ) : (
-            rankingCarteleraData?.peliculas?.map((peli, index) => {
-              const asientos = rankingCarteleraData.asientos[index];
-              const maxAsientos = Math.max(...(rankingCarteleraData.asientos || [0]));
-              const porcentaje = maxAsientos > 0 ? Math.round((asientos / maxAsientos) * 100) : 0;
-
-              return (
-                <div
-                  key={index}
-                  className="group p-2 rounded-lg hover:bg-white/5 transition-colors"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <div
-                        className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold shrink-0 ${
-                          index === 0
-                            ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20'
-                            : index === 1
-                              ? 'bg-gray-300 text-black shadow-lg shadow-gray-300/20'
-                              : index === 2
-                                ? 'bg-amber-700 text-white shadow-lg shadow-amber-700/20'
-                                : 'bg-slate-700 text-gray-400'
-                        }`}
-                      >
-                        {index + 1}
-                      </div>
-                      <span className="text-white font-medium text-sm md:text-base truncate">
-                        {peli}
-                      </span>
-                    </div>
-                    <span
-                      className={`text-xs md:text-sm font-mono ${
-                        asientos === 0 ? 'text-gray-500' : 'text-purple-400 font-bold'
-                      }`}
-                    >
-                      {asientos} reservas
-                    </span>
-                  </div>
-
-                  {/* Barra de progreso */}
-                  <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700/50">
-                    <div
-                      className={`h-full rounded-full transition-all duration-1000 ease-out ${
-                        asientos === 0
-                          ? 'bg-transparent'
-                          : index === 0
-                            ? 'bg-gradient-to-r from-yellow-500 to-amber-500'
-                            : index === 1
-                              ? 'bg-gradient-to-r from-gray-300 to-gray-400'
-                              : index === 2
-                                ? 'bg-gradient-to-r from-amber-700 to-orange-800'
-                                : 'bg-slate-500'
-                      }`}
-                      style={{ width: `${Math.max(porcentaje, asientos > 0 ? 5 : 0)}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-      ),
     },
   ];
 

@@ -1,25 +1,36 @@
 import prisma from '../prisma/prisma.js';
 
 export const getDashboardStats = async () => {
-  const [totalPeliculas, totalSalas, totalUsuarios, reservasHoy] = await Promise.all([
-    prisma.pelicula.count(),
-    prisma.sala.count(),
-    prisma.usuario.count({ where: { rol: 'CLIENTE' } }),
-    prisma.reserva.count({
-      where: {
-        fechaHoraReserva: {
-          gte: new Date(new Date().setHours(0, 0, 0, 0)),
-          lt: new Date(new Date().setHours(23, 59, 59, 999)),
+  const [totalPeliculas, totalSalas, totalUsuarios, reservasHoy, totalFunciones] =
+    await Promise.all([
+      prisma.pelicula.count(),
+      prisma.sala.count(),
+      prisma.usuario.count({ where: { rol: 'CLIENTE' } }),
+      prisma.reserva.count({
+        where: {
+          fechaHoraReserva: {
+            gte: new Date(new Date().setHours(0, 0, 0, 0)),
+            lt: new Date(new Date().setHours(23, 59, 59, 999)),
+          },
+          estado: 'ACTIVA',
         },
-      },
-    }),
-  ]);
+      }),
+      prisma.funcion.count({
+        where: {
+          estado: 'Publica',
+          fechaHoraFuncion: {
+            gte: new Date(),
+          },
+        },
+      }),
+    ]);
 
   return {
     totalPeliculas,
     totalSalas,
     totalUsuarios,
     reservasHoy,
+    totalFunciones,
   };
 };
 
@@ -115,12 +126,22 @@ export const getRankingPeliculasCartelera = async () => {
   const oneMonthAgo = new Date();
   oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
-  // Usamos 'Publica' tal como está en peliculas.repository.js que es el que funciona
+  // Definir rango para "En Cartelera" (Misma logica que en peliculas.service.js)
+  const inicio = new Date();
+  inicio.setHours(0, 0, 0, 0);
+  const fin = new Date();
+  fin.setDate(fin.getDate() + 6);
+  fin.setHours(23, 59, 59, 999);
+
   return await prisma.pelicula.findMany({
     where: {
       funcion: {
         some: {
           estado: 'Publica',
+          fechaHoraFuncion: {
+            gte: inicio,
+            lte: fin,
+          },
         },
       },
     },
@@ -132,7 +153,6 @@ export const getRankingPeliculasCartelera = async () => {
         select: {
           reserva: {
             where: {
-              // Ajustamos también el estado de reserva por si acaso, probando con 'ACTIVA' o not 'PENDIENTE'
               estado: {
                 not: 'PENDIENTE',
               },
