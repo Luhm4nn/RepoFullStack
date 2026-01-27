@@ -14,6 +14,7 @@
     "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "@browserbasehq/stagehand": "^3.0.8",
     "@mercadopago/sdk-react": "^1.0.6",
     "@tailwindcss/vite": "^4.1.11",
     "@untitledui/icons": "^0.0.19",
