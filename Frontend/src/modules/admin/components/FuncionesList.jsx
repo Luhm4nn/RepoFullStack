@@ -92,6 +92,7 @@ function FuncionesList() {
     const result = await handleDeleteFuncion(funcionToDelete);
     if (result.success) {
       closeDeleteModal();
+      notify.success("Función eliminada exitosamente");
     } else {
       notify.error(result.error);
       setIsDeleting(false);

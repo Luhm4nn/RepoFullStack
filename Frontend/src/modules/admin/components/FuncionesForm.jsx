@@ -156,6 +156,7 @@ export default function FuncionesForm({
                 <div className="relative">
                   <Label htmlFor="sala" value="Sala *" className="text-white" />
                   <TextInput
+                    id="search-sala"
                     type="text"
                     value={busquedaSala}
                     onChange={(e) => handleSalaSearch(e.target.value)}
@@ -186,6 +187,7 @@ export default function FuncionesForm({
                 <div className="relative">
                   <Label htmlFor="pelicula" value="Película *" className="text-white" />
                   <TextInput
+                    id="search-pelicula"
                     type="text"
                     value={busquedaPelicula}
                     onChange={(e) => handlePeliculaSearch(e.target.value)}

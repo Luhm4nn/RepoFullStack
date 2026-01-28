@@ -135,6 +135,7 @@ const AdminNavbar = ({ user, onLogout }) => {
                   <li>
                     <button
                       onClick={() => { handleNavigation('/Funciones') }}
+                      data-testid="funciones-page"
                       className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Funciones') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'}`}
                     >
                       Funciones
@@ -198,6 +199,7 @@ const AdminNavbar = ({ user, onLogout }) => {
               <li className="flex items-center navbar-btn-space">
                 <button
                   onClick={() => handleNavigation('/Funciones')}
+                  data-testid="funciones-page"
                   className={`flex items-center gap-2 py-2 px-4 text-xl rounded md:p-0 transition-colors nav-underline cursor-pointer ${isActive('/Funciones') ? 'active !text-white bg-white/5 md:!bg-transparent' : 'text-white hover:!text-white hover:bg-white/5 md:hover:!bg-transparent'}`}
                 >
                   Funciones
