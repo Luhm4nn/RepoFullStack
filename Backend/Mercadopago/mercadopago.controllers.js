@@ -84,7 +84,19 @@ export const handleWebhook = async (req, res) => {
           fechaHoraReserva: metadata.fecha_hora_reserva,
         };
 
+        logger.info('🔍 Webhook aprobado, buscando reserva con:', subParams);
         const reservaDB = await getReservaRepo(subParams);
+
+        if (!reservaDB) {
+          logger.error(' RESERVA NO ENCONTRADA en la base de datos con parámetros:', subParams);
+          logger.error('Verifica que las fechas coincidan exactamente');
+        } else {
+          logger.info(' Reserva encontrada:', {
+            estado: reservaDB.estado,
+            total: reservaDB.total,
+            DNI: reservaDB.DNI,
+          });
+        }
 
         if (reservaDB && reservaDB.estado === 'PENDIENTE') {
           // Confirmar solo si el monto coincide
@@ -92,19 +104,19 @@ export const handleWebhook = async (req, res) => {
             Math.abs(parseFloat(result.transaction_amount) - parseFloat(reservaDB.total)) < 0.01
           ) {
             await confirmReservaRepo(subParams);
-            logger.info('Pago aprobado. Reserva confirmada:', subParams);
+            logger.info(' Pago aprobado. Reserva confirmada:', subParams);
 
             // Enviar email de confirmación
             try {
-              logger.info('Intentando obtener detalles de reserva para email...');
+              logger.info(' Intentando obtener detalles de reserva para email...');
               const reservaConDetalles = await getReservaWithDetails(subParams);
 
               if (!reservaConDetalles) {
-                logger.error('ERROR CRÍTICO: getReservaWithDetails devolvió null para:', subParams);
+                logger.error(' ERROR CRÍTICO: getReservaWithDetails devolvió null para:', subParams);
                 throw new Error('No se pudieron obtener los detalles de la reserva');
               }
 
-              logger.info('Detalles de reserva obtenidos:', {
+              logger.info(' Detalles de reserva obtenidos:', {
                 hasUsuario: !!reservaConDetalles.usuario,
                 hasEmail: !!reservaConDetalles.usuario?.email,
                 hasFuncion: !!reservaConDetalles.funcion,
@@ -115,7 +127,7 @@ export const handleWebhook = async (req, res) => {
 
               // Validar datos críticos antes de enviar email
               if (!reservaConDetalles.usuario?.email) {
-                logger.error('ERROR: Usuario sin email:', reservaConDetalles.usuario);
+                logger.error(' ERROR: Usuario sin email:', reservaConDetalles.usuario);
                 throw new Error('El usuario no tiene email registrado');
               }
 
@@ -151,11 +163,11 @@ export const handleWebhook = async (req, res) => {
                 reservaParams: subParams, // Pasar los parámetros para generar el QR
               };
 
-              logger.info('Preparando envío de email a:', emailData.email);
+              logger.info(' Preparando envío de email a:', emailData.email);
               await sendReservaConfirmationEmail(emailData);
-              logger.info('Email de confirmación enviado exitosamente para DNI:', subParams.DNI);
+              logger.info(' Email de confirmación enviado exitosamente para DNI:', subParams.DNI);
             } catch (emailError) {
-              logger.error('ERROR ENVIANDO EMAIL DE CONFIRMACIÓN:', {
+              logger.error(' ERROR ENVIANDO EMAIL DE CONFIRMACIÓN:', {
                 message: emailError.message,
                 stack: emailError.stack,
                 subParams,
@@ -163,14 +175,20 @@ export const handleWebhook = async (req, res) => {
               // No lanzar error aquí, la reserva ya está confirmada
             }
           } else {
-            logger.error(
-              'Mismatch de monto en el pago:',
-              result.transaction_amount,
-              reservaDB.total
-            );
+            logger.error(' Mismatch de monto en el pago:', {
+              montoMP: result.transaction_amount,
+              montoDB: reservaDB.total,
+              diferencia: Math.abs(parseFloat(result.transaction_amount) - parseFloat(reservaDB.total)),
+            });
           }
+        } else if (reservaDB && reservaDB.estado !== 'PENDIENTE') {
+          logger.warn(' Reserva encontrada pero YA NO está PENDIENTE:', {
+            estado: reservaDB.estado,
+            subParams,
+            mensaje: 'Posible webhook duplicado de Mercado Pago',
+          });
         } else {
-          logger.warn('Intento de confirmar reserva inexistente o ya procesada:', subParams);
+          logger.warn(' Intento de confirmar reserva inexistente:', subParams);
         }
       }
     }
