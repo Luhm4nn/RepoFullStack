@@ -2,6 +2,7 @@ import * as repository from './peliculas.repository.js';
 import { getFuncionesByPeliculaId } from '../Funciones/funciones.service.js';
 import { formatDateForBackendMessage } from '../utils/dateFormater.js';
 import { cloudinary } from '../config/cloudinary.js';
+import logger from '../utils/logger.js';
 
 /**
  * Obtiene todas las películas

@@ -105,6 +105,7 @@ function FuncionesList() {
 
     const result = await handlePublishFuncion(funcionToPublish);
     if (result.success) {
+      notify.success(`Función ${funcionToPublish.estado === 'Privada' ? 'publicada' : 'privatizada'} exitosamente`);
       closePublishModal();
     } else {
       if (result.error) {
@@ -119,6 +120,7 @@ function FuncionesList() {
 
     const result = await handleUpdateFuncion(funcionToEdit, funcionActualizada);
     if (result.success) {
+      notify.success("Función actualizada exitosamente");
       closeEditModal();
     } else {
       if (result.error) {

@@ -7,7 +7,7 @@ import {
   TableRow,
   Button,
 } from "flowbite-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatDate } from "../../shared";
 import ModalPeliculas from "./ModalPeliculas";
 import ModalDeletePeliculas from "./ModalDeletePeliculas";
@@ -28,14 +28,9 @@ function PeliculasList({ refreshTrigger }) {
     peliculasSinFiltrar,
     loading,
     error,
-    modalError,
-    hideError,
     fetchPeliculas,
-    handleDeletePelicula,
-    handleUpdatePelicula,
     currentPage,
     pagination,
-    handlePageChange,
     handlePaginationChange,
     itemsPerPage,
   } = usePeliculasFetch();
@@ -47,6 +42,12 @@ function PeliculasList({ refreshTrigger }) {
     itemsPerPage,
     handlePaginationChange
   );
+
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      fetchPeliculas(currentPage);
+    }
+  }, [refreshTrigger]);
 
   const handleEdit = (pelicula) => {
     setPeliculaToEdit(pelicula);
@@ -69,7 +70,7 @@ function PeliculasList({ refreshTrigger }) {
     setPeliculaToEdit(null);
   };
 
-  const handleRefresh = async () => {
+  const handleDeleteSuccess = async () => {
     await fetchPeliculas(currentPage);
     setPeliculaToDelete(null);
   };
@@ -390,7 +391,7 @@ function PeliculasList({ refreshTrigger }) {
       {peliculaToDelete && (
         <ModalDeletePeliculas
           pelicula={peliculaToDelete}
-          onSuccess={handleRefresh}
+          onSuccess={handleDeleteSuccess}
           onClose={handleCloseDelete}
         />
       )}

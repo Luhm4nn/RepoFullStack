@@ -27,7 +27,7 @@ function PeliculasInlineFilters({ filterHook }) {
             placeholder="Buscar por título o director..."
             value={filtros.busqueda}
             onChange={(e) => handleBusquedaChange(e.target.value)}
-            className="w-full"
+            className="w-full [&_input]:bg-slate-700 [&_input]:hover:bg-slate-600 text-white [&_input]:text-white  rounded-lg"
           />
         </div>
 
@@ -40,7 +40,7 @@ function PeliculasInlineFilters({ filterHook }) {
             id="genero"
             value={filtros.genero}
             onChange={(e) => handleGeneroChange(e.target.value)}
-            className="w-full"
+            className="w-full [&_select]:bg-slate-700 [&_select]:hover:bg-slate-600 [&_select]:text-white rounded-lg"
           >
             <option value="">Todos los géneros</option>
             {GENEROS_PELICULAS.map((genero) => (

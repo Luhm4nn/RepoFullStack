@@ -30,6 +30,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
     setShowModal(false);
     setSelectedFile(null);
     setPreviewUrl(null);
+    hideError();
     if (onClose) {
       onClose();
     }
@@ -65,14 +66,31 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     try {
       const formData = new FormData();
+      
       Object.keys(values).forEach(key => {
-        if (key === 'duracion') {
-          formData.append(key, parseInt(values[key]) || 0);
-        } else if (key === 'fechaEstreno') {
-          const formattedDate = values[key] ? dateFormaterBackend(values[key]) : '';
-          formData.append(key, formattedDate);
-        } else {
-          formData.append(key, values[key] || '');
+        const value = values[key];
+        
+        if (key === 'nombrePelicula' || key === 'director' || key === 'generoPelicula') {
+          formData.append(key, value || '');
+        }
+        else if (key === 'duracion') {
+          formData.append(key, parseInt(value) || 0);
+        }
+        else if (key === 'fechaEstreno') {
+          if (value) {
+            const formattedDate = dateFormaterBackend(value);
+            formData.append(key, formattedDate);
+          }
+        }
+        else if (key === 'MPAA') {
+          if (value) {
+            formData.append(key, value);
+          }
+        }
+        else if (key === 'sinopsis' || key === 'trailerURL') {
+          if (value) {
+            formData.append(key, value);
+          }
         }
       });
 
@@ -82,8 +100,10 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
 
       if (isEditing) {
         await updatePelicula(peliculaToEdit.idPelicula, formData);
+        notify.success(`Película "${values.nombrePelicula}" actualizada exitosamente`);
       } else {
         await createPelicula(formData);
+        notify.success(`Película "${values.nombrePelicula}" creada exitosamente`);
       }
 
       handleClose();
@@ -170,7 +190,7 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                       <Field
                         as={TextInput}
                         name="nombrePelicula"
-                        placeholder="Avengers: Endgame, El Padrino, Titanic"
+                        placeholder="Ej: Avengers: Endgame"
                         disabled={isSubmitting}
                         color
                         className="bg-slate-700 hover:bg-white/10 text-white rounded-lg"
@@ -179,12 +199,12 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                     </div>
                     <div>
                       <label className="block text-white font-medium mb-2">
-                        Director de la Película *
+                        Director *
                       </label>
                       <Field
                         as={TextInput}
                         name="director"
-                        placeholder="Ej: Christopher Nolan, Steven Spielberg"
+                        placeholder="Ej: Christopher Nolan"
                         disabled={isSubmitting}
                         color
                         className="bg-slate-700 hover:bg-white/10 text-white rounded-lg"
