@@ -88,107 +88,110 @@ export const handleWebhook = async (req, res) => {
         const reservaDB = await getReservaRepo(subParams);
 
         if (!reservaDB) {
-          logger.error(' RESERVA NO ENCONTRADA en la base de datos con parámetros:', subParams);
+          logger.error('RESERVA NO ENCONTRADA en la base de datos con parámetros:', subParams);
           logger.error('Verifica que las fechas coincidan exactamente');
-        } else {
-          logger.info(' Reserva encontrada:', {
-            estado: reservaDB.estado,
-            total: reservaDB.total,
-            DNI: reservaDB.DNI,
-          });
+          return; // Salir si no existe la reserva
         }
 
-        if (reservaDB && reservaDB.estado === 'PENDIENTE') {
-          // Confirmar solo si el monto coincide
-          if (
-            Math.abs(parseFloat(result.transaction_amount) - parseFloat(reservaDB.total)) < 0.01
-          ) {
-            await confirmReservaRepo(subParams);
-            logger.info(' Pago aprobado. Reserva confirmada:', subParams);
+        logger.info('Reserva encontrada:', {
+          estado: reservaDB.estado,
+          total: reservaDB.total,
+          DNI: reservaDB.DNI,
+        });
 
-            // Enviar email de confirmación
-            try {
-              logger.info(' Intentando obtener detalles de reserva para email...');
-              const reservaConDetalles = await getReservaWithDetails(subParams);
+        // Verificar que el monto coincida
+        const montoCoincide = Math.abs(parseFloat(result.transaction_amount) - parseFloat(reservaDB.total)) < 0.01;
+        
+        if (!montoCoincide) {
+          logger.error(' Mismatch de monto en el pago:', {
+            montoMP: result.transaction_amount,
+            montoDB: reservaDB.total,
+            diferencia: Math.abs(parseFloat(result.transaction_amount) - parseFloat(reservaDB.total)),
+          });
+          return;
+        }
 
-              if (!reservaConDetalles) {
-                logger.error(' ERROR CRÍTICO: getReservaWithDetails devolvió null para:', subParams);
-                throw new Error('No se pudieron obtener los detalles de la reserva');
-              }
-
-              logger.info(' Detalles de reserva obtenidos:', {
-                hasUsuario: !!reservaConDetalles.usuario,
-                hasEmail: !!reservaConDetalles.usuario?.email,
-                hasFuncion: !!reservaConDetalles.funcion,
-                hasPelicula: !!reservaConDetalles.funcion?.pelicula,
-                hasSala: !!reservaConDetalles.funcion?.sala,
-                numAsientos: reservaConDetalles.asiento_reserva?.length || 0,
-              });
-
-              // Validar datos críticos antes de enviar email
-              if (!reservaConDetalles.usuario?.email) {
-                logger.error(' ERROR: Usuario sin email:', reservaConDetalles.usuario);
-                throw new Error('El usuario no tiene email registrado');
-              }
-
-              // Obtener asientos de la reserva (desde asiento_reserva)
-              const asientos = (reservaConDetalles.asiento_reserva || []).map((ar) => ({
-                filaAsiento: ar.asiento.filaAsiento,
-                nroAsiento: ar.asiento.nroAsiento,
-              }));
-
-              // Formatear fecha y hora
-              const fechaHora = new Date(reservaConDetalles.fechaHoraFuncion);
-              const fechaFormato = fechaHora.toLocaleDateString('es-AR', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              });
-              const horaFormato = fechaHora.toLocaleTimeString('es-AR', {
-                hour: '2-digit',
-                minute: '2-digit',
-              });
-
-              // Datos para el email
-              const emailData = {
-                email: reservaConDetalles.usuario.email,
-                nombreUsuario: `${reservaConDetalles.usuario?.nombreUsuario} ${reservaConDetalles.usuario?.apellidoUsuario}`,
-                nombrePelicula:
-                  reservaConDetalles.funcion?.pelicula?.nombrePelicula || 'Película',
-                nombreSala: reservaConDetalles.funcion?.sala?.nombreSala || 'Sala',
-                fechaHora: `${fechaFormato} a las ${horaFormato}`,
-                asientos,
-                total: reservaConDetalles.total,
-                reservaParams: subParams, // Pasar los parámetros para generar el QR
-              };
-
-              logger.info(' Preparando envío de email a:', emailData.email);
-              await sendReservaConfirmationEmail(emailData);
-              logger.info(' Email de confirmación enviado exitosamente para DNI:', subParams.DNI);
-            } catch (emailError) {
-              logger.error(' ERROR ENVIANDO EMAIL DE CONFIRMACIÓN:', {
-                message: emailError.message,
-                stack: emailError.stack,
-                subParams,
-              });
-              // No lanzar error aquí, la reserva ya está confirmada
-            }
-          } else {
-            logger.error(' Mismatch de monto en el pago:', {
-              montoMP: result.transaction_amount,
-              montoDB: reservaDB.total,
-              diferencia: Math.abs(parseFloat(result.transaction_amount) - parseFloat(reservaDB.total)),
-            });
-          }
-        } else if (reservaDB && reservaDB.estado !== 'PENDIENTE') {
-          logger.warn(' Reserva encontrada pero YA NO está PENDIENTE:', {
+        // Si está PENDIENTE, confirmarla
+        if (reservaDB.estado === 'PENDIENTE') {
+          await confirmReservaRepo(subParams);
+          logger.info(' Pago aprobado. Reserva confirmada (PENDIENTE -> ACTIVA):', subParams);
+        } else if (reservaDB.estado === 'ACTIVA') {
+          logger.info(' Reserva ya estaba ACTIVA (posible webhook duplicado o ya confirmada)');
+        } else {
+          logger.warn(' Reserva en estado inesperado:', {
             estado: reservaDB.estado,
             subParams,
-            mensaje: 'Posible webhook duplicado de Mercado Pago',
           });
-        } else {
-          logger.warn(' Intento de confirmar reserva inexistente:', subParams);
+          return; // No enviar email si está CANCELADA, ASISTIDA, etc.
+        }
+
+        // Enviar email de confirmación
+        try {
+          logger.info(' Intentando obtener detalles de reserva para email...');
+          const reservaConDetalles = await getReservaWithDetails(subParams);
+
+          if (!reservaConDetalles) {
+            logger.error(' ERROR CRÍTICO: getReservaWithDetails devolvió null para:', subParams);
+            throw new Error('No se pudieron obtener los detalles de la reserva');
+          }
+
+          logger.info(' Detalles de reserva obtenidos:', {
+            hasUsuario: !!reservaConDetalles.usuario,
+            hasEmail: !!reservaConDetalles.usuario?.email,
+            hasFuncion: !!reservaConDetalles.funcion,
+            hasPelicula: !!reservaConDetalles.funcion?.pelicula,
+            hasSala: !!reservaConDetalles.funcion?.sala,
+            numAsientos: reservaConDetalles.asiento_reserva?.length || 0,
+          });
+
+          // Validar datos críticos antes de enviar email
+          if (!reservaConDetalles.usuario?.email) {
+            logger.error(' ERROR: Usuario sin email:', reservaConDetalles.usuario);
+            throw new Error('El usuario no tiene email registrado');
+          }
+
+          // Obtener asientos de la reserva (desde asiento_reserva)
+          const asientos = (reservaConDetalles.asiento_reserva || []).map((ar) => ({
+            filaAsiento: ar.asiento.filaAsiento,
+            nroAsiento: ar.asiento.nroAsiento,
+          }));
+
+          // Formatear fecha y hora
+          const fechaHora = new Date(reservaConDetalles.fechaHoraFuncion);
+          const fechaFormato = fechaHora.toLocaleDateString('es-AR', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          });
+          const horaFormato = fechaHora.toLocaleTimeString('es-AR', {
+            hour: '2-digit',
+            minute: '2-digit',
+          });
+
+          // Datos para el email
+          const emailData = {
+            email: reservaConDetalles.usuario.email,
+            nombreUsuario: `${reservaConDetalles.usuario?.nombreUsuario} ${reservaConDetalles.usuario?.apellidoUsuario}`,
+            nombrePelicula:
+              reservaConDetalles.funcion?.pelicula?.nombrePelicula || 'Película',
+            nombreSala: reservaConDetalles.funcion?.sala?.nombreSala || 'Sala',
+            fechaHora: `${fechaFormato} a las ${horaFormato}`,
+            asientos,
+            total: reservaConDetalles.total,
+            reservaParams: subParams, // Pasar los parámetros para generar el QR
+          };
+
+          logger.info(' Preparando envío de email a:', emailData.email);
+          await sendReservaConfirmationEmail(emailData);
+          logger.info(' Email de confirmación enviado exitosamente para DNI:', subParams.DNI);
+        } catch (emailError) {
+          logger.error(' ERROR ENVIANDO EMAIL DE CONFIRMACIÓN:', {
+            message: emailError.message,
+            stack: emailError.stack,
+            subParams,
+          });
+          // No lanzar error aquí, la reserva ya está confirmada
         }
       }
     }
