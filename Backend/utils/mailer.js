@@ -25,11 +25,19 @@ const transporter = nodemailer.createTransport({
  */
 async function generateReservaQR(reservaData) {
   try {
+    const fechaHoraFuncion = reservaData.fechaHoraFuncion instanceof Date 
+      ? reservaData.fechaHoraFuncion 
+      : new Date(reservaData.fechaHoraFuncion);
+    
+    const fechaHoraReserva = reservaData.fechaHoraReserva instanceof Date
+      ? reservaData.fechaHoraReserva
+      : new Date(reservaData.fechaHoraReserva);
+
     const qrData = {
       idSala: reservaData.idSala,
-      fechaHoraFuncion: reservaData.fechaHoraFuncion.toISOString(),
+      fechaHoraFuncion: fechaHoraFuncion.toISOString(),
       DNI: reservaData.DNI,
-      fechaHoraReserva: reservaData.fechaHoraReserva.toISOString(),
+      fechaHoraReserva: fechaHoraReserva.toISOString(),
     };
 
     // Encriptar datos
