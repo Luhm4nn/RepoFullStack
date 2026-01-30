@@ -405,11 +405,25 @@ export async function sendReservaConfirmationEmail(reservaData) {
     };
 
     // Enviar email
+    logger.info('Intentando enviar email con nodemailer...', {
+      to: email,
+      from: process.env.EMAIL_USER,
+      hasEmailUser: !!process.env.EMAIL_USER,
+      hasEmailPassword: !!process.env.EMAIL_PASSWORD,
+    });
+
     await transporter.sendMail(mailOptions);
-    logger.info(`Email de confirmación enviado a: ${email}`);
+    logger.info(`Email de confirmación enviado exitosamente a: ${email}`);
     return true;
   } catch (error) {
-    logger.error('Error enviando email de confirmación:', error);
+    logger.error('ERROR ENVIANDO EMAIL DE CONFIRMACIÓN:', {
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      responseCode: error.responseCode,
+      response: error.response,
+      stack: error.stack,
+    });
     throw error;
   }
 }
