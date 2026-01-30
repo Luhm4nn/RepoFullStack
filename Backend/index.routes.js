@@ -12,6 +12,7 @@ import { reservasRoutes } from './Funciones/reservas.routes.js';
 import { asientoReservasRoutes } from './Funciones/asientoreservas.routes.js';
 import { mercadopagoRoutes } from './Mercadopago/mercadopago.routes.js';
 import { qrRoutes } from './Funciones/qr.routes.js';
+import { reportesRoutes } from './Reportes/reportes.routes.js';
 
 const router = Router();
 
@@ -26,14 +27,14 @@ router.get('/health', async (req, res) => {
       status: 'ok',
       uptime: process.uptime(),
       timestamp: new Date(),
-      db: 'ok'
+      db: 'ok',
     });
   } catch (err) {
     res.status(500).json({
       status: 'error',
       uptime: process.uptime(),
       timestamp: new Date(),
-      db: 'error'
+      db: 'error',
     });
   }
 });
@@ -50,5 +51,6 @@ router.use(reservasRoutes);
 router.use(asientoReservasRoutes);
 router.use(mercadopagoRoutes);
 router.use(qrRoutes);
+router.use(reportesRoutes);
 
 export const indexRoutes = router;

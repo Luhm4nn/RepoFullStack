@@ -2,6 +2,7 @@ import * as repository from './peliculas.repository.js';
 import { getFuncionesByPeliculaId } from '../Funciones/funciones.service.js';
 import { formatDateForBackendMessage } from '../utils/dateFormater.js';
 import { cloudinary } from '../config/cloudinary.js';
+import logger from '../utils/logger.js';
 
 /**
  * Obtiene todas las películas
@@ -121,7 +122,6 @@ export const update = async (id, data) => {
  */
 export const getAllEnCartelera = async () => {
   const inicio = new Date();
-  inicio.setHours(0, 0, 0, 0);
   const fin = new Date();
   fin.setDate(fin.getDate() + 6);
   fin.setHours(23, 59, 59, 999);

@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo } from 'react';
 
 /**
  * Componente base de skeleton para loading states
@@ -11,23 +11,24 @@ import { memo } from "react";
  */
 export const Skeleton = memo(
   ({
-    variant = "default",
-    width = "w-full",
-    height = "h-4",
-    className = "",
+    variant = 'default',
+    width = 'w-full',
+    height = 'h-4',
+    className = '',
     count = 1,
-    rounded = "rounded",
+    rounded = 'rounded',
   }) => {
     const variants = {
-      default: "bg-slate-700",
-      circle: "rounded-full",
-      text: "h-4 mb-2",
-      card: "h-48 rounded-lg",
-      avatar: "w-10 h-10 rounded-full",
+      default: 'bg-slate-700',
+      circle: 'rounded-full',
+      text: 'h-4 mb-2',
+      card: 'h-48 rounded-lg',
+      avatar: 'w-10 h-10 rounded-full',
     };
 
     return (
       <div
+        role="presentation"
         className={`animate-pulse ${width} ${height} ${variants[variant]} ${rounded} ${className}`}
       />
     );
@@ -55,17 +56,11 @@ export const TableSkeleton = memo(({ rows = 5, columns = 6 }) => (
       {/* Table Body */}
       <div className="divide-y divide-slate-700">
         {Array.from({ length: rows }).map((_, i) => (
-          <div
-            key={i}
-            className="bg-slate-800/50 hover:bg-white/5 transition-colors"
-          >
+          <div key={i} className="bg-slate-800/50 hover:bg-white/5 transition-colors">
             <div className="flex gap-4 px-6 py-4 items-center">
               {Array.from({ length: columns }).map((_, j) => (
                 <div key={j} className="flex-1">
-                  <Skeleton
-                    height="h-4"
-                    className={j === columns - 1 ? "w-24" : ""}
-                  />
+                  <Skeleton height="h-4" className={j === columns - 1 ? 'w-24' : ''} />
                 </div>
               ))}
             </div>
@@ -92,14 +87,10 @@ export const CardSkeleton = memo(({ count = 6 }) => (
  * Skeleton para texto multilínea
  * @param {number} props.lines - Cantidad de líneas
  */
-export const TextSkeleton = memo(({ lines = 3, className = "" }) => (
+export const TextSkeleton = memo(({ lines = 3, className = '' }) => (
   <div className={`space-y-2 ${className}`}>
     {Array.from({ length: lines }).map((_, i) => (
-      <Skeleton
-        key={i}
-        width={i === lines - 1 ? "w-3/4" : "w-full"}
-        height="h-4"
-      />
+      <Skeleton key={i} width={i === lines - 1 ? 'w-3/4' : 'w-full'} height="h-4" />
     ))}
   </div>
 ));
@@ -108,11 +99,11 @@ export const TextSkeleton = memo(({ lines = 3, className = "" }) => (
  * Skeleton circular para avatares
  * @param {string} props.size - Clases de tamaño Tailwind
  */
-export const CircleSkeleton = memo(({ size = "w-10 h-10", className = "" }) => (
+export const CircleSkeleton = memo(({ size = 'w-10 h-10', className = '' }) => (
   <Skeleton
     variant="circle"
-    width={size.split(" ")[0]}
-    height={size.split(" ")[1] || size.split(" ")[0]}
+    width={size.split(' ')[0]}
+    height={size.split(' ')[1] || size.split(' ')[0]}
     rounded="rounded-full"
     className={className}
   />
@@ -132,12 +123,7 @@ export const FormSkeleton = memo(({ fields = 5, hasButton = true }) => (
       </div>
     ))}
     {hasButton && (
-      <Skeleton
-        height="h-10"
-        width="w-full md:w-32"
-        rounded="rounded-md"
-        className="mt-4"
-      />
+      <Skeleton height="h-10" width="w-full md:w-32" rounded="rounded-md" className="mt-4" />
     )}
   </div>
 ));
@@ -149,10 +135,7 @@ export const FormSkeleton = memo(({ fields = 5, hasButton = true }) => (
 export const ReservaCardSkeleton = memo(({ count = 3 }) => (
   <div className="space-y-4">
     {Array.from({ length: count }).map((_, i) => (
-      <div
-        key={i}
-        className="bg-slate-800/50 rounded-lg p-6 animate-pulse space-y-4"
-      >
+      <div key={i} className="bg-slate-800/50 rounded-lg p-6 animate-pulse space-y-4">
         <div className="flex justify-between items-start">
           <div className="flex-1 space-y-2">
             <Skeleton width="w-1/3" height="h-6" />

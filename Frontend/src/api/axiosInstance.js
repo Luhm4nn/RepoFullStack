@@ -1,4 +1,5 @@
 import axios from "axios";
+import { notifyGlobal } from "../context/NotificationContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "/api";
 
@@ -26,6 +27,11 @@ api.interceptors.response.use(
         window.location.href = "/login";
         return Promise.reject(error);
       }
+    }
+
+    // Manejo global de errores 500
+    if (error.response?.status === 500) {
+      notifyGlobal.error("Error de conexión con el servidor");
     }
 
     return Promise.reject(error);

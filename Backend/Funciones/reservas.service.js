@@ -120,25 +120,19 @@ export async function getLatestReservas(limit) {
 /**
  * Obtiene las reservas de un usuario específico
  */
-export async function getUserReservas(userDNI, estado = null) {
-  const allReservas = await repository.getAll();
-  let userReservas = allReservas.filter(r => r.DNI === parseInt(userDNI));
-  
-  if (estado && (estado === 'CONFIRMADA' || estado === 'CANCELADA')) {
-    userReservas = userReservas.filter(r => r.estado === estado);
-  }
-  
-  userReservas.sort((a, b) => new Date(b.fechaHoraReserva) - new Date(a.fechaHoraReserva));
+export async function getUserReservas(userDNI, estado) {
+  validateOwnership({ id: userDNI, rol: 'USER' }, userDNI);
+  console.log('USER DNI EN SERVICE:', userDNI, 'ESTADO:', estado);
+  let userReservas = await repository.getByUserAndStatus(userDNI, estado);
   return userReservas;
 }
 
 /**
- * Confirma una reserva (pasa de PENDIENTE a CONFIRMADA)
+ * Confirma una reserva (pasa de PENDIENTE a ACTIVA)
  */
 export async function confirmReserva(params, user) {
   const { DNI } = params;
   validateOwnership(user, DNI);
-  
   const reserva = await repository.getOne(params);
   if (!reserva) {
     const error = new Error('Reserva no encontrada.');

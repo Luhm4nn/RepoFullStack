@@ -5,13 +5,13 @@ import { dateFormaterBackend } from '../modules/shared';
 export const getFunciones = async (filtros = {}) => {
   try {
     const params = new URLSearchParams();
-    
+
     // Si solo hay estado, mantener compatibilidad con rutas antiguas
     if (typeof filtros === 'string') {
       const response = await api.get(`/Funciones?estado=${filtros}`);
       return response.data;
     }
-    
+
     // Filtros avanzados con query params
     if (filtros.estado) params.append('estado', filtros.estado);
     if (filtros.idPelicula) params.append('idPelicula', filtros.idPelicula);
@@ -22,10 +22,10 @@ export const getFunciones = async (filtros = {}) => {
     if (filtros.fechaHasta) params.append('fechaHasta', filtros.fechaHasta);
     if (filtros.page) params.append('page', filtros.page);
     if (filtros.limit) params.append('limit', filtros.limit);
-    
+
     const queryString = params.toString();
     const url = queryString ? `/Funciones?${queryString}` : '/Funciones';
-    
+
     const response = await api.get(url);
     return response.data;
   } catch (error) {
@@ -106,7 +106,9 @@ export const getCountFuncionesPublicas = async () => {
 
 export const getDetallesFuncion = async (idSala, fechaHoraFuncion) => {
   try {
-    const response = await api.get(`/Funcion/${idSala}/${dateFormaterBackend(fechaHoraFuncion)}/detalles`);
+    const response = await api.get(
+      `/Funcion/${idSala}/${dateFormaterBackend(fechaHoraFuncion)}/detalles`
+    );
     return response.data;
   } catch (error) {
     throw error;

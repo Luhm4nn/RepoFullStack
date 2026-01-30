@@ -158,17 +158,18 @@ export const updateOne = async (params, data) => {
  */
 export const getFuncionesByPeliculaAndFechaService = async (idPelicula, fecha) => {
   let funciones;
-  
+  let hoy = new Date();
   if (fecha === 'semana') {
-    const hoy = new Date();
     const sieteDiasDespues = new Date();
     sieteDiasDespues.setDate(hoy.getDate() + 7);
     funciones = await repository.getByPeliculaAndRange(idPelicula, hoy, sieteDiasDespues);
   } else {
     funciones = await repository.getByPeliculaAndFecha(idPelicula, fecha);
   }
-  // Filtrar solo funciones públicas
-  return funciones.filter(funcion => funcion.estado === 'Publica');
+  // Filtrar solo funciones públicas y en fecha/hora futura
+
+  const funcionesFiltradas = funciones.filter(funcion => funcion.estado === 'Publica' && new Date(funcion.fechaHoraFuncion) > hoy);
+  return funcionesFiltradas
 };
 
 /**

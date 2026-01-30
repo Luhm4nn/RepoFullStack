@@ -5,6 +5,7 @@ node_modules/
 dist/
 build/
 generated/
+coverage/
 
 # Ignorar archivos de Prisma generados
 prisma/migrations/

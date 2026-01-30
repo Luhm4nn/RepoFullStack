@@ -1,6 +1,9 @@
 import { useState } from "react";
 import PeliculasList from "../components/PeliculasList.jsx";
 import ModalPeliculas from "../components/ModalPeliculas.jsx";
+import { useNotification } from '../../../context/NotificationContext';
+import { ErrorModal, useErrorModal } from '../../shared';
+
 
 function PeliculasPage() {
   const [refreshList, setRefreshList] = useState(0);
@@ -8,6 +11,9 @@ function PeliculasPage() {
   const handleMovieAdded = () => {
     setRefreshList(prev => prev + 1);
   };
+
+  const notify = useNotification();
+  const { error, handleApiError, hideError } = useErrorModal();
 
   return (
     <div className="flex flex-col min-h-screen">

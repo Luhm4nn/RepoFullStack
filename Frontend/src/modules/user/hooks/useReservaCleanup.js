@@ -24,9 +24,7 @@ export const useReservaCleanup = () => {
         const isReservaRoute = location.pathname.startsWith("/reservar/");
         const isMPRoute = ["/reserva/success", "/reserva/failure", "/reserva/pending"].includes(location.pathname);
 
-        if (!isReservaRoute && !isMPRoute) {
-          console.log("Navegación fuera del flujo detectada. Limpiando reserva huérfana...");
-          
+        if (!isReservaRoute && !isMPRoute) {          
           await deletePendingReserva(
             reservaData.idSala,
             reservaData.fechaHoraFuncion,

@@ -46,7 +46,14 @@ export const update = async (id, data) => {
     const error = new Error('Tarifa no encontrada.');
     error.status = 404;
     throw error;
+  } else if (
+    data.precio === tarifaExistente.precio &&
+    data.descripcionTarifa === tarifaExistente.descripcionTarifa
+  ) {
+    return null;
   }
+  const hoy = new Date();
+  data.fechaDesde = hoy;
   return await repository.update(id, data);
 };
 

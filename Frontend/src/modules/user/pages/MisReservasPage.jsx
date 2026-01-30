@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getUserReservas } from "../../../api/Reservas.api";
-import { authAPI } from "../../../api/login.api";
-import MisReservasList from "../components/MisReservasList";
-import { ReservaCardSkeleton } from "../../shared/components/Skeleton";
-import { CenteredSpinner } from "../../shared/components/Spinner";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getUserReservas } from '../../../api/Reservas.api';
+import { authAPI } from '../../../api/login.api';
+import MisReservasList from '../components/MisReservasList';
+import { ReservaCardSkeleton } from '../../shared/components/Skeleton';
+import { CenteredSpinner } from '../../shared/components/Spinner';
 
 function MisReservasPage() {
   const navigate = useNavigate();
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState("todas"); // todas, activas, canceladas, pasadas
-  const [todasReservas, setTodasReservas] = useState([]); // Cache de todas para contar
+  const [filter, setFilter] = useState('todas'); // todas, activas, canceladas, finalizadas
+  const [todasReservas, setTodasReservas] = useState([]);
 
   useEffect(() => {
     console.log('[MisReservasPage] useEffect: filter', filter);
@@ -24,10 +24,8 @@ function MisReservasPage() {
     setError(null);
     try {
       const auth = await authAPI.checkAuth();
-      console.log('[MisReservasPage] checkAuth:', auth);
       if (!auth || !auth.user || !auth.user.DNI) {
-        console.log('[MisReservasPage] Redirigiendo a /login por falta de usuario');
-        navigate("/login");
+        navigate('/login');
         return;
       }
 
@@ -35,22 +33,29 @@ function MisReservasPage() {
       const ahora = new Date();
 
       // Backend filtra por estado, frontend solo filtra fecha si es necesario
-      if (filter === "canceladas") {
-        const data = await getUserReservas("CANCELADA");
+      if (filter === 'canceladas') {
+        const data = await getUserReservas('CANCELADA');
         misReservas = Array.isArray(data) ? data : [];
-      } else if (filter === "activas" || filter === "pasadas") {
-        // Traer solo confirmadas y filtrar por fecha en frontend
-        const data = await getUserReservas("CONFIRMADA");
-        const confirmadas = Array.isArray(data) ? data : [];
-        if (filter === "activas") {
-          misReservas = confirmadas.filter(
-            (r) => new Date(r.funcion?.fechaHoraFuncion) >= ahora
-          );
-        } else {
-          misReservas = confirmadas.filter(
-            (r) => new Date(r.funcion?.fechaHoraFuncion) < ahora
-          );
-        }
+      } else if (filter === 'activas') {
+        const data = await getUserReservas('ACTIVA');
+        const activas = Array.isArray(data) ? data : [];
+        misReservas = activas.filter((r) => new Date(r.funcion?.fechaHoraFuncion) >= ahora);
+      } else if (filter === 'finalizadas') {
+        // Finalizadas: activas cuya función ya pasó (pero siguen como ACTIVA), más ASISTIDA y NO_ASISTIDA
+        const activas = await getUserReservas('ACTIVA');
+        const asistidas = await getUserReservas('ASISTIDA');
+        const noAsistidas = await getUserReservas('NO_ASISTIDA');
+        misReservas = [
+          ...(Array.isArray(activas)
+            ? activas.filter((r) => new Date(r.funcion?.fechaHoraFuncion) < ahora)
+            : []),
+          ...(Array.isArray(asistidas)
+            ? asistidas.filter((r) => new Date(r.funcion?.fechaHoraFuncion) < ahora)
+            : []),
+          ...(Array.isArray(noAsistidas)
+            ? noAsistidas.filter((r) => new Date(r.funcion?.fechaHoraFuncion) < ahora)
+            : []),
+        ];
       } else {
         // todas
         const data = await getUserReservas();
@@ -60,7 +65,7 @@ function MisReservasPage() {
       setReservas(Array.isArray(misReservas) ? misReservas : []);
 
       // Si es la primera carga, guardar todas para los contadores
-      if (filter === "todas") {
+      if (filter === 'todas') {
         setTodasReservas(misReservas);
       }
     } catch (err) {
@@ -69,7 +74,7 @@ function MisReservasPage() {
       if (err.response?.status === 404) {
         setReservas([]);
       } else {
-        setError("Error al cargar tus reservas");
+        setError('Error al cargar tus reservas');
       }
     } finally {
       setLoading(false);
@@ -80,27 +85,28 @@ function MisReservasPage() {
     fetchReservas();
   };
 
+  // Siempre usar todasReservas (o reservas si está vacío) para los contadores y totales
+  const baseReservas = todasReservas.length > 0 ? todasReservas : reservas;
+
   const getFilterCount = (filterType) => {
     const ahora = new Date();
-    const base = todasReservas.length > 0 ? todasReservas : reservas;
-
     switch (filterType) {
-      case "activas":
-        return base.filter(
-          (r) =>
-            r.estadoReserva === "CONFIRMADA" &&
-            new Date(r.funcion?.fechaHoraFuncion) >= ahora
+      case 'activas':
+        return baseReservas.filter(
+          (r) => r.estadoReserva === 'ACTIVA' && new Date(r.funcion?.fechaHoraFuncion) >= ahora
         ).length;
-      case "canceladas":
-        return base.filter((r) => r.estadoReserva === "CANCELADA").length;
-      case "pasadas":
-        return base.filter(
+      case 'canceladas':
+        return baseReservas.filter((r) => r.estadoReserva === 'CANCELADA').length;
+      case 'finalizadas':
+        // Finalizadas: activas cuya función ya pasó (pero siguen como ACTIVA), más ASISTIDA y NO_ASISTIDA
+        return baseReservas.filter(
           (r) =>
-            r.estadoReserva === "CONFIRMADA" &&
-            new Date(r.funcion?.fechaHoraFuncion) < ahora
+            (r.estadoReserva === 'ACTIVA' && new Date(r.funcion?.fechaHoraFuncion) < ahora) ||
+            r.estadoReserva === 'ASISTIDA' ||
+            r.estadoReserva === 'NO_ASISTIDA'
         ).length;
-      case "todas":
-        return base.length;
+      case 'todas':
+        return baseReservas.length;
       default:
         return 0;
     }
@@ -122,11 +128,7 @@ function MisReservasPage() {
               strokeWidth="2"
               viewBox="0 0 24 24"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
             Volver
           </button>
@@ -147,50 +149,50 @@ function MisReservasPage() {
         <div className="mb-6 sm:mb-8 overflow-x-auto">
           <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-1 sm:p-2 inline-flex flex-wrap gap-1 sm:gap-2 min-w-[320px]">
             <button
-              onClick={() => setFilter("todas")}
+              onClick={() => setFilter('todas')}
               className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-base ${
-                filter === "todas"
-                  ? "bg-purple-600 text-white"
-                  : "text-gray-400 hover:text-white hover:bg-slate-700"
+                filter === 'todas'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-slate-700'
               }`}
             >
-              Todas ({getFilterCount("todas")})
+              Todas ({getFilterCount('todas')})
             </button>
             <button
-              onClick={() => setFilter("activas")}
+              onClick={() => setFilter('activas')}
               className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-base ${
-                filter === "activas"
-                  ? "bg-green-600 text-white"
-                  : "text-gray-400 hover:text-white hover:bg-slate-700"
+                filter === 'activas'
+                  ? 'bg-green-600 text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-slate-700'
               }`}
             >
-              Activas ({getFilterCount("activas")})
+              Activas ({getFilterCount('activas')})
             </button>
             <button
-              onClick={() => setFilter("pasadas")}
+              onClick={() => setFilter('finalizadas')}
               className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-base ${
-                filter === "pasadas"
-                  ? "bg-gray-600 text-white"
-                  : "text-gray-400 hover:text-white hover:bg-slate-700"
+                filter === 'finalizadas'
+                  ? 'bg-gray-600 text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-slate-700'
               }`}
             >
-              Pasadas ({getFilterCount("pasadas")})
+              Finalizadas ({getFilterCount('finalizadas')})
             </button>
             <button
-              onClick={() => setFilter("canceladas")}
+              onClick={() => setFilter('canceladas')}
               className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-base ${
-                filter === "canceladas"
-                  ? "bg-red-600 text-white"
-                  : "text-gray-400 hover:text-white hover:bg-slate-700"
+                filter === 'canceladas'
+                  ? 'bg-red-600 text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-slate-700'
               }`}
             >
-              Canceladas ({getFilterCount("canceladas")})
+              Canceladas ({getFilterCount('canceladas')})
             </button>
           </div>
         </div>
 
         {/* Estadísticas */}
-        {!loading && !error && reservas.length > 0 && (
+        {!loading && !error && baseReservas.length > 0 && (
           <div className="mb-6 sm:mb-8 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 sm:p-6">
               <div className="flex items-center gap-3 sm:gap-4">
@@ -210,11 +212,9 @@ function MisReservasPage() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-gray-400 text-xs sm:text-sm">
-                    Reservas Activas
-                  </p>
+                  <p className="text-gray-400 text-xs sm:text-sm">Reservas Activas</p>
                   <p className="text-xl sm:text-2xl font-bold text-white">
-                    {getFilterCount("activas")}
+                    {getFilterCount('activas')}
                   </p>
                 </div>
               </div>
@@ -238,12 +238,8 @@ function MisReservasPage() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-gray-400 text-xs sm:text-sm">
-                    Total Reservas
-                  </p>
-                  <p className="text-xl sm:text-2xl font-bold text-white">
-                    {reservas.length}
-                  </p>
+                  <p className="text-gray-400 text-xs sm:text-sm">Total Reservas</p>
+                  <p className="text-xl sm:text-2xl font-bold text-white">{baseReservas.length}</p>
                 </div>
               </div>
             </div>
@@ -266,15 +262,9 @@ function MisReservasPage() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-gray-400 text-xs sm:text-sm">
-                    Total Gastado
-                  </p>
+                  <p className="text-gray-400 text-xs sm:text-sm">Total Gastado</p>
                   <p className="text-xl sm:text-2xl font-bold text-white">
-                    $
-                    {reservas.reduce(
-                      (sum, r) => sum + parseFloat(r.total || 0),
-                      0
-                    )}
+                    $ {baseReservas.reduce((sum, r) => sum + parseFloat(r.total || 0), 0)}
                   </p>
                 </div>
               </div>
@@ -300,9 +290,7 @@ function MisReservasPage() {
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
               />
             </svg>
-            <h3 className="text-lg sm:text-xl font-bold text-red-400 mb-2">
-              {error}
-            </h3>
+            <h3 className="text-lg sm:text-xl font-bold text-red-400 mb-2">{error}</h3>
             <button
               onClick={fetchReservas}
               className="mt-4 px-4 py-2 sm:px-6 sm:py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-all"
@@ -311,10 +299,7 @@ function MisReservasPage() {
             </button>
           </div>
         ) : (
-          <MisReservasList
-            reservas={reservas}
-            onReservaActualizada={handleReservaActualizada}
-          />
+          <MisReservasList reservas={reservas} onReservaActualizada={handleReservaActualizada} />
         )}
       </div>
     </div>

@@ -1,5 +1,10 @@
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
-import { confirm as confirmReservaRepo, getOne as getReservaRepo } from '../Funciones/reservas.repository.js';
+import {
+  confirm as confirmReservaRepo,
+  getOne as getReservaRepo,
+} from '../Funciones/reservas.repository.js';
+import { getReservaWithDetails } from '../Funciones/qr.repository.js';
+import { sendReservaConfirmationEmail } from '../utils/mailer.js';
 import logger from '../utils/logger.js';
 
 const client = new MercadoPagoConfig({
@@ -18,7 +23,7 @@ export const createPaymentPreference = async (req, res) => {
       idSala: reserva.idSala,
       fechaHoraFuncion: reserva.fechaHoraFuncion,
       DNI: reserva.DNI,
-      fechaHoraReserva: reserva.fechaHoraReserva
+      fechaHoraReserva: reserva.fechaHoraReserva,
     });
 
     if (!reservaDB || reservaDB.estado !== 'PENDIENTE') {
@@ -76,18 +81,69 @@ export const handleWebhook = async (req, res) => {
           idSala: parseInt(metadata.id_sala, 10),
           fechaHoraFuncion: metadata.fecha_hora_funcion,
           DNI: parseInt(metadata.dni, 10),
-          fechaHoraReserva: metadata.fecha_hora_reserva
+          fechaHoraReserva: metadata.fecha_hora_reserva,
         };
 
         const reservaDB = await getReservaRepo(subParams);
-        
+
         if (reservaDB && reservaDB.estado === 'PENDIENTE') {
           // Confirmar solo si el monto coincide
-          if (Math.abs(parseFloat(result.transaction_amount) - parseFloat(reservaDB.total)) < 0.01) {
+          if (
+            Math.abs(parseFloat(result.transaction_amount) - parseFloat(reservaDB.total)) < 0.01
+          ) {
             await confirmReservaRepo(subParams);
             logger.info('Pago aprobado. Reserva confirmada:', subParams);
+
+            // Enviar email de confirmación
+            try {
+              const reservaConDetalles = await getReservaWithDetails(subParams);
+
+              if (reservaConDetalles) {
+                // Obtener asientos de la reserva (desde asiento_reserva)
+                const asientos = (reservaConDetalles.asiento_reserva || []).map((ar) => ({
+                  filaAsiento: ar.asiento.filaAsiento,
+                  nroAsiento: ar.asiento.nroAsiento,
+                }));
+
+                // Formatear fecha y hora
+                const fechaHora = new Date(reservaConDetalles.fechaHoraFuncion);
+                const fechaFormato = fechaHora.toLocaleDateString('es-AR', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                });
+                const horaFormato = fechaHora.toLocaleTimeString('es-AR', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                });
+
+                // Datos para el email
+                const emailData = {
+                  email: reservaConDetalles.usuario?.email,
+                  nombreUsuario: `${reservaConDetalles.usuario?.nombreUsuario} ${reservaConDetalles.usuario?.apellidoUsuario}`,
+                  nombrePelicula:
+                    reservaConDetalles.funcion?.pelicula?.nombrePelicula || 'Película',
+                  nombreSala: reservaConDetalles.funcion?.sala?.nombreSala || 'Sala',
+                  fechaHora: `${fechaFormato} a las ${horaFormato}`,
+                  asientos,
+                  total: reservaConDetalles.total,
+                  reservaParams: subParams, // Pasar los parámetros para generar el QR
+                };
+
+                await sendReservaConfirmationEmail(emailData);
+                logger.info('Email de confirmación enviado para:', subParams.DNI);
+              }
+            } catch (emailError) {
+              logger.error('Error enviando email de confirmación:', emailError);
+              // No lanzar error aquí, la reserva ya está confirmada
+            }
           } else {
-            logger.error('Mismatch de monto en el pago:', result.transaction_amount, reservaDB.total);
+            logger.error(
+              'Mismatch de monto en el pago:',
+              result.transaction_amount,
+              reservaDB.total
+            );
           }
         } else {
           logger.warn('Intento de confirmar reserva inexistente o ya procesada:', subParams);

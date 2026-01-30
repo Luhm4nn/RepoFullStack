@@ -1,78 +1,49 @@
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import AdminNavbar from "./modules/admin/components/AdminNavbar";
-import PublicNavbar from "./modules/shared/components/PublicNavbar";
-import { UserNavbar } from "./modules/user/components";
-import NotFound from "./modules/shared/pages/NotFound.jsx";
-import PeliculasPage from "./modules/admin/pages/PeliculasPage.jsx";
-import DashboardPage from "./modules/admin/pages/DashboardPage.jsx";
-import ConfiguracionPage from "./modules/admin/pages/ConfiguracionPage.jsx";
-import FuncionesPage from "./modules/admin/pages/FuncionesPage.jsx";
-import SalasPage from "./modules/admin/pages/SalasPage.jsx";
-import FooterComp from "./modules/shared/components/FooterComp";
-import Terminos from "./modules/shared/pages/FooterPages/Terminos";
-import Privacity from "./modules/shared/pages/FooterPages/Privacity";
-import AboutMe from "./modules/shared/pages/FooterPages/AboutMe";
-import FAQ from "./modules/shared/pages/FooterPages/FAQ";
-import LoginPage from "./modules/shared/pages/LoginPage.jsx";
-import RegisterPage from "./modules/user/pages/RegisterPage.jsx";
-import ReservaPage from "./modules/user/pages/ReservaPage.jsx";
-import MisReservasPage from "./modules/user/pages/MisReservasPage.jsx";
-import CarteleraPage from "./modules/shared/pages/CarteleraPage.jsx";
-import ScannerPage from "./modules/scanner/pages/ScannerPage.jsx";
-import ScrollToTop from "./modules/shared/components/ScrollToTop";
-import { useAuth } from "./modules/shared/hooks/useAuth.js";
-import { AuthenticatedRoute, AdminRoute, ScannerRoute } from "./modules/shared";
-import ReservaSuccessPage from "./modules/user/pages/ReservaSuccessPage.jsx";
-import ReservaFailurePage from "./modules/user/pages/ReservaFailurePage.jsx";
-import ReservaPendingPage from "./modules/user/pages/ReservaPendingPage.jsx";
-import MiPerfilPage from "./modules/user/pages/MiPerfilPage.jsx";
-import { NotificationProvider } from "./context/NotificationContext.jsx";
-import ScannerNavbar from "./modules/scanner/components/ScannerNavbar.jsx";
-import { useReservaCleanup } from "./modules/user/hooks/useReservaCleanup.js";
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import AdminNavbar from './modules/admin/components/AdminNavbar';
+import PublicNavbar from './modules/shared/components/PublicNavbar';
+import { UserNavbar } from './modules/user/components';
+import NotFound from './modules/shared/pages/NotFound.jsx';
+import PeliculasPage from './modules/admin/pages/PeliculasPage.jsx';
+import DashboardPage from './modules/admin/pages/DashboardPage.jsx';
+import ConfiguracionPage from './modules/admin/pages/ConfiguracionPage.jsx';
+import FuncionesPage from './modules/admin/pages/FuncionesPage.jsx';
+import SalasPage from './modules/admin/pages/SalasPage.jsx';
+import ReportsPage from './modules/admin/pages/ReportsPage.jsx';
+import FooterComp from './modules/shared/components/FooterComp';
+import Terminos from './modules/shared/pages/FooterPages/Terminos';
+import Privacity from './modules/shared/pages/FooterPages/Privacity';
+import AboutMe from './modules/shared/pages/FooterPages/AboutMe';
+import FAQ from './modules/shared/pages/FooterPages/FAQ';
+import LoginPage from './modules/shared/pages/LoginPage.jsx';
+import RegisterPage from './modules/user/pages/RegisterPage.jsx';
+import ReservaPage from './modules/user/pages/ReservaPage.jsx';
+import MisReservasPage from './modules/user/pages/MisReservasPage.jsx';
+import CarteleraPage from './modules/shared/pages/CarteleraPage.jsx';
+import ScannerPage from './modules/scanner/pages/ScannerPage.jsx';
+import ScrollToTop from './modules/shared/components/ScrollToTop';
+import { useAuth } from './modules/shared/hooks/useAuth.js';
+import { AuthenticatedRoute, AdminRoute, ScannerRoute } from './modules/shared';
+import ReservaSuccessPage from './modules/user/pages/ReservaSuccessPage.jsx';
+import ReservaFailurePage from './modules/user/pages/ReservaFailurePage.jsx';
+import ReservaPendingPage from './modules/user/pages/ReservaPendingPage.jsx';
+import MiPerfilPage from './modules/user/pages/MiPerfilPage.jsx';
+import { NotificationProvider } from './context/NotificationContext.jsx';
+import ScannerNavbar from './modules/scanner/components/ScannerNavbar.jsx';
+import { useReservaCleanup } from './modules/user/hooks/useReservaCleanup.js';
 
 function NavbarWrapper() {
   const { user, isAuthenticated, logout, loading } = useAuth();
   const location = useLocation();
   if (loading) return null;
-  if (
-    isAuthenticated &&
-    user?.rol &&
-    user.rol.trim().toUpperCase() === "ADMIN"
-  ) {
-    return (
-      <AdminNavbar
-        user={user}
-        onLogout={logout}
-        currentPath={location.pathname}
-      />
-    );
+  if (isAuthenticated && user?.rol && user.rol.trim().toUpperCase() === 'ADMIN') {
+    return <AdminNavbar user={user} onLogout={logout} currentPath={location.pathname} />;
   }
-  if (
-    isAuthenticated &&
-    user?.rol &&
-    user.rol.trim().toUpperCase() === "CLIENTE"
-  ) {
-    return (
-      <UserNavbar
-        user={user}
-        onLogout={logout}
-        currentPath={location.pathname}
-      />
-    );
+  if (isAuthenticated && user?.rol && user.rol.trim().toUpperCase() === 'CLIENTE') {
+    return <UserNavbar user={user} onLogout={logout} currentPath={location.pathname} />;
   }
-  if (
-      isAuthenticated &&
-      user?.rol &&
-      user.rol.trim().toUpperCase() === "ESCANER"
-    ) {
-      return (
-        <ScannerNavbar
-          user={user}
-          onLogout={logout}
-          currentPath={location.pathname}
-        />
-      );
-    }
+  if (isAuthenticated && user?.rol && user.rol.trim().toUpperCase() === 'ESCANER') {
+    return <ScannerNavbar user={user} onLogout={logout} currentPath={location.pathname} />;
+  }
 
   return (
     <PublicNavbar
@@ -102,10 +73,7 @@ function AppRoutes() {
           />
         }
       />
-      <Route
-        path="/register"
-        element={<RegisterPage onRegister={register} loading={loading} />}
-      />
+      <Route path="/register" element={<RegisterPage onRegister={register} loading={loading} />} />
       <Route path="/cartelera" element={<CarteleraPage />} />
       <Route path="/reserva/success" element={<ReservaSuccessPage />} />
       <Route path="/reserva/failure" element={<ReservaFailurePage />} />
@@ -128,14 +96,7 @@ function AppRoutes() {
           </AuthenticatedRoute>
         }
       />
-      <Route
-        path="/reservar/:id"
-        element={
-          <AuthenticatedRoute>
-            <ReservaPage />
-          </AuthenticatedRoute>
-        }
-      />
+      <Route path="/reservar/:id" element={<ReservaPage />} />
       <Route
         path="/dashboard"
         element={
@@ -173,6 +134,14 @@ function AppRoutes() {
         element={
           <AdminRoute>
             <ConfiguracionPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/reportes"
+        element={
+          <AdminRoute>
+            <ReportsPage />
           </AdminRoute>
         }
       />
