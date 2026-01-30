@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Formik, Form, Field } from "formik";
 import { registerSchema } from "../../../validations/UsuariosSchema";
 import { ButtonSpinner } from "./Spinner";
+import { notifyGlobal } from "../../../context/NotificationContext";
 
 const RegisterForm = ({
   onRegister,
@@ -10,9 +11,6 @@ const RegisterForm = ({
   loading = false,
 }) => {
   const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("error");
-
   const initialValues = {
     DNI: "",
     nombreUsuario: "",
@@ -31,22 +29,14 @@ const RegisterForm = ({
         ? await onRegister(dataToSend)
         : { success: false, error: "No register handler provided" };
       if (result.success) {
-        setAlertType("success");
-        setAlertMessage("¡Registro exitoso! Ahora puedes iniciar sesión.");
-        setShowAlert(true);
+        notifyGlobal.success("¡Registro exitoso! Ahora puedes iniciar sesión.");
         resetForm();
-        setTimeout(() => {
-          if (onNavigateToLogin) onNavigateToLogin();
-        }, 2000);
+        if (onNavigateToLogin) onNavigateToLogin();
       } else {
-        setAlertType("error");
-        setAlertMessage(result.error || "Error en el registro");
-        setShowAlert(true);
+        notifyGlobal.error(result.error || "Error en el registro");
       }
     } catch (error) {
-      setAlertType("error");
-      setAlertMessage("Error inesperado. Intenta nuevamente.");
-      setShowAlert(true);
+      notifyGlobal.error("Error inesperado. Intenta nuevamente.");
     } finally {
       setSubmitting(false);
     }
@@ -84,38 +74,24 @@ const RegisterForm = ({
         >
           {({ errors, touched, isSubmitting }) => (
             <Form className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700 p-6 shadow-2xl">
-              {/* Alert */}
-              {showAlert && (
-                <div
-                  className={`mb-6 p-4 border rounded-lg flex items-start gap-3 ${
-                    alertType === "success"
-                      ? "bg-green-900/20 border-green-500/20 text-green-400"
-                      : "bg-red-900/20 border-red-500/20 text-red-400"
-                  }`}
-                >
+              {/* Alert - Solo para errores */}
+              {showAlert && alertType === "error" && (
+                <div className="mb-6 p-4 border rounded-lg flex items-start gap-3 bg-red-900/20 border-red-500/20 text-red-400">
                   <svg
                     className="w-5 h-5 mt-0.5 flex-shrink-0"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
-                    {alertType === "success" ? (
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.236 4.53L7.53 10.25a.75.75 0 00-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                        clipRule="evenodd"
-                      />
-                    ) : (
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
-                        clipRule="evenodd"
-                      />
-                    )}
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <div className="flex-1">{alertMessage}</div>
                   <button
                     onClick={() => setShowAlert(false)}
-                    className={`${alertType === "success" ? "text-green-400 hover:text-green-300" : "text-red-400 hover:text-red-300"}`}
+                    className="text-red-400 hover:text-red-300"
                   >
                     <svg
                       className="w-4 h-4"

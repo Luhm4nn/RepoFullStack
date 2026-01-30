@@ -5,6 +5,74 @@ import { useErrorModal } from '../modules/shared';
 const NotificationContext = createContext();
 
 /**
+ * Objeto de notificaciones global para usar fuera de componentes React
+ * (por ejemplo, en interceptores de axios)
+ */
+export const notifyGlobal = {
+  success: (message, options = {}) => {
+    toast.success(message, {
+      duration: 4000,
+      position: 'top-center',
+      style: {
+        background: '#10b981',
+        color: '#fff',
+        fontWeight: '500',
+      },
+      iconTheme: {
+        primary: '#fff',
+        secondary: '#10b981',
+      },
+      ...options,
+    });
+  },
+
+  error: (message, options = {}) => {
+    toast.error(message, {
+      duration: 5000,
+      position: 'top-center',
+      style: {
+        background: '#ef4444',
+        color: '#fff',
+        fontWeight: '500',
+      },
+      iconTheme: {
+        primary: '#fff',
+        secondary: '#ef4444',
+      },
+      ...options,
+    });
+  },
+
+  warning: (message, options = {}) => {
+    toast(message, {
+      icon: '⚠️',
+      duration: 4000,
+      position: 'top-center',
+      style: {
+        background: '#f59e0b',
+        color: '#fff',
+        fontWeight: '500',
+      },
+      ...options,
+    });
+  },
+
+  info: (message, options = {}) => {
+    toast(message, {
+      icon: 'ℹ️',
+      duration: 3000,
+      position: 'top-center',
+      style: {
+        background: '#3b82f6',
+        color: '#fff',
+        fontWeight: '500',
+      },
+      ...options,
+    });
+  },
+};
+
+/**
  * NotificationProvider
  * Sistema híbrido que combina:
  * - React Hot Toast para notificaciones simples
