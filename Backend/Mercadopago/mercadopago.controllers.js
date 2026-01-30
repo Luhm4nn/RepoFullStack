@@ -96,46 +96,70 @@ export const handleWebhook = async (req, res) => {
 
             // Enviar email de confirmación
             try {
+              logger.info('Intentando obtener detalles de reserva para email...');
               const reservaConDetalles = await getReservaWithDetails(subParams);
 
-              if (reservaConDetalles) {
-                // Obtener asientos de la reserva (desde asiento_reserva)
-                const asientos = (reservaConDetalles.asiento_reserva || []).map((ar) => ({
-                  filaAsiento: ar.asiento.filaAsiento,
-                  nroAsiento: ar.asiento.nroAsiento,
-                }));
-
-                // Formatear fecha y hora
-                const fechaHora = new Date(reservaConDetalles.fechaHoraFuncion);
-                const fechaFormato = fechaHora.toLocaleDateString('es-AR', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                });
-                const horaFormato = fechaHora.toLocaleTimeString('es-AR', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                });
-
-                // Datos para el email
-                const emailData = {
-                  email: reservaConDetalles.usuario?.email,
-                  nombreUsuario: `${reservaConDetalles.usuario?.nombreUsuario} ${reservaConDetalles.usuario?.apellidoUsuario}`,
-                  nombrePelicula:
-                    reservaConDetalles.funcion?.pelicula?.nombrePelicula || 'Película',
-                  nombreSala: reservaConDetalles.funcion?.sala?.nombreSala || 'Sala',
-                  fechaHora: `${fechaFormato} a las ${horaFormato}`,
-                  asientos,
-                  total: reservaConDetalles.total,
-                  reservaParams: subParams, // Pasar los parámetros para generar el QR
-                };
-
-                await sendReservaConfirmationEmail(emailData);
-                logger.info('Email de confirmación enviado para:', subParams.DNI);
+              if (!reservaConDetalles) {
+                logger.error('ERROR CRÍTICO: getReservaWithDetails devolvió null para:', subParams);
+                throw new Error('No se pudieron obtener los detalles de la reserva');
               }
+
+              logger.info('Detalles de reserva obtenidos:', {
+                hasUsuario: !!reservaConDetalles.usuario,
+                hasEmail: !!reservaConDetalles.usuario?.email,
+                hasFuncion: !!reservaConDetalles.funcion,
+                hasPelicula: !!reservaConDetalles.funcion?.pelicula,
+                hasSala: !!reservaConDetalles.funcion?.sala,
+                numAsientos: reservaConDetalles.asiento_reserva?.length || 0,
+              });
+
+              // Validar datos críticos antes de enviar email
+              if (!reservaConDetalles.usuario?.email) {
+                logger.error('ERROR: Usuario sin email:', reservaConDetalles.usuario);
+                throw new Error('El usuario no tiene email registrado');
+              }
+
+              // Obtener asientos de la reserva (desde asiento_reserva)
+              const asientos = (reservaConDetalles.asiento_reserva || []).map((ar) => ({
+                filaAsiento: ar.asiento.filaAsiento,
+                nroAsiento: ar.asiento.nroAsiento,
+              }));
+
+              // Formatear fecha y hora
+              const fechaHora = new Date(reservaConDetalles.fechaHoraFuncion);
+              const fechaFormato = fechaHora.toLocaleDateString('es-AR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              });
+              const horaFormato = fechaHora.toLocaleTimeString('es-AR', {
+                hour: '2-digit',
+                minute: '2-digit',
+              });
+
+              // Datos para el email
+              const emailData = {
+                email: reservaConDetalles.usuario.email,
+                nombreUsuario: `${reservaConDetalles.usuario?.nombreUsuario} ${reservaConDetalles.usuario?.apellidoUsuario}`,
+                nombrePelicula:
+                  reservaConDetalles.funcion?.pelicula?.nombrePelicula || 'Película',
+                nombreSala: reservaConDetalles.funcion?.sala?.nombreSala || 'Sala',
+                fechaHora: `${fechaFormato} a las ${horaFormato}`,
+                asientos,
+                total: reservaConDetalles.total,
+                reservaParams: subParams, // Pasar los parámetros para generar el QR
+              };
+
+              logger.info('Preparando envío de email a:', emailData.email);
+              await sendReservaConfirmationEmail(emailData);
+              logger.info('Email de confirmación enviado exitosamente para DNI:', subParams.DNI);
             } catch (emailError) {
-              logger.error('Error enviando email de confirmación:', emailError);
+              logger.error('ERROR ENVIANDO EMAIL DE CONFIRMACIÓN:', {
+                message: emailError.message,
+                stack: emailError.stack,
+                subParams,
+              });
               // No lanzar error aquí, la reserva ya está confirmada
             }
           } else {
