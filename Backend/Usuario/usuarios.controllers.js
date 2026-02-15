@@ -70,3 +70,28 @@ export const updateUsuario = async (req, res) => {
   const updatedUsuario = await service.update(req.params.dni, req.body, req.user);
   res.status(200).json(updatedUsuario);
 };
+
+/**
+ * Controlador para que un usuario actualice su propio perfil.
+ * Simplifica la interfaz para el frontend (no requiere DNI en la URL).
+ * 
+ * @param {import('express').Request} req - Petición Express.
+ * @param {import('express').Response} res - Respuesta Express.
+ */
+export const updateSelf = async (req, res) => {
+  const updatedUsuario = await service.update(req.user.id, req.body, req.user);
+  res.status(200).json(updatedUsuario);
+};
+
+/**
+ * Controlador específico para cambiar la contraseña del usuario autenticado.
+ * Requiere la contraseña actual por seguridad.
+ * 
+ * @param {import('express').Request} req - Petición Express.
+ * @param {import('express').Response} res - Respuesta Express.
+ */
+export const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  await service.changePassword(req.user.id, currentPassword, newPassword);
+  res.status(200).json({ message: 'Contraseña actualizada correctamente.' });
+};

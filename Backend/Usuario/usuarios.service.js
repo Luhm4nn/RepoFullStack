@@ -83,10 +83,45 @@ export const update = async (dni, data, user) => {
     throw error;
   }
 
-  // Si se envía una nueva contraseña, la hasheamos
-  if (data.contrasena) {
-    data.contrasena = await bcrypt.hash(data.contrasena, 10);
+  // Sanitización: Evitamos que se actualice el DNI o el ROL si no es ADMIN
+  const updateData = {
+    nombreUsuario: data.nombreUsuario,
+    apellidoUsuario: data.apellidoUsuario,
+    email: data.email,
+    telefono: data.telefono,
+  };
+
+  if (user.rol === 'ADMIN' && data.rol) {
+    updateData.rol = data.rol;
   }
 
-  return await repository.update(dni, data);
+  // Nota: No actualizamos el password aquí para mayor seguridad (ver changePassword)
+  return await repository.update(dni, updateData);
+};
+
+/**
+ * Cambia la contraseña de un usuario validando la actual.
+ * 
+ * @param {number|string} dni - DNI del usuario.
+ * @param {string} currentPassword - Contraseña actual.
+ * @param {string} newPassword - Nueva contraseña.
+ * @throws {Error} 400 si la contraseña actual es incorrecta.
+ */
+export const changePassword = async (dni, currentPassword, newPassword) => {
+  const usuario = await repository.getOne(dni);
+  if (!usuario) {
+    const error = new Error('Usuario no encontrado.');
+    error.status = 404;
+    throw error;
+  }
+
+  const isMatch = await bcrypt.compare(currentPassword, usuario.contrasena);
+  if (!isMatch) {
+    const error = new Error('La contraseña actual es incorrecta.');
+    error.status = 400;
+    throw error;
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await repository.update(dni, { contrasena: hashedPassword });
 };

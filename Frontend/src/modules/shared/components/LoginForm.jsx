@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { loginSchema } from "../../../validations/AuthSchema";
 import { ButtonSpinner } from "./Spinner";
+import { notifyGlobal } from "../../../context/NotificationContext";
 
 const LoginForm = ({
   onLogin,
@@ -23,13 +24,17 @@ const LoginForm = ({
       if (onLogin) {
         const result = await onLogin(values.email, values.password);
         if (!result.success) {
-          setAlertMessage(result.error || "Usuario o contraseña incorrectos");
+          const errorMsg = result.error || "Usuario o contraseña incorrectos";
+          setAlertMessage(errorMsg);
           setShowAlert(true);
+          notifyGlobal.error(errorMsg);
         }
       }
     } catch (error) {
-      setAlertMessage("Error inesperado. Intenta nuevamente.");
+      const errorMsg = "Error inesperado. Intenta nuevamente.";
+      setAlertMessage(errorMsg);
       setShowAlert(true);
+      notifyGlobal.error(errorMsg);
     } finally {
       setSubmitting(false);
     }

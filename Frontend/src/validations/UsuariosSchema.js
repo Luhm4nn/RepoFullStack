@@ -39,6 +39,20 @@ export const registerSchema = Yup.object().shape({
     .trim(),
 });
 
+// Schema para CAMBIO de contraseña
+export const changePasswordSchema = Yup.object().shape({
+  currentPassword: Yup.string()
+    .required('La contraseña actual es requerida'),
+  
+  newPassword: Yup.string()
+    .required('La nueva contraseña es requerida')
+    .min(6, 'La nueva contraseña debe tener al menos 6 caracteres'),
+  
+  confirmNewPassword: Yup.string()
+    .required('Confirma tu nueva contraseña')
+    .oneOf([Yup.ref('newPassword')], 'Las contraseñas no coinciden'),
+});
+
 // Schema para EDITAR perfil (sin contraseña ni DNI, sin confirmPassword)
 export const editProfileSchema = Yup.object().shape({
   nombreUsuario: Yup.string()
