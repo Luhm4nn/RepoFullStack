@@ -26,7 +26,6 @@ function PaymentStep({
 
   useEffect(() => {
     createPreference();
-
     // Sincronizar el timer con el timestamp de expiración centralizado
     if (expiryTimestamp) {
       const seconds = Math.floor((expiryTimestamp - Date.now()) / 1000);

@@ -75,9 +75,7 @@ export async function cancelReserva(params, user) {
   const horasHastaFuncion = (fechaFuncion - now) / (1000 * 60 * 60);
 
   if (horasHastaFuncion < 2) {
-    const error = new Error(
-      'No se puede cancelar una reserva con menos de 2 horas de anticipación'
-    );
+    const error = new Error('No se puede cancelar una reserva con menos de 2 horas de anticipación');
     error.status = 400;
     throw error;
   }
@@ -135,7 +133,6 @@ export async function getUserReservas(userDNI, estado) {
 export async function confirmReserva(params, user) {
   const { DNI } = params;
   validateOwnership(user, DNI);
-
   const reserva = await repository.getOne(params);
   if (!reserva) {
     const error = new Error('Reserva no encontrada.');

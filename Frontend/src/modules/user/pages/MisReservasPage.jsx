@@ -16,6 +16,7 @@ function MisReservasPage() {
   const [todasReservas, setTodasReservas] = useState([]);
 
   useEffect(() => {
+    console.log('[MisReservasPage] useEffect: filter', filter);
     fetchReservas();
   }, [filter]);
 

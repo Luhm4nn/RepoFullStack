@@ -79,7 +79,6 @@
  *     summary: Eliminar una tarifa
  *     tags: [Tarifas]
  *     security:
-
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/TarifaInput'
