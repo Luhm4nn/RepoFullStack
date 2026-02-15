@@ -1,5 +1,6 @@
 import { Button } from "flowbite-react";
 import { ButtonSpinner } from "../../shared/components/Spinner";
+import { ESTADOS_FUNCION, ESTADOS_FUNCION_LABELS } from "../../../constants";
 
 function ModalPublishFuncion({
   funcion,
@@ -7,9 +8,9 @@ function ModalPublishFuncion({
   onCancel,
   isPublishing = false,
 }) {
-  const isPrivada = funcion.estado === "Privada";
+  const isPrivada = funcion.estado === ESTADOS_FUNCION.PRIVADA;
   const accion = isPrivada ? "publicar" : "hacer privada";
-  const estadoDestino = isPrivada ? "Publica" : "Privada";
+  const estadoDestino = isPrivada ? ESTADOS_FUNCION.PUBLICA : ESTADOS_FUNCION.PRIVADA;
 
   return (
     <div className="bg-slate-800 border border-slate-700 p-6 sm:p-8 rounded-xl shadow-xl max-w-md w-full mx-4">
@@ -41,7 +42,7 @@ function ModalPublishFuncion({
             <span
               className={`font-semibold ${isPrivada ? "text-red-500" : "text-green-500"}`}
             >
-              {funcion.estado}
+              {ESTADOS_FUNCION_LABELS[funcion.estado] || funcion.estado}
             </span>
           </p>
           <p className="text-gray-300 text-center text-sm">
@@ -49,7 +50,7 @@ function ModalPublishFuncion({
             <span
               className={`font-semibold ${isPrivada ? "text-green-500" : "text-red-500"}`}
             >
-              {estadoDestino}
+              {ESTADOS_FUNCION_LABELS[estadoDestino] || estadoDestino}
             </span>
           </p>
         </div>

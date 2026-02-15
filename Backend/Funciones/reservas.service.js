@@ -1,4 +1,5 @@
 import * as repository from './reservas.repository.js';
+import { ESTADOS_RESERVA } from '../constants/index.js';
 import logger from '../utils/logger.js';
 
 /**
@@ -104,7 +105,7 @@ export async function deletePendingReserva(params, user) {
     throw error;
   }
 
-  if (reserva.estado !== 'PENDIENTE') {
+  if (reserva.estado !== ESTADOS_RESERVA.PENDIENTE) {
     const error = new Error('Solo se pueden eliminar reservas en estado PENDIENTE por esta vía');
     error.status = 400;
     throw error;
@@ -124,7 +125,6 @@ export async function getLatestReservas(limit) {
  */
 export async function getUserReservas(userDNI, estado) {
   validateOwnership({ id: userDNI, rol: 'USER' }, userDNI);
-  console.log('USER DNI EN SERVICE:', userDNI, 'ESTADO:', estado);
   let userReservas = await repository.getByUserAndStatus(userDNI, estado);
   return userReservas;
 }
@@ -143,7 +143,7 @@ export async function confirmReserva(params, user) {
     throw error;
   }
 
-  if (reserva.estado !== 'PENDIENTE') {
+  if (reserva.estado !== ESTADOS_RESERVA.PENDIENTE) {
     const error = new Error(`No se puede confirmar una reserva en estado ${reserva.estado}`);
     error.status = 400;
     throw error;

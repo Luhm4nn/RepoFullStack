@@ -7,7 +7,7 @@ import { dateFormaterBackend } from "../../../utils/dateFormater.js";
 import useErrorModal from "../../shared/hooks/useErrorModal";
 import ErrorModal from "../../shared/components/ErrorModal.jsx";
 import { useNotification } from "../../../context/NotificationContext";
-import { CLASIFICACIONES_MPAA } from "../../../constants";
+import { CLASIFICACIONES_MPAA, GENEROS_PELICULAS } from "../../../constants";
 
 function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
   const [showModal, setShowModal] = useState(false);
@@ -217,16 +217,11 @@ function ModalPeliculas({ onSuccess, peliculaToEdit = null, onClose }) {
                       </label>
                       <Field as={Select} name="generoPelicula" disabled={isSubmitting} color className="bg-slate-700 hover:bg-white/10 text-white rounded-lg">
                         <option value="" className="bg-slate-700 border-slate-600 hover:bg-white/10 text-white">Selecciona el género principal</option>
-                        <option value="Accion" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Acción</option>
-                        <option value="Drama" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Drama</option>
-                        <option value="Comedia" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Comedia</option>
-                        <option value="Terror" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Terror</option>
-                        <option value="Ciencia Ficcion" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Ciencia Ficción</option>
-                        <option value="Romance" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Romance</option>
-                        <option value="Thriller" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Thriller</option>
-                        <option value="Aventura" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Aventura</option>
-                        <option value="Animacion" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Animación</option>
-                        <option value="Documental" className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">Documental</option>
+                        {GENEROS_PELICULAS.map((genero) => (
+                          <option key={genero.value} value={genero.value} className="bg-slate-700 hover:bg-white/10 border-slate-600 text-white">
+                            {genero.label}
+                          </option>
+                        ))}
                       </Field>
                       <ErrorMessage name="generoPelicula" component="div" className="text-red-500 text-sm mt-1" />
                     </div>

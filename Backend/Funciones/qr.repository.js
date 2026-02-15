@@ -1,4 +1,5 @@
 import prisma from '../prisma/prisma.js';
+import { ESTADOS_RESERVA } from '../constants/index.js';
 
 /**
  * Obtiene una reserva con todos sus detalles relacionados
@@ -55,7 +56,7 @@ export async function markReservaAsUsed({ idSala, fechaHoraFuncion, DNI, fechaHo
       },
     },
     data: {
-      estado: 'ASISTIDA',
+      estado: ESTADOS_RESERVA.ASISTIDA,
     },
     include: {
       funcion: {

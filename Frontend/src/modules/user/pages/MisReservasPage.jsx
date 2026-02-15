@@ -5,6 +5,7 @@ import { authAPI } from '../../../api/login.api';
 import MisReservasList from '../components/MisReservasList';
 import { ReservaCardSkeleton } from '../../shared/components/Skeleton';
 import { CenteredSpinner } from '../../shared/components/Spinner';
+import { ESTADOS_RESERVA } from '../../../constants';
 
 function MisReservasPage() {
   const navigate = useNavigate();
@@ -33,17 +34,17 @@ function MisReservasPage() {
 
       // Backend filtra por estado, frontend solo filtra fecha si es necesario
       if (filter === 'canceladas') {
-        const data = await getUserReservas('CANCELADA');
+        const data = await getUserReservas(ESTADOS_RESERVA.CANCELADA);
         misReservas = Array.isArray(data) ? data : [];
       } else if (filter === 'activas') {
-        const data = await getUserReservas('ACTIVA');
+        const data = await getUserReservas(ESTADOS_RESERVA.ACTIVA);
         const activas = Array.isArray(data) ? data : [];
         misReservas = activas.filter((r) => new Date(r.funcion?.fechaHoraFuncion) >= ahora);
       } else if (filter === 'finalizadas') {
         // Finalizadas: activas cuya función ya pasó (pero siguen como ACTIVA), más ASISTIDA y NO_ASISTIDA
-        const activas = await getUserReservas('ACTIVA');
-        const asistidas = await getUserReservas('ASISTIDA');
-        const noAsistidas = await getUserReservas('NO_ASISTIDA');
+        const activas = await getUserReservas(ESTADOS_RESERVA.ACTIVA);
+        const asistidas = await getUserReservas(ESTADOS_RESERVA.ASISTIDA);
+        const noAsistidas = await getUserReservas(ESTADOS_RESERVA.NO_ASISTIDA);
         misReservas = [
           ...(Array.isArray(activas)
             ? activas.filter((r) => new Date(r.funcion?.fechaHoraFuncion) < ahora)
@@ -92,17 +93,17 @@ function MisReservasPage() {
     switch (filterType) {
       case 'activas':
         return baseReservas.filter(
-          (r) => r.estadoReserva === 'ACTIVA' && new Date(r.funcion?.fechaHoraFuncion) >= ahora
+          (r) => r.estadoReserva === ESTADOS_RESERVA.ACTIVA && new Date(r.funcion?.fechaHoraFuncion) >= ahora
         ).length;
       case 'canceladas':
-        return baseReservas.filter((r) => r.estadoReserva === 'CANCELADA').length;
+        return baseReservas.filter((r) => r.estadoReserva === ESTADOS_RESERVA.CANCELADA).length;
       case 'finalizadas':
         // Finalizadas: activas cuya función ya pasó (pero siguen como ACTIVA), más ASISTIDA y NO_ASISTIDA
         return baseReservas.filter(
           (r) =>
-            (r.estadoReserva === 'ACTIVA' && new Date(r.funcion?.fechaHoraFuncion) < ahora) ||
-            r.estadoReserva === 'ASISTIDA' ||
-            r.estadoReserva === 'NO_ASISTIDA'
+            (r.estadoReserva === ESTADOS_RESERVA.ACTIVA && new Date(r.funcion?.fechaHoraFuncion) < ahora) ||
+            r.estadoReserva === ESTADOS_RESERVA.ASISTIDA ||
+            r.estadoReserva === ESTADOS_RESERVA.NO_ASISTIDA
         ).length;
       case 'todas':
         return baseReservas.length;

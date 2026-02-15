@@ -6,6 +6,13 @@ import prisma from '../prisma/prisma.js';
  * @param {string} fieldName - Nombre del campo para el error
  * @returns {number} ID parseado
  */
+/**
+ * Parsea un ID de forma segura a entero.
+ * @param {*} id - Valor a parsear.
+ * @param {string} fieldName - Nombre del campo para el mensaje de error.
+ * @returns {number} Valor entero.
+ * @throws {Error} Si el valor no es un número válido.
+ */
 function safeParseInt(id, fieldName = 'ID') {
   const parsed = parseInt(id, 10);
   if (isNaN(parsed)) {
@@ -15,21 +22,20 @@ function safeParseInt(id, fieldName = 'ID') {
 }
 
 /**
- * Obtiene todas las películas
- * @returns {Promise<Array>} Lista de películas
+ * Recupera todas las películas usando Prisma.
+ * @returns {Promise<Array>} Lista de películas.
  */
 async function getAll() {
   return await prisma.pelicula.findMany();
 }
 
 /**
- * Obtiene películas con paginación
- * @param {number} page - Número de página (default: 1)
- * @param {number} limit - Items por página (default: 10)
- * @returns {Promise<Object>} Objeto con data y pagination
+ * Obtiene películas con paginación desde la base de datos.
+ * @param {number} page - Página actual.
+ * @param {number} limit - Cantidad de registros.
+ * @returns {Promise<Object>} Datos y metadatos de paginación.
  */
 async function getPaginated(page = 1, limit = 10) {
-  // Asegurar que page y limit sean números válidos
   const validPage = parseInt(page) || 1;
   const validLimit = parseInt(limit) || 10;
   const skip = (validPage - 1) * validLimit;
@@ -57,9 +63,9 @@ async function getPaginated(page = 1, limit = 10) {
 }
 
 /**
- * Obtiene una película por ID
- * @param {number} id - ID de la película
- * @returns {Promise<Object|null>} Película encontrada o null
+ * Busca una película por su ID.
+ * @param {number|string} id - ID de la película.
+ * @returns {Promise<Object|null>} Registro encontrado o null.
  */
 async function getOne(id) {
   return await prisma.pelicula.findUnique({
@@ -70,9 +76,9 @@ async function getOne(id) {
 }
 
 /**
- * Crea una nueva película
- * @param {Object} data - Datos de la película
- * @returns {Promise<Object>} Película creada
+ * Crea un nuevo registro de película.
+ * @param {Object} data - Datos del registro.
+ * @returns {Promise<Object>} Registro creado.
  */
 async function create(data) {
   return await prisma.pelicula.create({
@@ -96,6 +102,11 @@ async function create(data) {
  * @param {number} id - ID de la película
  * @returns {Promise<Object>} Película eliminada
  */
+/**
+ * Elimina una película por su ID.
+ * @param {number|string} id - ID de la película.
+ * @returns {Promise<Object>} Registro eliminado.
+ */
 async function deleteOne(id) {
   return await prisma.pelicula.delete({
     where: {
@@ -105,10 +116,10 @@ async function deleteOne(id) {
 }
 
 /**
- * Actualiza una película existente
- * @param {number} id - ID de la película
- * @param {Object} data - Datos a actualizar
- * @returns {Promise<Object>} Película actualizada
+ * Actualiza los datos de una película existente.
+ * @param {number|string} id - ID de la película.
+ * @param {Object} data - Datos a actualizar.
+ * @returns {Promise<Object>} Registro actualizado.
  */
 async function update(id, data) {
   return await prisma.pelicula.update({
@@ -131,8 +142,10 @@ async function update(id, data) {
 }
 
 /**
- * Obtiene películas que tienen funciones públicas (en cartelera)
- * @returns {Promise<Array>} Lista de películas en cartelera
+ * Obtiene películas que tienen funciones marcadas como 'Publica'.
+ * @param {Date} ahora - Fecha de inicio.
+ * @param {Date} semana - Fecha de fin.
+ * @returns {Promise<Array>} Lista de películas en cartelera.
  */
 async function getAllEnCartelera(ahora, semana) {
   return await prisma.pelicula.findMany({
@@ -151,8 +164,10 @@ async function getAllEnCartelera(ahora, semana) {
 }
 
 /**
- * Cuenta películas que tienen funciones públicas (en cartelera)
- * @returns {Promise<number>} Cantidad de películas en cartelera
+ * Cuenta películas en cartelera.
+ * @param {Date} hoy - Fecha hoy.
+ * @param {Date} semana - Fecha fin de semana.
+ * @returns {Promise<number>} Cantidad de películas.
  */
 async function countEnCartelera(hoy, semana) {
   return await prisma.pelicula.count({
@@ -171,10 +186,10 @@ async function countEnCartelera(hoy, semana) {
 }
 
 /**
- * Busca películas por nombre con límite opcional
- * @param {string} searchQuery - Término de búsqueda
- * @param {number} limit - Límite de resultados (opcional)
- * @returns {Promise<Array>} Lista de películas que coinciden con la búsqueda
+ * Busca películas por nombre con coincidencia parcial.
+ * @param {string} searchQuery - Cadena de búsqueda.
+ * @param {number} limit - Límite de resultados.
+ * @returns {Promise<Array>} Películas que coinciden.
  */
 async function search(searchQuery, limit) {
   const where = searchQuery
@@ -201,18 +216,15 @@ async function search(searchQuery, limit) {
 }
 
 /**
- * Obtiene películas con filtros dinámicos y paginación
- * @param {Object} filters - Filtros de búsqueda
- * @param {string} filters.busqueda - Búsqueda por nombre de película o director
- * @param {string} filters.genero - Filtro por género
- * @param {number} page - Número de página (default: 1)
- * @param {number} limit - Items por página (default: 10)
- * @returns {Promise<Object>} Objeto con data y pagination
+ * Filtra películas dinámicamente por búsqueda y género con paginación.
+ * @param {Object} filters - Filtros dinámicos.
+ * @param {number} page - Página.
+ * @param {number} limit - Límite.
+ * @returns {Promise<Object>} Resultados paginados.
  */
 async function getWithFilters(filters = {}, page = 1, limit = 10) {
   const where = {};
 
-  // Filtro de búsqueda: busca en nombre de película O director
   if (filters.busqueda) {
     where.OR = [
       {
@@ -230,7 +242,6 @@ async function getWithFilters(filters = {}, page = 1, limit = 10) {
     ];
   }
 
-  // Filtro por género
   if (filters.genero) {
     where.generoPelicula = {
       contains: filters.genero,
@@ -238,7 +249,6 @@ async function getWithFilters(filters = {}, page = 1, limit = 10) {
     };
   }
 
-  // Asegurar que page y limit sean números válidos
   const validPage = parseInt(page) || 1;
   const validLimit = parseInt(limit) || 10;
   const skip = (validPage - 1) * validLimit;
@@ -267,8 +277,8 @@ async function getWithFilters(filters = {}, page = 1, limit = 10) {
 }
 
 /**
- * Obtiene películas cuya fecha de estreno es posterior a hoy
- * @returns {Promise<Array>} Lista de películas próximas a estrenarse
+ * Recupera películas con estreno futuro.
+ * @returns {Promise<Array>} Lista de estrenos.
  */
 async function getEstrenos() {
   const today = new Date();
@@ -286,3 +296,4 @@ async function getEstrenos() {
 }
 
 export { getOne, getAll, getPaginated, create, deleteOne, update, getAllEnCartelera, countEnCartelera, search, getWithFilters, getEstrenos };
+

@@ -1,31 +1,34 @@
-/**
- * Obtiene una sala por ID o Nombre
- * @param {Object} req - Request
- * @param {Object} res - Response
- */
-export const getSala = async (req, res) => {
-  const { param } = req.params;
-  const sala = await service.getOne(param);
-  res.json(sala);
-};
 import * as service from './salas.service.js';
 import { createManyForSala, updateManyForSala } from './asientos.repository.js';
 
 /**
- * Obtiene todas las salas
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Obtiene todas las salas registradas.
+ * 
+ * @param {Object} req - Objeto de solicitud de Express.
+ * @param {Object} res - Objeto de respuesta de Express.
  */
-
 export const getSalas = async (req, res) => {
   const salas = await service.getAll();
   res.json(salas);
 };
 
 /**
- * Crea una nueva sala y sus asientos
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Obtiene una sala específica mediante su ID o nombre.
+ * 
+ * @param {Object} req - Objeto de solicitud con el parámetro coincidente.
+ * @param {Object} res - Objeto de respuesta.
+ */
+export const getSala = async (req, res) => {
+  const { param } = req.params;
+  const sala = await service.getOne(param);
+  res.json(sala);
+};
+
+/**
+ * Crea una nueva sala y dispara la creación automática de sus asientos asociados.
+ * 
+ * @param {Object} req - Objeto de solicitud con datos de la sala y configuración de asientos.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const createSala = async (req, res) => {
   const newSala = await service.create(req.body);
@@ -39,9 +42,10 @@ export const createSala = async (req, res) => {
 };
 
 /**
- * Elimina una sala
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Elimina una sala por su ID.
+ * 
+ * @param {Object} req - Objeto de solicitud con `id` en params.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const deleteSala = async (req, res) => {
   await service.deleteOne(req.params.id);
@@ -49,9 +53,10 @@ export const deleteSala = async (req, res) => {
 };
 
 /**
- * Actualiza una sala y sus asientos VIP
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Actualiza los datos de una sala y permite modificar la configuración de asientos VIP.
+ * 
+ * @param {Object} req - Objeto de solicitud con nuevos datos.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const updateSala = async (req, res) => {
   const { vipSeats, ...salaData } = req.body;
@@ -63,9 +68,10 @@ export const updateSala = async (req, res) => {
 };
 
 /**
- * Obtiene el conteo de salas
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Obtiene el conteo total de salas en el sistema.
+ * 
+ * @param {Object} req - Objeto de solicitud.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const getCountSalas = async (req, res) => {
   const count = await service.getCountAll();
@@ -73,14 +79,14 @@ export const getCountSalas = async (req, res) => {
 };
 
 /**
- * Busca salas por nombre con query params
- * @param {Object} req - Request
- * @param {Object} res - Response
- * @query {string} q - Término de búsqueda
- * @query {number} limit - Límite de resultados (opcional)
+ * Busca salas que coincidan con un criterio de búsqueda.
+ * 
+ * @param {Object} req - Objeto de solicitud con `q` y `limit` opcionales.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const searchSalas = async (req, res) => {
   const { q, limit } = req.query;
   const salas = await service.search(q, limit);
   res.json(salas);
 };
+

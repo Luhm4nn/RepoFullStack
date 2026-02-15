@@ -40,7 +40,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(indexRoutes);
+app.use('/api', indexRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(errorHandler);
 

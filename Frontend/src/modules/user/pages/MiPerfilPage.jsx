@@ -4,6 +4,7 @@ import { authAPI } from "../../../api/login.api";
 import { getUserReservas } from "../../../api/Reservas.api";
 import ClaquetaPersonaje from "../../shared/components/ClaquetaPersonaje";
 import { CenteredSpinner } from "../../shared/components/Spinner";
+import { ESTADOS_RESERVA } from "../../../constants";
 
 export default function MiPerfilPage() {
   const navigate = useNavigate();
@@ -79,7 +80,7 @@ export default function MiPerfilPage() {
 
   const reservasActivas = reservas.filter(
     (r) =>
-      r.estadoReserva === "ASISTIDA" &&
+      r.estado === ESTADOS_RESERVA.ACTIVA &&
       new Date(r.funcion?.fechaHoraFuncion) >= now
   );
   const reservasFinalizadas = reservas.filter(
@@ -93,7 +94,7 @@ export default function MiPerfilPage() {
   const proximaReserva = reservas
     .filter(
       (r) =>
-        r.estadoReserva === "ASISTIDA" &&
+        r.estado === ESTADOS_RESERVA.ACTIVA &&
         new Date(r.funcion?.fechaHoraFuncion) >= now
     )
     .sort(

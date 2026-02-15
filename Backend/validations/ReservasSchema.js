@@ -1,5 +1,8 @@
 import * as Yup from 'yup';
 
+/**
+ * Esquema de validación para la creación de una reserva básica.
+ */
 export const reservaCreateSchema = Yup.object().shape({
   idSala: Yup.number()
     .required('El ID de sala es requerido')

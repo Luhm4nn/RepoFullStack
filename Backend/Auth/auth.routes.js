@@ -8,10 +8,10 @@ import { loginSchema } from '../validations/AuthSchema.js';
 
 const router = Router();
 
-router.post('/auth/login', loginLimiter, validateBody(loginSchema), asyncHandler(login));
-router.post('/auth/refresh', strictLimiter, asyncHandler(refresh));
-router.post('/auth/logout', asyncHandler(logout));
-router.post('/auth/revoke-all-sessions', authMiddleware, asyncHandler(logoutAllSessions));
-router.get('/auth/me', authMiddleware, asyncHandler(getUsuarioLoggedIn));
+router.post('/login', loginLimiter, validateBody(loginSchema), asyncHandler(login));
+router.post('/refresh', strictLimiter, asyncHandler(refresh));
+router.post('/logout', asyncHandler(logout));
+router.post('/revoke-all-sessions', authMiddleware, asyncHandler(logoutAllSessions));
+router.get('/me', authMiddleware, asyncHandler(getUsuarioLoggedIn));
 
 export const authRoutes = router;

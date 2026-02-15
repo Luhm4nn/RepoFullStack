@@ -1,45 +1,37 @@
 import * as reportesRepository from './reportes.repository.js';
+import { ESTADOS_RESERVA, MESES_ABREVIADOS } from '../constants/index.js';
 
+/**
+ * Obtiene métricas generales y rápidas para los contadores del dashboard.
+ * @returns {Promise<Object>} Totales de películas, salas, usuarios, reservas hoy y funciones activas.
+ */
 export const getDashboardStats = async () => {
   return await reportesRepository.getDashboardStats();
 };
 
+/**
+ * Procesa las reservas del último año para generar datos de ventas e ingresos mensuales.
+ * @returns {Promise<Object>} Series de datos para gráficos de barras/líneas y etiquetas de meses.
+ */
 export const getVentasMensuales = async () => {
   const reservas = await reportesRepository.getReservasAnuales();
 
-  // Generate last 12 months labels
   const now = new Date();
-  const monthNames = [
-    'Ene',
-    'Feb',
-    'Mar',
-    'Abr',
-    'May',
-    'Jun',
-    'Jul',
-    'Ago',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dic',
-  ];
   const categories = [];
   const ventasPorMes = Array(12).fill(0);
   const ingresosPorMes = Array(12).fill(0);
 
-  // Build month labels for last 12 months
+  // Generar etiquetas de los últimos 12 meses finalizando en el mes actual
   for (let i = 11; i >= 0; i--) {
     const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    categories.push(monthNames[monthDate.getMonth()]);
+    categories.push(MESES_ABREVIADOS[monthDate.getMonth()]);
   }
 
-  // Group reservations by month index (0-11 where 0 is oldest, 11 is current)
+  // Distribuir reservas en sus respectivos buckets mensuales
   reservas.forEach((reserva) => {
     const reservaDate = new Date(reserva.fechaHoraReserva);
-    const monthsDiff =
-      (now.getFullYear() - reservaDate.getFullYear()) * 12 +
-      (now.getMonth() - reservaDate.getMonth());
-    const monthIndex = 11 - monthsDiff; // Reverse index: oldest at 0, newest at 11
+    const monthsDiff = (now.getFullYear() - reservaDate.getFullYear()) * 12 + (now.getMonth() - reservaDate.getMonth());
+    const monthIndex = 11 - monthsDiff;
 
     if (monthIndex >= 0 && monthIndex < 12) {
       ventasPorMes[monthIndex] += 1;
@@ -49,60 +41,39 @@ export const getVentasMensuales = async () => {
 
   return {
     series: [
-      {
-        name: 'Ventas (Tickets)',
-        data: ventasPorMes,
-      },
-      {
-        name: 'Ingresos ($)',
-        data: ingresosPorMes,
-      },
+      { name: 'Ventas (Tickets)', data: ventasPorMes },
+      { name: 'Ingresos ($)', data: ingresosPorMes },
     ],
     categories,
   };
 };
 
+/**
+ * Calcula la relación entre reservas asistidas y no asistidas en los últimos 12 meses.
+ * @returns {Promise<Object>} Datos formateados para gráficos comparativos de asistencia.
+ */
 export const getAsistenciaReservas = async () => {
   const reservas = await reportesRepository.getAsistenciaReservas();
 
-  // Generate last 12 months labels
   const now = new Date();
-  const monthNames = [
-    'Ene',
-    'Feb',
-    'Mar',
-    'Abr',
-    'May',
-    'Jun',
-    'Jul',
-    'Ago',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dic',
-  ];
   const categories = [];
   const asistidasPorMes = Array(12).fill(0);
   const noAsistidasPorMes = Array(12).fill(0);
 
-  // Build month labels for last 12 months
   for (let i = 11; i >= 0; i--) {
     const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    categories.push(monthNames[monthDate.getMonth()]);
+    categories.push(MESES_ABREVIADOS[monthDate.getMonth()]);
   }
 
-  // Group reservations by month index (0-11 where 0 is oldest, 11 is current)
   reservas.forEach((reserva) => {
     const reservaDate = new Date(reserva.fechaHoraReserva);
-    const monthsDiff =
-      (now.getFullYear() - reservaDate.getFullYear()) * 12 +
-      (now.getMonth() - reservaDate.getMonth());
-    const monthIndex = 11 - monthsDiff; // Reverse index: oldest at 0, newest at 11
+    const monthsDiff = (now.getFullYear() - reservaDate.getFullYear()) * 12 + (now.getMonth() - reservaDate.getMonth());
+    const monthIndex = 11 - monthsDiff;
 
     if (monthIndex >= 0 && monthIndex < 12) {
-      if (reserva.estado === 'ASISTIDA') {
+      if (reserva.estado === ESTADOS_RESERVA.ASISTIDA) {
         asistidasPorMes[monthIndex] += 1;
-      } else if (reserva.estado === 'NO_ASISTIDA') {
+      } else if (reserva.estado === ESTADOS_RESERVA.NO_ASISTIDA) {
         noAsistidasPorMes[monthIndex] += 1;
       }
     }
@@ -110,19 +81,17 @@ export const getAsistenciaReservas = async () => {
 
   return {
     series: [
-      {
-        name: 'Asistidas',
-        data: asistidasPorMes,
-      },
-      {
-        name: 'No Asistidas',
-        data: noAsistidasPorMes,
-      },
+      { name: 'Asistidas', data: asistidasPorMes },
+      { name: 'No Asistidas', data: noAsistidasPorMes },
     ],
     categories,
   };
 };
 
+/**
+ * Analiza la ocupación de las salas basada en ventas históricas vs capacidad teórica.
+ * @returns {Promise<Object>} Porcentajes de ocupación por sala.
+ */
 export const getOcupacionSalas = async () => {
   const ocupacionRaw = await reportesRepository.getOcupacionRaw();
 
@@ -145,40 +114,26 @@ export const getOcupacionSalas = async () => {
   };
 };
 
+/**
+ * Obtiene la película más reservada de cada mes en el último año.
+ * @returns {Promise<Object>} Listado mensual con el título y cantidad de asientos vendidos.
+ */
 export const getPeliculasMasReservadas = async () => {
   const reservas = await reportesRepository.getPeliculasMasReservadas();
 
   const now = new Date();
-  const monthNames = [
-    'Ene',
-    'Feb',
-    'Mar',
-    'Abr',
-    'May',
-    'Jun',
-    'Jul',
-    'Ago',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dic',
-  ];
   const categories = [];
 
   for (let i = 11; i >= 0; i--) {
     const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    categories.push(monthNames[monthDate.getMonth()]);
+    categories.push(MESES_ABREVIADOS[monthDate.getMonth()]);
   }
 
-  const peliculasPorMes = Array(12)
-    .fill(null)
-    .map(() => ({}));
+  const peliculasPorMes = Array(12).fill(null).map(() => ({}));
 
   reservas.forEach((reserva) => {
     const reservaDate = new Date(reserva.fechaHoraReserva);
-    const monthsDiff =
-      (now.getFullYear() - reservaDate.getFullYear()) * 12 +
-      (now.getMonth() - reservaDate.getMonth());
+    const monthsDiff = (now.getFullYear() - reservaDate.getFullYear()) * 12 + (now.getMonth() - reservaDate.getMonth());
     const monthIndex = 11 - monthsDiff;
 
     if (monthIndex >= 0 && monthIndex < 12) {
@@ -212,16 +167,17 @@ export const getPeliculasMasReservadas = async () => {
 
   return {
     series: [
-      {
-        name: 'Asientos Reservados',
-        data: asientosTop,
-      },
+      { name: 'Asientos Reservados', data: asientosTop },
     ],
     categories,
     peliculas: peliculasTop,
   };
 };
 
+/**
+ * Clasifica las películas en cartelera según el volumen total de reservas recientes.
+ * @returns {Promise<Object>} Ranking de películas y cantidad de asientos reservados.
+ */
 export const getRankingPeliculasCartelera = async () => {
   const peliculas = await reportesRepository.getRankingPeliculasCartelera();
 

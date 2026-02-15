@@ -6,7 +6,10 @@
 const isProd = process.env.NODE_ENV === 'production';
 
 /**
- * Redacta información sensible de un mensaje
+ * Redacta información sensible de un mensaje para evitar su filtración en logs.
+ * 
+ * @param {string} message - El mensaje a analizar.
+ * @returns {string} El mensaje con información sensible reemplazada.
  */
 const redactSensitiveInfo = (message) => {
   if (typeof message !== 'string') return message;
@@ -18,11 +21,12 @@ const redactSensitiveInfo = (message) => {
 };
 
 /**
- * Logger seguro con niveles
+ * Utilitario de Logging seguro con multinivel.
+ * Filtra verbosidad y redacta datos sensibles en entornos de producción.
  */
 export const logger = {
   /**
-   * Logs de información general (solo en desarrollo)
+   * Registra información general. Solo visible en desarrollo.
    */
   info: (...args) => {
     if (!isProd) {
@@ -72,8 +76,11 @@ export const logger = {
   },
 
   /**
-   * Eventos de seguridad (siempre se registran, pero SIN datos sensibles)
-   * Usar para: intentos de login, cambios de permisos, etc.
+   * Registra eventos de seguridad (auditoría). 
+   * Diseñado para registrar acciones críticas sin exponer datos sensibles.
+   * 
+   * @param {string} event - Nombre del evento.
+   * @param {Object} metadata - Información contextual no sensible.
    */
   security: (event, metadata = {}) => {
     const timestamp = new Date().toISOString();

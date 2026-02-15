@@ -6,6 +6,8 @@ import {
 import { getReservaWithDetails } from '../Funciones/qr.repository.js';
 import { sendReservaConfirmationEmail } from '../utils/mailer.js';
 import logger from '../utils/logger.js';
+import { ESTADOS_RESERVA } from '../constants/index.js';
+import { asyncHandler } from '../Middlewares/asyncHandler.js';
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
@@ -14,149 +16,116 @@ const client = new MercadoPagoConfig({
 /**
  * Crea una preferencia de pago en Mercado Pago
  */
-export const createPaymentPreference = async (req, res) => {
-  const { reserva, asientos } = req.body;
+export const createPaymentPreference = asyncHandler(async (req, res) => {
+  const { reserva } = req.body;
 
-  try {
-    // Validar integridad antes de crear la preferencia
-    const reservaDB = await getReservaRepo({
-      idSala: reserva.idSala,
-      fechaHoraFuncion: reserva.fechaHoraFuncion,
-      DNI: reserva.DNI,
-      fechaHoraReserva: reserva.fechaHoraReserva,
-    });
+  // Validar integridad antes de crear la preferencia
+  const reservaDB = await getReservaRepo({
+    idSala: reserva.idSala,
+    fechaHoraFuncion: reserva.fechaHoraFuncion,
+    DNI: reserva.DNI,
+    fechaHoraReserva: reserva.fechaHoraReserva,
+  });
 
-    if (!reservaDB || reservaDB.estado !== 'PENDIENTE') {
-      return res.status(400).json({ error: 'La reserva ya no está disponible para pago.' });
-    }
-
-    const preference = new Preference(client);
-
-    const body = {
-      items: [
-        {
-          title: `Reserva - ${reserva.nombrePelicula}`,
-          description: `Función: ${reserva.fecha} ${reserva.hora} - ${reserva.sala}`,
-          quantity: 1,
-          unit_price: parseFloat(reserva.total),
-          currency_id: 'ARS',
-        },
-      ],
-      back_urls: {
-        success: `${process.env.FRONTEND_URL}/reserva/success`,
-        failure: `${process.env.FRONTEND_URL}/reserva/failure`,
-        pending: `${process.env.FRONTEND_URL}/reserva/pending`,
-      },
-      notification_url: `${process.env.BACKEND_URL}/mercadopago/webhooks`,
-      metadata: {
-        id_sala: reserva.idSala.toString(),
-        fecha_hora_funcion: reserva.fechaHoraFuncion,
-        dni: reserva.DNI.toString(),
-        fecha_hora_reserva: reserva.fechaHoraReserva,
-      },
-    };
-
-    const response = await preference.create({ body });
-    return res.json({ id: response.id });
-  } catch (error) {
-    logger.error('Error creando preferencia:', error);
-    return res.status(500).json({ error: 'Error al procesar el pago' });
+  if (!reservaDB || reservaDB.estado !== ESTADOS_RESERVA.PENDIENTE) {
+    return res.status(400).json({ error: 'La reserva ya no está disponible para pago.' });
   }
-};
+
+  const preference = new Preference(client);
+
+  const body = {
+    items: [
+      {
+        title: `Reserva - ${reserva.nombrePelicula}`,
+        description: `Función: ${reserva.fecha} ${reserva.hora} - ${reserva.sala}`,
+        quantity: 1,
+        unit_price: parseFloat(reserva.total),
+        currency_id: 'ARS',
+      },
+    ],
+    back_urls: {
+      success: `${process.env.FRONTEND_URL}/reserva/success`,
+      failure: `${process.env.FRONTEND_URL}/reserva/failure`,
+      pending: `${process.env.FRONTEND_URL}/reserva/pending`,
+    },
+    notification_url: `${process.env.BACKEND_URL}/mercadopago/webhooks`,
+    metadata: {
+      id_sala: reserva.idSala.toString(),
+      fecha_hora_funcion: reserva.fechaHoraFuncion,
+      dni: reserva.DNI.toString(),
+      fecha_hora_reserva: reserva.fechaHoraReserva,
+    },
+  };
+
+  const response = await preference.create({ body });
+  return res.json({ id: response.id });
+});
 
 /**
  * Webhook para notificaciones de pago
  */
-export const handleWebhook = async (req, res) => {
+export const handleWebhook = asyncHandler(async (req, res) => {
   const { type, data } = req.body;
 
-  try {
-    if (type === 'payment') {
-      const payment = new Payment(client);
-      const result = await payment.get({ id: data.id });
+  if (type === 'payment') {
+    const payment = new Payment(client);
+    const result = await payment.get({ id: data.id });
 
-      if (result.status === 'approved') {
-        const { metadata } = result;
-        const subParams = {
-          idSala: parseInt(metadata.id_sala, 10),
-          fechaHoraFuncion: metadata.fecha_hora_funcion,
-          DNI: parseInt(metadata.dni, 10),
-          fechaHoraReserva: metadata.fecha_hora_reserva,
-        };
+    if (result.status === 'approved') {
+      const { metadata } = result;
+      const subParams = {
+        idSala: parseInt(metadata.id_sala, 10),
+        fechaHoraFuncion: metadata.fecha_hora_funcion,
+        DNI: parseInt(metadata.dni, 10),
+        fechaHoraReserva: metadata.fecha_hora_reserva,
+      };
 
-        logger.info('🔍 Webhook aprobado, buscando reserva con:', subParams);
-        const reservaDB = await getReservaRepo(subParams);
+      logger.info('Approved webhook from Mercado Pago', { reservationDNI: subParams.DNI });
+      const reservaDB = await getReservaRepo(subParams);
 
-        if (!reservaDB) {
-          logger.error('RESERVA NO ENCONTRADA en la base de datos con parámetros:', subParams);
-          logger.error('Verifica que las fechas coincidan exactamente');
-          return; // Salir si no existe la reserva
-        }
+      if (!reservaDB) {
+        logger.error('Reserva NOT found on DB after webhook payment', subParams);
+        return res.sendStatus(200);
+      }
 
-        logger.info('Reserva encontrada:', {
-          estado: reservaDB.estado,
-          total: reservaDB.total,
-          DNI: reservaDB.DNI,
-        });
+      const montoMP = parseFloat(result.transaction_amount);
+      const montoDB = parseFloat(reservaDB.total);
 
-        // Verificar que el monto coincida
-        const montoCoincide = Math.abs(parseFloat(result.transaction_amount) - parseFloat(reservaDB.total)) < 0.01;
-        
-        if (!montoCoincide) {
-          logger.error(' Mismatch de monto en el pago:', {
-            montoMP: result.transaction_amount,
-            montoDB: reservaDB.total,
-            diferencia: Math.abs(parseFloat(result.transaction_amount) - parseFloat(reservaDB.total)),
-          });
-          return;
-        }
+      if (Math.abs(montoMP - montoDB) > 0.01) {
+        logger.error('Mismatch de monto en el pago:', { montoMP, montoDB });
+        return res.sendStatus(200);
+      }
 
-        // Si está PENDIENTE, confirmarla
-        if (reservaDB.estado === 'PENDIENTE') {
+      if (reservaDB.estado === ESTADOS_RESERVA.PENDIENTE) {
           await confirmReservaRepo(subParams);
-          logger.info(' Pago aprobado. Reserva confirmada (PENDIENTE -> ACTIVA):', subParams);
-        } else if (reservaDB.estado === 'ACTIVA') {
-          logger.info(' Reserva ya estaba ACTIVA (posible webhook duplicado o ya confirmada)');
+          logger.info('Pago aprobado. Reserva confirmada:', subParams);
+        } else if (reservaDB.estado === ESTADOS_RESERVA.ACTIVA) {
+          logger.info('Reserva ya estaba ACTIVA (webhook duplicado o ya confirmada)');
         } else {
-          logger.warn(' Reserva en estado inesperado:', {
+          logger.warn('Reserva en estado inesperado:', {
             estado: reservaDB.estado,
             subParams,
           });
-          return; // No enviar email si está CANCELADA, ASISTIDA, etc.
+          return res.sendStatus(200);
         }
 
         // Enviar email de confirmación
         try {
-          logger.info(' Intentando obtener detalles de reserva para email...');
           const reservaConDetalles = await getReservaWithDetails(subParams);
 
           if (!reservaConDetalles) {
-            logger.error(' ERROR CRÍTICO: getReservaWithDetails devolvió null para:', subParams);
             throw new Error('No se pudieron obtener los detalles de la reserva');
           }
 
-          logger.info(' Detalles de reserva obtenidos:', {
-            hasUsuario: !!reservaConDetalles.usuario,
-            hasEmail: !!reservaConDetalles.usuario?.email,
-            hasFuncion: !!reservaConDetalles.funcion,
-            hasPelicula: !!reservaConDetalles.funcion?.pelicula,
-            hasSala: !!reservaConDetalles.funcion?.sala,
-            numAsientos: reservaConDetalles.asiento_reserva?.length || 0,
-          });
-
-          // Validar datos críticos antes de enviar email
           if (!reservaConDetalles.usuario?.email) {
-            logger.error(' ERROR: Usuario sin email:', reservaConDetalles.usuario);
             throw new Error('El usuario no tiene email registrado');
           }
 
-          // Obtener asientos de la reserva (desde asiento_reserva)
           const asientos = (reservaConDetalles.asiento_reserva || []).map((ar) => ({
             filaAsiento: ar.asiento.filaAsiento,
             nroAsiento: ar.asiento.nroAsiento,
           }));
 
-          // Formatear fecha y hora
           const fechaHora = new Date(reservaConDetalles.fechaHoraFuncion);
           const fechaFormato = fechaHora.toLocaleDateString('es-AR', {
             weekday: 'long',
@@ -169,35 +138,23 @@ export const handleWebhook = async (req, res) => {
             minute: '2-digit',
           });
 
-          // Datos para el email
           const emailData = {
             email: reservaConDetalles.usuario.email,
             nombreUsuario: `${reservaConDetalles.usuario?.nombreUsuario} ${reservaConDetalles.usuario?.apellidoUsuario}`,
-            nombrePelicula:
-              reservaConDetalles.funcion?.pelicula?.nombrePelicula || 'Película',
+            nombrePelicula: reservaConDetalles.funcion?.pelicula?.nombrePelicula || 'Película',
             nombreSala: reservaConDetalles.funcion?.sala?.nombreSala || 'Sala',
             fechaHora: `${fechaFormato} a las ${horaFormato}`,
             asientos,
             total: reservaConDetalles.total,
-            reservaParams: subParams, // Pasar los parámetros para generar el QR
+            reservaParams: subParams,
           };
 
-          logger.info(' Preparando envío de email a:', emailData.email);
           await sendReservaConfirmationEmail(emailData);
-          logger.info(' Email de confirmación enviado exitosamente para DNI:', subParams.DNI);
+          logger.info('Email de confirmación enviado exitosamente', { DNI: subParams.DNI });
         } catch (emailError) {
-          logger.error(' ERROR ENVIANDO EMAIL DE CONFIRMACIÓN:', {
-            message: emailError.message,
-            stack: emailError.stack,
-            subParams,
-          });
-          // No lanzar error aquí, la reserva ya está confirmada
+          logger.error('Error enviando email de confirmación:', emailError.message);
         }
       }
     }
     res.sendStatus(200);
-  } catch (error) {
-    logger.error('Error en webhook de Mercado Pago:', error.message);
-    res.sendStatus(500);
-  }
-};
+});

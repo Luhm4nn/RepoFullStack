@@ -79,5 +79,5 @@ export async function revokeRefreshToken(req, res) {
 export async function revokeAllSessions(req, res) {
   const userId = req.user.id;
   await deleteAllTokensForUser(userId);
-  res.clearCookie('refreshToken').json({ message: 'Todas las sesiones cerradas exitosamente' });
+  res.clearCookie('refreshToken').clearCookie('accessToken').json({ message: 'Todas las sesiones cerradas exitosamente' });
 }

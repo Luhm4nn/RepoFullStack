@@ -1,8 +1,16 @@
 import { Prisma } from '@prisma/client';
 import logger from '../utils/logger.js';
 
+/**
+ * Manejador global de errores para la aplicación.
+ * Captura errores de Prisma, errores 404 y cualquier otra excepción no controlada.
+ * 
+ * @param {Object} err - Objeto de error capturado.
+ * @param {Object} req - Objeto de solicitud de Express.
+ * @param {Object} res - Objeto de respuesta de Express.
+ * @param {Function} next - Función para pasar al siguiente middleware (no utilizada aquí).
+ */
 export function errorHandler(err, req, res, next) {
-  // Manejo de errores de Prisma
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === 'P2002') {
       logger.warn('Prisma error: Unique constraint violation');

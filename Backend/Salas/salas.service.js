@@ -1,18 +1,18 @@
 import * as repository from './salas.repository.js';
 
 /**
- * Obtiene todas las salas
- * @returns {Promise<Array>} Lista de salas
+ * Recupera todas las salas de cine configuradas.
+ * @returns {Promise<Array>} Listado de salas.
  */
 export const getAll = async () => {
   return await repository.getAll();
 };
 
 /**
- * Obtiene una sala por ID o Nombre
- * @param {string|number} param - ID o Nombre de la sala
- * @returns {Promise<Object>} Sala encontrada
- * @throws {Error} Si la sala no existe (404)
+ * Obtiene una sala por su identificador único o nombre.
+ * @param {string|number} param - ID numérico o nombre de la sala.
+ * @returns {Promise<Object>} Datos de la sala.
+ * @throws {Error} Si no se encuentra la sala.
  */
 export const getOne = async (param) => {
   const sala = await repository.getOne(param);
@@ -20,29 +20,28 @@ export const getOne = async (param) => {
 };
 
 /**
- * Crea una nueva sala
- * @param {Object} data - Datos de la sala
- * @returns {Promise<Object>} Sala creada
+ * Crea una nueva sala en el sistema.
+ * @param {Object} data - Objeto con nombre, ubicación y dimensiones.
+ * @returns {Promise<Object>} Registro de sala creado.
  */
 export const create = async (data) => {
   return await repository.create(data);
 };
 
 /**
- * Elimina una sala
- * @param {number} id - ID de la sala
- * @returns {Promise<Object>} Sala eliminada
+ * Elimina una sala por su ID.
+ * @param {number} id - ID de la sala.
+ * @returns {Promise<Object>} Registro eliminado.
  */
 export const deleteOne = async (id) => {
   return await repository.deleteOne(id);
 };
 
 /**
- * Actualiza una sala existente
- * @param {number} id - ID de la sala
- * @param {Object} data - Datos a actualizar
- * @returns {Promise<Object>} Sala actualizada
- * @throws {Error} Si la sala no existe (404)
+ * Actualiza la información de ubicación o nombre de una sala.
+ * @param {number} id - ID de la sala.
+ * @param {Object} data - Nuevos valores de ubicación o nombre.
+ * @returns {Promise<Object>} Sala actualizada.
  */
 export const update = async (id, data) => {
   const salaExistente = await repository.getOne(id);
@@ -55,18 +54,18 @@ export const update = async (id, data) => {
 };
 
 /**
- * Cuenta todas las salas
- * @returns {Promise<number>} Cantidad de salas
+ * Obtiene el conteo total de salas.
+ * @returns {Promise<number>} Cantidad de salas.
  */
 export const getCountAll = async () => {
   return await repository.countAll();
 };
 
 /**
- * Busca salas por nombre
- * @param {string} searchQuery - Término de búsqueda
- * @param {number} limit - Límite de resultados (opcional)
- * @returns {Promise<Array>} Lista de salas que coinciden
+ * Busca salas que coincidan parcialmente con un texto de búsqueda.
+ * @param {string} searchQuery - Término de búsqueda.
+ * @param {number} limit - Límite de resultados opcional.
+ * @returns {Promise<Array>} Salas encontradas.
  */
 export const search = async (searchQuery, limit) => {
   return await repository.search(searchQuery, limit);

@@ -12,6 +12,8 @@ import {
   getDetallesFuncion as getDetallesFuncionService,
   getWithFilters as getWithFiltersService,
 } from "./funciones.service.js";
+import logger from '../utils/logger.js';
+import { ESTADOS_FUNCION } from '../constants/index.js';
 
 
 /**
@@ -40,28 +42,60 @@ export const getFuncionesSemana = async (req, res) => {
  * @query {number} limit - Límite de resultados por página (opcional, default: 10)
  */
 export const getFunciones = async (req, res) => {
-  const { estado, idPelicula, nombrePelicula, idSala, nombreSala, fechaDesde, fechaHasta, page = 1, limit = 10 } = req.query;
+  let {
+    estado,
+    idPelicula,
+    nombrePelicula,
+    idSala,
+    nombreSala,
+    fechaDesde,
+    fechaHasta,
+    page = 1,
+    limit = 10,
+  } = req.query;
+
+  // Sanitizar page y limit (evita NaN si se pasan strings inválidos o [object Object])
+  let parsedPage = parseInt(page, 10);
+  let parsedLimit = parseInt(limit, 10);
+
+  if (isNaN(parsedPage) || parsedPage < 1) parsedPage = 1;
+  if (isNaN(parsedLimit) || parsedLimit < 1) parsedLimit = 10;
 
   // Si hay filtros avanzados (que no sean estado, page o limit), usar el nuevo servicio
   if (idPelicula || nombrePelicula || idSala || nombreSala || fechaDesde || fechaHasta) {
-    const filters = { estado, idPelicula, nombrePelicula, idSala, nombreSala, fechaDesde, fechaHasta };
-    const funciones = await getWithFiltersService(filters, parseInt(page), parseInt(limit));
+    const filters = {
+      estado,
+      idPelicula,
+      nombrePelicula,
+      idSala,
+      nombreSala,
+      fechaDesde,
+      fechaHasta,
+    };
+    const funciones = await getWithFiltersService(filters, parsedPage, parsedLimit);
     return res.json(funciones);
   }
 
   // Endpoints con paginación según estado
   let result;
-  switch (estado?.toLowerCase()) {
-    case 'activas':
-      result = await getActiveFuncionesService(parseInt(page), parseInt(limit));
+  const statusKey = estado?.toUpperCase();
+
+  switch (statusKey) {
+    case 'PRIVADA':
+    case 'PRIVADAS':
+    case 'ACTIVA':
+    case 'ACTIVAS':
+      result = await getActiveFuncionesService(parsedPage, parsedLimit);
       break;
-    case 'inactivas':
-      result = await getInactiveFuncionesService(parseInt(page), parseInt(limit));
+    case 'INACTIVA':
+    case 'INACTIVAS':
+      result = await getInactiveFuncionesService(parsedPage, parsedLimit);
       break;
-    case 'publicas':
+    case 'PUBLICA':
+    case 'PUBLICAS':
       result = await getPublicFuncionesService();
       break;
-    case 'todas':
+    case 'TODAS':
       result = await getAll();
       break;
     default:
@@ -156,6 +190,11 @@ export const getDetallesFuncion = async (req, res) => {
  * @param {Object} res - Response
  */
 export const createFuncion = async (req, res) => {
+  // Normalizar estado a mayúsculas si viene en el body
+  if (req.body.estado) {
+    req.body.estado = req.body.estado.toUpperCase();
+  }
+  
   const newFuncion = await create(req.body);
 
   if (newFuncion && (newFuncion.name === 'SOLAPAMIENTO_FUNCIONES' || newFuncion.name === 'FECHA_ESTRENO_INVALIDA')) {
@@ -185,31 +224,21 @@ export const deleteFuncion = async (req, res) => {
  */
 export const updateFuncion = async (req, res) => {
   const funcion = await getOne(req.params);
-  
-  if (req.body.estado && (req.body.estado === 'Privada' || req.body.estado === 'Publica')) {
-    const updatedFuncion = await updateOne(req.params, req.body);
-    res.status(200).json(updatedFuncion);
-  } 
-    else if (funcion.estado === "Privada") {
-    const updatedFuncion = await updateOne(req.params, req.body);
-    res.status(200).json(updatedFuncion);
-  } else {
-    res.status(403).json({ message: "No se puede actualizar una función pública, excepto para cambiar su estado." });
-  }
-  const updatedFuncion = await updateOne(req.params, req.body);
-  if (updatedFuncion) {
-    if (updatedFuncion.name === "SOLAPAMIENTO_FUNCIONES") {
-      return res.status(updatedFuncion.status).json({
-        message: updatedFuncion.message,
-        errorCode: updatedFuncion.name
-      });
-    } else if (updatedFuncion.name === "FECHA_ESTRENO_INVALIDA") {
-      return res.status(updatedFuncion.status).json({
-        message: updatedFuncion.message,
-        errorCode: updatedFuncion.name
-      });
-    }
-  }
 
-  res.status(200).json(updatedFuncion);
+  // Normalizar estado a mayúsculas si viene en el body
+  if (req.body.estado) {
+    req.body.estado = req.body.estado.toUpperCase();
+  }
+  
+  if (req.body.estado && (req.body.estado === ESTADOS_FUNCION.PRIVADA || req.body.estado === ESTADOS_FUNCION.PUBLICA)) {
+    const updatedFuncion = await updateOne(req.params, req.body);
+    return res.status(200).json(updatedFuncion);
+  } 
+  
+  if (funcion.estado === ESTADOS_FUNCION.PRIVADA) {
+    const updatedFuncion = await updateOne(req.params, req.body);
+    return res.status(200).json(updatedFuncion);
+  } else {
+    return res.status(403).json({ message: "No se puede actualizar una función pública, excepto para cambiar su estado." });
+  }
 };

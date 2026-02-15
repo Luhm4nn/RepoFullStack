@@ -1,5 +1,9 @@
 import * as Yup from 'yup';
 
+/**
+ * Esquema de validación para el inicio de sesión.
+ * Requiere email (formato válido) y contraseña (mínimo 6 caracteres).
+ */
 export const loginSchema = Yup.object().shape({
   email: Yup.string()
     .required('El email es requerido')

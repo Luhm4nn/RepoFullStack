@@ -1,8 +1,11 @@
 import rateLimit from 'express-rate-limit';
 
-// Función para determinar si se debe saltar el límite (solo en desarrollo)
 const skipIfDev = () => process.env.NODE_ENV !== 'production';
 
+/**
+ * Limitador para intentos de inicio de sesión.
+ * Permite 5 intentos por minuto.
+ */
 export const loginLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   max: 5,
@@ -13,6 +16,10 @@ export const loginLimiter = rateLimit({
   skip: skipIfDev,
 });
 
+/**
+ * Limitador para creación de cuentas.
+ * Permite 3 registros por hora.
+ */
 export const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 3,
@@ -22,6 +29,9 @@ export const registerLimiter = rateLimit({
   skip: skipIfDev,
 });
 
+/**
+ * Limitador general para la API.
+ */
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -31,6 +41,9 @@ export const generalLimiter = rateLimit({
   skip: skipIfDev,
 });
 
+/**
+ * Limitador estricto para rutas sensibles.
+ */
 export const strictLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 10,
@@ -40,6 +53,9 @@ export const strictLimiter = rateLimit({
   skip: skipIfDev,
 });
 
+/**
+ * Limitador moderado para exploradores de contenido.
+ */
 export const moderateLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
   max: 200,

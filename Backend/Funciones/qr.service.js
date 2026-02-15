@@ -10,14 +10,7 @@ import logger from '../utils/logger.js';
  * @throws {Error} Si no tiene permiso
  */
 function validateOwnership(user, targetDNI) {
-    logger.debug('=== VALIDATE OWNERSHIP (QR) ===');
-    logger.debug('User:', user);
-    logger.debug('Target DNI:', targetDNI);
-
-    if (user.rol === 'ADMIN') {
-        logger.debug('Usuario es ADMIN, acceso permitido');
-        return;
-    }
+    if (user.rol === 'ADMIN') return;
 
     if (user.id !== parseInt(targetDNI)) {
         logger.error('Acceso denegado: user.id !== targetDNI', {
@@ -28,8 +21,6 @@ function validateOwnership(user, targetDNI) {
         error.status = 403;
         throw error;
     }
-
-    logger.debug('Validación exitosa: usuario es dueño del recurso');
 }
 
 /**

@@ -20,8 +20,13 @@ export const getFunciones = async (filtros = {}) => {
     if (filtros.nombreSala) params.append('nombreSala', filtros.nombreSala);
     if (filtros.fechaDesde) params.append('fechaDesde', filtros.fechaDesde);
     if (filtros.fechaHasta) params.append('fechaHasta', filtros.fechaHasta);
-    if (filtros.page) params.append('page', filtros.page);
-    if (filtros.limit) params.append('limit', filtros.limit);
+    
+    // Asegurarse de que page y limit sean números válidos
+    const parsedPage = parseInt(filtros.page, 10);
+    if (!isNaN(parsedPage)) params.append('page', parsedPage);
+    
+    const parsedLimit = parseInt(filtros.limit, 10);
+    if (!isNaN(parsedLimit)) params.append('limit', parsedLimit);
 
     const queryString = params.toString();
     const url = queryString ? `/Funciones?${queryString}` : '/Funciones';

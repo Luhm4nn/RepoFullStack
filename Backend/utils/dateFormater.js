@@ -1,4 +1,9 @@
-// Format date for backend error messages (DD/MM/YYYY)
+/**
+ * Formatea una fecha para mensajes de error o visualización básica (DD/MM/YYYY).
+ * 
+ * @param {string|Date} dateString - La fecha a formatear.
+ * @returns {string} Fecha formateada o mensaje de error.
+ */
 export const formatDateForBackendMessage = (dateString) => {
   if (!dateString) return 'Sin fecha';
 
@@ -12,7 +17,12 @@ export const formatDateForBackendMessage = (dateString) => {
   return `${day}/${month}/${year}`;
 };
 
-// Format datetime for backend error messages (DD/MM/YYYY HH:MM)
+/**
+ * Formatea una fecha y hora para mensajes detallados (DD/MM/YYYY HH:MM).
+ * 
+ * @param {string|Date} dateString - La fecha/hora a formatear.
+ * @returns {string} Fecha y hora formateada o mensaje de error.
+ */
 export const formatDateTimeForBackendMessage = (dateString) => {
   if (!dateString) return 'Sin fecha';
 

@@ -16,7 +16,7 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const { token, user } = await loginService(email, password, res);
+    const { user } = await loginService(email, password, res);
 
     logger.security('Login successful', {
       action: 'login',
@@ -24,7 +24,7 @@ export const login = async (req, res) => {
       userRole: user.rol,
     });
 
-    res.json({ token, user });
+    res.json({ user });
   } catch (error) {
     logger.security('Login failed', {
       action: 'login',

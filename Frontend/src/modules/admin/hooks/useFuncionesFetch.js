@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getFunciones, deleteFuncion, updateFuncion } from '../../../api/Funciones.api';
 import useErrorModal from '../../shared/hooks/useErrorModal.js';
+import { ESTADOS_FUNCION } from '../../../constants';
 
 export const useFuncionesFetch = (mostrandoActivas = true) => {
   const [funciones, setFunciones] = useState([]);
@@ -83,7 +84,10 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
 
   // Publish/unpublish function
   const handlePublishFuncion = async (funcionToPublish) => {
-    const nuevoEstado = funcionToPublish.estado === 'Privada' ? 'Publica' : 'Privada';
+    const nuevoEstado = funcionToPublish.estado === ESTADOS_FUNCION.PRIVADA 
+      ? ESTADOS_FUNCION.PUBLICA 
+      : ESTADOS_FUNCION.PRIVADA;
+    
     const funcionActualizada = {
       ...funcionToPublish,
       estado: nuevoEstado

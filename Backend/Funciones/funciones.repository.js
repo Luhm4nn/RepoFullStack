@@ -1,4 +1,6 @@
 import prisma from '../prisma/prisma.js';
+import logger from '../utils/logger.js';
+import { ESTADOS_FUNCION } from '../constants/index.js';
 
 /**
  * Obtiene todas las funciones
@@ -42,7 +44,7 @@ async function create(data) {
       fechaHoraFuncion: new Date(data.fechaHoraFuncion),
       idSala: parseInt(data.idSala, 10),
       idPelicula: parseInt(data.idPelicula, 10),
-      estado: 'Privada',
+      estado: ESTADOS_FUNCION.PRIVADA,
     },
   });
 }
@@ -131,7 +133,7 @@ async function getInactive(page = 1, limit = 10) {
   
   const [data, total] = await Promise.all([
     prisma.funcion.findMany({
-      where: { estado: 'Inactiva' },
+      where: { estado: ESTADOS_FUNCION.INACTIVA },
       include: {
         sala: true,
         pelicula: true,
@@ -143,7 +145,7 @@ async function getInactive(page = 1, limit = 10) {
       take: limit,
     }),
     prisma.funcion.count({
-      where: { estado: 'Inactiva' },
+      where: { estado: ESTADOS_FUNCION.INACTIVA },
     }),
   ]);
 
@@ -169,7 +171,7 @@ async function getActive(page = 1, limit = 10) {
   
   const [data, total] = await Promise.all([
     prisma.funcion.findMany({
-      where: { estado: { not: 'Inactiva' } },
+      where: { estado: { not: ESTADOS_FUNCION.INACTIVA } },
       include: {
         sala: true,
         pelicula: true,
@@ -181,7 +183,7 @@ async function getActive(page = 1, limit = 10) {
       take: limit,
     }),
     prisma.funcion.count({
-      where: { estado: { not: 'Inactiva' } },
+      where: { estado: { not: ESTADOS_FUNCION.INACTIVA } },
     }),
   ]);
 
@@ -202,7 +204,7 @@ async function getActive(page = 1, limit = 10) {
  */
 async function getPublic() {
   return await prisma.funcion.findMany({
-    where: { estado: 'Publica' },
+    where: { estado: ESTADOS_FUNCION.PUBLICA },
     include: {
       sala: true,
       pelicula: true,
@@ -261,7 +263,7 @@ async function getByPeliculaAndRange(idPelicula, fechaInicio, fechaFin) {
  */
 async function countPublic() {
   return await prisma.funcion.count({
-    where: { estado: 'Publica' },
+    where: { estado: ESTADOS_FUNCION.PUBLICA },
   });
 }
 
@@ -372,12 +374,12 @@ async function getWithFilters(filters = {}, page = 1, limit = 10) {
   }
 
   if (filters.estado) {
-    const estadoLower = filters.estado.toLowerCase();
+    const estadoUpper = filters.estado.toUpperCase();
     // Funciones activas incluyen todas menos Inactivas
-    if (estadoLower === 'activas') {
-      where.estado = { not: 'Inactiva' };
+    if (estadoUpper === 'ACTIVA' || estadoUpper === 'ACTIVAS') {
+      where.estado = { not: ESTADOS_FUNCION.INACTIVA };
     } else {
-      where.estado = filters.estado;
+      where.estado = estadoUpper;
     }
   }
 

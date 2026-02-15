@@ -1,5 +1,6 @@
 import prisma from '../prisma/prisma.js';
 import logger from '../utils/logger.js';
+import { ESTADOS_RESERVA } from '../constants/index.js';
 
 /**
  * Obtiene todas las reservas
@@ -55,7 +56,7 @@ async function getByUserAndStatus(DNI, estado) {
     DNI: parseInt(DNI, 10),
   };
   if (estado) {
-    whereClause.estado = estado;
+    whereClause.estado = estado.toUpperCase();
   }
   return await prisma.reserva.findMany({
     where: whereClause,
@@ -86,9 +87,8 @@ async function createWithSeats(reservaData, asientos) {
     const subFunc = new Date(reservaData.fechaHoraFuncion);
     const subRes = removeMilliseconds(now);
 
-    //---- COMIENZO VALIDACIONES ----//
-
-    // Verificar que el ussuario exista
+    // Validaciones
+    // Verificar que el usuario exista
     const usuario = await tx.usuario.findUnique({
       where: {
         DNI: DNI,
@@ -102,7 +102,7 @@ async function createWithSeats(reservaData, asientos) {
     await tx.reserva.deleteMany({
       where: {
         DNI: DNI,
-        estado: 'PENDIENTE',
+        estado: ESTADOS_RESERVA.PENDIENTE,
       },
     });
 
@@ -185,7 +185,7 @@ async function createWithSeats(reservaData, asientos) {
     //Crear la Reserva
     const newReserva = await tx.reserva.create({
       data: {
-        estado: 'PENDIENTE',
+        estado: ESTADOS_RESERVA.PENDIENTE,
         fechaHoraReserva: subRes,
         total,
         usuario: {
@@ -262,7 +262,7 @@ async function cancel({ idSala, fechaHoraFuncion, DNI, fechaHoraReserva }) {
     const cancelledReserva = await tx.reserva.update({
       where,
       data: {
-        estado: 'CANCELADA',
+        estado: ESTADOS_RESERVA.CANCELADA,
         fechaHoraCancelacion: new Date(),
       },
     });
@@ -288,7 +288,7 @@ async function cancel({ idSala, fechaHoraFuncion, DNI, fechaHoraReserva }) {
 async function getLatest(limit = 5) {
   return await prisma.reserva.findMany({
     where: {
-      estado: 'ACTIVA',
+      estado: ESTADOS_RESERVA.ACTIVA,
     },
     include: {
       funcion: {
@@ -316,7 +316,7 @@ async function confirm({ idSala, fechaHoraFuncion, DNI, fechaHoraReserva }) {
       },
     },
     data: {
-      estado: 'ACTIVA',
+      estado: ESTADOS_RESERVA.ACTIVA,
     },
   });
 }
@@ -329,7 +329,7 @@ async function deletePendingByUser(DNI) {
   return await prisma.reserva.deleteMany({
     where: {
       DNI: parseInt(DNI, 10),
-      estado: 'PENDIENTE',
+      estado: ESTADOS_RESERVA.PENDIENTE,
     },
   });
 }

@@ -2,6 +2,7 @@ import * as repository from './funciones.repository.js';
 import { getOne as getParametroRepository } from '../Parametros/parametros.repository.js';
 import { getOne as getPeliculaRepository } from '../Peliculas/peliculas.repository.js';
 import { formatDateForBackendMessage } from '../utils/dateFormater.js';
+import { ESTADOS_FUNCION } from '../constants/index.js';
 
 /**
  * Obtiene todas las funciones
@@ -85,7 +86,7 @@ export const deleteOne = async (params) => {
     throw error;
   }
 
-  if (funcion.estado !== 'Privada' && funcion.estado !== 'Inactiva') {
+  if (funcion.estado !== ESTADOS_FUNCION.PRIVADA && funcion.estado !== ESTADOS_FUNCION.INACTIVA) {
     const error = new Error('Solo se pueden eliminar funciones privadas o inactivas.');
     error.status = 403;
     throw error;
@@ -118,14 +119,19 @@ export const updateOne = async (params, data) => {
     throw error;
   }
 
+  // Normalizar estado si viene del frontend
+  if (data.estado) {
+    data.estado = data.estado.toUpperCase();
+  }
+
   // Validations for update
   if (data.estado) {
-    if (!['Privada', 'Publica', 'Inactiva'].includes(data.estado)) {
-      const error = new Error('Estado inválido. Solo se permiten: Privada, Publica, Inactiva.');
+    if (![ESTADOS_FUNCION.PRIVADA, ESTADOS_FUNCION.PUBLICA, ESTADOS_FUNCION.INACTIVA].includes(data.estado)) {
+      const error = new Error('Estado inválido. Solo se permiten: PRIVADA, PUBLICA, INACTIVA.');
       error.status = 400;
       throw error;
     }
-  } else if (funcionExistente.estado !== 'Privada') {
+  } else if (funcionExistente.estado !== ESTADOS_FUNCION.PRIVADA) {
     const error = new Error(
       'No se puede actualizar una función pública o inactiva, excepto para cambiar su estado.'
     );
@@ -168,8 +174,8 @@ export const getFuncionesByPeliculaAndFechaService = async (idPelicula, fecha) =
   }
   // Filtrar solo funciones públicas y en fecha/hora futura
 
-  const funcionesFiltradas = funciones.filter(funcion => funcion.estado === 'Publica' && new Date(funcion.fechaHoraFuncion) > hoy);
-  return funcionesFiltradas
+  const funcionesFiltradas = funciones.filter(funcion => funcion.estado === ESTADOS_FUNCION.PUBLICA && new Date(funcion.fechaHoraFuncion) > hoy);
+  return funcionesFiltradas;
 };
 
 /**

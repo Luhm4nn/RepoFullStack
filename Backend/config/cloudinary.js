@@ -8,8 +8,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-logger.debug('☁️ Cloudinary configured successfully');
-
 // Usar memory storage y subir a Cloudinary en el middleware
 const memoryStorage = multer.memoryStorage();
 

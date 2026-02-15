@@ -22,8 +22,11 @@ export const useFuncionesFilter = (
   const debouncedSala = useDebounce(filtros.sala, 500);
 
   const aplicarFiltros = useCallback(
-    async (page = 1) => {
+    async (pageParam = 1) => {
       try {
+        // Asegurarse de que page sea un número (evita [object Object] si se pasa un evento)
+        const page = typeof pageParam === 'number' ? pageParam : 1;
+
         const backendFiltros = {
           estado: mostrandoActivas ? 'activas' : 'inactivas',
           page,

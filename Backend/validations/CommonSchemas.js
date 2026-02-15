@@ -1,7 +1,10 @@
 import * as Yup from 'yup';
 import { ESTADOS_RESERVA, ESTADOS_FUNCION } from '../constants/index.js';
 
-// Schema de paginación reutilizable
+/**
+ * Esquema de paginación reutilizable para queries.
+ * Valida que page y limit sean números positivos y enteros.
+ */
 export const paginationSchema = Yup.object().shape({
   page: Yup.number()
     .positive('La página debe ser positiva')
@@ -27,6 +30,10 @@ export const paginationSchema = Yup.object().shape({
     }),
 });
 
+/**
+ * Esquema para búsqueda general.
+ * Valida un término de búsqueda 'q' y parámetros de paginación.
+ */
 export const searchQuerySchema = Yup.object().shape({
   q: Yup.string().trim().max(100, 'El término de búsqueda es demasiado largo').nullable(),
 
@@ -43,20 +50,26 @@ export const searchQuerySchema = Yup.object().shape({
     }),
 });
 
+/**
+ * Esquema de filtrado para funciones de cine.
+ * Incluye filtros por película, sala, fechas y paginación.
+ */
 export const funcionesFilterSchema = Yup.object().shape({
-  estado: Yup.string().oneOf(Object.values(ESTADOS_FUNCION), 'Estado inválido').nullable(),
+  estado: Yup.string()
+    .transform((value) => (value ? value.toUpperCase() : value))
+    .nullable(),
 
   idPelicula: Yup.number()
-    .positive()
-    .integer()
+    .positive('El ID de película debe ser positivo')
+    .integer('El ID de película debe ser un número entero')
     .nullable()
     .transform((value, originalValue) => (originalValue === '' ? null : value)),
 
   nombrePelicula: Yup.string().trim().max(100).nullable(),
 
   idSala: Yup.number()
-    .positive()
-    .integer()
+    .positive('El ID de sala debe ser positivo')
+    .integer('El ID de sala debe ser un número entero')
     .nullable()
     .transform((value, originalValue) => (originalValue === '' ? null : value)),
 

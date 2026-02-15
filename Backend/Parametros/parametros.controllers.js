@@ -1,14 +1,14 @@
 import * as service from './parametros.service.js';
 
 /**
- * Obtiene todos los parámetros
- * @param {Object} req - Request de Express
- * @param {Object} res - Response de Express
+ * Recupera el listado completo de parámetros de configuración global.
+ * @param {Object} req - Request de Express.
+ * @param {Object} res - Response de Express.
  */
 export const getParametros = async (req, res) => {
   const parametros = await service.getAll();
   if (!parametros || parametros.length === 0) {
-    const error = new Error('No existen parámetros cargados aún.');
+    const error = new Error('No existen parámetros configurados.');
     error.status = 404;
     throw error;
   }
@@ -16,11 +16,9 @@ export const getParametros = async (req, res) => {
 };
 
 /**
- * Obtiene un parámetro por ID
- * @param {Object} req - Request de Express
- * @param {Object} req.params - Parámetros de ruta
- * @param {string} req.params.id - ID del parámetro
- * @param {Object} res - Response de Express
+ * Obtiene la información detallada de un parámetro específico.
+ * @param {Object} req - Request de Express.
+ * @param {Object} res - Response de Express.
  */
 export const getParametro = async (req, res) => {
   const parametro = await service.getOne(req.params.id);
@@ -28,10 +26,9 @@ export const getParametro = async (req, res) => {
 };
 
 /**
- * Crea un nuevo parámetro
- * @param {Object} req - Request de Express
- * @param {Object} req.body - Datos del parámetro
- * @param {Object} res - Response de Express
+ * Registra un nuevo parámetro de configuración en el sistema.
+ * @param {Object} req - Request de Express.
+ * @param {Object} res - Response de Express.
  */
 export const createParametro = async (req, res) => {
   const newParametro = await service.create(req.body);
@@ -39,12 +36,9 @@ export const createParametro = async (req, res) => {
 };
 
 /**
- * Actualiza un parámetro existente
- * @param {Object} req - Request de Express
- * @param {Object} req.params - Parámetros de ruta
- * @param {string} req.params.id - ID del parámetro
- * @param {Object} req.body - Datos a actualizar
- * @param {Object} res - Response de Express
+ * Actualiza los valores de un parámetro existente.
+ * @param {Object} req - Request de Express.
+ * @param {Object} res - Response de Express.
  */
 export const updateParametro = async (req, res) => {
   const updatedParametro = await service.update(req.params.id, req.body);
@@ -52,11 +46,9 @@ export const updateParametro = async (req, res) => {
 };
 
 /**
- * Elimina un parámetro
- * @param {Object} req - Request de Express
- * @param {Object} req.params - Parámetros de ruta
- * @param {string} req.params.id - ID del parámetro
- * @param {Object} res - Response de Express
+ * Elimina de forma permanente un parámetro del sistema.
+ * @param {Object} req - Request de Express.
+ * @param {Object} res - Response de Express.
  */
 export const deleteParametro = async (req, res) => {
   await service.deleteOne(req.params.id);
@@ -64,11 +56,11 @@ export const deleteParametro = async (req, res) => {
 };
 
 /**
- * Obtiene el tiempo límite de reserva
- * @param {Object} req - Request de Express
- * @param {Object} res - Response de Express
+ * Endpoint de utilidad para obtener el valor de tiempo límite de reserva (ID fijo 2).
+ * @param {Object} req - Request de Express.
+ * @param {Object} res - Response de Express.
  */
 export const getTiempoLimiteReserva = async (req, res) => {
   const tiempoLimite = await service.getTiempoLimiteReserva();
   res.json({ tiempoLimiteReserva: tiempoLimite });
-}
+};

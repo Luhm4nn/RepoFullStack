@@ -1,5 +1,6 @@
 import { Button } from "flowbite-react";
 import { ButtonSpinner } from "../../shared/components/Spinner";
+import { ESTADOS_FUNCION } from "../../../constants";
 
 function ModalDeleteFuncion({
   funcion,
@@ -7,7 +8,7 @@ function ModalDeleteFuncion({
   onCancel,
   isDeleting = false,
 }) {
-  if (funcion.estado !== "Privada" && funcion.estado !== "Inactiva") {
+  if (funcion.estado !== ESTADOS_FUNCION.PRIVADA && funcion.estado !== ESTADOS_FUNCION.INACTIVA) {
     return (
       <div className="fixed inset-0 flex items-center justify-center p-4 sm:p-6 z-50">
         <div className="bg-slate-800 border border-slate-700 p-6 sm:p-8 rounded-xl shadow-xl max-w-md w-full mx-4">
