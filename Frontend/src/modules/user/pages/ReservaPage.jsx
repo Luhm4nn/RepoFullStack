@@ -19,7 +19,6 @@ function ReservaPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const notify = useNotification();
-
   const [pelicula, setPelicula] = useState(null);
   const [fecha, setFecha] = useState('');
   const [funciones, setFunciones] = useState([]);
@@ -44,12 +43,10 @@ function ReservaPage() {
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     const expiry = localStorage.getItem(TIMER_KEY);
-
     if (saved && expiry) {
       try {
         const { step: savedStep, funcion, seatsInfo, reservaData } = JSON.parse(saved);
         const expiryTime = parseInt(expiry, 10);
-
         if (Date.now() < expiryTime && savedStep === 3) {
           setStep(3);
           setSelectedFuncion(funcion);
@@ -196,7 +193,6 @@ function ReservaPage() {
 
   const handleLimpiarReservaPendiente = async () => {
     if (!reservaActiva) return;
-
     try {
       await deletePendingReserva(
         reservaActiva.idSala,
@@ -310,7 +306,6 @@ function ReservaPage() {
                 </span>
               </div>
             </div>
-
             <p className="text-gray-300 text-lg leading-relaxed max-w-3xl italic">
               "{pelicula.sinopsis}"
             </p>
