@@ -26,6 +26,7 @@ import { useFuncionesFilter } from "../hooks/useFuncionesFilter.js";
 import { useFuncionesModals } from "../hooks/useFuncionesModals.js";
 import { useNotification } from "../../../context/NotificationContext";
 import { Skeleton, TableSkeleton } from "../../shared/components/Skeleton";
+import { ESTADOS_FUNCION, ESTADOS_FUNCION_LABELS } from "../../../constants";
 
 function FuncionesList() {
   const [mostrandoActivas, setMostrandoActivas] = useState(true);
@@ -105,7 +106,7 @@ function FuncionesList() {
 
     const result = await handlePublishFuncion(funcionToPublish);
     if (result.success) {
-      notify.success(`Función ${funcionToPublish.estado === 'Privada' ? 'publicada' : 'privatizada'} exitosamente`);
+      notify.success(`Función ${funcionToPublish.estado === ESTADOS_FUNCION.PRIVADA ? 'publicada' : 'privatizada'} exitosamente`);
       closePublishModal();
     } else {
       if (result.error) {
@@ -290,9 +291,9 @@ function FuncionesList() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span
-                          className={`font-bold ${funcion.estado === "Privada" ? "text-red-500" : funcion.estado === "Publica" ? "text-green-500" : ""}`}
+                          className={`font-bold ${funcion.estado === ESTADOS_FUNCION.PRIVADA ? "text-red-500" : funcion.estado === ESTADOS_FUNCION.PUBLICA ? "text-green-500" : ""}`}
                         >
-                          {funcion.estado}
+                          {ESTADOS_FUNCION_LABELS[funcion.estado] || funcion.estado}
                         </span>
                       </div>
                     </TableCell>
@@ -309,10 +310,10 @@ function FuncionesList() {
                           </svg>
                           Ver Detalle
                         </Button>
-                        {funcion.estado !== 'Inactiva' && (
+                        {funcion.estado !== ESTADOS_FUNCION.INACTIVA && (
                           <Button
                             size="sm"
-                            className={`w-full sm:w-auto text-sm ${funcion.estado === 'Privada'
+                            className={`w-full sm:w-auto text-sm ${funcion.estado === ESTADOS_FUNCION.PRIVADA
                               ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
                               : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
                               }`}
@@ -326,7 +327,7 @@ function FuncionesList() {
                               stroke="currentColor"
                               className="size-6 mr-1"
                             >
-                              {funcion.estado === "Privada" ? (
+                              {funcion.estado === ESTADOS_FUNCION.PRIVADA ? (
                                 <path
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
@@ -340,13 +341,13 @@ function FuncionesList() {
                                 />
                               )}
                             </svg>
-                            {funcion.estado === "Privada"
+                            {funcion.estado === ESTADOS_FUNCION.PRIVADA
                               ? "Publicar"
                               : "Privatizar"}
                           </Button>
                         )}
 
-                        {funcion.estado === 'Privada' && (
+                        {funcion.estado === ESTADOS_FUNCION.PRIVADA && (
                           <Button
                             size="sm"
                             className="w-full sm:w-auto text-sm bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600"
@@ -370,8 +371,8 @@ function FuncionesList() {
                           </Button>
                         )}
 
-                        {(funcion.estado === "Privada" ||
-                          funcion.estado === "Inactiva") && (
+                        {(funcion.estado === ESTADOS_FUNCION.PRIVADA ||
+                          funcion.estado === ESTADOS_FUNCION.INACTIVA) && (
                           <Button
                             size="sm"
                             className="w-full sm:w-auto text-sm bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
@@ -509,9 +510,9 @@ function FuncionesList() {
                     </svg>
                   </div>
                   <span
-                    className={`font-bold ${funcion.estado === "Privada" ? "text-red-500" : funcion.estado === "Publica" ? "text-green-500" : funcion.estado === "Inactiva" ? "text-gray-500" : ""}`}
+                    className={`font-bold ${funcion.estado === ESTADOS_FUNCION.PRIVADA ? "text-red-500" : funcion.estado === ESTADOS_FUNCION.PUBLICA ? "text-green-500" : funcion.estado === ESTADOS_FUNCION.INACTIVA ? "text-gray-500" : ""}`}
                   >
-                    {funcion.estado}
+                    {ESTADOS_FUNCION_LABELS[funcion.estado] || funcion.estado}
                   </span>
                 </div>
 
@@ -527,10 +528,10 @@ function FuncionesList() {
                     </svg>
                     Ver Detalle
                   </Button>
-                  {funcion.estado !== 'Inactiva' && (
+                  {funcion.estado !== ESTADOS_FUNCION.INACTIVA && (
                     <Button
                       size="sm"
-                      className={`w-full text-sm ${funcion.estado === 'Privada'
+                      className={`w-full text-sm ${funcion.estado === ESTADOS_FUNCION.PRIVADA
                         ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
                         : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
                         }`}
@@ -544,7 +545,7 @@ function FuncionesList() {
                         stroke="currentColor"
                         className="w-4 h-4 mr-2 text-white"
                       >
-                        {funcion.estado === "Privada" ? (
+                        {funcion.estado === ESTADOS_FUNCION.PRIVADA ? (
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -558,11 +559,11 @@ function FuncionesList() {
                           />
                         )}
                       </svg>
-                      {funcion.estado === "Privada" ? "Publicar" : "Privatizar"}
+                      {funcion.estado === ESTADOS_FUNCION.PRIVADA ? "Publicar" : "Privatizar"}
                     </Button>
                   )}
 
-                  {funcion.estado === "Privada" && (
+                  {funcion.estado === ESTADOS_FUNCION.PRIVADA && (
                     <Button
                       size="sm"
                       className="w-full text-sm bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600"
@@ -586,8 +587,8 @@ function FuncionesList() {
                     </Button>
                   )}
 
-                  {(funcion.estado === "Privada" ||
-                    funcion.estado === "Inactiva") && (
+                  {(funcion.estado === ESTADOS_FUNCION.PRIVADA ||
+                    funcion.estado === ESTADOS_FUNCION.INACTIVA) && (
                     <Button
                       size="sm"
                       className="w-full text-sm bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"

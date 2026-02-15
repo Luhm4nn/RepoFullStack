@@ -3,7 +3,7 @@ import {
   getReservas,
   getReserva,
   createReserva,
-  cancellReserva,
+  cancelReserva,
   deleteReserva,
   deletePendingReserva,
   getLatestReservas,
@@ -38,7 +38,7 @@ router.put(
   '/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva',
   authMiddleware,
   moderateLimiter,
-  asyncHandler(cancellReserva)
+  asyncHandler(cancelReserva)
 );
 
 router.delete(

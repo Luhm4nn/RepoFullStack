@@ -81,20 +81,38 @@ const UserNavbar = ({ user, onLogout }) => {
                 onClick={toggleDropdown}
                 className="hover:!ring-2 hover:!ring-white transition-all duration-200 rounded-full"
               >
-                <div className="w-14 h-14 bg-gradient-to-r from-green-600 to-teal-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-14 h-14 bg-gradient-to-r from-green-600 to-teal-600 rounded-full flex items-center justify-center text-white text-2xl font-bold uppercase">
                   {user?.nombreUsuario?.charAt(0) ?? ''}{user?.apellidoUsuario?.charAt(0) ?? ''}
                 </div>
               </button>
               {isDropdownOpen && (
-                <div className="absolute right-0 z-50 mt-2 w-56 !bg-slate-800 !text-white !border-slate-700 rounded-lg shadow-xl">
+                <div className="absolute right-0 z-50 mt-2 w-64 !bg-slate-800 !text-white !border-slate-700 rounded-lg shadow-xl overflow-hidden">
                   <div className="px-4 py-3 border-b border-slate-700">
-                    <span className="block text-sm !text-white font-medium">
-                      {user?.nombreUsuario} {user?.apellidoUsuario}
+                    <span className="block text-sm !text-white font-bold break-words leading-tight">
+                      {user?.nombreUsuario}
                     </span>
-                    <span className="block truncate text-sm !text-gray-300">
-                      {user?.email}
+                    <span className="block text-sm !text-purple-400 font-medium break-words leading-tight mb-1">
+                      {user?.apellidoUsuario}
                     </span>
-                    <span className="block text-xs !text-blue-400 font-medium mt-1">
+                    <div className="flex flex-col gap-1.5 mt-2">
+                      <div className="flex items-center gap-2 text-[11px] text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                        </svg>
+                        <span className="truncate font-mono">{user?.email}</span>
+                      </div>
+                      
+                      {user?.telefono && (
+                        <div className="flex items-center gap-2 text-[11px] text-gray-400 font-mono">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                          </svg>
+                          <span>{user?.telefono}</span>
+                        </div>
+                      )}
+                    </div>
+                    <span className="block text-[10px] uppercase tracking-widest !text-blue-400 font-bold mt-2">
                       Cliente
                     </span>
                   </div>

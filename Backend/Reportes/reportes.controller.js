@@ -1,61 +1,61 @@
 import * as reportesService from './reportes.service.js';
 
+/**
+ * Obtiene estadísticas generales para el tablero de control principal.
+ * @param {Object} req - Request de Express.
+ * @param {Object} res - Response de Express.
+ */
 export const getDashboardStats = async (req, res) => {
-  try {
-    const stats = await reportesService.getDashboardStats();
-    res.json(stats);
-  } catch (error) {
-    console.error('Error fetching dashboard stats:', error);
-    res.status(500).json({ message: 'Error fetching stats' });
-  }
+  const stats = await reportesService.getDashboardStats();
+  res.json(stats);
 };
 
+/**
+ * Recupera el desglose de ventas e ingresos mensuales de los últimos 12 meses.
+ * @param {Object} req - Request de Express.
+ * @param {Object} res - Response de Express.
+ */
 export const getVentasMensuales = async (req, res) => {
-  try {
-    const data = await reportesService.getVentasMensuales();
-    res.json(data);
-  } catch (error) {
-    console.error('Error fetching monthly sales:', error);
-    res.status(500).json({ message: 'Error fetching monthly sales' });
-  }
+  const data = await reportesService.getVentasMensuales();
+  res.json(data);
 };
 
+/**
+ * Genera el reporte de asistencia (Asistidas vs No Asistidas) del último año.
+ * @param {Object} req - Request de Express.
+ * @param {Object} res - Response de Express.
+ */
 export const getAsistenciaReservas = async (req, res) => {
-  try {
-    const data = await reportesService.getAsistenciaReservas();
-    res.json(data);
-  } catch (error) {
-    console.error('Error fetching attendance data:', error);
-    res.status(500).json({ message: 'Error fetching attendance data' });
-  }
+  const data = await reportesService.getAsistenciaReservas();
+  res.json(data);
 };
 
+/**
+ * Calcula el porcentaje de ocupación por sala basado en la capacidad y asientos vendidos.
+ * @param {Object} req - Request de Express.
+ * @param {Object} res - Response de Express.
+ */
 export const getOcupacionSalas = async (req, res) => {
-  try {
-    const data = await reportesService.getOcupacionSalas();
-    res.json(data);
-  } catch (error) {
-    console.error('Error fetching room occupancy:', error);
-    res.status(500).json({ message: 'Error fetching occupancy' });
-  }
+  const data = await reportesService.getOcupacionSalas();
+  res.json(data);
 };
 
+/**
+ * Identifica las películas con mayor número de reservas en los últimos meses.
+ * @param {Object} req - Request de Express.
+ * @param {Object} res - Response de Express.
+ */
 export const getPeliculasMasReservadas = async (req, res) => {
-  try {
-    const data = await reportesService.getPeliculasMasReservadas();
-    res.json(data);
-  } catch (error) {
-    console.error('Error fetching top movies:', error);
-    res.status(500).json({ message: 'Error fetching top movies' });
-  }
+  const data = await reportesService.getPeliculasMasReservadas();
+  res.json(data);
 };
 
+/**
+ * Genera un ranking de películas actualmente en cartelera según su popularidad.
+ * @param {Object} req - Request de Express.
+ * @param {Object} res - Response de Express.
+ */
 export const getRankingPeliculasCartelera = async (req, res) => {
-  try {
-    const data = await reportesService.getRankingPeliculasCartelera();
-    res.json(data);
-  } catch (error) {
-    console.error('Error fetching movie ranking:', error);
-    res.status(500).json({ message: 'Error fetching movie ranking' });
-  }
+  const data = await reportesService.getRankingPeliculasCartelera();
+  res.json(data);
 };

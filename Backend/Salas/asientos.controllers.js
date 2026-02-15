@@ -1,9 +1,10 @@
 import * as service from './asientos.service.js';
 
 /**
- * Obtiene todos los asientos de una sala
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Obtiene todos los asientos pertenecientes a una sala específica.
+ * 
+ * @param {Object} req - Objeto de solicitud con `idSala` en params.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const getAsientos = async (req, res) => {
   const asientos = await service.getAll(req.params.idSala);
@@ -16,9 +17,10 @@ export const getAsientos = async (req, res) => {
 };
 
 /**
- * Obtiene un asiento específico
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Obtiene el detalle de un asiento específico.
+ * 
+ * @param {Object} req - Objeto de solicitud con parámetros de identificación del asiento.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const getAsiento = async (req, res) => {
   const asiento = await service.getOne(req.params);
@@ -31,9 +33,10 @@ export const getAsiento = async (req, res) => {
 };
 
 /**
- * Crea un asiento individual
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Crea un asiento individual en una sala.
+ * 
+ * @param {Object} req - Objeto de solicitud con `idSala` y datos del asiento.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const createAsiento = async (req, res) => {
   const newAsiento = await service.create(req.params.idSala, req.body);
@@ -41,9 +44,10 @@ export const createAsiento = async (req, res) => {
 };
 
 /**
- * Elimina un asiento
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Elimina un asiento del sistema.
+ * 
+ * @param {Object} req - Objeto de solicitud con parámetros de identificación.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const deleteAsiento = async (req, res) => {
   await service.deleteOne(req.params);
@@ -51,9 +55,10 @@ export const deleteAsiento = async (req, res) => {
 };
 
 /**
- * Actualiza un asiento
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Actualiza la información de un asiento (ej. cambiarlo a VIP).
+ * 
+ * @param {Object} req - Objeto de solicitud con parámetros de identificación y nuevos datos.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const updateAsiento = async (req, res) => {
   const updatedAsiento = await service.update(req.params, req.body);

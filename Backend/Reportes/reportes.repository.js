@@ -1,5 +1,9 @@
 import prisma from '../prisma/prisma.js';
 
+/**
+ * Realiza un conteo masivo de entidades clave para el dashboard.
+ * @returns {Promise<Object>} Conteos de Películas, Salas, Usuarios (clientes), Reservas de hoy y Funciones futuras.
+ */
 export const getDashboardStats = async () => {
   const [totalPeliculas, totalSalas, totalUsuarios, reservasHoy, totalFunciones] =
     await Promise.all([
@@ -34,6 +38,10 @@ export const getDashboardStats = async () => {
   };
 };
 
+/**
+ * Recupera todas las reservas no pendientes de los últimos 11 meses.
+ * @returns {Promise<Array>} Listado de fechas y montos totales.
+ */
 export const getReservasAnuales = async () => {
   const now = new Date();
   const startDate = new Date(now.getFullYear(), now.getMonth() - 11, 1);
@@ -54,6 +62,10 @@ export const getReservasAnuales = async () => {
   });
 };
 
+/**
+ * Obtiene el histórico de asistencia del último año.
+ * @returns {Promise<Array>} Registros con estado ASISTIDA o NO_ASISTIDA.
+ */
 export const getAsistenciaReservas = async () => {
   const now = new Date();
   const startDate = new Date(now.getFullYear(), now.getMonth() - 11, 1);
@@ -74,6 +86,10 @@ export const getAsistenciaReservas = async () => {
   });
 };
 
+/**
+ * Ejecuta una consulta SQL nativa para calcular la ocupación real por sala.
+ * @returns {Promise<Array>} Resultados agregados por sala.
+ */
 export const getOcupacionRaw = async () => {
   return await prisma.$queryRaw`
         SELECT 
@@ -89,6 +105,10 @@ export const getOcupacionRaw = async () => {
     `;
 };
 
+/**
+ * Busca las reservas detalladas del último año incluyendo películas y asientos.
+ * @returns {Promise<Array>} Reservas con relación a Funciones y Películas.
+ */
 export const getPeliculasMasReservadas = async () => {
   const now = new Date();
   const startDate = new Date(now.getFullYear(), now.getMonth() - 11, 1);
@@ -122,11 +142,14 @@ export const getPeliculasMasReservadas = async () => {
   });
 };
 
+/**
+ * Genera el ranking de películas en cartelera basado en funciones públicas actuales.
+ * @returns {Promise<Array>} Películas con sus funciones y volumen de reservas.
+ */
 export const getRankingPeliculasCartelera = async () => {
   const oneMonthAgo = new Date();
   oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
-  // Definir rango para "En Cartelera" (Misma logica que en peliculas.service.js)
   const inicio = new Date();
   inicio.setHours(0, 0, 0, 0);
   const fin = new Date();

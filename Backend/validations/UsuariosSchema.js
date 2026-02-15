@@ -1,5 +1,9 @@
 import * as Yup from 'yup';
 
+/**
+ * Esquema de validación para la creación de un nuevo usuario.
+ * Valida DNI, nombres, email, contraseña y teléfono.
+ */
 export const usuarioCreateSchema = Yup.object().shape({
   DNI: Yup.string()
     .required('El DNI es requerido')
@@ -35,6 +39,26 @@ export const usuarioCreateSchema = Yup.object().shape({
     .trim(),
 });
 
+/**
+ * Esquema de validación para el cambio de contraseña.
+ */
+export const changePasswordSchema = Yup.object().shape({
+  currentPassword: Yup.string()
+    .required('La contraseña actual es requerida'),
+  
+  newPassword: Yup.string()
+    .required('La nueva contraseña es requerida')
+    .min(6, 'La nueva contraseña debe tener al menos 6 caracteres'),
+  
+  confirmNewPassword: Yup.string()
+    .required('Debes confirmar la nueva contraseña')
+    .oneOf([Yup.ref('newPassword')], 'Las contraseñas no coinciden'),
+});
+
+/**
+ * Esquema de validación para la actualización de un usuario existente.
+ * Todos los campos son opcionales pero validan el formato si se envían.
+ */
 export const usuarioUpdateSchema = Yup.object().shape({
   nombreUsuario: Yup.string()
     .min(2, 'El nombre debe tener al menos 2 caracteres')

@@ -27,6 +27,7 @@ import ReservaSuccessPage from './modules/user/pages/ReservaSuccessPage.jsx';
 import ReservaFailurePage from './modules/user/pages/ReservaFailurePage.jsx';
 import ReservaPendingPage from './modules/user/pages/ReservaPendingPage.jsx';
 import MiPerfilPage from './modules/user/pages/MiPerfilPage.jsx';
+import EditarPerfilPage from './modules/user/pages/EditarPerfilPage.jsx';
 import { NotificationProvider } from './context/NotificationContext.jsx';
 import ScannerNavbar from './modules/scanner/components/ScannerNavbar.jsx';
 import { useReservaCleanup } from './modules/user/hooks/useReservaCleanup.js';
@@ -83,6 +84,14 @@ function AppRoutes() {
         element={
           <AuthenticatedRoute>
             <MiPerfilPage />
+          </AuthenticatedRoute>
+        }
+      />
+      <Route
+        path="/mi-perfil/editar"
+        element={
+          <AuthenticatedRoute>
+            <EditarPerfilPage />
           </AuthenticatedRoute>
         }
       />

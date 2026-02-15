@@ -1,7 +1,11 @@
 import * as Yup from 'yup';
 import xss from 'xss';
+import { CLASIFICACIONES_MPAA, GENEROS_PELICULAS } from '../constants/index.js';
 
-// Esquema compartido para películas
+/**
+ * Esquema de validación para películas.
+ * Valida nombre, director, género, duración y otros detalles técnicos/metadatos.
+ */
 export const peliculaSchema = Yup.object().shape({
   nombrePelicula: Yup.string()
     .min(2, 'Muy corto')
@@ -17,6 +21,7 @@ export const peliculaSchema = Yup.object().shape({
 
   generoPelicula: Yup.string()
     .required('El género es requerido')
+    .oneOf(GENEROS_PELICULAS.map(g => g.value), 'Género inválido')
     .trim(),
 
   duracion: Yup.number()
@@ -42,5 +47,5 @@ export const peliculaSchema = Yup.object().shape({
 
   portada: Yup.mixed().nullable(),
 
-  MPAA: Yup.string().oneOf(['G', 'PG', 'PG-13', 'R', 'NC-17'], 'Clasificación inválida').nullable(),
+  MPAA: Yup.string().oneOf(CLASIFICACIONES_MPAA.map(c => c.value), 'Clasificación inválida').nullable(),
 });

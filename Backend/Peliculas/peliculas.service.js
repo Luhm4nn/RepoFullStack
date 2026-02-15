@@ -5,49 +5,47 @@ import { cloudinary } from '../config/cloudinary.js';
 import logger from '../utils/logger.js';
 
 /**
- * Obtiene todas las películas
- * @returns {Promise<Array>} Lista de películas
+ * Recupera todas las películas registradas.
+ * @returns {Promise<Array>} Lista completa de películas.
  */
 export const getAll = async () => {
   return await repository.getAll();
 };
 
 /**
- * Obtiene películas con paginación
- * @param {number} page - Número de página (default: 1)
- * @param {number} limit - Items por página (default: 10)
- * @returns {Promise<Object>} Objeto con data y pagination
+ * Obtiene películas con paginación simple.
+ * @param {number} page - Número de página.
+ * @param {number} limit - Cantidad de registros por página.
+ * @returns {Promise<Object>} Datos paginados.
  */
 export const getPaginated = async (page = 1, limit = 10) => {
   return await repository.getPaginated(page, limit);
 };
 
 /**
- * Obtiene películas con filtros y paginación
- * @param {Object} filters - Filtros a aplicar (busqueda, genero)
- * @param {number} page - Número de página (default: 1)
- * @param {number} limit - Items por página (default: 10)
- * @returns {Promise<Object>} Objeto con data y pagination
+ * Obtiene películas filtradas por búsqueda de texto y género con paginación.
+ * @param {Object} filters - Objeto con filtros (busqueda, genero).
+ * @param {number} page - Número de página.
+ * @param {number} limit - Límite por página.
+ * @returns {Promise<Object>} Resultados filtrados y paginados.
  */
 export const getWithFilters = async (filters, page = 1, limit = 10) => {
   return await repository.getWithFilters(filters, page, limit);
 };
 
 /**
- * Obtiene una película por ID
- * @param {number} id - ID de la película
- * @returns {Promise<Object>} Película encontrada
- * @throws {Error} Si la película no existe (404)
+ * Obtiene el detalle de una película por su ID.
+ * @param {number|string} id - Identificador de la película.
+ * @returns {Promise<Object>} Datos de la película.
  */
 export const getOne = async (id) => {
-  const pelicula = await repository.getOne(id);
-  return pelicula;
+  return await repository.getOne(id);
 };
 
 /**
- * Crea una nueva película
- * @param {Object} data - Datos de la película
- * @returns {Promise<Object>} Película creada
+ * Lógica para la creación de una película, asegurando tipos correctos.
+ * @param {Object} data - Datos de la película.
+ * @returns {Promise<Object>} Película creada.
  */
 export const create = async (data) => {
   const movieDataToCreate = {
@@ -59,18 +57,16 @@ export const create = async (data) => {
 };
 
 /**
- * Elimina una película
- * @param {number} id - ID de la película
- * @returns {Promise<Object>} Película eliminada
+ * Lógica para eliminar una película y su póster asociado en Cloudinary.
+ * @param {number|string} id - ID de la película a eliminar.
+ * @returns {Promise<Object>} Resultado de la eliminación.
  */
 export const deleteOne = async (id) => {
   const peliculaExistente = await repository.getOne(id);
 
-  // Si tiene póster en Cloudinary se elimina también
   if (peliculaExistente?.portadaPublicId) {
     try {
       await cloudinary.uploader.destroy(peliculaExistente.portadaPublicId);
-      logger.info('Póster eliminado de Cloudinary:', peliculaExistente.portadaPublicId);
     } catch (error) {
       logger.error('Error eliminando póster de Cloudinary:', error);
     }
@@ -79,11 +75,10 @@ export const deleteOne = async (id) => {
 };
 
 /**
- * Actualiza una película existente
- * @param {number} id - ID de la película
- * @param {Object} data - Datos a actualizar
- * @returns {Promise<Object>} Película actualizada
- * @throws {Error} Si la película no existe (404) o validación falla (400)
+ * Actualiza los datos de una película, validando restricciones de fechas y gestionando el póster.
+ * @param {number|string} id - ID de la película.
+ * @param {Object} data - Nuevos datos.
+ * @returns {Promise<Object>} Película actualizada o error de validación.
  */
 export const update = async (id, data) => {
   const peliculaExistente = await repository.getOne(id);
@@ -98,11 +93,9 @@ export const update = async (id, data) => {
     return errorValidations;
   }
 
-  // Si se subió un nuevo póster y existe uno anterior, eliminar el anterior
   if (data.portada && peliculaExistente.portadaPublicId) {
     try {
       await cloudinary.uploader.destroy(peliculaExistente.portadaPublicId);
-      logger.info('Póster anterior eliminado de Cloudinary:', peliculaExistente.portadaPublicId);
     } catch (error) {
       logger.error('Error eliminando póster anterior de Cloudinary:', error);
     }
@@ -117,8 +110,8 @@ export const update = async (id, data) => {
 };
 
 /**
- * Obtiene películas en cartelera
- * @returns {Promise<Array>} Lista de películas
+ * Obtiene películas que tienen funciones públicas programadas en la semana.
+ * @returns {Promise<Array>} Lista de películas en cartelera.
  */
 export const getAllEnCartelera = async () => {
   const inicio = new Date();
@@ -129,8 +122,8 @@ export const getAllEnCartelera = async () => {
 };
 
 /**
- * Cuenta películas en cartelera
- * @returns {Promise<number>} Cantidad de películas en cartelera
+ * Cuenta cuántas películas están actualmente en cartelera.
+ * @returns {Promise<number>} Conteo de películas.
  */
 export const getCountEnCartelera = async () => {
   const inicio = new Date();
@@ -142,31 +135,32 @@ export const getCountEnCartelera = async () => {
 };
 
 /**
- * Busca películas por nombre
- * @param {string} searchQuery - Término de búsqueda
- * @param {number} limit - Límite de resultados (opcional)
- * @returns {Promise<Array>} Lista de películas que coinciden
+ * Busca películas mediante una cadena de texto.
+ * @param {string} searchQuery - Texto a buscar.
+ * @param {number} limit - Límite opcional de resultados.
+ * @returns {Promise<Array>} Películas encontradas.
  */
 export const search = async (searchQuery, limit) => {
   return await repository.search(searchQuery, limit);
 };
 
 /**
- * Obtiene películas próximas a estrenarse (fecha futura)
- * @returns {Promise<Array>} Lista de películas con estreno futuro
+ * Obtiene las películas cuya fecha de estreno es futura.
+ * @returns {Promise<Array>} Lista de estrenos.
  */
 export const getEstrenos = async () => {
   return await repository.getEstrenos();
 };
 
 /**
- * Valida cambios en fecha de estreno
- * @param {Object} data - Datos de la película
- * @returns {Error|null} Error si la validación falla
+ * Valida que la nueva fecha de estreno no sea posterior a funciones ya programadas.
+ * @param {Object} data - Datos de la película (id y fechaEstreno).
+ * @returns {Error|null} Error de validación o null si es correcto.
  */
 async function validationsEstreno(data) {
   const fechaNueva = new Date(data.fechaEstreno);
   const funciones = await getFuncionesByPeliculaId(data.id);
+  
   if (funciones && funciones.length > 0) {
     for (const funcion of funciones) {
       if (new Date(funcion.fechaHoraFuncion) < fechaNueva) {

@@ -45,7 +45,7 @@ export const createReserva = async (req, res) => {
  * @param {Object} req - Request
  * @param {Object} res - Response
  */
-export const cancellReserva = async (req, res) => {
+export const cancelReserva = async (req, res) => {
   const cancelledReserva = await cancelReservaService(req.params, req.user);
   res.status(200).json(cancelledReserva);
 };
@@ -70,7 +70,8 @@ export const getLatestReservas = async (req, res) => {
 export const getUserReservas = async (req, res) => {
   const userDNI = req.user.id; // El DNI está en req.user.id
   const { estado } = req.query;
-  const reservas = await getUserReservasService(userDNI, estado);
+  const normalizedEstado = estado?.toUpperCase();
+  const reservas = await getUserReservasService(userDNI, normalizedEstado);
   res.json(reservas);
 };
 

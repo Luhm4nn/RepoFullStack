@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import { findRefreshToken, deleteRefreshToken, saveRefreshToken, deleteAllTokensForUser } from './refreshToken.repository.js';
-import logger from '../utils/logger.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
@@ -79,5 +78,5 @@ export async function revokeRefreshToken(req, res) {
 export async function revokeAllSessions(req, res) {
   const userId = req.user.id;
   await deleteAllTokensForUser(userId);
-  res.clearCookie('refreshToken').json({ message: 'Todas las sesiones cerradas exitosamente' });
+  res.clearCookie('refreshToken').clearCookie('accessToken').json({ message: 'Todas las sesiones cerradas exitosamente' });
 }

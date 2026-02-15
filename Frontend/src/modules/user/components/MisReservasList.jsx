@@ -3,6 +3,7 @@ import { cancelReserva } from "../../../api/Reservas.api";
 import { formatDateTime } from "../../../utils/dateFormater";
 import DetalleReservaModal from "./DetalleReservaModal";
 import { useNotification } from '../../../context/NotificationContext';
+import { ESTADOS_RESERVA, ESTADOS_RESERVA_LABELS } from "../../../constants";
 
 function MisReservasList({ reservas, onReservaActualizada }) {
   const [cancellingId, setCancellingId] = useState(null);
@@ -47,18 +48,18 @@ function MisReservasList({ reservas, onReservaActualizada }) {
 
   const getEstadoBadge = (estado, funcionPasada) => {
     // Si la función pasó, mostrar solo badge de "FINALIZADA"
-    if (funcionPasada && (estado === "ACTIVA" || estado === "ASISTIDA")) {
+    if (funcionPasada && (estado === ESTADOS_RESERVA.ACTIVA || estado === ESTADOS_RESERVA.ASISTIDA)) {
       return null; // No mostrar badge de ACTIVA/ASISTIDA si ya pasó
     }
 
     switch (estado) {
-      case "ACTIVA":
+      case ESTADOS_RESERVA.ACTIVA:
         return "bg-green-500/20 text-green-300 border-green-500/30";
-      case "ASISTIDA":
+      case ESTADOS_RESERVA.ASISTIDA:
         return "bg-blue-500/20 text-blue-300 border-blue-500/30";
-      case "CANCELADA":
+      case ESTADOS_RESERVA.CANCELADA:
         return "bg-red-500/20 text-red-300 border-red-500/30";
-      case "NO_ASISTIDA":
+      case ESTADOS_RESERVA.NO_ASISTIDA:
         return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
       case "FINALIZADA":
         return "bg-gray-500/20 text-gray-300 border-gray-500/30";
@@ -135,7 +136,7 @@ function MisReservasList({ reservas, onReservaActualizada }) {
                       <div className="flex items-center gap-2 flex-wrap">
                         {getEstadoBadge(reserva.estado, funcionPasada) && (
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getEstadoBadge(reserva.estado, funcionPasada)}`}>
-                            {reserva.estado}
+                            {ESTADOS_RESERVA_LABELS[reserva.estado] || reserva.estado}
                           </span>
                         )}
                         {funcionPasada && (

@@ -8,14 +8,11 @@ describe('Auth Integration', () => {
   let adminCookie;
 
   beforeAll(async () => {
-    // Esto asegura que podemos conectar a la DB y loguearnos
-    // getAdminToken ya fue parcheado para devolver cookies
     adminCookie = await getAdminToken();
   });
 
   describe('POST /auth/login', () => {
     test('debe retornar cookies httpOnly y user en el body (no token)', async () => {
-      // Login con credenciales de admin conocidas
       const response = await request(app).post('/auth/login').send({
         email: 'admin@cutzy.com',
         password: '123456',
@@ -44,14 +41,12 @@ describe('Auth Integration', () => {
     test('debe limpiar las cookies', async () => {
       const response = await request(app)
         .post('/auth/logout')
-        .set('Cookie', adminCookie); // Enviar cookies de sesión
+        .set('Cookie', adminCookie);
 
       expect(response.status).toBe(200);
 
       const cookies = response.headers['set-cookie'];
-      // Verificar que las cookies se setean para expirar
       const accessTokenCookie = cookies.find(c => c.startsWith('accessToken='));
-      // Express res.clearCookie suele setear Expires a fecha pasada o Max-Age: 0
       expect(accessTokenCookie).toMatch(/Expires=|Max-Age=0/);
     });
   });

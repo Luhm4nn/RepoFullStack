@@ -1,4 +1,22 @@
 import prisma from '../prisma/prisma.js';
+import { ESTADOS_FUNCION } from '../constants/index.js';
+
+/**
+ * Actualiza automáticamente a INACTIVA las funciones que ya han pasado su fecha
+ * @param {Date} now - Fecha y hora actual
+ * @returns {Promise<Object>} Resultado de la actualización
+ */
+async function autoInactivarVencidas(now) {
+  return await prisma.funcion.updateMany({
+    where: {
+      estado: { not: ESTADOS_FUNCION.INACTIVA },
+      fechaHoraFuncion: { lte: now }
+    },
+    data: {
+      estado: ESTADOS_FUNCION.INACTIVA
+    }
+  });
+}
 
 /**
  * Obtiene todas las funciones
@@ -42,7 +60,7 @@ async function create(data) {
       fechaHoraFuncion: new Date(data.fechaHoraFuncion),
       idSala: parseInt(data.idSala, 10),
       idPelicula: parseInt(data.idPelicula, 10),
-      estado: 'Privada',
+      estado: ESTADOS_FUNCION.PRIVADA,
     },
   });
 }
@@ -128,22 +146,33 @@ async function getByPelicula(idPelicula) {
  */
 async function getInactive(page = 1, limit = 10) {
   const skip = (page - 1) * limit;
+  const now = new Date();
   
   const [data, total] = await Promise.all([
     prisma.funcion.findMany({
-      where: { estado: 'Inactiva' },
+      where: {
+        OR: [
+          { estado: ESTADOS_FUNCION.INACTIVA },
+          { fechaHoraFuncion: { lte: now } }
+        ]
+      },
       include: {
         sala: true,
         pelicula: true,
       },
       orderBy: {
-        fechaHoraFuncion: 'asc',
+        fechaHoraFuncion: 'desc',
       },
       skip,
       take: limit,
     }),
     prisma.funcion.count({
-      where: { estado: 'Inactiva' },
+      where: {
+        OR: [
+          { estado: ESTADOS_FUNCION.INACTIVA },
+          { fechaHoraFuncion: { lte: now } }
+        ]
+      },
     }),
   ]);
 
@@ -166,10 +195,14 @@ async function getInactive(page = 1, limit = 10) {
  */
 async function getActive(page = 1, limit = 10) {
   const skip = (page - 1) * limit;
+  const now = new Date();
   
   const [data, total] = await Promise.all([
     prisma.funcion.findMany({
-      where: { estado: { not: 'Inactiva' } },
+      where: { 
+        estado: { not: ESTADOS_FUNCION.INACTIVA },
+        fechaHoraFuncion: { gt: now }
+      },
       include: {
         sala: true,
         pelicula: true,
@@ -181,7 +214,10 @@ async function getActive(page = 1, limit = 10) {
       take: limit,
     }),
     prisma.funcion.count({
-      where: { estado: { not: 'Inactiva' } },
+      where: { 
+        estado: { not: ESTADOS_FUNCION.INACTIVA },
+        fechaHoraFuncion: { gt: now }
+      },
     }),
   ]);
 
@@ -202,7 +238,7 @@ async function getActive(page = 1, limit = 10) {
  */
 async function getPublic() {
   return await prisma.funcion.findMany({
-    where: { estado: 'Publica' },
+    where: { estado: ESTADOS_FUNCION.PUBLICA },
     include: {
       sala: true,
       pelicula: true,
@@ -261,7 +297,7 @@ async function getByPeliculaAndRange(idPelicula, fechaInicio, fechaFin) {
  */
 async function countPublic() {
   return await prisma.funcion.count({
-    where: { estado: 'Publica' },
+    where: { estado: ESTADOS_FUNCION.PUBLICA },
   });
 }
 
@@ -372,12 +408,19 @@ async function getWithFilters(filters = {}, page = 1, limit = 10) {
   }
 
   if (filters.estado) {
-    const estadoLower = filters.estado.toLowerCase();
-    // Funciones activas incluyen todas menos Inactivas
-    if (estadoLower === 'activas') {
-      where.estado = { not: 'Inactiva' };
+    const estadoUpper = filters.estado.toUpperCase();
+    const now = new Date();
+    // Funciones activas incluyen todas menos Inactivas que sean futuras
+    if (estadoUpper === 'ACTIVA' || estadoUpper === 'ACTIVAS') {
+      where.estado = { not: ESTADOS_FUNCION.INACTIVA };
+      where.fechaHoraFuncion = { gt: now };
+    } else if (estadoUpper === 'INACTIVA' || estadoUpper === 'INACTIVAS') {
+      where.OR = [
+        { estado: ESTADOS_FUNCION.INACTIVA },
+        { fechaHoraFuncion: { lte: now } }
+      ];
     } else {
-      where.estado = filters.estado;
+      where.estado = estadoUpper;
     }
   }
 
@@ -436,4 +479,5 @@ export {
   countPublic,
   getOneWithStats,
   getWithFilters,
+  autoInactivarVencidas,
 };

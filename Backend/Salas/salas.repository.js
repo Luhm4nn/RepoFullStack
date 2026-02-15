@@ -1,17 +1,17 @@
 import prisma from '../prisma/prisma.js';
 
 /**
- * Obtiene todas las salas
- * @returns {Promise<Array>} Lista de salas
+ * Recupera todas las salas mediante Prisma.
+ * @returns {Promise<Array>} Listado de salas.
  */
 async function getAll() {
   return await prisma.sala.findMany();
 }
 
 /**
- * Obtiene una sala por ID o Nombre
- * @param {string|number} param - ID o Nombre de la sala
- * @returns {Promise<Object|null>} Sala encontrada o null
+ * Busca una sala por su ID numérico o por su nombre único.
+ * @param {string|number} param - Valor a buscar.
+ * @returns {Promise<Object|null>} Sala encontrada o null.
  */
 async function getOne(param) {
   if (!isNaN(param)) {
@@ -26,13 +26,9 @@ async function getOne(param) {
 }
 
 /**
- * Crea una nueva sala
- * @param {Object} data - Datos de la sala
- * @param {string} data.nombreSala - Nombre de la sala
- * @param {string} data.ubicacion - Ubicación
- * @param {number} data.filas - Cantidad de filas
- * @param {number} data.asientosPorFila - Asientos por fila
- * @returns {Promise<Object>} Sala creada
+ * Crea un registro de sala con dimensiones básicas.
+ * @param {Object} data - Datos de la sala.
+ * @returns {Promise<Object>} Registro creado.
  */
 async function create(data) {
   return await prisma.sala.create({
@@ -46,9 +42,9 @@ async function create(data) {
 }
 
 /**
- * Elimina una sala por ID
- * @param {number} id - ID de la sala
- * @returns {Promise<Object>} Sala eliminada
+ * Elimina físicamente una sala por su ID.
+ * @param {number|string} id - ID de la sala.
+ * @returns {Promise<Object>} Registro eliminado.
  */
 async function deleteOne(id) {
   return await prisma.sala.delete({
@@ -59,10 +55,10 @@ async function deleteOne(id) {
 }
 
 /**
- * Actualiza una sala existente
- * @param {number} id - ID de la sala
- * @param {Object} data - Datos a actualizar
- * @returns {Promise<Object>} Sala actualizada
+ * Actualiza el nombre o ubicación de una sala existente.
+ * @param {number|string} id - ID de la sala.
+ * @param {Object} data - Nuevos datos.
+ * @returns {Promise<Object>} Registro actualizado.
  */
 async function update(id, data) {
   return await prisma.sala.update({
@@ -77,18 +73,18 @@ async function update(id, data) {
 }
 
 /**
- * Cuenta todas las salas
- * @returns {Promise<number>} Cantidad de salas
+ * Obtiene el total de salas registradas.
+ * @returns {Promise<number>} Cantidad de salas.
  */
 async function countAll() {
   return await prisma.sala.count();
 }
 
 /**
- * Busca salas por nombre o ubicación con límite opcional
- * @param {string} searchQuery - Término de búsqueda
- * @param {number} limit - Límite de resultados (opcional)
- * @returns {Promise<Array>} Lista de salas que coinciden con la búsqueda
+ * Busca salas con coincidencia de texto en nombre o ubicación.
+ * @param {string} searchQuery - Término de búsqueda.
+ * @param {number} limit - Límite de resultados opcional.
+ * @returns {Promise<Array>} Listado filtrado.
  */
 async function search(searchQuery, limit) {
   const where = searchQuery

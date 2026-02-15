@@ -1,23 +1,27 @@
 import crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-cbc';
-const IV_LENGTH = 16; // For AES, this is always 16
+const IV_LENGTH = 16; // Para AES, esto siempre es 16
 
 /**
- * Gets a properly formatted 32-byte encryption key
- * @returns {Buffer} 32-byte key buffer
+ * Obtiene una clave de encriptación de 32 bytes formateada correctamente.
+ * Utiliza SHA-256 para asegurar que el buffer tenga el tamaño requerido por AES-256.
+ * 
+ * @returns {Buffer} Buffer de clave de 32 bytes.
  */
 function getEncryptionKey() {
     const keyString = process.env.QR_ENCRYPTION_KEY || 'default-secret-key-for-qr-codes';
 
-    // Create a 32-byte key using SHA-256 hash
+    // Crear una clave de 32 bytes usando el hash SHA-256
     return crypto.createHash('sha256').update(keyString).digest();
 }
 
 /**
- * Encrypts data to be embedded in QR code
- * @param {Object} data - Data object to encrypt
- * @returns {string} Encrypted base64 string
+ * Encripta un objeto de datos para ser embebido en un código QR.
+ * Utiliza AES-256-CBC con un IV aleatorio.
+ * 
+ * @param {Object} data - Objeto de datos a encriptar.
+ * @returns {string} Cadena en base64 que contiene el IV y los datos encriptados.
  */
 export function encryptData(data) {
     try {
@@ -29,18 +33,20 @@ export function encryptData(data) {
         let encrypted = cipher.update(jsonString, 'utf8', 'hex');
         encrypted += cipher.final('hex');
 
-        // Combine IV and encrypted data
+        // Combinar IV y datos encriptados
         const combined = iv.toString('hex') + ':' + encrypted;
         return Buffer.from(combined).toString('base64');
     } catch (error) {
-        throw new Error(`Error encrypting data: ${error.message}`);
+        throw new Error(`Error encriptando datos: ${error.message}`);
     }
 }
 
 /**
- * Decrypts data from QR code
- * @param {string} encryptedData - Base64 encrypted string
- * @returns {Object} Decrypted data object
+ * Desencripta los datos provenientes de un código QR.
+ * 
+ * @param {string} encryptedData - Cadena en base64 con el formato "IV:ENCRYPTED_DATA".
+ * @returns {Object} Objeto de datos desencriptado.
+ * @throws {Error} Si el formato es inválido o la desencriptación falla.
  */
 export function decryptData(encryptedData) {
     try {
@@ -48,7 +54,7 @@ export function decryptData(encryptedData) {
         const parts = combined.split(':');
 
         if (parts.length !== 2) {
-            throw new Error('Invalid encrypted data format');
+            throw new Error('Formato de datos encriptados inválido');
         }
 
         const iv = Buffer.from(parts[0], 'hex');
@@ -62,6 +68,6 @@ export function decryptData(encryptedData) {
 
         return JSON.parse(decrypted);
     } catch (error) {
-        throw new Error(`Error decrypting data: ${error.message}`);
+        throw new Error(`Error desencriptando datos: ${error.message}`);
     }
 }

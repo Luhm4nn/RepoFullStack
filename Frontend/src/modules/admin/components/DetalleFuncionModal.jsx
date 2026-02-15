@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getAsientosReservadosPorFuncion } from "../../../api/AsientoReservas.api";
 import { formatDateTime } from "../../../utils/dateFormater";
+import { ESTADOS_FUNCION, ESTADOS_FUNCION_LABELS } from "../../../constants";
 
 function DetalleFuncionModal({ funcion, onClose, detalles }) {
     const [asientos, setAsientos] = useState([]);
@@ -125,11 +126,11 @@ function DetalleFuncionModal({ funcion, onClose, detalles }) {
                             </div>
                             <div>
                                 <p className="text-gray-400">Estado</p>
-                                <p className={`font-semibold ${funcion.estado === 'Privada' ? 'text-red-500' :
-                                    funcion.estado === 'Publica' ? 'text-green-500' :
+                                <p className={`font-semibold ${funcion.estado === ESTADOS_FUNCION.PRIVADA ? 'text-red-500' :
+                                    funcion.estado === ESTADOS_FUNCION.PUBLICA ? 'text-green-500' :
                                         'text-gray-500'
                                     }`}>
-                                    {funcion.estado}
+                                    {ESTADOS_FUNCION_LABELS[funcion.estado] || funcion.estado}
                                 </p>
                             </div>
                         </div>

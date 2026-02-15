@@ -1,17 +1,17 @@
 import prisma from '../prisma/prisma.js';
 
 /**
- * Obtiene todos los parámetros del sistema
- * @returns {Promise<Array>} Lista de parámetros
+ * Consulta todos los registros de la tabla Parametro.
+ * @returns {Promise<Array>}
  */
 async function getAll() {
   return await prisma.parametro.findMany();
 }
 
 /**
- * Obtiene un parámetro por su ID
- * @param {number} id - ID del parámetro
- * @returns {Promise<Object|null>} Parámetro encontrado o null
+ * Busca un parámetro específico por su clave primaria.
+ * @param {number|string} id - ID del parámetro.
+ * @returns {Promise<Object|null>}
  */
 async function getOne(id) {
   return await prisma.parametro.findUnique({
@@ -22,11 +22,9 @@ async function getOne(id) {
 }
 
 /**
- * Crea un nuevo parámetro
- * @param {Object} data - Datos del parámetro
- * @param {string} data.descripcionParametro - Descripción del parámetro
- * @param {string} data.valor - Valor del parámetro
- * @returns {Promise<Object>} Parámetro creado
+ * Inserta un nuevo registro de configuración.
+ * @param {Object} data - Datos a insertar.
+ * @returns {Promise<Object>}
  */
 async function create(data) {
   return await prisma.parametro.create({
@@ -38,9 +36,9 @@ async function create(data) {
 }
 
 /**
- * Elimina un parámetro por su ID
- * @param {number} id - ID del parámetro
- * @returns {Promise<Object>} Parámetro eliminado
+ * Elimina un parámetro por ID.
+ * @param {number|string} id - ID del parámetro.
+ * @returns {Promise<Object>}
  */
 async function deleteOne(id) {
   return await prisma.parametro.delete({
@@ -51,12 +49,10 @@ async function deleteOne(id) {
 }
 
 /**
- * Actualiza un parámetro existente
- * @param {number} id - ID del parámetro
- * @param {Object} data - Datos a actualizar
- * @param {string} [data.descripcionParametro] - Nueva descripción
- * @param {string} [data.valor] - Nuevo valor
- * @returns {Promise<Object>} Parámetro actualizado
+ * Actualiza los campos de un parámetro.
+ * @param {number|string} id - ID del parámetro.
+ * @param {Object} data - Datos actualizados.
+ * @returns {Promise<Object>}
  */
 async function update(id, data) {
   return await prisma.parametro.update({

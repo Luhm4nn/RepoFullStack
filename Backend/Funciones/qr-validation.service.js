@@ -1,6 +1,7 @@
 import * as repository from './qr.repository.js';
 import { decryptData } from '../utils/qrEncryption.js';
 import logger from '../utils/logger.js';
+import { ESTADOS_RESERVA } from '../constants/index.js';
 
 /**
  * Valida un código QR y marca la reserva como asistida
@@ -67,21 +68,21 @@ export async function validateAndUseQR(encryptedData, user) {
     }
 
     // Validar estado de la reserva
-    if (reserva.estado === 'ASISTIDA') {
+    if (reserva.estado === ESTADOS_RESERVA.ASISTIDA) {
       const error = new Error('Esta reserva ya fue utilizada');
       error.status = 400;
       error.code = 'ALREADY_USED';
       throw error;
     }
 
-    if (reserva.estado === 'CANCELADA') {
+    if (reserva.estado === ESTADOS_RESERVA.CANCELADA) {
       const error = new Error('Esta reserva fue cancelada');
       error.status = 400;
       error.code = 'RESERVATION_CANCELLED';
       throw error;
     }
 
-    if (reserva.estado !== 'ACTIVA') {
+    if (reserva.estado !== ESTADOS_RESERVA.ACTIVA) {
       const error = new Error('Esta reserva no está activa');
       error.status = 400;
       error.code = 'NOT_ACTIVE';

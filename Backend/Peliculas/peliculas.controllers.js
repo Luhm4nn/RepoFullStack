@@ -1,40 +1,40 @@
 import * as service from './peliculas.service.js';
-import logger from '../utils/logger.js';
 
 /**
- * Obtiene todas las películas con soporte para paginación y filtros
- * @param {Object} req - Request
- * @param {Object} res - Response
- * @query {number} page - Número de página (opcional, default: 1)
- * @query {number} limit - Límite de resultados por página (opcional, default: 10)
- * @query {string} busqueda - Búsqueda por nombre de película o director (opcional)
- * @query {string} genero - Filtro por género (opcional)
+ * Obtiene todas las películas con soporte para paginación y filtros.
+ * Sanea los parámetros `page` y `limit` para evitar errores de tipo.
+ * 
+ * @param {Object} req - Objeto de solicitud de Express.
+ * @param {Object} res - Objeto de respuesta de Express.
  */
 export const getPeliculas = async (req, res) => {
-  const { page = 1, limit = 10, busqueda, genero } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const { busqueda, genero } = req.query;
 
-  // Si hay filtros, usar el servicio con filtros
   if (busqueda || genero) {
-    const filters = { busqueda, genero };
-    const result = await service.getWithFilters(filters, parseInt(page), parseInt(limit));
+    const filters = { 
+      busqueda, 
+      genero: genero?.toUpperCase() 
+    };
+    const result = await service.getWithFilters(filters, page, limit);
     return res.json(result);
   }
 
-  // Si se solicita paginación (page o limit presentes), usar servicio paginado
   if (req.query.page || req.query.limit) {
-    const result = await service.getPaginated(parseInt(page), parseInt(limit));
+    const result = await service.getPaginated(page, limit);
     return res.json(result);
   }
 
-  // Sin parámetros, devolver todas (backward compatibility)
   const peliculas = await service.getAll();
   res.json(peliculas);
 };
 
 /**
- * Obtiene una película por ID
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Obtiene una película específica por su ID.
+ * 
+ * @param {Object} req - Objeto de solicitud con `id` en params.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const getPelicula = async (req, res) => {
   const pelicula = await service.getOne(req.params.id);
@@ -47,19 +47,28 @@ export const getPelicula = async (req, res) => {
 };
 
 /**
- * Crea una nueva película
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Crea una nueva película y normaliza campos como género y MPAA.
+ * 
+ * @param {Object} req - Objeto de solicitud con datos de la película en el body.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const createPelicula = async (req, res) => {
+  if (req.body.generoPelicula) {
+    req.body.generoPelicula = req.body.generoPelicula.toUpperCase();
+  }
+  if (req.body.MPAA) {
+    req.body.MPAA = req.body.MPAA.toUpperCase();
+  }
+  
   const newPelicula = await service.create(req.body);
   res.status(201).json(newPelicula);
 };
 
 /**
- * Elimina una película
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Elimina una película por su ID.
+ * 
+ * @param {Object} req - Objeto de solicitud con `id` en params.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const deletePelicula = async (req, res) => {
   const deletedPelicula = await service.deleteOne(req.params.id);
@@ -70,61 +79,56 @@ export const deletePelicula = async (req, res) => {
 };
 
 /**
- * Actualiza una película
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Actualiza los datos de una película existente.
+ * 
+ * @param {Object} req - Objeto de solicitud con datos a actualizar en body e ID en params.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const updatePelicula = async (req, res) => {
+  if (req.body.generoPelicula) {
+    req.body.generoPelicula = req.body.generoPelicula.toUpperCase();
+  }
+  if (req.body.MPAA) {
+    req.body.MPAA = req.body.MPAA.toUpperCase();
+  }
+
   const updatedPelicula = await service.update(req.params.id, req.body);
-  await delCache('peliculas:cartelera');
-  if (updatedPelicula) {
-    if (updatedPelicula.name === 'FECHA_ESTRENO') {
-      return res.status(updatedPelicula.status).json({
-        message: updatedPelicula.message,
-        errorCode: updatedPelicula.name,
-      });
-    }
-    return res.status(200).json(updatedPelicula);
+  if (updatedPelicula && updatedPelicula.name === 'FECHA_ESTRENO') {
+    return res.status(updatedPelicula.status).json({
+      message: updatedPelicula.message,
+      errorCode: updatedPelicula.name,
+    });
   }
+  return res.status(200).json(updatedPelicula);
 };
 
 /**
- * Obtiene películas en cartelera
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Obtiene todas las películas en cartelera.
+ * 
+ * @param {Object} req - Objeto de solicitud.
+ * @param {Object} res - Objeto de respuesta.
  */
-
 export const getPeliculasEnCartelera = async (req, res) => {
-  try {
-    const peliculas = await service.getAllEnCartelera();
-    res.json(peliculas);
-  } catch (error) {
-    logger.error('Error fetching peliculas en cartelera:', error);
-    res.status(500).json({ message: 'Error fetching peliculas en cartelera.' });
-  }
+  const peliculas = await service.getAllEnCartelera();
+  res.json(peliculas);
 };
 
 /**
- * Obtiene el conteo de películas en cartelera
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Obtiene la cantidad total de películas en cartelera.
+ * 
+ * @param {Object} req - Objeto de solicitud.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const getCountPeliculasEnCartelera = async (req, res) => {
-  try {
-    const count = await service.getCountEnCartelera();
-    res.json({ count });
-  } catch (error) {
-    logger.error('Error counting peliculas en cartelera:', error);
-    res.status(500).json({ message: 'Error counting peliculas en cartelera.' });
-  }
+  const count = await service.getCountEnCartelera();
+  res.json({ count });
 };
 
 /**
- * Busca películas por nombre con query params
- * @param {Object} req - Request
- * @param {Object} res - Response
- * @query {string} q - Término de búsqueda
- * @query {number} limit - Límite de resultados (opcional)
+ * Busca películas por nombre o criterios específicos mediante query params.
+ * 
+ * @param {Object} req - Objeto de solicitud con `q` en la query string.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const searchPeliculas = async (req, res) => {
   const { q, limit } = req.query;
@@ -133,11 +137,13 @@ export const searchPeliculas = async (req, res) => {
 };
 
 /**
- * Obtiene películas próximas a estrenarse
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Obtiene los próximos estrenos.
+ * 
+ * @param {Object} req - Objeto de solicitud.
+ * @param {Object} res - Objeto de respuesta.
  */
 export const getEstrenos = async (req, res) => {
   const peliculas = await service.getEstrenos();
   res.json(peliculas);
 };
+

@@ -1,5 +1,9 @@
 import * as Yup from 'yup';
 
+/**
+ * Esquema de validación para la creación de una sala.
+ * Valida nombre, ubicación (dentro de una lista fija), filas y asientos.
+ */
 const salasSchema = Yup.object().shape({
   nombreSala: Yup.string()
     .min(1, 'Mínimo 1 caracter')
@@ -32,6 +36,10 @@ const salasSchema = Yup.object().shape({
   vipSeats: Yup.array().of(Yup.string()).default([]).notRequired(),
 });
 
+/**
+ * Esquema de validación para la actualización de una sala.
+ * Permite actualizar nombre, ubicación y configuración de asientos VIP.
+ */
 const salasUpdateSchema = Yup.object().shape({
   nombreSala: Yup.string()
     .min(1, 'Mínimo 1 caracter')

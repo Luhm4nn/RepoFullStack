@@ -1,34 +1,39 @@
 import cron from 'node-cron';
 import prisma from '../prisma/prisma.js';
 import logger from '../utils/logger.js';
+import { ESTADOS_FUNCION, ESTADOS_RESERVA } from '../constants/index.js';
 
 /**
- * Inicia el cron job para actualizar estados de funciones
+ * Inicializa los procesos en segundo plano (Cron Jobs) para el mantenimiento de funciones.
+ * Se encarga de finalizar funciones antiguas y actualizar el estado de las reservas.
+ * No se ejecuta en entorno de tests.
  */
 export const iniciarCronFunciones = () => {
-  // No iniciar cron en ambiente de testing
   if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined) {
     logger.info('Skipping cron job initialization in test environment');
     return;
   }
 
-  // Corre cada 2 horas para verificar funciones finalizadas
+  // Se ejecuta cada 2 horas
   cron.schedule('*/120 * * * *', async () => {
     try {
       const ahora = new Date();
-
       const dentro24Horas = new Date(ahora.getTime() + 24 * 60 * 60 * 1000);
 
       const funciones = await prisma.funcion.findMany({
         where: {
-          estado: { not: 'Inactiva' },
+          estado: { not: ESTADOS_FUNCION.INACTIVA },
           fechaHoraFuncion: {
             lte: dentro24Horas,
           },
         },
         include: {
           pelicula: true,
-          reserva: true,
+          reserva: {
+            where: {
+              estado: ESTADOS_RESERVA.ACTIVA
+            }
+          },
         },
       });
 
@@ -38,8 +43,8 @@ export const iniciarCronFunciones = () => {
         const fechaFin = new Date(
           funcion.fechaHoraFuncion.getTime() + funcion.pelicula.duracion * 60000
         );
-        const reservas = funcion.reserva;
-        // if pelicula ended changes estado to Inactiva
+        
+        // Si la función ya terminó
         if (ahora > fechaFin) {
           await prisma.funcion.update({
             where: {
@@ -48,14 +53,13 @@ export const iniciarCronFunciones = () => {
                 fechaHoraFuncion: funcion.fechaHoraFuncion,
               },
             },
-            data: { estado: 'Inactiva' },
+            data: { estado: ESTADOS_FUNCION.INACTIVA },
           });
 
           funcionesActualizadas++;
-          logger.info(
-            `Función finalizada: ${funcion.pelicula.nombrePelicula} - Sala ${funcion.idSala} - ${funcion.fechaHoraFuncion.toLocaleString()}`
-          );
-          for (const reserva of reservas) {
+          
+          // Marcar reservas activas como NO_ASISTIDA si la función terminó y no se validaron
+          for (const reserva of funcion.reserva) {
             await prisma.reserva.update({
               where: {
                 idSala_fechaHoraFuncion_DNI_fechaHoraReserva: {
@@ -65,19 +69,23 @@ export const iniciarCronFunciones = () => {
                   fechaHoraReserva: reserva.fechaHoraReserva,
                 },
               },
-              data: { estado: 'NO_ASISTIDA' },
+              data: { estado: ESTADOS_RESERVA.NO_ASISTIDA },
             });
           }
-          logger.info(`Se finalizaron ${reservas.length} reservas asociadas a la función.`);
+          
+          if (funcion.reserva.length > 0) {
+            logger.info(`Finalizadas ${funcion.reserva.length} reservas de la función: ${funcion.pelicula.nombrePelicula}`);
+          }
         }
       }
+
       if (funcionesActualizadas > 0) {
-        logger.info(`${funcionesActualizadas} función(es) marcada(s) como Inactiva`);
+        logger.info(`${funcionesActualizadas} funciones marcadas como INACTIVA`);
       }
     } catch (error) {
       logger.error('Error en cron de funciones:', error);
     }
   });
 
-  logger.info('Cron job de funciones iniciado - se ejecuta cada 2 horas');
+  logger.info('Cron job de funciones iniciado - frecuencia: 2 horas');
 };

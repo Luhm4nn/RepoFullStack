@@ -40,7 +40,7 @@ export const useCurrentUser = () => {
     isAdmin: user?.rol === 'ADMIN',
     isClient: user?.rol === 'CLIENTE',
     fullName: user ? `${user.nombreUsuario} ${user.apellidoUsuario}` : '',
-    initials: user ? `${user.nombreUsuario.charAt(0)}${user.apellidoUsuario.charAt(0)}` : ''
+    initials: user ? `${user.nombreUsuario.charAt(0)}${user.apellidoUsuario.charAt(0)}`.toUpperCase() : ''
   };
 };
 

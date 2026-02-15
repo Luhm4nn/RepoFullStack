@@ -45,7 +45,7 @@ router.use(tarifasRoutes);
 router.use(parametrosRoutes);
 router.use(funcionesRoutes);
 router.use(usuariosRoutes);
-router.use(authRoutes);
+router.use('/auth', authRoutes);
 router.use(asientosRoutes);
 router.use(reservasRoutes);
 router.use(asientoReservasRoutes);
@@ -53,4 +53,5 @@ router.use(mercadopagoRoutes);
 router.use(qrRoutes);
 router.use(reportesRoutes);
 
-export const indexRoutes = router;
+export { router as indexRoutes };
+export default router;

@@ -1,9 +1,12 @@
 import * as service from './usuarios.service.js';
 
 /**
- * Obtiene todos los usuarios
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Controlador para obtener todos los usuarios.
+ * Solo accesible por administradores (validado en rutas).
+ * 
+ * @param {import('express').Request} req - Petición Express.
+ * @param {import('express').Response} res - Respuesta Express.
+ * @throws {Error} 404 si no hay usuarios registrados.
  */
 export const getUsuarios = async (req, res) => {
   const usuarios = await service.getAll();
@@ -16,9 +19,12 @@ export const getUsuarios = async (req, res) => {
 };
 
 /**
- * Obtiene un usuario por DNI
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Controlador para obtener un usuario específico por su DNI.
+ * Valida que el solicitante sea el dueño o un administrador.
+ * 
+ * @param {import('express').Request} req - Petición Express.
+ * @param {import('express').Response} res - Respuesta Express.
+ * @throws {Error} 404 si el usuario no existe.
  */
 export const getUsuario = async (req, res) => {
   const usuario = await service.getOne(req.params.dni, req.user);
@@ -31,9 +37,10 @@ export const getUsuario = async (req, res) => {
 };
 
 /**
- * Crea un nuevo usuario
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Controlador para crear/registrar un nuevo usuario.
+ * 
+ * @param {import('express').Request} req - Petición Express.
+ * @param {import('express').Response} res - Respuesta Express.
  */
 export const createUsuario = async (req, res) => {
   const newUsuario = await service.create(req.body);
@@ -41,9 +48,11 @@ export const createUsuario = async (req, res) => {
 };
 
 /**
- * Elimina un usuario
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Controlador para eliminar un usuario.
+ * Solo accesible por administradores.
+ * 
+ * @param {import('express').Request} req - Petición Express.
+ * @param {import('express').Response} res - Respuesta Express.
  */
 export const deleteUsuario = async (req, res) => {
   await service.deleteOne(req.params.dni);
@@ -51,11 +60,38 @@ export const deleteUsuario = async (req, res) => {
 };
 
 /**
- * Actualiza un usuario
- * @param {Object} req - Request
- * @param {Object} res - Response
+ * Controlador para actualizar los datos de un usuario.
+ * Valida permisos de propiedad.
+ * 
+ * @param {import('express').Request} req - Petición Express.
+ * @param {import('express').Response} res - Respuesta Express.
  */
 export const updateUsuario = async (req, res) => {
   const updatedUsuario = await service.update(req.params.dni, req.body, req.user);
   res.status(200).json(updatedUsuario);
+};
+
+/**
+ * Controlador para que un usuario actualice su propio perfil.
+ * Simplifica la interfaz para el frontend (no requiere DNI en la URL).
+ * 
+ * @param {import('express').Request} req - Petición Express.
+ * @param {import('express').Response} res - Respuesta Express.
+ */
+export const updateSelf = async (req, res) => {
+  const updatedUsuario = await service.update(req.user.id, req.body, req.user);
+  res.status(200).json(updatedUsuario);
+};
+
+/**
+ * Controlador específico para cambiar la contraseña del usuario autenticado.
+ * Requiere la contraseña actual por seguridad.
+ * 
+ * @param {import('express').Request} req - Petición Express.
+ * @param {import('express').Response} res - Respuesta Express.
+ */
+export const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  await service.changePassword(req.user.id, currentPassword, newPassword);
+  res.status(200).json({ message: 'Contraseña actualizada correctamente.' });
 };

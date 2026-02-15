@@ -1,6 +1,9 @@
 import { ValidationError } from 'yup';
-import logger from '../utils/logger.js';
 
+/**
+ * Validador para el cuerpo de la petición (req.body).
+ * @param {Object} schema - Esquema de validación de Yup.
+ */
 export const validateBody = (schema) => async (req, res, next) => {
   try {
     await schema.validate(req.body, { abortEarly: false });
@@ -9,19 +12,14 @@ export const validateBody = (schema) => async (req, res, next) => {
     if (err instanceof ValidationError) {
       return res.status(400).json({ errors: err.errors });
     }
-    logger.error('Schema validation error:', err.errors);
-
-    // Verifica si el error es de Yup y retorna 400
-    if (err.name === 'ValidationError') {
-      return res.status(400).json({
-        message: 'Error de validación de datos',
-        errors: err.errors,
-      });
-    }
     next(err);
   }
 };
 
+/**
+ * Validador para los parámetros de la ruta (req.params).
+ * @param {Object} schema - Esquema de validación de Yup.
+ */
 export const validateParams = (schema) => async (req, res, next) => {
   try {
     await schema.validate(req.params, { abortEarly: false });
@@ -34,6 +32,10 @@ export const validateParams = (schema) => async (req, res, next) => {
   }
 };
 
+/**
+ * Validador para los parámetros de consulta (req.query).
+ * @param {Object} schema - Esquema de validación de Yup.
+ */
 export const validateQuery = (schema) => async (req, res, next) => {
   try {
     await schema.validate(req.query, { abortEarly: false });
