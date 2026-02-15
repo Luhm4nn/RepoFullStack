@@ -1,5 +1,4 @@
 import { ValidationError } from 'yup';
-import logger from '../utils/logger.js';
 
 /**
  * Validador para el cuerpo de la petición (req.body).

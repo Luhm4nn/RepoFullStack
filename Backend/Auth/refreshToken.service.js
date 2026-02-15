@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import { findRefreshToken, deleteRefreshToken, saveRefreshToken, deleteAllTokensForUser } from './refreshToken.repository.js';
-import logger from '../utils/logger.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;

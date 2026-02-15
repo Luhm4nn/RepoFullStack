@@ -22,12 +22,22 @@ export const getOne = async (params) => {
 };
 
 /**
+ * Actualiza estados de funciones vencidas a INACTIVA
+ * @private
+ */
+const autoFinalizarFuncionesVencidas = async () => {
+  const now = new Date();
+  await repository.autoInactivarVencidas(now);
+};
+
+/**
  * Obtiene funciones activas con paginación
  * @param {number} page - Número de página
  * @param {number} limit - Items por página
  * @returns {Promise<Object>} Objeto con data y pagination
  */
 export const getActiveFunciones = async (page = 1, limit = 10) => {
+  await autoFinalizarFuncionesVencidas();
   return await repository.getActive(page, limit);
 };
 
@@ -38,6 +48,7 @@ export const getActiveFunciones = async (page = 1, limit = 10) => {
  * @returns {Promise<Object>} Objeto con data y pagination
  */
 export const getInactiveFunciones = async (page = 1, limit = 10) => {
+  await autoFinalizarFuncionesVencidas();
   return await repository.getInactive(page, limit);
 };
 
@@ -46,6 +57,7 @@ export const getInactiveFunciones = async (page = 1, limit = 10) => {
  * @returns {Promise<Array>} Lista de funciones públicas
  */
 export const getPublicFunciones = async () => {
+  await autoFinalizarFuncionesVencidas();
   return await repository.getPublic();
 };
 

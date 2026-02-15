@@ -12,7 +12,6 @@ import {
   getDetallesFuncion as getDetallesFuncionService,
   getWithFilters as getWithFiltersService,
 } from "./funciones.service.js";
-import logger from '../utils/logger.js';
 import { ESTADOS_FUNCION } from '../constants/index.js';
 
 
