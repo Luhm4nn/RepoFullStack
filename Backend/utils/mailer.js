@@ -339,7 +339,7 @@ export async function sendReservaConfirmationEmail(reservaData) {
               logoBase64
                 ? `
               <div class="logo">
-                <img src="data:image/png;base64,${logoBase64}" alt="Cutzy Cinema">
+                <img src="cid:logo" alt="Cutzy Cinema">
               </div>
             `
                 : ''
@@ -383,7 +383,7 @@ export async function sendReservaConfirmationEmail(reservaData) {
               <h3>Tu Código QR</h3>
               <p style="color: #666; font-size: 12px; margin-bottom: 15px;">Presenta este código en la entrada del cine</p>
               <div class="qr-image">
-                <img src="${qrBase64}" alt="Código QR de entrada">
+                <img src="cid:qr" alt="Código QR de entrada">
               </div>
             </div>
             
@@ -427,11 +427,29 @@ export async function sendReservaConfirmationEmail(reservaData) {
 
     const fromAddress = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 
+    // Attachments inline con CID (data: URLs son bloqueadas por clientes de email)
+    const attachments = [
+      {
+        content: qrBase64.split('base64,')[1], // quitar el prefijo data:image/png;base64,
+        filename: 'qr.png',
+        content_id: 'qr',
+      },
+    ];
+
+    if (logoBase64) {
+      attachments.push({
+        content: logoBase64,
+        filename: 'logo.png',
+        content_id: 'logo',
+      });
+    }
+
     const { data, error: resendError } = await resend.emails.send({
       from: `Cutzy Cinema <${fromAddress}>`,
       to: [email],
       subject: `¡Reserva Confirmada! - ${nombrePelicula} en Cutzy Cinema`,
       html: htmlContent,
+      attachments,
     });
 
     if (resendError) {
