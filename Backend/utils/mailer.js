@@ -50,11 +50,10 @@ async function generateReservaQR(reservaData) {
     // Generar QR code como data URL
     logger.info('Llamando a QRCode.toDataURL...');
     const qrCodeDataURL = await QRCode.toDataURL(encryptedData, {
-      errorCorrectionLevel: 'H',
+      errorCorrectionLevel: 'L',
       type: 'image/png',
-      quality: 0.95,
       margin: 1,
-      width: 200,
+      width: 400,
     });
     logger.info('QR Code generado correctamente.');
 
@@ -72,7 +71,7 @@ async function generateReservaQR(reservaData) {
 function getLogoBase64() {
   try {
     // Ruta al logo (desde el Frontend)
-    const logoPath = path.join(__dirname, '../../Frontend/src/assets/cutzy-logo-color.png');
+    const logoPath = path.join(__dirname, '../../Frontend/src/assets/cutzy-logo-blanco.png');
 
     if (fs.existsSync(logoPath)) {
       const logoData = fs.readFileSync(logoPath);
@@ -164,10 +163,13 @@ export async function sendReservaConfirmationEmail(reservaData) {
           
           .logo {
             max-width: 150px;
-            margin-bottom: 20px;
+            margin: 0 auto 20px auto;
+            display: block;
           }
           
           .logo img {
+            display: block;
+            margin: 0 auto;
             width: 100%;
             height: auto;
           }
@@ -344,7 +346,7 @@ export async function sendReservaConfirmationEmail(reservaData) {
               logoBase64
                 ? `
               <div class="logo">
-                <img src="data:image/png;base64,${logoBase64}" alt="Cutzy Cinema">
+                <img src="cid:logo" alt="Cutzy Cinema">
               </div>
             `
                 : ''
@@ -388,7 +390,7 @@ export async function sendReservaConfirmationEmail(reservaData) {
               <h3>Tu Código QR</h3>
               <p style="color: #666; font-size: 12px; margin-bottom: 15px;">Presenta este código en la entrada del cine</p>
               <div class="qr-image">
-                <img src="${qrBase64}" alt="Código QR de entrada">
+                <img src="cid:qr" alt="Código QR de entrada">
               </div>
             </div>
             
@@ -402,11 +404,9 @@ export async function sendReservaConfirmationEmail(reservaData) {
             <div class="instructions">
               <div class="instructions-title">📋 Instrucciones Importantes</div>
               <ul>
-                <li>Presenta este email o el código QR en la entrada del cine</li>
+                <li>Presenta este código QR en la entrada del cine</li>
                 <li>Llega con 15 minutos de anticipación</li>
-                <li>Ten tu DNI a mano para verificación</li>
                 <li>No compartas tu código QR con otras personas</li>
-                <li>Si necesitas cancelar, hazlo con al menos 2 horas de anticipación</li>
               </ul>
             </div>
           </div>
@@ -427,12 +427,33 @@ export async function sendReservaConfirmationEmail(reservaData) {
     `;
 
     // Configurar el email
-    logger.info('Configurando opciones del mail (mailOptions)...');
+    logger.info('Configurando opciones del mail (mailOptions) con attachments (CID)...');
+
+    // Preparar attachments
+    const attachments = [
+      {
+        filename: 'qrcode.png',
+        content: qrBase64.split('base64,')[1],
+        encoding: 'base64',
+        cid: 'qr',
+      },
+    ];
+
+    if (logoBase64) {
+      attachments.push({
+        filename: 'logo.png',
+        content: logoBase64,
+        encoding: 'base64',
+        cid: 'logo',
+      });
+    }
+
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
       subject: `¡Reserva Confirmada! - ${nombrePelicula} en Cutzy Cinema`,
       html: htmlContent,
+      attachments: attachments,
     };
 
     // Enviar email
