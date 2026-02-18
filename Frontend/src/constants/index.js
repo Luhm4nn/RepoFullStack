@@ -56,3 +56,53 @@ export const ESTADOS_RESERVA_LABELS = {
   [ESTADOS_RESERVA.ASISTIDA]: 'Asistida',
   [ESTADOS_RESERVA.NO_ASISTIDA]: 'No Asistida',
 };
+
+// Códigos de error del escáner QR
+export const SCANNER_ERROR_CODES = {
+  FUNCTION_NOT_STARTED: 'FUNCTION_NOT_STARTED',
+  FUNCTION_ALREADY_ENDED: 'FUNCTION_ALREADY_ENDED',
+  ALREADY_USED: 'ALREADY_USED',
+  RESERVATION_CANCELLED: 'RESERVATION_CANCELLED',
+};
+
+export const SCANNER_ERROR_CONFIG = {
+  [SCANNER_ERROR_CODES.FUNCTION_NOT_STARTED]: {
+    title: 'Función Aún No Comenzó',
+    colorClass: 'yellow',
+  },
+  [SCANNER_ERROR_CODES.FUNCTION_ALREADY_ENDED]: {
+    title: 'Función Ya Finalizada',
+    colorClass: 'orange',
+  },
+  [SCANNER_ERROR_CODES.ALREADY_USED]: {
+    title: 'Reserva Ya Utilizada',
+    colorClass: 'yellow',
+  },
+  [SCANNER_ERROR_CODES.RESERVATION_CANCELLED]: {
+    title: 'Reserva Cancelada',
+    colorClass: 'red',
+  },
+};
+
+export const SCANNER_COLOR_CLASSES = {
+  green: {
+    bg: 'bg-green-500/20',
+    icon: 'text-green-400',
+    title: 'text-green-400',
+  },
+  yellow: {
+    bg: 'bg-yellow-500/20',
+    icon: 'text-yellow-400',
+    title: 'text-yellow-400',
+  },
+  orange: {
+    bg: 'bg-orange-500/20',
+    icon: 'text-orange-400',
+    title: 'text-orange-400',
+  },
+  red: {
+    bg: 'bg-red-500/20',
+    icon: 'text-red-400',
+    title: 'text-red-400',
+  },
+};

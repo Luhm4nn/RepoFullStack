@@ -70,8 +70,7 @@ async function generateReservaQR(reservaData) {
  */
 function getLogoBase64() {
   try {
-    // Ruta al logo (desde el Frontend)
-    const logoPath = path.join(__dirname, '../../Frontend/src/assets/cutzy-logo-blanco.png');
+    const logoPath = path.join(__dirname, '../assets/cutzy-logo-blanco.png');
 
     if (fs.existsSync(logoPath)) {
       const logoData = fs.readFileSync(logoPath);
