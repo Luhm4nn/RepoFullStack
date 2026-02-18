@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import logger from './logger.js';
 import fs from 'fs';
 import path from 'path';
@@ -9,14 +9,8 @@ import QRCode from 'qrcode';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configurar el transporte de email
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+// Configurar Resend (HTTP API, sin bloqueos de puertos SMTP)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
  * Genera un QR encriptado para una reserva
@@ -345,7 +339,7 @@ export async function sendReservaConfirmationEmail(reservaData) {
               logoBase64
                 ? `
               <div class="logo">
-                <img src="cid:logo" alt="Cutzy Cinema">
+                <img src="data:image/png;base64,${logoBase64}" alt="Cutzy Cinema">
               </div>
             `
                 : ''
@@ -389,7 +383,7 @@ export async function sendReservaConfirmationEmail(reservaData) {
               <h3>Tu Código QR</h3>
               <p style="color: #666; font-size: 12px; margin-bottom: 15px;">Presenta este código en la entrada del cine</p>
               <div class="qr-image">
-                <img src="cid:qr" alt="Código QR de entrada">
+                <img src="${qrBase64}" alt="Código QR de entrada">
               </div>
             </div>
             
@@ -425,63 +419,28 @@ export async function sendReservaConfirmationEmail(reservaData) {
       </html>
     `;
 
-    // Configurar el email
-    logger.info('Configurando opciones del mail (mailOptions) con attachments (CID)...');
-
-    // Preparar attachments
-    const attachments = [
-      {
-        filename: 'qrcode.png',
-        content: qrBase64.split('base64,')[1],
-        encoding: 'base64',
-        cid: 'qr',
-      },
-    ];
-
-    if (logoBase64) {
-      attachments.push({
-        filename: 'logo.png',
-        content: logoBase64,
-        encoding: 'base64',
-        cid: 'logo',
-      });
-    }
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    // Enviar email via Resend (HTTP API - sin bloqueos de puertos SMTP)
+    logger.info('Enviando email con Resend...', {
       to: email,
-      subject: `¡Reserva Confirmada! - ${nombrePelicula} en Cutzy Cinema`,
-      html: htmlContent,
-      attachments: attachments,
-    };
-
-    // Enviar email
-    logger.info('Intentando enviar email con nodemailer TRANSPORT...', {
-      to: email,
-      from: process.env.EMAIL_USER,
-      hasEmailUser: !!process.env.EMAIL_USER,
-      hasEmailPassword: !!process.env.EMAIL_PASSWORD ? 'SÍ (existe)' : 'NO (falta)',
-      smtpService: 'gmail',
+      hasApiKey: !!process.env.RESEND_API_KEY,
     });
 
-    try {
-      const info = await transporter.sendMail(mailOptions);
-      logger.info('Respuesta de Nodemailer (INFO):', {
-        messageId: info.messageId,
-        accepted: info.accepted,
-        rejected: info.rejected,
-        response: info.response,
-      });
-      logger.info(`Email de confirmación enviado exitosamente a: ${email}`);
-      return true;
-    } catch (sendError) {
-      logger.error('Error específico en transporter.sendMail:', {
-        message: sendError.message,
-        code: sendError.code,
-        stack: sendError.stack,
-      });
-      throw sendError;
+    const fromAddress = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+
+    const { data, error: resendError } = await resend.emails.send({
+      from: `Cutzy Cinema <${fromAddress}>`,
+      to: [email],
+      subject: `¡Reserva Confirmada! - ${nombrePelicula} en Cutzy Cinema`,
+      html: htmlContent,
+    });
+
+    if (resendError) {
+      logger.error('Error en Resend:', resendError);
+      throw new Error(resendError.message);
     }
+
+    logger.info('Email enviado exitosamente via Resend:', { id: data.id, to: email });
+    return true;
   } catch (error) {
     logger.error('ERROR GENERAL EN sendReservaConfirmationEmail:', {
       message: error.message,
@@ -500,8 +459,11 @@ export async function sendReservaConfirmationEmail(reservaData) {
  */
 export async function verifyEmailConnection() {
   try {
-    await transporter.verify();
-    logger.info('Conexión de email verificada correctamente');
+    if (!process.env.RESEND_API_KEY) {
+      logger.error('RESEND_API_KEY no configurada');
+      return false;
+    }
+    logger.info('Resend API Key configurada correctamente');
     return true;
   } catch (error) {
     logger.error('Error verificando conexión de email:', error);

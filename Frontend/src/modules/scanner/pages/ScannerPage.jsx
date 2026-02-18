@@ -12,6 +12,8 @@ function ScannerPage() {
   const scannerRef = useRef(null);
   const html5QrcodeScannerRef = useRef(null);
   const fileInputRef = useRef(null);
+  const lastScanTimeRef = useRef(0);
+  const SCAN_COOLDOWN_MS = 10000; // 10 segundos entre escaneos
 
   useEffect(() => {
     // Configuración del scanner
@@ -26,6 +28,10 @@ function ScannerPage() {
 
     // Callback cuando se detecta un QR
     const onScanSuccess = async (decodedText) => {
+      const now = Date.now();
+      if (now - lastScanTimeRef.current < SCAN_COOLDOWN_MS) return;
+      lastScanTimeRef.current = now;
+
       setLoading(true);
       setError(null);
 
@@ -130,7 +136,6 @@ function ScannerPage() {
   const handleScanAgain = () => {
     setResult(null);
     setError(null);
-    window.location.reload();
   };
 
   return (
