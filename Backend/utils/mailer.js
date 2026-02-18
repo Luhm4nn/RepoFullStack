@@ -25,13 +25,16 @@ const transporter = nodemailer.createTransport({
  */
 async function generateReservaQR(reservaData) {
   try {
-    const fechaHoraFuncion = reservaData.fechaHoraFuncion instanceof Date 
-      ? reservaData.fechaHoraFuncion 
-      : new Date(reservaData.fechaHoraFuncion);
-    
-    const fechaHoraReserva = reservaData.fechaHoraReserva instanceof Date
-      ? reservaData.fechaHoraReserva
-      : new Date(reservaData.fechaHoraReserva);
+    logger.info('Procesando datos para QR encriptado:', reservaData);
+    const fechaHoraFuncion =
+      reservaData.fechaHoraFuncion instanceof Date
+        ? reservaData.fechaHoraFuncion
+        : new Date(reservaData.fechaHoraFuncion);
+
+    const fechaHoraReserva =
+      reservaData.fechaHoraReserva instanceof Date
+        ? reservaData.fechaHoraReserva
+        : new Date(reservaData.fechaHoraReserva);
 
     const qrData = {
       idSala: reservaData.idSala,
@@ -41,9 +44,11 @@ async function generateReservaQR(reservaData) {
     };
 
     // Encriptar datos
+    logger.info('Encriptando datos del QR...');
     const encryptedData = encryptData(qrData);
 
     // Generar QR code como data URL
+    logger.info('Llamando a QRCode.toDataURL...');
     const qrCodeDataURL = await QRCode.toDataURL(encryptedData, {
       errorCorrectionLevel: 'H',
       type: 'image/png',
@@ -51,10 +56,11 @@ async function generateReservaQR(reservaData) {
       margin: 1,
       width: 200,
     });
+    logger.info('QR Code generado correctamente.');
 
     return qrCodeDataURL;
   } catch (error) {
-    logger.error('Error generando QR:', error);
+    logger.error('Error interno generando QR en mailer:', error.message);
     throw error;
   }
 }
@@ -87,6 +93,12 @@ function getLogoBase64() {
  */
 export async function sendReservaConfirmationEmail(reservaData) {
   try {
+    logger.info('Iniciando proceso de envío de email de confirmación...', {
+      emailDestinatario: reservaData.email,
+      nombreUsuario: reservaData.nombreUsuario,
+      nombrePelicula: reservaData.nombrePelicula,
+    });
+
     const {
       email,
       nombreUsuario,
@@ -99,13 +111,23 @@ export async function sendReservaConfirmationEmail(reservaData) {
     } = reservaData;
 
     // Generar QR usando los parámetros de la reserva
+    logger.info('Generando código QR para la reserva...');
     const qrBase64 = await generateReservaQR(reservaParams);
+    logger.info('QR generado exitosamente.');
+
+    logger.info('Obteniendo logo para el email...');
     const logoBase64 = getLogoBase64();
+    if (logoBase64) {
+      logger.info('Logo cargado correctamente en base64.');
+    } else {
+      logger.warn('No se pudo cargar el logo, el email se enviará sin imagen de cabecera.');
+    }
 
     // Formatear asientos
     const asientosFormato = asientos.map((a) => `${a.filaAsiento}${a.nroAsiento}`).join(', ');
 
     // HTML del email
+    logger.info('Generando contenido HTML del email...');
     const htmlContent = `
       <!DOCTYPE html>
       <html lang="es">
@@ -405,6 +427,7 @@ export async function sendReservaConfirmationEmail(reservaData) {
     `;
 
     // Configurar el email
+    logger.info('Configurando opciones del mail (mailOptions)...');
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -413,18 +436,34 @@ export async function sendReservaConfirmationEmail(reservaData) {
     };
 
     // Enviar email
-    logger.info('Intentando enviar email con nodemailer...', {
+    logger.info('Intentando enviar email con nodemailer TRANSPORT...', {
       to: email,
       from: process.env.EMAIL_USER,
       hasEmailUser: !!process.env.EMAIL_USER,
-      hasEmailPassword: !!process.env.EMAIL_PASSWORD,
+      hasEmailPassword: !!process.env.EMAIL_PASSWORD ? 'SÍ (existe)' : 'NO (falta)',
+      smtpService: 'gmail',
     });
 
-    await transporter.sendMail(mailOptions);
-    logger.info(`Email de confirmación enviado exitosamente a: ${email}`);
-    return true;
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      logger.info('Respuesta de Nodemailer (INFO):', {
+        messageId: info.messageId,
+        accepted: info.accepted,
+        rejected: info.rejected,
+        response: info.response,
+      });
+      logger.info(`Email de confirmación enviado exitosamente a: ${email}`);
+      return true;
+    } catch (sendError) {
+      logger.error('Error específico en transporter.sendMail:', {
+        message: sendError.message,
+        code: sendError.code,
+        stack: sendError.stack,
+      });
+      throw sendError;
+    }
   } catch (error) {
-    logger.error('ERROR ENVIANDO EMAIL DE CONFIRMACIÓN:', {
+    logger.error('ERROR GENERAL EN sendReservaConfirmationEmail:', {
       message: error.message,
       code: error.code,
       command: error.command,

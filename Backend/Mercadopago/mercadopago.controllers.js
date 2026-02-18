@@ -97,64 +97,72 @@ export const handleWebhook = asyncHandler(async (req, res) => {
       }
 
       if (reservaDB.estado === ESTADOS_RESERVA.PENDIENTE) {
-          await confirmReservaRepo(subParams);
-          logger.info('Pago aprobado. Reserva confirmada:', subParams);
-        } else if (reservaDB.estado === ESTADOS_RESERVA.ACTIVA) {
-          logger.info('Reserva ya estaba ACTIVA (webhook duplicado o ya confirmada)');
-        } else {
-          logger.warn('Reserva en estado inesperado:', {
-            estado: reservaDB.estado,
-            subParams,
-          });
-          return res.sendStatus(200);
+        await confirmReservaRepo(subParams);
+        logger.info('Pago aprobado. Reserva confirmada:', subParams);
+      } else if (reservaDB.estado === ESTADOS_RESERVA.ACTIVA) {
+        logger.info('Reserva ya estaba ACTIVA (webhook duplicado o ya confirmada)');
+      } else {
+        logger.warn('Reserva en estado inesperado:', {
+          estado: reservaDB.estado,
+          subParams,
+        });
+        return res.sendStatus(200);
+      }
+
+      // Enviar email de confirmación
+      logger.info('Preparando el envío del email de confirmación...');
+      try {
+        const reservaConDetalles = await getReservaWithDetails(subParams);
+
+        if (!reservaConDetalles) {
+          logger.error('FALLO: No se encontraron detalles de la reserva para el email.', subParams);
+          throw new Error('No se pudieron obtener los detalles de la reserva');
         }
 
-        // Enviar email de confirmación
-        try {
-          const reservaConDetalles = await getReservaWithDetails(subParams);
-
-          if (!reservaConDetalles) {
-            throw new Error('No se pudieron obtener los detalles de la reserva');
-          }
-
-          if (!reservaConDetalles.usuario?.email) {
-            throw new Error('El usuario no tiene email registrado');
-          }
-
-          const asientos = (reservaConDetalles.asiento_reserva || []).map((ar) => ({
-            filaAsiento: ar.asiento.filaAsiento,
-            nroAsiento: ar.asiento.nroAsiento,
-          }));
-
-          const fechaHora = new Date(reservaConDetalles.fechaHoraFuncion);
-          const fechaFormato = fechaHora.toLocaleDateString('es-AR', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          });
-          const horaFormato = fechaHora.toLocaleTimeString('es-AR', {
-            hour: '2-digit',
-            minute: '2-digit',
-          });
-
-          const emailData = {
-            email: reservaConDetalles.usuario.email,
-            nombreUsuario: `${reservaConDetalles.usuario?.nombreUsuario} ${reservaConDetalles.usuario?.apellidoUsuario}`,
-            nombrePelicula: reservaConDetalles.funcion?.pelicula?.nombrePelicula || 'Película',
-            nombreSala: reservaConDetalles.funcion?.sala?.nombreSala || 'Sala',
-            fechaHora: `${fechaFormato} a las ${horaFormato}`,
-            asientos,
-            total: reservaConDetalles.total,
-            reservaParams: subParams,
-          };
-
-          await sendReservaConfirmationEmail(emailData);
-          logger.info('Email de confirmación enviado exitosamente', { DNI: subParams.DNI });
-        } catch (emailError) {
-          logger.error('Error enviando email de confirmación:', emailError.message);
+        if (!reservaConDetalles.usuario?.email) {
+          logger.error('FALLO: El usuario no tiene un email registrado.', { DNI: subParams.DNI });
+          throw new Error('El usuario no tiene email registrado');
         }
+
+        logger.info(
+          'Datos obtenidos con éxito, formateando email para:',
+          reservaConDetalles.usuario.email
+        );
+
+        const asientos = (reservaConDetalles.asiento_reserva || []).map((ar) => ({
+          filaAsiento: ar.asiento.filaAsiento,
+          nroAsiento: ar.asiento.nroAsiento,
+        }));
+
+        const fechaHora = new Date(reservaConDetalles.fechaHoraFuncion);
+        const fechaFormato = fechaHora.toLocaleDateString('es-AR', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+        const horaFormato = fechaHora.toLocaleTimeString('es-AR', {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+
+        const emailData = {
+          email: reservaConDetalles.usuario.email,
+          nombreUsuario: `${reservaConDetalles.usuario?.nombreUsuario} ${reservaConDetalles.usuario?.apellidoUsuario}`,
+          nombrePelicula: reservaConDetalles.funcion?.pelicula?.nombrePelicula || 'Película',
+          nombreSala: reservaConDetalles.funcion?.sala?.nombreSala || 'Sala',
+          fechaHora: `${fechaFormato} a las ${horaFormato}`,
+          asientos,
+          total: reservaConDetalles.total,
+          reservaParams: subParams,
+        };
+
+        await sendReservaConfirmationEmail(emailData);
+        logger.info('Email de confirmación enviado exitosamente', { DNI: subParams.DNI });
+      } catch (emailError) {
+        logger.error('Error enviando email de confirmación:', emailError.message);
       }
     }
-    res.sendStatus(200);
+  }
+  res.sendStatus(200);
 });
