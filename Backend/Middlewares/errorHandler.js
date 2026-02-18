@@ -4,7 +4,7 @@ import logger from '../utils/logger.js';
 /**
  * Manejador global de errores para la aplicación.
  * Captura errores de Prisma, errores 404 y cualquier otra excepción no controlada.
- * 
+ *
  * @param {Object} err - Objeto de error capturado.
  * @param {Object} req - Objeto de solicitud de Express.
  * @param {Object} res - Objeto de respuesta de Express.
@@ -31,11 +31,13 @@ export function errorHandler(err, req, res, next) {
     }
   }
 
-  if (err.status === 404) {
-    logger.warn('404 error:', err.message);
-    return res.status(404).json({ message: err.message });
+  const status = err.status || 500;
+
+  if (status < 500) {
+    logger.warn(`[${status}] ${err.message}`);
+    return res.status(status).json({ message: err.message });
   }
 
   logger.error('Internal server error:', err);
-  res.status(err.status || 500).json({ message: err.message || 'Error interno del servidor' });
+  res.status(status).json({ message: err.message || 'Error interno del servidor' });
 }

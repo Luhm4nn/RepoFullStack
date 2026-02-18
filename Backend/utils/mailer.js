@@ -1,4 +1,4 @@
-import { Resend } from 'resend';
+import * as Brevo from '@getbrevo/brevo';
 import logger from './logger.js';
 import fs from 'fs';
 import path from 'path';
@@ -9,8 +9,9 @@ import QRCode from 'qrcode';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configurar Resend (HTTP API, sin bloqueos de puertos SMTP)
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Configurar Brevo (HTTP API, sin bloqueos de puertos SMTP)
+const brevoClient = new Brevo.TransactionalEmailsApi();
+brevoClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
 
 /**
  * Genera un QR encriptado para una reserva
@@ -410,7 +411,7 @@ export async function sendReservaConfirmationEmail(reservaData) {
             <p>Plataforma de Reservas de Entradas de Cine</p>
             <div class="contact-info">
               <p>Para dudas o consultas, contactanos en:</p>
-              <p>📧 ${process.env.EMAIL_USER}</p>
+              <p>📧 cutzycinema@gmail.com</p>
             </div>
             <p style="margin-top: 15px; opacity: 0.7;">© 2026 Cutzy Cinema. Todos los derechos reservados.</p>
           </div>
@@ -419,45 +420,47 @@ export async function sendReservaConfirmationEmail(reservaData) {
       </html>
     `;
 
-    // Enviar email via Resend (HTTP API - sin bloqueos de puertos SMTP)
-    logger.info('Enviando email con Resend...', {
+    // Enviar email via Brevo (HTTP API - sin bloqueos de puertos SMTP)
+    logger.info('Enviando email con Brevo...', {
       to: email,
-      hasApiKey: !!process.env.RESEND_API_KEY,
+      hasApiKey: !!process.env.BREVO_API_KEY,
     });
 
-    const fromAddress = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+    const fromAddress = process.env.BREVO_FROM_EMAIL || 'cutzycinema@gmail.com';
 
-    // Attachments inline con CID (data: URLs son bloqueadas por clientes de email)
-    const attachments = [
+    // Attachments inline con CID
+    const inlineAttachments = [
       {
-        content: qrBase64.split('base64,')[1], // quitar el prefijo data:image/png;base64,
-        filename: 'qr.png',
-        content_id: 'qr',
+        content: qrBase64.split('base64,')[1],
+        name: 'qr.png',
+        contentId: 'qr',
       },
     ];
 
     if (logoBase64) {
-      attachments.push({
+      inlineAttachments.push({
         content: logoBase64,
-        filename: 'logo.png',
-        content_id: 'logo',
+        name: 'logo.png',
+        contentId: 'logo',
       });
     }
 
-    const { data, error: resendError } = await resend.emails.send({
-      from: `Cutzy Cinema <${fromAddress}>`,
-      to: [email],
-      subject: `¡Reserva Confirmada! - ${nombrePelicula} en Cutzy Cinema`,
-      html: htmlContent,
-      attachments,
+    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    sendSmtpEmail.sender = { name: 'Cutzy Cinema', email: fromAddress };
+    sendSmtpEmail.to = [{ email }];
+    sendSmtpEmail.subject = `¡Reserva Confirmada! - ${nombrePelicula} en Cutzy Cinema`;
+    sendSmtpEmail.htmlContent = htmlContent;
+    sendSmtpEmail.inlineImageActivation = true;
+    sendSmtpEmail.params = {};
+    // Adjuntos como inline para CID
+    sendSmtpEmail.attachment = inlineAttachments;
+
+    const brevoResponse = await brevoClient.sendTransacEmail(sendSmtpEmail);
+
+    logger.info('Email enviado exitosamente via Brevo:', {
+      messageId: brevoResponse.body?.messageId,
+      to: email,
     });
-
-    if (resendError) {
-      logger.error('Error en Resend:', resendError);
-      throw new Error(resendError.message);
-    }
-
-    logger.info('Email enviado exitosamente via Resend:', { id: data.id, to: email });
     return true;
   } catch (error) {
     logger.error('ERROR GENERAL EN sendReservaConfirmationEmail:', {
@@ -477,11 +480,11 @@ export async function sendReservaConfirmationEmail(reservaData) {
  */
 export async function verifyEmailConnection() {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      logger.error('RESEND_API_KEY no configurada');
+    if (!process.env.BREVO_API_KEY) {
+      logger.error('BREVO_API_KEY no configurada');
       return false;
     }
-    logger.info('Resend API Key configurada correctamente');
+    logger.info('Brevo API Key configurada correctamente');
     return true;
   } catch (error) {
     logger.error('Error verificando conexión de email:', error);
