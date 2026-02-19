@@ -1,5 +1,5 @@
 import pkg from '@getbrevo/brevo';
-const { TransactionalEmailsApi, SendSmtpEmail, ApiClient } = pkg;
+const { TransactionalEmailsApi, SendSmtpEmail } = pkg;
 import logger from './logger.js';
 import fs from 'fs';
 import path from 'path';
@@ -11,9 +11,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configurar Brevo (HTTP API, sin bloqueos de puertos SMTP)
-const apiClient = new ApiClient();
-apiClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
-const apiInstance = new TransactionalEmailsApi(apiClient);
+const apiInstance = new TransactionalEmailsApi();
+apiInstance.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
 
 /**
  * Genera un QR encriptado para una reserva
