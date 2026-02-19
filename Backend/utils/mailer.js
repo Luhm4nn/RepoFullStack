@@ -1,5 +1,7 @@
-import * as Brevo from '@getbrevo/brevo';
-const { TransactionalEmailsApi, SendSmtpEmail } = Brevo;
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const Brevo = require('@getbrevo/brevo');
+
 import logger from './logger.js';
 import fs from 'fs';
 import path from 'path';
@@ -11,8 +13,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configurar Brevo (HTTP API, sin bloqueos de puertos SMTP)
-const apiInstance = new TransactionalEmailsApi();
-apiInstance.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
+function getBrevoApi() {
+  const apiInstance = new Brevo.TransactionalEmailsApi();
+  apiInstance.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
+  return apiInstance;
+}
 
 /**
  * Genera un QR encriptado para una reserva
@@ -429,14 +434,14 @@ export async function sendReservaConfirmationEmail(reservaData) {
 
     const fromAddress = process.env.BREVO_FROM_EMAIL || 'cutzycinema@gmail.com';
 
-    const sendSmtpEmail = new SendSmtpEmail();
+    const sendSmtpEmail = new Brevo.SendSmtpEmail();
     sendSmtpEmail.sender = { name: 'Cutzy Cinema', email: fromAddress };
     sendSmtpEmail.to = [{ email }];
     sendSmtpEmail.subject = `¡Reserva Confirmada! - ${nombrePelicula} en Cutzy Cinema`;
     sendSmtpEmail.htmlContent = htmlContent;
     sendSmtpEmail.params = {};
 
-    const brevoResponse = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    const brevoResponse = await getBrevoApi().sendTransacEmail(sendSmtpEmail);
 
     logger.info('Email enviado exitosamente via Brevo:', {
       messageId: brevoResponse.body?.messageId,
