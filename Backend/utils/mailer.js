@@ -1,6 +1,17 @@
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const Brevo = require('@getbrevo/brevo');
+const BrevoRoot = require('@getbrevo/brevo');
+
+// Helper to get classes regardless of how they are exported
+const getBrevoClass = (className) => {
+  if (BrevoRoot[className]) return BrevoRoot[className];
+  if (BrevoRoot.default && BrevoRoot.default[className]) return BrevoRoot.default[className];
+  return null;
+};
+
+const TransactionalEmailsApi = getBrevoClass('TransactionalEmailsApi');
+const SendSmtpEmail = getBrevoClass('SendSmtpEmail');
+const TransactionalEmailsApiApiKeys = getBrevoClass('TransactionalEmailsApiApiKeys');
 
 import logger from './logger.js';
 import fs from 'fs';
@@ -17,9 +28,20 @@ function getBrevoApi() {
   if (!process.env.BREVO_API_KEY) {
     throw new Error('CONFIG ERROR: BREVO_API_KEY no está definida en las variables de entorno.');
   }
-  const apiInstance = new Brevo.TransactionalEmailsApi();
+
+  if (!TransactionalEmailsApi) {
+    throw new Error(
+      'CONFIG ERROR: No se pudo encontrar TransactionalEmailsApi en el paquete Brevo.'
+    );
+  }
+
+  const apiInstance = new TransactionalEmailsApi();
+
   // Intentar ambos métodos de configuración por seguridad
-  apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
+  if (TransactionalEmailsApiApiKeys) {
+    apiInstance.setApiKey(TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
+  }
+
   if (apiInstance.authentications?.apiKey) {
     apiInstance.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
   }
@@ -442,7 +464,10 @@ export async function sendReservaConfirmationEmail(reservaData) {
     const fromAddress = process.env.BREVO_FROM_EMAIL || 'cutzycinema@gmail.com';
 
     logger.info('MAI-LOG: Configurando objeto SendSmtpEmail...', { from: fromAddress, to: email });
-    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    if (!SendSmtpEmail) {
+      throw new Error('CONFIG ERROR: No se pudo encontrar SendSmtpEmail en el paquete Brevo.');
+    }
+    const sendSmtpEmail = new SendSmtpEmail();
     sendSmtpEmail.sender = { name: 'Cutzy Cinema', email: fromAddress };
     sendSmtpEmail.to = [{ email }];
     sendSmtpEmail.subject = `¡Reserva Confirmada! - ${nombrePelicula} en Cutzy Cinema`;
