@@ -1,22 +1,25 @@
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const BrevoRoot = require('@getbrevo/brevo');
+const Brevo = require('@getbrevo/brevo');
 
 // Logs de diagnostico en el inicio para verificar la carga
 import logger from './logger.js';
 logger.info('MAI-LOG: Cargando modulo de mailer y verificando SDK...');
 
-// Exportaciones directas desde la raiz de Brevo (V3 SDK)
-const TransactionalEmailsApi = BrevoRoot.TransactionalEmailsApi;
-const SendSmtpEmail = BrevoRoot.SendSmtpEmail;
-const TransactionalEmailsApiApiKeys = BrevoRoot.TransactionalEmailsApiApiKeys;
+// Clases (compatibilidad ROOT y DEFAULT)
+const TransactionalEmailsApi =
+  Brevo.TransactionalEmailsApi || (Brevo.default && Brevo.default.TransactionalEmailsApi);
+const SendSmtpEmail = Brevo.SendSmtpEmail || (Brevo.default && Brevo.default.SendSmtpEmail);
+const TransactionalEmailsApiApiKeys =
+  Brevo.TransactionalEmailsApiApiKeys ||
+  (Brevo.default && Brevo.default.TransactionalEmailsApiApiKeys);
 
 if (!TransactionalEmailsApi || !SendSmtpEmail) {
-  logger.error('MAI-LOG: FALLO CRITICO - Clases de Brevo no encontradas en ROOT', {
-    hasRoot: !!BrevoRoot,
-    rootKeys: Object.keys(BrevoRoot || {}).length,
-    hasTransactional: !!TransactionalEmailsApi,
-    hasSmtp: !!SendSmtpEmail,
+  logger.error('MAI-LOG: FALLO CRITICO - Clases de Brevo no encontradas', {
+    hasRoot: !!Brevo,
+    keys: Object.keys(Brevo).slice(0, 5),
+    hasDefault: !!Brevo.default,
+    defaultKeys: Brevo.default ? Object.keys(Brevo.default).slice(0, 5) : [],
   });
 } else {
   logger.info('MAI-LOG: SDK de Brevo cargado correctamente.');
