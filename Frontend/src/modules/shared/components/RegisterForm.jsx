@@ -1,24 +1,19 @@
-import { useState } from "react";
-import { Formik, Form, Field } from "formik";
-import { registerSchema } from "../../../validations/UsuariosSchema";
-import { ButtonSpinner } from "./Spinner";
-import { notifyGlobal } from "../../../context/NotificationContext";
+import { useState } from 'react';
+import { Formik, Form, Field } from 'formik';
+import { registerSchema } from '../../../validations/UsuariosSchema';
+import { ButtonSpinner } from './Spinner';
+import { notifyGlobal } from '../../../context/NotificationContext';
 
-const RegisterForm = ({
-  onRegister,
-  onNavigateToLogin,
-  onNavigateHome,
-  loading = false,
-}) => {
+const RegisterForm = ({ onRegister, onNavigateToLogin, onNavigateHome, loading = false }) => {
   const [showAlert, setShowAlert] = useState(false);
   const initialValues = {
-    DNI: "",
-    nombreUsuario: "",
-    apellidoUsuario: "",
-    email: "",
-    contrasena: "",
-    confirmPassword: "",
-    telefono: "",
+    DNI: '',
+    nombreUsuario: '',
+    apellidoUsuario: '',
+    email: '',
+    contrasena: '',
+    confirmPassword: '',
+    telefono: '',
   };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -27,16 +22,16 @@ const RegisterForm = ({
       const { confirmPassword, ...dataToSend } = values;
       const result = onRegister
         ? await onRegister(dataToSend)
-        : { success: false, error: "No register handler provided" };
+        : { success: false, error: 'No register handler provided' };
       if (result.success) {
-        notifyGlobal.success("¡Registro exitoso! Ahora puedes iniciar sesión.");
+        notifyGlobal.success('¡Registro exitoso! Ahora puedes iniciar sesión.');
         resetForm();
         if (onNavigateToLogin) onNavigateToLogin();
       } else {
-        notifyGlobal.error(result.error || "Error en el registro");
+        notifyGlobal.error(result.error || 'Error en el registro');
       }
     } catch (error) {
-      notifyGlobal.error("Error inesperado. Intenta nuevamente.");
+      notifyGlobal.error('Error inesperado. Intenta nuevamente.');
     } finally {
       setSubmitting(false);
     }
@@ -75,7 +70,7 @@ const RegisterForm = ({
           {({ errors, touched, isSubmitting }) => (
             <Form className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700 p-6 shadow-2xl">
               {/* Alert - Solo para errores */}
-              {showAlert && alertType === "error" && (
+              {showAlert && alertType === 'error' && (
                 <div className="mb-6 p-4 border rounded-lg flex items-start gap-3 bg-red-900/20 border-red-500/20 text-red-400">
                   <svg
                     className="w-5 h-5 mt-0.5 flex-shrink-0"
@@ -93,11 +88,7 @@ const RegisterForm = ({
                     onClick={() => setShowAlert(false)}
                     className="text-red-400 hover:text-red-300"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"
                         d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -111,10 +102,7 @@ const RegisterForm = ({
               <div className="space-y-4">
                 {/* DNI */}
                 <div>
-                  <label
-                    htmlFor="DNI"
-                    className="text-white mb-2 block font-medium"
-                  >
+                  <label htmlFor="DNI" className="text-white mb-2 block font-medium">
                     DNI *
                   </label>
                   <Field
@@ -125,8 +113,8 @@ const RegisterForm = ({
                     disabled={isSubmitting || loading}
                     className={`w-full px-3 py-2 rounded-lg border transition-colors ${
                       errors.DNI && touched.DNI
-                        ? "bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                        : "bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                        : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                   />
                   {errors.DNI && touched.DNI && (
@@ -137,10 +125,7 @@ const RegisterForm = ({
                 {/* Nombre y Apellido */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label
-                      htmlFor="nombreUsuario"
-                      className="text-white mb-2 block font-medium"
-                    >
+                    <label htmlFor="nombreUsuario" className="text-white mb-2 block font-medium">
                       Nombre *
                     </label>
                     <Field
@@ -151,22 +136,17 @@ const RegisterForm = ({
                       disabled={isSubmitting || loading}
                       className={`w-full px-3 py-2 rounded-lg border transition-colors ${
                         errors.nombreUsuario && touched.nombreUsuario
-                          ? "bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          : "bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                          : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     />
                     {errors.nombreUsuario && touched.nombreUsuario && (
-                      <p className="mt-1 text-sm text-red-400">
-                        {errors.nombreUsuario}
-                      </p>
+                      <p className="mt-1 text-sm text-red-400">{errors.nombreUsuario}</p>
                     )}
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="apellidoUsuario"
-                      className="text-white mb-2 block font-medium"
-                    >
+                    <label htmlFor="apellidoUsuario" className="text-white mb-2 block font-medium">
                       Apellido *
                     </label>
                     <Field
@@ -177,24 +157,19 @@ const RegisterForm = ({
                       disabled={isSubmitting || loading}
                       className={`w-full px-3 py-2 rounded-lg border transition-colors ${
                         errors.apellidoUsuario && touched.apellidoUsuario
-                          ? "bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          : "bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                          : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     />
                     {errors.apellidoUsuario && touched.apellidoUsuario && (
-                      <p className="mt-1 text-sm text-red-400">
-                        {errors.apellidoUsuario}
-                      </p>
+                      <p className="mt-1 text-sm text-red-400">{errors.apellidoUsuario}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="text-white mb-2 block font-medium"
-                  >
+                  <label htmlFor="email" className="text-white mb-2 block font-medium">
                     Email *
                   </label>
                   <Field
@@ -205,8 +180,8 @@ const RegisterForm = ({
                     disabled={isSubmitting || loading}
                     className={`w-full px-3 py-2 rounded-lg border transition-colors ${
                       errors.email && touched.email
-                        ? "bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                        : "bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                        : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                   />
                   {errors.email && touched.email && (
@@ -216,10 +191,7 @@ const RegisterForm = ({
 
                 {/* Teléfono */}
                 <div>
-                  <label
-                    htmlFor="telefono"
-                    className="text-white mb-2 block font-medium"
-                  >
+                  <label htmlFor="telefono" className="text-white mb-2 block font-medium">
                     Teléfono
                   </label>
                   <Field
@@ -230,24 +202,19 @@ const RegisterForm = ({
                     disabled={isSubmitting || loading}
                     className={`w-full px-3 py-2 rounded-lg border transition-colors ${
                       errors.telefono && touched.telefono
-                        ? "bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                        : "bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                        : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                   />
                   {errors.telefono && touched.telefono && (
-                    <p className="mt-1 text-sm text-red-400">
-                      {errors.telefono}
-                    </p>
+                    <p className="mt-1 text-sm text-red-400">{errors.telefono}</p>
                   )}
                 </div>
 
                 {/* Contraseñas */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label
-                      htmlFor="contrasena"
-                      className="text-white mb-2 block font-medium"
-                    >
+                    <label htmlFor="contrasena" className="text-white mb-2 block font-medium">
                       Contraseña *
                     </label>
                     <Field
@@ -258,22 +225,17 @@ const RegisterForm = ({
                       disabled={isSubmitting || loading}
                       className={`w-full px-3 py-2 rounded-lg border transition-colors ${
                         errors.contrasena && touched.contrasena
-                          ? "bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          : "bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                          : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     />
                     {errors.contrasena && touched.contrasena && (
-                      <p className="mt-1 text-sm text-red-400">
-                        {errors.contrasena}
-                      </p>
+                      <p className="mt-1 text-sm text-red-400">{errors.contrasena}</p>
                     )}
                   </div>
 
                   <div>
-                    <label
-                      htmlFor="confirmPassword"
-                      className="text-white mb-2 block font-medium"
-                    >
+                    <label htmlFor="confirmPassword" className="text-white mb-2 block font-medium">
                       Confirmar *
                     </label>
                     <Field
@@ -284,14 +246,12 @@ const RegisterForm = ({
                       disabled={isSubmitting || loading}
                       className={`w-full px-3 py-2 rounded-lg border transition-colors ${
                         errors.confirmPassword && touched.confirmPassword
-                          ? "bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          : "bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          ? 'bg-slate-700 border-red-500 text-white placeholder-gray-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                          : 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     />
                     {errors.confirmPassword && touched.confirmPassword && (
-                      <p className="mt-1 text-sm text-red-400">
-                        {errors.confirmPassword}
-                      </p>
+                      <p className="mt-1 text-sm text-red-400">{errors.confirmPassword}</p>
                     )}
                   </div>
                 </div>
@@ -308,7 +268,7 @@ const RegisterForm = ({
                       Creando cuenta...
                     </div>
                   ) : (
-                    "Crear Cuenta"
+                    'Crear Cuenta'
                   )}
                 </button>
 
@@ -362,7 +322,7 @@ const RegisterForm = ({
 
         {/* Footer */}
         <div className="text-center mt-6 text-gray-500 text-sm">
-          <p>© 2024 Cinema App. Todos los derechos reservados.</p>
+          <p>©026 Cutzy Cinema. Todos los derechos reservados.</p>
         </div>
       </div>
     </div>

@@ -1,21 +1,16 @@
-import { useState } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import { loginSchema } from "../../../validations/AuthSchema";
-import { ButtonSpinner } from "./Spinner";
-import { notifyGlobal } from "../../../context/NotificationContext";
+import { useState } from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { loginSchema } from '../../../validations/AuthSchema';
+import { ButtonSpinner } from './Spinner';
+import { notifyGlobal } from '../../../context/NotificationContext';
 
-const LoginForm = ({
-  onLogin,
-  onNavigateToRegister,
-  onNavigateHome,
-  loading = false,
-}) => {
+const LoginForm = ({ onLogin, onNavigateToRegister, onNavigateHome, loading = false }) => {
   const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
+  const [alertMessage, setAlertMessage] = useState('');
 
   const initialValues = {
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -24,14 +19,14 @@ const LoginForm = ({
       if (onLogin) {
         const result = await onLogin(values.email, values.password);
         if (!result.success) {
-          const errorMsg = result.error || "Usuario o contraseña incorrectos";
+          const errorMsg = result.error || 'Usuario o contraseña incorrectos';
           setAlertMessage(errorMsg);
           setShowAlert(true);
           notifyGlobal.error(errorMsg);
         }
       }
     } catch (error) {
-      const errorMsg = "Error inesperado. Intenta nuevamente.";
+      const errorMsg = 'Error inesperado. Intenta nuevamente.';
       setAlertMessage(errorMsg);
       setShowAlert(true);
       notifyGlobal.error(errorMsg);
@@ -70,11 +65,7 @@ const LoginForm = ({
           {/* Alert */}
           {showAlert && (
             <div className="mb-6 p-4 bg-red-900/20 border border-red-500/20 text-red-400 rounded-lg flex items-start gap-3">
-              <svg
-                className="w-5 h-5 mt-0.5 flex-shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
+              <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
@@ -86,11 +77,7 @@ const LoginForm = ({
                 onClick={() => setShowAlert(false)}
                 className="text-red-400 hover:text-red-300"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     fillRule="evenodd"
                     d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -110,10 +97,7 @@ const LoginForm = ({
               <Form className="space-y-6">
                 {/* Email */}
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="text-white mb-2 block font-medium"
-                  >
+                  <label htmlFor="email" className="text-white mb-2 block font-medium">
                     Email
                   </label>
                   <Field
@@ -127,11 +111,7 @@ const LoginForm = ({
                   <ErrorMessage name="email">
                     {(msg) => (
                       <p className="mt-2 text-sm text-red-400 flex items-center gap-1">
-                        <svg
-                          className="w-4 h-4"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path
                             fillRule="evenodd"
                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
@@ -146,10 +126,7 @@ const LoginForm = ({
 
                 {/* Password */}
                 <div>
-                  <label
-                    htmlFor="password"
-                    className="text-white mb-2 block font-medium"
-                  >
+                  <label htmlFor="password" className="text-white mb-2 block font-medium">
                     Contraseña
                   </label>
                   <Field
@@ -163,11 +140,7 @@ const LoginForm = ({
                   <ErrorMessage name="password">
                     {(msg) => (
                       <p className="mt-2 text-sm text-red-400 flex items-center gap-1">
-                        <svg
-                          className="w-4 h-4"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path
                             fillRule="evenodd"
                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
@@ -262,7 +235,7 @@ const LoginForm = ({
 
         {/* Footer */}
         <div className="text-center mt-8 text-gray-500 text-sm">
-          <p>© 2024 Cinema App. Todos los derechos reservados.</p>
+          <p>©2026 Cutzy Cinema. Todos los derechos reservados.</p>
         </div>
       </div>
     </div>
