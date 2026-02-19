@@ -93,8 +93,8 @@ export const handleWebhook = asyncHandler(async (req, res) => {
 
       logger.info('>>> RESERVA ENCONTRADA EN DB:', { estado: reservaDB.status });
 
-      const montoMP = parseFloat(result.transaction_amount);
-      const montoDB = parseFloat(reservaDB.total);
+      const montoMP = parseFloat(parseFloat(result.transaction_amount).toFixed(2));
+      const montoDB = parseFloat(parseFloat(reservaDB.total.toString()).toFixed(2));
 
       if (Math.abs(montoMP - montoDB) > 0.01) {
         logger.error('>>> ERROR: Mismatch de monto:', { montoMP, montoDB });
