@@ -1,4 +1,5 @@
-import { ApiClient, TransactionalEmailsApi, SendSmtpEmail } from '@getbrevo/brevo';
+import pkg from '@getbrevo/brevo';
+const { ApiClient, TransactionalEmailsApi, SendSmtpEmail } = pkg;
 import logger from './logger.js';
 import fs from 'fs';
 import path from 'path';
