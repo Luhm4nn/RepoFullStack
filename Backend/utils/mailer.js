@@ -1,4 +1,4 @@
-import * as Brevo from '@getbrevo/brevo';
+import { ApiClient, TransactionalEmailsApi, SendSmtpEmail } from '@getbrevo/brevo';
 import logger from './logger.js';
 import fs from 'fs';
 import path from 'path';
@@ -10,9 +10,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configurar Brevo (HTTP API, sin bloqueos de puertos SMTP)
-const defaultClient = Brevo.ApiClient.instance;
+const defaultClient = ApiClient.instance;
 defaultClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
-const brevoClient = new Brevo.TransactionalEmailsApi();
+const brevoClient = new TransactionalEmailsApi();
 
 /**
  * Genera un QR encriptado para una reserva
@@ -433,25 +433,26 @@ export async function sendReservaConfirmationEmail(reservaData) {
     const inlineAttachments = [
       {
         content: qrBase64.split('base64,')[1],
-        name: 'qr',
+        name: 'qr.png',
+        contentId: 'qr',
       },
     ];
 
     if (logoBase64) {
       inlineAttachments.push({
         content: logoBase64,
-        name: 'logo',
+        name: 'logo.png',
+        contentId: 'logo',
       });
     }
 
-    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    const sendSmtpEmail = new SendSmtpEmail();
     sendSmtpEmail.sender = { name: 'Cutzy Cinema', email: fromAddress };
     sendSmtpEmail.to = [{ email }];
     sendSmtpEmail.subject = `¡Reserva Confirmada! - ${nombrePelicula} en Cutzy Cinema`;
     sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.inlineImageActivation = true;
     sendSmtpEmail.params = {};
-    // Adjuntos como inline para CID
+    // Adjuntos as inline - el nombre debe coincidir con el CID en el HTML
     sendSmtpEmail.attachment = inlineAttachments;
 
     const brevoResponse = await brevoClient.sendTransacEmail(sendSmtpEmail);
