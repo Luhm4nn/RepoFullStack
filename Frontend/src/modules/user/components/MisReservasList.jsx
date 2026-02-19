@@ -41,7 +41,11 @@ function MisReservasList({ reservas, onReservaActualizada }) {
         onReservaActualizada();
       }
     } catch (err) {
-      notify.error('Error al cancelar la reserva. Intenta nuevamente.');
+      const msg =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        'Error al cancelar la reserva. Intenta nuevamente.';
+      notify.error(msg);
     } finally {
       setCancellingId(null);
     }

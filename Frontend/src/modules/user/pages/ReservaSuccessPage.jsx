@@ -34,6 +34,8 @@ function ReservaSuccessPage() {
         if (reserva?.estado === 'ACTIVA') {
           cleanup();
           localStorage.removeItem('mp_pending_reserva');
+          localStorage.removeItem('reserva_step3');
+          localStorage.removeItem('countdown_expiry');
           setStatus('confirmed');
         }
         // Si sigue en PENDIENTE, seguimos esperando

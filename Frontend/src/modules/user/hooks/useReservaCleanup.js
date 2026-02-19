@@ -26,26 +26,29 @@ export const useReservaCleanup = () => {
       try {
         const { reservaData } = JSON.parse(saved);
 
-        // Si estamos en el paso de pago (3) pero la ruta NO es la de reserva
-        // ni las de éxito/error/pendencia de Mercado Pago, limpiamos.
         const isReservaRoute = location.pathname.startsWith('/reservar/');
         const isMPRoute = ['/reserva/success', '/reserva/failure', '/reserva/pending'].includes(
           location.pathname
         );
 
         if (!isReservaRoute && !isMPRoute) {
-          await deletePendingReserva(
-            reservaData.idSala,
-            reservaData.fechaHoraFuncion,
-            reservaData.DNI,
-            reservaData.fechaHoraReserva
-          );
-
+          try {
+            await deletePendingReserva(
+              reservaData.idSala,
+              reservaData.fechaHoraFuncion,
+              reservaData.DNI,
+              reservaData.fechaHoraReserva
+            );
+          } catch (deleteErr) {
+            // Si da 400/404 la reserva ya fue confirmada o no existe — igual limpiamos
+          }
           localStorage.removeItem(STORAGE_KEY);
           localStorage.removeItem(TIMER_KEY);
         }
       } catch (err) {
-        console.error('Error en useReservaCleanup:', err);
+        // JSON parse u otro error inesperado — limpiamos igual
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(TIMER_KEY);
       }
     };
 
