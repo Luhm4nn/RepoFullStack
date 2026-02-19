@@ -14,8 +14,15 @@ const __dirname = path.dirname(__filename);
 
 // Configurar Brevo (HTTP API, sin bloqueos de puertos SMTP)
 function getBrevoApi() {
+  if (!process.env.BREVO_API_KEY) {
+    throw new Error('CONFIG ERROR: BREVO_API_KEY no está definida en las variables de entorno.');
+  }
   const apiInstance = new Brevo.TransactionalEmailsApi();
-  apiInstance.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
+  // Intentar ambos métodos de configuración por seguridad
+  apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
+  if (apiInstance.authentications?.apiKey) {
+    apiInstance.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
+  }
   return apiInstance;
 }
 
@@ -434,27 +441,27 @@ export async function sendReservaConfirmationEmail(reservaData) {
 
     const fromAddress = process.env.BREVO_FROM_EMAIL || 'cutzycinema@gmail.com';
 
+    logger.info('MAI-LOG: Configurando objeto SendSmtpEmail...', { from: fromAddress, to: email });
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
     sendSmtpEmail.sender = { name: 'Cutzy Cinema', email: fromAddress };
     sendSmtpEmail.to = [{ email }];
     sendSmtpEmail.subject = `¡Reserva Confirmada! - ${nombrePelicula} en Cutzy Cinema`;
     sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.params = {};
 
-    const brevoResponse = await getBrevoApi().sendTransacEmail(sendSmtpEmail);
+    logger.info('MAI-LOG: Llamando a apiInstance.sendTransacEmail...');
+    const result = await getBrevoApi().sendTransacEmail(sendSmtpEmail);
 
-    logger.info('Email enviado exitosamente via Brevo:', {
-      messageId: brevoResponse.body?.messageId,
-      to: email,
+    logger.info('MAI-LOG: Respuesta de Brevo recibida:', {
+      messageId: result?.body?.messageId || result?.messageId || 'NO_MESSAGE_ID',
+      responseCode: result?.response?.statusCode || 'N/A',
+      fullResultKeys: Object.keys(result || {}),
     });
     return true;
   } catch (error) {
-    logger.error('ERROR GENERAL EN sendReservaConfirmationEmail:', {
+    logger.error('MAI-LOG: ERROR CRITICO EN sendReservaConfirmationEmail:', {
       message: error.message,
       code: error.code,
-      command: error.command,
-      responseCode: error.responseCode,
-      response: error.response,
+      response: error.response?.body || error.response?.text || error.response || 'No extra data',
       stack: error.stack,
     });
     throw error;

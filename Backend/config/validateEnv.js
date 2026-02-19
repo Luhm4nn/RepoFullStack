@@ -12,6 +12,7 @@ export const validateEnv = () => {
     'JWT_SECRET',
     'JWT_REFRESH_SECRET',
     'FRONTEND_URL',
+    'BACKEND_URL',
     'BREVO_API_KEY',
   ];
 

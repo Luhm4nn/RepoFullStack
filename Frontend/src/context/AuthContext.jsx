@@ -60,7 +60,11 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       setLoading(true);
-      await authAPI.logout();
+      const res = await authAPI.logout();
+      if (res && res.status === 200) {
+        localStorage.removeItem('reserva_step3');
+        localStorage.removeItem('countdown_expiry');
+      }
     } catch (error) {
       // Error en logout
     } finally {

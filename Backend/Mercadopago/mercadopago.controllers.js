@@ -48,7 +48,7 @@ export const createPaymentPreference = asyncHandler(async (req, res) => {
       failure: `${process.env.FRONTEND_URL}/reserva/failure`,
       pending: `${process.env.FRONTEND_URL}/reserva/pending`,
     },
-    notification_url: `${process.env.BACKEND_URL}/api/mercadopago/webhooks`,
+    notification_url: `${(process.env.BACKEND_URL || process.env.NGROK_URL).replace(/\/+$/, '')}/api/mercadopago/webhooks`,
     metadata: {
       id_sala: reserva.idSala.toString(),
       fecha_hora_funcion: reserva.fechaHoraFuncion,
@@ -66,10 +66,12 @@ export const createPaymentPreference = asyncHandler(async (req, res) => {
  */
 export const handleWebhook = asyncHandler(async (req, res) => {
   const { type, data } = req.body;
+  logger.info('>>> WEBHOOK MP RECIBIDO:', { type, data });
 
   if (type === 'payment') {
     const payment = new Payment(client);
     const result = await payment.get({ id: data.id });
+    logger.info('>>> RESULTADO PAGO MP GET:', { status: result.status, id: data.id });
 
     if (result.status === 'approved') {
       const { metadata } = result;
@@ -80,29 +82,32 @@ export const handleWebhook = asyncHandler(async (req, res) => {
         fechaHoraReserva: metadata.fecha_hora_reserva,
       };
 
-      logger.info('Approved webhook from Mercado Pago', { reservationDNI: subParams.DNI });
+      logger.info('>>> PARAMETROS EXTRAIDOS PARA BUSQUEDA:', subParams);
+
       const reservaDB = await getReservaRepo(subParams);
 
       if (!reservaDB) {
-        logger.error('Reserva NOT found on DB after webhook payment', subParams);
+        logger.error('>>> ERROR: Reserva NO encontrada en DB con params:', subParams);
         return res.sendStatus(200);
       }
+
+      logger.info('>>> RESERVA ENCONTRADA EN DB:', { estado: reservaDB.status });
 
       const montoMP = parseFloat(result.transaction_amount);
       const montoDB = parseFloat(reservaDB.total);
 
       if (Math.abs(montoMP - montoDB) > 0.01) {
-        logger.error('Mismatch de monto en el pago:', { montoMP, montoDB });
+        logger.error('>>> ERROR: Mismatch de monto:', { montoMP, montoDB });
         return res.sendStatus(200);
       }
 
       if (reservaDB.estado === ESTADOS_RESERVA.PENDIENTE) {
         await confirmReservaRepo(subParams);
-        logger.info('Pago aprobado. Reserva confirmada:', subParams);
+        logger.info('>>> Pago aprobado. Reserva confirmada OK.');
       } else if (reservaDB.estado === ESTADOS_RESERVA.ACTIVA) {
-        logger.info('Reserva ya estaba ACTIVA (webhook duplicado o ya confirmada)');
+        logger.info('>>> Webhook duplicado: Reserva ya estaba confirmada.');
       } else {
-        logger.warn('Reserva en estado inesperado:', {
+        logger.warn('>>> ADVERTENCIA: Reserva en estado inesperado:', {
           estado: reservaDB.estado,
           subParams,
         });
@@ -110,24 +115,14 @@ export const handleWebhook = asyncHandler(async (req, res) => {
       }
 
       // Enviar email de confirmación
-      logger.info('Preparando el envío del email de confirmación...');
+      logger.info('>>> DISPARANDO envio de email...');
       try {
         const reservaConDetalles = await getReservaWithDetails(subParams);
 
         if (!reservaConDetalles) {
-          logger.error('FALLO: No se encontraron detalles de la reserva para el email.', subParams);
+          logger.error('>>> FALLO: No se encontraron detalles para el email.', subParams);
           throw new Error('No se pudieron obtener los detalles de la reserva');
         }
-
-        if (!reservaConDetalles.usuario?.email) {
-          logger.error('FALLO: El usuario no tiene un email registrado.', { DNI: subParams.DNI });
-          throw new Error('El usuario no tiene email registrado');
-        }
-
-        logger.info(
-          'Datos obtenidos con éxito, formateando email para:',
-          reservaConDetalles.usuario.email
-        );
 
         const asientos = (reservaConDetalles.asiento_reserva || []).map((ar) => ({
           filaAsiento: ar.asiento.filaAsiento,
@@ -157,11 +152,13 @@ export const handleWebhook = asyncHandler(async (req, res) => {
           reservaParams: subParams,
         };
 
-        await sendReservaConfirmationEmail(emailData);
-        logger.info('Email de confirmación enviado exitosamente', { DNI: subParams.DNI });
+        const mailResult = await sendReservaConfirmationEmail(emailData);
+        logger.info('>>> RESULTADO PROCESO MAILER:', { success: mailResult, DNI: subParams.DNI });
       } catch (emailError) {
-        logger.error('Error enviando email de confirmación:', emailError.message);
+        logger.error('>>> ERROR CRITICO AL ENVIAR EMAIL:', emailError.message);
       }
+    } else {
+      logger.info('>>> PAGO NO APROBADO TODAVIA:', { status: result.status });
     }
   }
   res.sendStatus(200);
