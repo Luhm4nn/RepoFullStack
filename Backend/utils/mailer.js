@@ -10,8 +10,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configurar Brevo (HTTP API, sin bloqueos de puertos SMTP)
+const defaultClient = Brevo.ApiClient.instance;
+defaultClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
 const brevoClient = new Brevo.TransactionalEmailsApi();
-brevoClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
 
 /**
  * Genera un QR encriptado para una reserva
@@ -432,16 +433,14 @@ export async function sendReservaConfirmationEmail(reservaData) {
     const inlineAttachments = [
       {
         content: qrBase64.split('base64,')[1],
-        name: 'qr.png',
-        contentId: 'qr',
+        name: 'qr',
       },
     ];
 
     if (logoBase64) {
       inlineAttachments.push({
         content: logoBase64,
-        name: 'logo.png',
-        contentId: 'logo',
+        name: 'logo',
       });
     }
 
