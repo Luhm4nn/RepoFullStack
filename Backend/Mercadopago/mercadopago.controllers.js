@@ -152,10 +152,20 @@ export const handleWebhook = asyncHandler(async (req, res) => {
           reservaParams: subParams,
         };
 
+        logger.info('>>> EMAIL DATA A ENVIAR:', {
+          toEmail: emailData.email,
+          nombreUsuario: emailData.nombreUsuario,
+          nombrePelicula: emailData.nombrePelicula,
+          asientosCount: emailData.asientos?.length,
+        });
         const mailResult = await sendReservaConfirmationEmail(emailData);
         logger.info('>>> RESULTADO PROCESO MAILER:', { success: mailResult, DNI: subParams.DNI });
       } catch (emailError) {
-        logger.error('>>> ERROR CRITICO AL ENVIAR EMAIL:', emailError.message);
+        logger.error('>>> ERROR CRITICO AL ENVIAR EMAIL:', {
+          message: emailError.message,
+          statusCode: emailError.statusCode,
+          response: emailError.response?.data || emailError.response?.body,
+        });
       }
     } else {
       logger.info('>>> PAGO NO APROBADO TODAVIA:', { status: result.status });
