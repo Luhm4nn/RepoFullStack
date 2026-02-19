@@ -1,13 +1,7 @@
 import Mailjet from 'node-mailjet';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import logger from './logger.js';
 import { encryptData } from './qrEncryption.js';
 import QRCode from 'qrcode';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 /**
  * Devuelve un cliente Mailjet ya autenticado.
@@ -49,30 +43,11 @@ async function generateReservaQR(reservaData) {
     width: 400,
   });
 
-  // Retornamos solo la parte base64 pura (sin "data:image/png;base64,")
   return dataUrl.replace(/^data:image\/png;base64,/, '');
 }
 
 /**
- * Carga el logo de Cutzy y lo devuelve como base64 puro.
- * @returns {string|null}
- */
-function getLogoBase64() {
-  try {
-    const logoPath = path.join(__dirname, '../assets/cutzy-logo-blanco.png');
-    if (fs.existsSync(logoPath)) {
-      return fs.readFileSync(logoPath).toString('base64');
-    }
-    logger.warn('Logo no encontrado en:', logoPath);
-    return null;
-  } catch (error) {
-    logger.error('Error cargando logo:', error.message);
-    return null;
-  }
-}
-
-/**
- * Envía el email de confirmación de reserva con QR adjunto inline via Mailjet.
+ * Envía el email de confirmación de reserva con el QR como adjunto.
  * @param {Object} reservaData
  */
 export async function sendReservaConfirmationEmail(reservaData) {
@@ -90,25 +65,7 @@ export async function sendReservaConfirmationEmail(reservaData) {
   logger.info('MAILER: Iniciando envío de email.', { email, nombrePelicula });
 
   const qrBase64 = await generateReservaQR(reservaParams);
-  const logoBase64 = getLogoBase64();
   const asientosFormato = asientos.map((a) => `${a.filaAsiento}${a.nroAsiento}`).join(', ');
-
-  const inlinedAttachments = [
-    {
-      ContentType: 'image/png',
-      Filename: 'qr-entrada.png',
-      Base64Content: qrBase64,
-      ContentID: 'qr-entrada',
-    },
-  ];
-  if (logoBase64) {
-    inlinedAttachments.push({
-      ContentType: 'image/png',
-      Filename: 'cutzy-logo.png',
-      Base64Content: logoBase64,
-      ContentID: 'cutzy-logo',
-    });
-  }
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -121,7 +78,6 @@ export async function sendReservaConfirmationEmail(reservaData) {
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f0f0; padding: 20px; }
         .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; text-align: center; }
-        .header img.logo { max-width: 150px; margin: 0 auto 20px auto; display: block; }
         .header h1 { color: white; font-size: 28px; margin-bottom: 10px; }
         .header p { color: rgba(255,255,255,0.9); font-size: 14px; }
         .content { padding: 40px 30px; }
@@ -132,10 +88,9 @@ export async function sendReservaConfirmationEmail(reservaData) {
         table.info-grid td { padding: 10px; background: #f5f5f5; font-size: 14px; color: #333; }
         .info-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
         .info-value { font-size: 15px; font-weight: 600; }
-        .qr-section { text-align: center; padding: 30px; background: #f9f9f9; border-radius: 8px; border: 2px dashed #667eea; margin-bottom: 20px; }
-        .qr-section h3 { color: #333; font-size: 16px; margin-bottom: 10px; }
-        .qr-section p { color: #666; font-size: 12px; margin-bottom: 15px; }
-        .qr-section img { width: 200px; height: 200px; border: 3px solid white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .qr-notice { text-align: center; padding: 20px 30px; background: #f9f9f9; border-radius: 8px; border: 2px dashed #667eea; margin-bottom: 20px; }
+        .qr-notice h3 { color: #333; font-size: 16px; margin-bottom: 8px; }
+        .qr-notice p { color: #666; font-size: 13px; }
         .total-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 30px 0; }
         .total-label { font-size: 14px; margin-bottom: 10px; opacity: 0.9; }
         .total-amount { font-size: 32px; font-weight: 700; }
@@ -151,7 +106,6 @@ export async function sendReservaConfirmationEmail(reservaData) {
     <body>
       <div class="container">
         <div class="header">
-          ${logoBase64 ? `<img class="logo" src="cid:cutzy-logo" alt="Cutzy Cinema">` : ''}
           <h1>¡Reserva Confirmada!</h1>
           <p>Tu entrada para el cine está lista</p>
         </div>
@@ -175,10 +129,9 @@ export async function sendReservaConfirmationEmail(reservaData) {
               </tr>
             </table>
           </div>
-          <div class="qr-section">
-            <h3>Tu Código QR de Entrada</h3>
-            <p>Presenta este código en la puerta del cine</p>
-            <img src="cid:qr-entrada" alt="Código QR de entrada">
+          <div class="qr-notice">
+            <h3>🎟️ Tu Código QR de Entrada</h3>
+            <p>Encontrarás tu código QR adjunto a este correo como <strong>qr-entrada.png</strong>.<br>Presentalo en la puerta del cine para ingresar.</p>
           </div>
           <div class="total-section">
             <div class="total-label">Total Pagado</div>
@@ -187,8 +140,8 @@ export async function sendReservaConfirmationEmail(reservaData) {
           <div class="instructions">
             <div class="instructions-title">📋 Instrucciones Importantes</div>
             <ul>
-              <li>Presenta este código QR en la entrada del cine</li>
-              <li>Llega con 15 minutos de anticipación</li>
+              <li>Presentá el QR adjunto en la entrada del cine</li>
+              <li>Llegá con 15 minutos de anticipación</li>
               <li>No compartas tu código QR con otras personas</li>
             </ul>
           </div>
@@ -204,7 +157,7 @@ export async function sendReservaConfirmationEmail(reservaData) {
     </html>
   `;
 
-  const textContent = `¡Hola ${nombreUsuario}! Tu reserva para "${nombrePelicula}" en ${nombreSala} el ${fechaHora} fue confirmada. Asientos: ${asientosFormato}. Total: $${parseFloat(total).toFixed(2)}.`;
+  const textContent = `¡Hola ${nombreUsuario}! Tu reserva para "${nombrePelicula}" en ${nombreSala} el ${fechaHora} fue confirmada. Asientos: ${asientosFormato}. Total: $${parseFloat(total).toFixed(2)}. Tu código QR de entrada está adjunto a este correo.`;
 
   const fromEmail = process.env.MAILJET_FROM_EMAIL || 'cutzycinema@gmail.com';
 
@@ -217,7 +170,13 @@ export async function sendReservaConfirmationEmail(reservaData) {
         Subject: `¡Reserva Confirmada! - ${nombrePelicula} en Cutzy Cinema`,
         HTMLPart: htmlContent,
         TextPart: textContent,
-        InlinedAttachments: inlinedAttachments,
+        Attachments: [
+          {
+            ContentType: 'image/png',
+            Filename: 'qr-entrada.png',
+            Base64Content: qrBase64,
+          },
+        ],
       },
     ],
   });
