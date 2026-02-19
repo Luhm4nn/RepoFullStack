@@ -23,7 +23,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@getbrevo/brevo": "^3.0.1",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.8.0",
     "cookie-parser": "^1.4.7",
@@ -41,6 +40,7 @@
     "mysql2": "^3.14.1",
     "ngrok": "^5.0.0-beta.2",
     "node-cron": "^4.2.1",
+    "node-mailjet": "^6.0.11",
     "qrcode": "^1.5.4",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",

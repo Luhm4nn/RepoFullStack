@@ -13,7 +13,8 @@ export const validateEnv = () => {
     'JWT_REFRESH_SECRET',
     'FRONTEND_URL',
     'BACKEND_URL',
-    'BREVO_API_KEY',
+    'MAILJET_API_KEY',
+    'MAILJET_SECRET_KEY',
   ];
 
   const optionalEnvVars = [
