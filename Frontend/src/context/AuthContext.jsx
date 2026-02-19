@@ -62,11 +62,11 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       const res = await authAPI.logout();
       if (res && res.status === 200) {
-        localStorage.removeItem('reserva_step3');
-        localStorage.removeItem('countdown_expiry');
+        localStorage.clear();
       }
     } catch (error) {
-      // Error en logout
+      // Error en logout — limpiamos igual
+      localStorage.clear();
     } finally {
       setUser(null);
       setIsAuthenticated(false);
