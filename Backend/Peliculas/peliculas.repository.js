@@ -1,4 +1,5 @@
 import prisma from '../prisma/prisma.js';
+import { ESTADOS_FUNCION } from '../constants/index.js';
 
 /**
  * Parse ID de forma segura
@@ -39,7 +40,7 @@ async function getPaginated(page = 1, limit = 10) {
   const validPage = parseInt(page) || 1;
   const validLimit = parseInt(limit) || 10;
   const skip = (validPage - 1) * validLimit;
-  
+
   const [data, total] = await Promise.all([
     prisma.pelicula.findMany({
       orderBy: {
@@ -156,7 +157,7 @@ async function getAllEnCartelera(ahora, semana) {
             gte: ahora,
             lte: semana,
           },
-          estado: 'PUBLICA',
+          estado: ESTADOS_FUNCION.PUBLICA,
         },
       },
     },
@@ -178,7 +179,7 @@ async function countEnCartelera(hoy, semana) {
             gte: hoy,
             lte: semana,
           },
-          estado: 'PUBLICA',
+          estado: ESTADOS_FUNCION.PUBLICA,
         },
       },
     },
@@ -230,22 +231,22 @@ async function getWithFilters(filters = {}, page = 1, limit = 10) {
       {
         nombrePelicula: {
           contains: filters.busqueda,
-          mode: 'insensitive'
-        }
+          mode: 'insensitive',
+        },
       },
       {
         director: {
           contains: filters.busqueda,
-          mode: 'insensitive'
-        }
-      }
+          mode: 'insensitive',
+        },
+      },
     ];
   }
 
   if (filters.genero) {
     where.generoPelicula = {
       contains: filters.genero,
-      mode: 'insensitive'
+      mode: 'insensitive',
     };
   }
 
@@ -282,7 +283,7 @@ async function getWithFilters(filters = {}, page = 1, limit = 10) {
  */
 async function getEstrenos() {
   const today = new Date();
-  
+
   return await prisma.pelicula.findMany({
     where: {
       fechaEstreno: {
@@ -295,5 +296,16 @@ async function getEstrenos() {
   });
 }
 
-export { getOne, getAll, getPaginated, create, deleteOne, update, getAllEnCartelera, countEnCartelera, search, getWithFilters, getEstrenos };
-
+export {
+  getOne,
+  getAll,
+  getPaginated,
+  create,
+  deleteOne,
+  update,
+  getAllEnCartelera,
+  countEnCartelera,
+  search,
+  getWithFilters,
+  getEstrenos,
+};

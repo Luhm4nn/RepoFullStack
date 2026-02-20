@@ -9,8 +9,7 @@ import { formatDateTime } from '../../shared';
 import { reservaSchema } from '../../../validations/ReservasSchema';
 import { CenteredSpinner } from '../../shared/components/Spinner';
 import { useNotification } from '../../../context/NotificationContext';
-
-const RESERVA_STORAGE_KEY = 'active_reserva';
+import { reservationStorage } from '../../../utils/reservationStorage';
 
 function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
   const [step, setStep] = useState(1); // 1: selección, 2: DNI, 3: pago, 4: éxito
@@ -42,17 +41,16 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
     fetchParams();
 
     // Recuperar reserva del localStorage si existe y coincide con esta función
-    const saved = localStorage.getItem(RESERVA_STORAGE_KEY);
+    const saved = reservationStorage.getActiveReserva();
     if (saved) {
-      const data = JSON.parse(saved);
-      if (data.idSala === funcion.idSala && data.fechaHoraFuncion === funcion.fechaHoraFuncion) {
-        setReservaActiva(data.reservaData);
-        setConfirmedDNI(data.reservaData.DNI.toString());
-        setSelectedSeatsData(data.selectedSeatsData);
+      if (saved.idSala === funcion.idSala && saved.fechaHoraFuncion === funcion.fechaHoraFuncion) {
+        setReservaActiva(saved.reservaData);
+        setConfirmedDNI(saved.reservaData.DNI.toString());
+        setSelectedSeatsData(saved.selectedSeatsData);
         setStep(3);
       } else {
         // Si hay una reserva de OTRA función, la limpiamos (el backend también lo hará al crear la nueva)
-        localStorage.removeItem(RESERVA_STORAGE_KEY);
+        reservationStorage.clearActiveReserva();
       }
     }
     return () => {};
@@ -75,7 +73,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
         console.error('Error al limpiar reserva:', err);
       } finally {
         setReservaActiva(null);
-        localStorage.removeItem(RESERVA_STORAGE_KEY);
+        reservationStorage.clearActiveReserva();
       }
     }
   };
@@ -146,7 +144,7 @@ function ReservaModal({ funcion, pelicula, onClose, onReservaExitosa }) {
         selectedSeatsData: { ...selectedSeatsData },
       };
 
-      localStorage.setItem(RESERVA_STORAGE_KEY, JSON.stringify(fullData));
+      reservationStorage.saveActiveReserva(fullData);
       setReservaActiva({ ...reservaData });
       setConfirmedDNI(values.DNI);
       setStep(3);

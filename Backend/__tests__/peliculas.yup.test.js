@@ -5,7 +5,7 @@ describe('peliculaSchema Yup validation', () => {
     const valid = {
       nombrePelicula: 'Test',
       director: 'Director',
-      generoPelicula: 'Acción',
+      generoPelicula: 'ACCION',
       duracion: 120,
       fechaEstreno: '2024-01-01',
       sinopsis: 'Una sinopsis',
@@ -17,7 +17,7 @@ describe('peliculaSchema Yup validation', () => {
   it('falla si falta nombrePelicula', async () => {
     const invalid = {
       director: 'Director',
-      generoPelicula: 'Acción',
+      generoPelicula: 'ACCION',
       duracion: 120,
     };
     await expect(peliculaSchema.isValid(invalid)).resolves.toBe(false);
@@ -27,7 +27,7 @@ describe('peliculaSchema Yup validation', () => {
     const invalid = {
       nombrePelicula: 'Test',
       director: 'Director',
-      generoPelicula: 'Acción',
+      generoPelicula: 'ACCION',
       duracion: -5,
     };
     await expect(peliculaSchema.isValid(invalid)).resolves.toBe(false);

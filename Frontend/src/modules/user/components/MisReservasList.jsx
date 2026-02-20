@@ -284,7 +284,7 @@ function MisReservasList({ reservas, onReservaActualizada }) {
                     >
                       Ver Detalles
                     </button>
-                    {reserva.estado === 'ACTIVA' && !funcionPasada && (
+                    {reserva.estado === ESTADOS_RESERVA.ACTIVA && !funcionPasada && (
                       <button
                         onClick={() => handleCancelar(reserva)}
                         disabled={isCancelling}

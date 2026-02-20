@@ -4,6 +4,7 @@ import { createPaymentPreference } from '../../../api/MercadoPago.api';
 import { CenteredSpinner } from '../../shared/components/Spinner';
 import CountdownTimer from './CountdownTimer';
 import { getTiempoLimiteReserva } from '../../../api/Parametros.api';
+import { reservationStorage } from '../../../utils/reservationStorage';
 
 // Inicializar MercadoPago con tu public key
 const MERCADOPAGO_PUBLIC_KEY = import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY;
@@ -70,15 +71,12 @@ function PaymentStep({
 
       const response = await createPaymentPreference(paymentData);
       // Guardamos los params para que la success page pueda verificar el estado real
-      localStorage.setItem(
-        'mp_pending_reserva',
-        JSON.stringify({
-          idSala: funcion.idSala,
-          fechaHoraFuncion: funcion.fechaHoraFuncion,
-          DNI: reservaData.DNI,
-          fechaHoraReserva: reservaData.fechaHoraReserva,
-        })
-      );
+      reservationStorage.saveMPPending({
+        idSala: funcion.idSala,
+        fechaHoraFuncion: funcion.fechaHoraFuncion,
+        DNI: reservaData.DNI,
+        fechaHoraReserva: reservaData.fechaHoraReserva,
+      });
       setPreferenceId(response.id);
     } catch (err) {
       const errorMsg = err.response?.data?.error || 'Error al conectar con Mercado Pago.';

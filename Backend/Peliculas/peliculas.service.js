@@ -63,6 +63,21 @@ export const create = async (data) => {
  */
 export const deleteOne = async (id) => {
   const peliculaExistente = await repository.getOne(id);
+  if (!peliculaExistente) {
+    const error = new Error('Película no encontrada.');
+    error.status = 404;
+    throw error;
+  }
+
+  // No permitir eliminar películas que tengan funciones
+  const funciones = await getFuncionesByPeliculaId(id);
+  if (funciones.length > 0) {
+    const error = new Error(
+      `No se puede eliminar la película porque tiene ${funciones.length} funciones creadas.`
+    );
+    error.status = 400;
+    throw error;
+  }
 
   if (peliculaExistente?.portadaPublicId) {
     try {
@@ -160,7 +175,7 @@ export const getEstrenos = async () => {
 async function validationsEstreno(data) {
   const fechaNueva = new Date(data.fechaEstreno);
   const funciones = await getFuncionesByPeliculaId(data.id);
-  
+
   if (funciones && funciones.length > 0) {
     for (const funcion of funciones) {
       if (new Date(funcion.fechaHoraFuncion) < fechaNueva) {

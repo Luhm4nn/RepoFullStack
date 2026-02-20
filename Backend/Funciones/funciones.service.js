@@ -98,6 +98,16 @@ export const deleteOne = async (params) => {
     throw error;
   }
 
+  // Verificar si tiene reservas activas antes de permitir borrar
+  const activeReservasCount = await repository.countActiveReservations(params);
+  if (activeReservasCount > 0) {
+    const error = new Error(
+      `No se puede eliminar la función porque tiene ${activeReservasCount} reserva(s) ACTIVA(S).`
+    );
+    error.status = 400;
+    throw error;
+  }
+
   if (funcion.estado !== ESTADOS_FUNCION.PRIVADA && funcion.estado !== ESTADOS_FUNCION.INACTIVA) {
     const error = new Error('Solo se pueden eliminar funciones privadas o inactivas.');
     error.status = 403;
@@ -105,6 +115,15 @@ export const deleteOne = async (params) => {
   }
 
   return await repository.deleteOne(params);
+};
+
+/**
+ * Obtiene funciones por ID de sala
+ * @param {number} idSala - ID de la sala
+ * @returns {Promise<Array>} Lista de funciones
+ */
+export const getFuncionesBySalaId = async (idSala) => {
+  return await repository.getBySala(idSala);
 };
 
 /**
@@ -138,10 +157,27 @@ export const updateOne = async (params, data) => {
 
   // Validations for update
   if (data.estado) {
-    if (![ESTADOS_FUNCION.PRIVADA, ESTADOS_FUNCION.PUBLICA, ESTADOS_FUNCION.INACTIVA].includes(data.estado)) {
+    if (
+      ![ESTADOS_FUNCION.PRIVADA, ESTADOS_FUNCION.PUBLICA, ESTADOS_FUNCION.INACTIVA].includes(
+        data.estado
+      )
+    ) {
       const error = new Error('Estado inválido. Solo se permiten: PRIVADA, PUBLICA, INACTIVA.');
       error.status = 400;
       throw error;
+    }
+
+    // No se puede privatizar si tiene reservas activas
+    if (
+      data.estado === ESTADOS_FUNCION.PRIVADA &&
+      funcionExistente.estado !== ESTADOS_FUNCION.PRIVADA
+    ) {
+      const activeReservasCount = await repository.countActiveReservations(params);
+      if (activeReservasCount > 0) {
+        const error = new Error('Esta función cuenta con una reserva ACTIVA.');
+        error.status = 400;
+        throw error;
+      }
     }
   } else if (funcionExistente.estado !== ESTADOS_FUNCION.PRIVADA) {
     const error = new Error(
@@ -186,7 +222,10 @@ export const getFuncionesByPeliculaAndFechaService = async (idPelicula, fecha) =
   }
   // Filtrar solo funciones públicas y en fecha/hora futura
 
-  const funcionesFiltradas = funciones.filter(funcion => funcion.estado === ESTADOS_FUNCION.PUBLICA && new Date(funcion.fechaHoraFuncion) > hoy);
+  const funcionesFiltradas = funciones.filter(
+    (funcion) =>
+      funcion.estado === ESTADOS_FUNCION.PUBLICA && new Date(funcion.fechaHoraFuncion) > hoy
+  );
   return funcionesFiltradas;
 };
 
@@ -205,14 +244,14 @@ export const getDetallesFuncion = async (params) => {
   }
 
   // Calcular total de asientos de la sala
-  const totalAsientosSala = funcionConStats.sala?.filas && funcionConStats.sala?.asientosPorFila
-    ? funcionConStats.sala.filas * funcionConStats.sala.asientosPorFila
-    : 0;
+  const totalAsientosSala =
+    funcionConStats.sala?.filas && funcionConStats.sala?.asientosPorFila
+      ? funcionConStats.sala.filas * funcionConStats.sala.asientosPorFila
+      : 0;
 
   // Calcular porcentaje de ocupación
-  const porcentajeOcupacion = totalAsientosSala > 0
-    ? ((funcionConStats.asientosReservados / totalAsientosSala) * 100)
-    : 0;
+  const porcentajeOcupacion =
+    totalAsientosSala > 0 ? (funcionConStats.asientosReservados / totalAsientosSala) * 100 : 0;
 
   return {
     ...funcionConStats,

@@ -218,7 +218,9 @@ const DashboardPage = () => {
               <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-xl md:text-2xl font-bold text-white">Películas Más Populares</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-white">
+                Películas más populares en Cartelera
+              </h2>
             </div>
 
             <div className="space-y-4">

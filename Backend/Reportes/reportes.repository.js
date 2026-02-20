@@ -1,4 +1,5 @@
 import prisma from '../prisma/prisma.js';
+import { ESTADOS_FUNCION, ESTADOS_RESERVA } from '../constants/index.js';
 
 /**
  * Realiza un conteo masivo de entidades clave para el dashboard.
@@ -16,12 +17,12 @@ export const getDashboardStats = async () => {
             gte: new Date(new Date().setHours(0, 0, 0, 0)),
             lt: new Date(new Date().setHours(23, 59, 59, 999)),
           },
-          estado: 'ACTIVA',
+          estado: ESTADOS_RESERVA.ACTIVA,
         },
       }),
       prisma.funcion.count({
         where: {
-          estado: 'Publica',
+          estado: ESTADOS_FUNCION.PUBLICA,
           fechaHoraFuncion: {
             gte: new Date(),
           },
@@ -52,7 +53,7 @@ export const getReservasAnuales = async () => {
         gte: startDate,
       },
       estado: {
-        not: 'PENDIENTE',
+        not: ESTADOS_RESERVA.PENDIENTE,
       },
     },
     select: {
@@ -76,7 +77,7 @@ export const getAsistenciaReservas = async () => {
         gte: startDate,
       },
       estado: {
-        in: ['ASISTIDA', 'NO_ASISTIDA'],
+        in: [ESTADOS_RESERVA.ASISTIDA, ESTADOS_RESERVA.NO_ASISTIDA],
       },
     },
     select: {
@@ -99,7 +100,7 @@ export const getOcupacionRaw = async () => {
             COUNT(DISTINCT f."fechaHoraFuncion") as "cantidadFunciones"
         FROM sala s
         LEFT JOIN funcion f ON s."idSala" = f."idSala"
-        LEFT JOIN reserva r ON f."idSala" = r."idSala" AND f."fechaHoraFuncion" = r."fechaHoraFuncion" AND r.estado = 'ACTIVA'
+        LEFT JOIN reserva r ON f."idSala" = r."idSala" AND f."fechaHoraFuncion" = r."fechaHoraFuncion" AND r.estado = ${ESTADOS_RESERVA.ACTIVA}
         LEFT JOIN asiento_reserva ar ON r."idSala" = ar."idSala" AND r."fechaHoraFuncion" = ar."fechaHoraFuncion" AND r."DNI" = ar."DNI" AND r."fechaHoraReserva" = ar."fechaHoraReserva"
         GROUP BY s."idSala", s."nombreSala", s.filas, s."asientosPorFila"
     `;
@@ -119,7 +120,7 @@ export const getPeliculasMasReservadas = async () => {
         gte: startDate,
       },
       estado: {
-        not: 'PENDIENTE',
+        not: ESTADOS_RESERVA.PENDIENTE,
       },
     },
     select: {
@@ -153,14 +154,14 @@ export const getRankingPeliculasCartelera = async () => {
   const inicio = new Date();
   inicio.setHours(0, 0, 0, 0);
   const fin = new Date();
-  fin.setDate(fin.getDate() + 6);
+  fin.setDate(fin.getDate() + 30); // Aumentamos a 30 días para ser más inclusivos en el ranking
   fin.setHours(23, 59, 59, 999);
 
   return await prisma.pelicula.findMany({
     where: {
       funcion: {
         some: {
-          estado: 'Publica',
+          estado: ESTADOS_FUNCION.PUBLICA,
           fechaHoraFuncion: {
             gte: inicio,
             lte: fin,
@@ -177,7 +178,7 @@ export const getRankingPeliculasCartelera = async () => {
           reserva: {
             where: {
               estado: {
-                not: 'PENDIENTE',
+                not: ESTADOS_RESERVA.PENDIENTE,
               },
               fechaHoraReserva: {
                 gte: oneMonthAgo,

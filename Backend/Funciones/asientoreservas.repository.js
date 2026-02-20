@@ -1,6 +1,7 @@
 import prisma from '../prisma/prisma.js';
 import * as parametrosRepo from '../Parametros/parametros.repository.js';
 import logger from '../utils/logger.js';
+import { ESTADOS_RESERVA } from '../constants/index.js';
 
 /**
  * Obtiene todos los asientos reservados
@@ -31,7 +32,7 @@ async function cleanupExpiredReservations() {
 
     const deleted = await prisma.reserva.deleteMany({
       where: {
-        estado: 'PENDIENTE',
+        estado: ESTADOS_RESERVA.PENDIENTE,
         fechaHoraReserva: {
           lt: cutoffDate,
         },
@@ -39,7 +40,9 @@ async function cleanupExpiredReservations() {
     });
 
     if (deleted.count > 0) {
-      logger.info(`Limpieza On-Demand: Se eliminaron ${deleted.count} reservas pendientes expiradas.`);
+      logger.info(
+        `Limpieza On-Demand: Se eliminaron ${deleted.count} reservas pendientes expiradas.`
+      );
     }
   } catch (error) {
     logger.error('Error en cleanupExpiredReservations:', error);
@@ -57,7 +60,7 @@ async function getByFuncion(idSala, fechaFuncionDate) {
   await cleanupExpiredReservations();
 
   const fecha = new Date(fechaFuncionDate);
-  
+
   return await prisma.asiento_reserva.findMany({
     where: {
       idSala: parseInt(idSala, 10),
@@ -67,10 +70,10 @@ async function getByFuncion(idSala, fechaFuncionDate) {
       reserva: {
         select: {
           estado: true,
-          fechaHoraReserva: true
-        }
-      }
-    }
+          fechaHoraReserva: true,
+        },
+      },
+    },
   });
 }
 
@@ -175,11 +178,4 @@ async function update({ idSala, filaAsiento, nroAsiento, fechaHoraFuncion }, dat
   });
 }
 
-export {
-  getOne,
-  getAll,
-  createMany,
-  deleteOne,
-  update,
-  getByFuncion,
-};
+export { getOne, getAll, createMany, deleteOne, update, getByFuncion };

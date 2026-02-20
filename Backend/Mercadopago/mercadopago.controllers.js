@@ -81,16 +81,12 @@ export const handleWebhook = asyncHandler(async (req, res) => {
         fechaHoraReserva: metadata.fecha_hora_reserva,
       };
 
-      logger.info('>>> PARAMETROS EXTRAIDOS PARA BUSQUEDA:', subParams);
-
       const reservaDB = await getReservaRepo(subParams);
 
       if (!reservaDB) {
         logger.error('>>> ERROR: Reserva NO encontrada en DB con params:', subParams);
         return res.sendStatus(200);
       }
-
-      logger.info('>>> RESERVA ENCONTRADA EN DB:', { estado: reservaDB.status });
 
       const montoMP = parseFloat(parseFloat(result.transaction_amount).toFixed(2));
       const montoDB = parseFloat(parseFloat(reservaDB.total.toString()).toFixed(2));
@@ -102,9 +98,7 @@ export const handleWebhook = asyncHandler(async (req, res) => {
 
       if (reservaDB.estado === ESTADOS_RESERVA.PENDIENTE) {
         await confirmReservaRepo(subParams);
-        logger.info('>>> Pago aprobado. Reserva confirmada OK.');
       } else if (reservaDB.estado === ESTADOS_RESERVA.ACTIVA) {
-        logger.info('>>> Webhook duplicado: Reserva ya estaba confirmada.');
       } else {
         logger.warn('>>> ADVERTENCIA: Reserva en estado inesperado:', {
           estado: reservaDB.estado,
@@ -151,14 +145,7 @@ export const handleWebhook = asyncHandler(async (req, res) => {
           reservaParams: subParams,
         };
 
-        logger.info('>>> EMAIL DATA A ENVIAR:', {
-          toEmail: emailData.email,
-          nombreUsuario: emailData.nombreUsuario,
-          nombrePelicula: emailData.nombrePelicula,
-          asientosCount: emailData.asientos?.length,
-        });
-        const mailResult = await sendReservaConfirmationEmail(emailData);
-        logger.info('>>> RESULTADO PROCESO MAILER:', { success: mailResult, DNI: subParams.DNI });
+        await sendReservaConfirmationEmail(emailData);
       } catch (emailError) {
         logger.error('>>> ERROR CRITICO AL ENVIAR EMAIL:', {
           message: emailError.message,

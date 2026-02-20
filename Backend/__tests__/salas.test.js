@@ -12,7 +12,7 @@ describe('Salas API', () => {
 
   describe('GET /Salas', () => {
     test('debe retornar lista de salas', async () => {
-      const response = await request(app).get('/Salas');
+      const response = await request(app).get('/api/Salas');
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
@@ -21,7 +21,7 @@ describe('Salas API', () => {
 
   describe('GET /Salas/search', () => {
     test('debe buscar por nombreSala', async () => {
-      const response = await request(app).get('/Salas/search').query({
+      const response = await request(app).get('/api/Salas/search').query({
         q: 'sala',
       });
 
@@ -37,12 +37,12 @@ describe('Salas API', () => {
     });
 
     test('debe buscar por ubicacion (OR con nombreSala)', async () => {
-      const allSalas = await request(app).get('/Salas');
+      const allSalas = await request(app).get('/api/Salas');
       
       if (allSalas.body.length > 0 && allSalas.body[0].ubicacion) {
         const searchTerm = allSalas.body[0].ubicacion.slice(0, 3);
         
-        const response = await request(app).get('/Salas/search').query({
+        const response = await request(app).get('/api/Salas/search').query({
           q: searchTerm,
         });
 
@@ -60,7 +60,7 @@ describe('Salas API', () => {
     });
 
     test('debe retornar array vacío si no hay coincidencias', async () => {
-      const response = await request(app).get('/Salas/search').query({
+      const response = await request(app).get('/api/Salas/search').query({
         q: 'xyzabc123nonexistent',
       });
 
@@ -70,15 +70,15 @@ describe('Salas API', () => {
     });
 
     test('debe ser case-insensitive en la búsqueda', async () => {
-      const responseLower = await request(app).get('/Salas/search').query({
+      const responseLower = await request(app).get('/api/Salas/search').query({
         q: 'sala',
       });
       
-      const responseUpper = await request(app).get('/Salas/search').query({
+      const responseUpper = await request(app).get('/api/Salas/search').query({
         q: 'SALA',
       });
       
-      const responseMixed = await request(app).get('/Salas/search').query({
+      const responseMixed = await request(app).get('/api/Salas/search').query({
         q: 'SaLa',
       });
 
@@ -91,7 +91,7 @@ describe('Salas API', () => {
     });
 
     test('debe limitar resultados con limit param', async () => {
-      const response = await request(app).get('/Salas/search').query({
+      const response = await request(app).get('/api/Salas/search').query({
         q: '',
         limit: 2,
       });
@@ -104,7 +104,7 @@ describe('Salas API', () => {
 
   describe('POST /Sala', () => {
     test('debe requerir autenticación de admin', async () => {
-      const response = await request(app).post('/Sala').send({
+      const response = await request(app).post('/api/Sala').send({
         nombreSala: 'Sala Test',
         ubicacion: 'Ubicación Test',
         capacidad: 50,
@@ -115,7 +115,7 @@ describe('Salas API', () => {
 
     test('debe validar campos requeridos', async () => {
       const response = await request(app)
-        .post('/Sala')
+        .post('/api/Sala')
         .set('Cookie', adminToken)
         .send({
           nombreSala: 'Sala Incompleta',

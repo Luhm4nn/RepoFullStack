@@ -2,9 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { deletePendingReserva } from '../../../api/Reservas.api';
 import { useAuth } from '../../../modules/shared/hooks/useAuth.js';
-
-const STORAGE_KEY = 'reserva_step3';
-const TIMER_KEY = 'countdown_expiry';
+import { reservationStorage } from '../../../utils/reservationStorage';
 
 /**
  * Hook para limpiar reservas huerfanas cuando el usuario navega fuera del flujo de reserva
@@ -20,11 +18,11 @@ export const useReservaCleanup = () => {
     const cleanup = async () => {
       if (!isAuthenticated) return;
 
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = reservationStorage.getStep3();
       if (!saved) return;
 
       try {
-        const { reservaData } = JSON.parse(saved);
+        const { reservaData } = saved;
 
         const isReservaRoute = location.pathname.startsWith('/reservar/');
         const isMPRoute = ['/reserva/success', '/reserva/failure', '/reserva/pending'].includes(
@@ -42,13 +40,11 @@ export const useReservaCleanup = () => {
           } catch (deleteErr) {
             // Si da 400/404 la reserva ya fue confirmada o no existe — igual limpiamos
           }
-          localStorage.removeItem(STORAGE_KEY);
-          localStorage.removeItem(TIMER_KEY);
+          reservationStorage.clearAll();
         }
       } catch (err) {
         // JSON parse u otro error inesperado — limpiamos igual
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(TIMER_KEY);
+        reservationStorage.clearAll();
       }
     };
 
