@@ -8,17 +8,18 @@ async function check() {
     semana.setDate(semana.getDate() + 6);
 
     const funciones = await prisma.funcion.findMany({
-      include: { pelicula: true }
+      include: { pelicula: true },
     });
 
     console.log(`Total Funciones: ${funciones.length}`);
-    funciones.forEach(f => {
-      const isPublic = f.estado === 'Publica';
+    funciones.forEach((f) => {
+      const isPublic = f.estado === 'PUBLICA' || f.estado === 'Publica';
       const fDate = new Date(f.fechaHoraFuncion);
       const isSoon = fDate >= hoy && fDate <= semana;
-      console.log(`- Película: ${f.pelicula.nombrePelicula}, Fecha: ${f.fechaHoraFuncion}, Estado: ${f.estado}, En Cartelera? ${isPublic && isSoon}`);
+      console.log(
+        `- Película: ${f.pelicula.nombrePelicula}, Fecha: ${f.fechaHoraFuncion}, Estado: ${f.estado}, En Cartelera? ${isPublic && isSoon}`
+      );
     });
-
   } catch (err) {
     console.error('Error checking functions:', err);
   } finally {

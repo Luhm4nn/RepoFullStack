@@ -1,4 +1,13 @@
-import { Card, Timeline, TimelineBody, TimelineContent, TimelineItem, TimelinePoint, TimelineTitle, TimelineTime } from "flowbite-react";
+import {
+  Card,
+  Timeline,
+  TimelineBody,
+  TimelineContent,
+  TimelineItem,
+  TimelinePoint,
+  TimelineTitle,
+  TimelineTime,
+} from 'flowbite-react';
 
 function Privacity() {
   return (
@@ -9,7 +18,9 @@ function Privacity() {
             Política de Privacidad
           </h1>
           <p className="text-gray-300 text-center mb-4">
-            En <span className="font-semibold text-purple-400">Cutzy Cinema</span> tu privacidad es nuestra prioridad. Queremos que disfrutes de la magia del cine con total confianza y transparencia.
+            En <span className="font-semibold text-purple-400">Cutzy Cinema</span> tu privacidad es
+            nuestra prioridad. Queremos que disfrutes de la magia del cine con total confianza y
+            transparencia.
           </p>
           <Timeline className="w-full">
             <TimelineItem>
@@ -18,7 +29,10 @@ function Privacity() {
                 <TimelineTime className="text-purple-300">Recopilación de datos</TimelineTime>
                 <TimelineTitle className="text-white">¿Qué información recolectamos?</TimelineTitle>
                 <TimelineBody className="text-gray-300">
-                  Recopilamos datos como nombre, correo electrónico, preferencias de películas y detalles de pago solo cuando es necesario para brindarte el mejor servicio.
+                  Recopilamos datos como nombre, correo electrónico y preferencias de películas. Los
+                  detalles de pago son gestionados de forma segura por{' '}
+                  <span className="font-semibold text-blue-400">Mercado Pago</span>; nosotros no
+                  almacenamos los datos de tus tarjetas.
                 </TimelineBody>
               </TimelineContent>
             </TimelineItem>
@@ -28,7 +42,9 @@ function Privacity() {
                 <TimelineTime className="text-purple-300">Uso de la información</TimelineTime>
                 <TimelineTitle className="text-white">¿Para qué usamos tus datos?</TimelineTitle>
                 <TimelineBody className="text-gray-300">
-                  Utilizamos tu información para gestionar reservas, personalizar tu experiencia, enviarte novedades y mejorar nuestros servicios. Nunca vendemos tus datos a terceros.
+                  Utilizamos tu información para gestionar reservas, personalizar tu experiencia,
+                  enviarte novedades y mejorar nuestros servicios. Nunca vendemos tus datos a
+                  terceros.
                 </TimelineBody>
               </TimelineContent>
             </TimelineItem>
@@ -38,7 +54,8 @@ function Privacity() {
                 <TimelineTime className="text-purple-300">Seguridad</TimelineTime>
                 <TimelineTitle className="text-white">¿Cómo protegemos tus datos?</TimelineTitle>
                 <TimelineBody className="text-gray-300">
-                  Implementamos medidas de seguridad técnicas y organizativas para proteger tu información contra accesos no autorizados, pérdidas o alteraciones.
+                  Implementamos medidas de seguridad técnicas y organizativas para proteger tu
+                  información contra accesos no autorizados, pérdidas o alteraciones.
                 </TimelineBody>
               </TimelineContent>
             </TimelineItem>
@@ -48,7 +65,8 @@ function Privacity() {
                 <TimelineTime className="text-purple-300">Tus derechos</TimelineTime>
                 <TimelineTitle className="text-white">Control y transparencia</TimelineTitle>
                 <TimelineBody className="text-gray-300">
-                  Puedes acceder, modificar o eliminar tus datos personales en cualquier momento desde tu perfil o contactándonos. Respetamos tu derecho a la privacidad.
+                  Puedes acceder, modificar o eliminar tus datos personales en cualquier momento
+                  desde tu perfil o contactándonos. Respetamos tu derecho a la privacidad.
                 </TimelineBody>
               </TimelineContent>
             </TimelineItem>
@@ -58,13 +76,17 @@ function Privacity() {
                 <TimelineTime className="text-purple-300">Contacto</TimelineTime>
                 <TimelineTitle className="text-white">¿Tienes dudas?</TimelineTitle>
                 <TimelineBody className="text-gray-300">
-                  Si tienes preguntas sobre nuestra política de privacidad, escríbenos a <a href="mailto:privacidad@cutzycinema.com" className="text-purple-400 underline">privacidad@cutzycinema.com</a>.
+                  Si tienes preguntas sobre nuestra política de privacidad, escríbenos a{' '}
+                  <a href="mailto:cutzycinema@gmail.com" className="text-purple-400 underline">
+                    cutzycinema@gmail.com
+                  </a>
+                  .
                 </TimelineBody>
               </TimelineContent>
             </TimelineItem>
           </Timeline>
           <p className="text-xs text-gray-500 mt-6 text-center">
-            Última actualización: Agosto 2025 &mdash; Cutzy Cinema
+            Última actualización: Febrero 2026 &mdash; Cutzy Cinema
           </p>
         </div>
       </Card>

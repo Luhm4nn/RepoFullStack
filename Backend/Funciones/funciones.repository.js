@@ -1,5 +1,5 @@
 import prisma from '../prisma/prisma.js';
-import { ESTADOS_FUNCION } from '../constants/index.js';
+import { ESTADOS_FUNCION, ESTADOS_RESERVA } from '../constants/index.js';
 
 /**
  * Actualiza automáticamente a INACTIVA las funciones que ya han pasado su fecha
@@ -10,11 +10,11 @@ async function autoInactivarVencidas(now) {
   return await prisma.funcion.updateMany({
     where: {
       estado: { not: ESTADOS_FUNCION.INACTIVA },
-      fechaHoraFuncion: { lte: now }
+      fechaHoraFuncion: { lte: now },
     },
     data: {
-      estado: ESTADOS_FUNCION.INACTIVA
-    }
+      estado: ESTADOS_FUNCION.INACTIVA,
+    },
   });
 }
 
@@ -147,14 +147,11 @@ async function getByPelicula(idPelicula) {
 async function getInactive(page = 1, limit = 10) {
   const skip = (page - 1) * limit;
   const now = new Date();
-  
+
   const [data, total] = await Promise.all([
     prisma.funcion.findMany({
       where: {
-        OR: [
-          { estado: ESTADOS_FUNCION.INACTIVA },
-          { fechaHoraFuncion: { lte: now } }
-        ]
+        OR: [{ estado: ESTADOS_FUNCION.INACTIVA }, { fechaHoraFuncion: { lte: now } }],
       },
       include: {
         sala: true,
@@ -168,10 +165,7 @@ async function getInactive(page = 1, limit = 10) {
     }),
     prisma.funcion.count({
       where: {
-        OR: [
-          { estado: ESTADOS_FUNCION.INACTIVA },
-          { fechaHoraFuncion: { lte: now } }
-        ]
+        OR: [{ estado: ESTADOS_FUNCION.INACTIVA }, { fechaHoraFuncion: { lte: now } }],
       },
     }),
   ]);
@@ -196,12 +190,12 @@ async function getInactive(page = 1, limit = 10) {
 async function getActive(page = 1, limit = 10) {
   const skip = (page - 1) * limit;
   const now = new Date();
-  
+
   const [data, total] = await Promise.all([
     prisma.funcion.findMany({
-      where: { 
+      where: {
         estado: { not: ESTADOS_FUNCION.INACTIVA },
-        fechaHoraFuncion: { gt: now }
+        fechaHoraFuncion: { gt: now },
       },
       include: {
         sala: true,
@@ -214,9 +208,9 @@ async function getActive(page = 1, limit = 10) {
       take: limit,
     }),
     prisma.funcion.count({
-      where: { 
+      where: {
         estado: { not: ESTADOS_FUNCION.INACTIVA },
-        fechaHoraFuncion: { gt: now }
+        fechaHoraFuncion: { gt: now },
       },
     }),
   ]);
@@ -343,7 +337,7 @@ async function getOneWithStats({ idSala, fechaHoraFuncion }) {
     where: {
       idSala: parseInt(idSala, 10),
       fechaHoraFuncion: funcionDate,
-      estado: 'ACTIVA',
+      estado: ESTADOS_RESERVA.ACTIVA,
     },
     _sum: {
       total: true,
@@ -379,8 +373,8 @@ async function getWithFilters(filters = {}, page = 1, limit = 10) {
     where.pelicula = {
       nombrePelicula: {
         contains: filters.nombrePelicula,
-        mode: 'insensitive'
-      }
+        mode: 'insensitive',
+      },
     };
   }
 
@@ -394,16 +388,16 @@ async function getWithFilters(filters = {}, page = 1, limit = 10) {
         {
           nombreSala: {
             contains: filters.nombreSala,
-            mode: 'insensitive'
-          }
+            mode: 'insensitive',
+          },
         },
         {
           ubicacion: {
             contains: filters.nombreSala,
-            mode: 'insensitive'
-          }
-        }
-      ]
+            mode: 'insensitive',
+          },
+        },
+      ],
     };
   }
 
@@ -415,10 +409,7 @@ async function getWithFilters(filters = {}, page = 1, limit = 10) {
       where.estado = { not: ESTADOS_FUNCION.INACTIVA };
       where.fechaHoraFuncion = { gt: now };
     } else if (estadoUpper === 'INACTIVA' || estadoUpper === 'INACTIVAS') {
-      where.OR = [
-        { estado: ESTADOS_FUNCION.INACTIVA },
-        { fechaHoraFuncion: { lte: now } }
-      ];
+      where.OR = [{ estado: ESTADOS_FUNCION.INACTIVA }, { fechaHoraFuncion: { lte: now } }];
     } else {
       where.estado = estadoUpper;
     }

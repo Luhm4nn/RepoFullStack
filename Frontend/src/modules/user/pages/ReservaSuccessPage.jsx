@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getReserva } from '../../../api/Reservas.api';
+import { reservationStorage } from '../../../utils/reservationStorage';
+import { ESTADOS_RESERVA } from '../../../constants';
 
 const POLL_INTERVAL = 3000; // 3 segundos
 const POLL_TIMEOUT = 30000; // 30 segundos máximo
@@ -15,7 +17,7 @@ function ReservaSuccessPage() {
   const timeoutRef = useRef(null);
 
   useEffect(() => {
-    const params = JSON.parse(localStorage.getItem('mp_pending_reserva') || 'null');
+    const params = reservationStorage.getMPPending();
 
     if (!params) {
       // Sin params no podemos verificar, asumimos ok
@@ -31,11 +33,9 @@ function ReservaSuccessPage() {
           params.DNI,
           params.fechaHoraReserva
         );
-        if (reserva?.estado === 'ACTIVA') {
+        if (reserva?.estado === ESTADOS_RESERVA.ACTIVA) {
           cleanup();
-          localStorage.removeItem('mp_pending_reserva');
-          localStorage.removeItem('reserva_step3');
-          localStorage.removeItem('countdown_expiry');
+          reservationStorage.clearAll();
           setStatus('confirmed');
         }
         // Si sigue en PENDIENTE, seguimos esperando

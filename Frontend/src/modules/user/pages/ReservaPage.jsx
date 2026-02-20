@@ -11,9 +11,7 @@ import { CenteredSpinner } from '../../shared/components/Spinner';
 import { createReserva, deletePendingReserva } from '../../../api/Reservas.api';
 import { getTiempoLimiteReserva } from '../../../api/Parametros.api';
 import { useNotification } from '../../../context/NotificationContext';
-
-const STORAGE_KEY = 'reserva_step3';
-const TIMER_KEY = 'countdown_expiry';
+import { reservationStorage } from '../../../utils/reservationStorage';
 
 function ReservaPage() {
   const navigate = useNavigate();
@@ -41,26 +39,22 @@ function ReservaPage() {
 
   // Recuperación de estado persistente (Paso de Pago)
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    const expiry = localStorage.getItem(TIMER_KEY);
-    if (saved && expiry) {
+    const saved = reservationStorage.getStep3();
+    const expiryTime = reservationStorage.getExpiry();
+    if (saved && expiryTime) {
       try {
-        const { step: savedStep, funcion, seatsInfo, reservaData } = JSON.parse(saved);
-        const expiryTime = parseInt(expiry, 10);
-        if (Date.now() < expiryTime && savedStep === 3) {
+        if (Date.now() < expiryTime && saved.step === 3) {
           setStep(3);
-          setSelectedFuncion(funcion);
-          setSelectedSeatsInfo(seatsInfo);
-          setReservaActiva(reservaData);
+          setSelectedFuncion(saved.funcion);
+          setSelectedSeatsInfo(saved.seatsInfo);
+          setReservaActiva(saved.reservaData);
           setExpiryTimestamp(expiryTime);
         } else {
-          localStorage.removeItem(STORAGE_KEY);
-          localStorage.removeItem(TIMER_KEY);
+          reservationStorage.clearAll();
         }
       } catch (err) {
         // Error de parseo, limpiar storage
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(TIMER_KEY);
+        reservationStorage.clearAll();
       }
     }
   }, []);
@@ -159,9 +153,8 @@ function ReservaPage() {
       const limitMinutes = paramData?.tiempoLimiteReserva || 15;
       const expiry = Date.now() + limitMinutes * 60 * 1000;
 
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
+      reservationStorage.saveStep3(
+        {
           step: 3,
           idSala: createdReserva.idSala,
           fechaHoraFuncion: createdReserva.fechaHoraFuncion,
@@ -171,9 +164,9 @@ function ReservaPage() {
           funcion: selectedFuncion,
           seatsInfo: selectedSeatsInfo,
           reservaData: createdReserva,
-        })
+        },
+        expiry
       );
-      localStorage.setItem(TIMER_KEY, expiry.toString());
 
       setReservaActiva(createdReserva);
       setExpiryTimestamp(expiry);
@@ -209,8 +202,7 @@ function ReservaPage() {
     } finally {
       setReservaActiva(null);
       setExpiryTimestamp(null);
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(TIMER_KEY);
+      reservationStorage.clearAll();
     }
   };
 
@@ -232,8 +224,7 @@ function ReservaPage() {
   };
 
   const handlePaymentSuccess = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(TIMER_KEY);
+    reservationStorage.clearAll();
     setReservaActiva(null);
     setExpiryTimestamp(null);
     notify.success('¡Pago exitoso! Disfruta la función.');
@@ -304,7 +295,11 @@ function ReservaPage() {
                     strokeWidth="2"
                     viewBox="0 0 24 24"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   {pelicula.duracion} min
                 </span>
