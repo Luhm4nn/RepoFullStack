@@ -312,7 +312,7 @@ async function confirm({ idSala, fechaHoraFuncion, DNI, fechaHoraReserva }) {
         idSala: parseInt(idSala, 10),
         fechaHoraFuncion: new Date(fechaHoraFuncion),
         DNI: parseInt(DNI, 10),
-        fechaHoraReserva: new Date(fechaHoraReserva),
+        fechaHoraReserva: removeMilliseconds(fechaHoraReserva),
       },
     },
     data: {

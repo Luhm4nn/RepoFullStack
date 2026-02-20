@@ -3,6 +3,15 @@
 Este directorio contiene la documentación generada durante el desarrollo del sistema Cutzy para cines.  
 El objetivo de esta documentación es dejar registro del alcance del proyecto, metodología de trabajo, seguimiento de tareas, minutas de reuniones y aspectos técnicos necesarios para la instalación y uso del sistema.
 
+## Metodología de Trabajo
+
+Para la gestión del proyecto se adoptó una **metodología ágil adaptada**, basada en elementos de Scrum y XP, ajustada al tamaño del equipo (2 integrantes).
+
+- **Iteraciones cada 2 semanas**: Definición de tareas y revisión de avances periódica.
+- **Tablero Kanban**: Uso de GitHub Projects para gestionar features, bugs e issues.
+- **Programación en Pareja (Pair Programming)**: En tareas críticas/complejas y revisión cruzada de código (Code Review).
+- **Registro de Reuniones**: Acuerdos y decisiones documentados en [minutas.md](/docs/minutas.md).
+
 ## Arquitectura del Sistema
 
 ### Frontend (React + Vite)
