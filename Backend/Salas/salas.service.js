@@ -1,4 +1,5 @@
 import * as repository from './salas.repository.js';
+import { getFuncionesBySalaId } from '../Funciones/funciones.service.js';
 
 /**
  * Recupera todas las salas de cine configuradas.
@@ -34,6 +35,23 @@ export const create = async (data) => {
  * @returns {Promise<Object>} Registro eliminado.
  */
 export const deleteOne = async (id) => {
+  const salaExistente = await repository.getOne(id);
+  if (!salaExistente) {
+    const error = new Error('Sala no encontrada.');
+    error.status = 404;
+    throw error;
+  }
+
+  // No permitir eliminar salas que tengan funciones
+  const funciones = await getFuncionesBySalaId(id);
+  if (funciones.length > 0) {
+    const error = new Error(
+      `No se puede eliminar la sala porque tiene ${funciones.length} funciones asociadas.`
+    );
+    error.status = 400;
+    throw error;
+  }
+
   return await repository.deleteOne(id);
 };
 
