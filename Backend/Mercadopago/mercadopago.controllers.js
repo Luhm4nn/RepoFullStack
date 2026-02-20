@@ -66,6 +66,7 @@ export const createPaymentPreference = asyncHandler(async (req, res) => {
  */
 export const handleWebhook = asyncHandler(async (req, res) => {
   const { type, data } = req.body;
+  logger.info('>>> WEBHOOK MP RECIBIDO:', { type, data });
 
   if (type === 'payment') {
     const payment = new Payment(client);
