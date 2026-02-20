@@ -334,6 +334,27 @@ async function deletePendingByUser(DNI) {
   });
 }
 
+/**
+ * Cuenta las reservas ACTIVAS del día de hoy
+ * @returns {Promise<number>} Cantidad de reservas activas de hoy
+ */
+async function countActiveTodayReservas() {
+  const inicio = new Date();
+  inicio.setHours(0, 0, 0, 0);
+  const fin = new Date();
+  fin.setHours(23, 59, 59, 999);
+
+  return await prisma.reserva.count({
+    where: {
+      fechaHoraReserva: {
+        gte: inicio,
+        lte: fin,
+      },
+      estado: ESTADOS_RESERVA.ACTIVA,
+    },
+  });
+}
+
 export {
   getOne,
   getAll,
@@ -344,4 +365,5 @@ export {
   confirm,
   deletePendingByUser,
   getByUserAndStatus,
+  countActiveTodayReservas,
 };

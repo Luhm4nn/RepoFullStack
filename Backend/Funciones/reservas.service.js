@@ -75,7 +75,9 @@ export async function cancelReserva(params, user) {
   const horasHastaFuncion = (fechaFuncion - now) / (1000 * 60 * 60);
 
   if (horasHastaFuncion < 2) {
-    const error = new Error('No se puede cancelar una reserva con menos de 2 horas de anticipación');
+    const error = new Error(
+      'No se puede cancelar una reserva con menos de 2 horas de anticipación'
+    );
     error.status = 400;
     throw error;
   }
@@ -146,4 +148,12 @@ export async function confirmReserva(params, user) {
     throw error;
   }
   return await repository.confirm(params);
+}
+
+/**
+ * Cuenta las reservas ACTIVAS del día de hoy
+ * @returns {Promise<number>} Cantidad de reservas activas
+ */
+export async function getCountActiveTodayReservas() {
+  return await repository.countActiveTodayReservas();
 }

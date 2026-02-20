@@ -8,6 +8,7 @@ import {
   getLatestReservas as getLatestReservasService,
   getUserReservas as getUserReservasService,
   confirmReserva as confirmReservaService,
+  getCountActiveTodayReservas as getCountActiveTodayReservasService,
 } from './reservas.service.js';
 
 /**
@@ -101,4 +102,14 @@ export const deletePendingReserva = async (req, res) => {
 export const confirmReserva = async (req, res) => {
   const confirmedReserva = await confirmReservaService(req.params, req.user);
   res.json(confirmedReserva);
+};
+
+/**
+ * Cuenta las reservas ACTIVAS del día de hoy
+ * @param {Object} req - Request
+ * @param {Object} res - Response
+ */
+export const getCountActiveTodayReservas = async (req, res) => {
+  const count = await getCountActiveTodayReservasService();
+  res.json({ count });
 };

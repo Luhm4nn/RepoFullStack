@@ -1,41 +1,43 @@
 import prisma from '../prisma/prisma.js';
+import * as peliculasRepository from '../Peliculas/peliculas.repository.js';
+import * as salasRepository from '../Salas/salas.repository.js';
+import * as funcionesRepository from '../Funciones/funciones.repository.js';
+import * as reservasRepository from '../Funciones/reservas.repository.js';
 import { ESTADOS_FUNCION, ESTADOS_RESERVA } from '../constants/index.js';
 
 /**
  * Realiza un conteo masivo de entidades clave para el dashboard.
- * @returns {Promise<Object>} Conteos de Películas, Salas, Usuarios (clientes), Reservas de hoy y Funciones futuras.
+ * Utiliza las funciones de conteo específicas de cada módulo.
+ * @returns {Promise<Object>} Conteos de Películas en cartelera, Salas, Reservas activas hoy y Funciones públicas.
+ * @deprecated Usar los endpoints específicos de cada módulo en su lugar:
+ *   - GET /Peliculas/cartelera/count
+ *   - GET /Salas/count
+ *   - GET /Funciones/publicas/count
+ *   - GET /Reservas/count/today
  */
 export const getDashboardStats = async () => {
-  const [totalPeliculas, totalSalas, totalUsuarios, reservasHoy, totalFunciones] =
-    await Promise.all([
-      prisma.pelicula.count(),
-      prisma.sala.count(),
-      prisma.usuario.count({ where: { rol: 'CLIENTE' } }),
-      prisma.reserva.count({
-        where: {
-          fechaHoraReserva: {
-            gte: new Date(new Date().setHours(0, 0, 0, 0)),
-            lt: new Date(new Date().setHours(23, 59, 59, 999)),
-          },
-          estado: ESTADOS_RESERVA.ACTIVA,
-        },
-      }),
-      prisma.funcion.count({
-        where: {
-          estado: ESTADOS_FUNCION.PUBLICA,
-          fechaHoraFuncion: {
-            gte: new Date(),
-          },
-        },
-      }),
-    ]);
+  const inicio = new Date();
+  inicio.setHours(0, 0, 0, 0);
+  const fin = new Date();
+  fin.setDate(fin.getDate() + 6);
+  fin.setHours(23, 59, 59, 999);
+  const now = new Date();
+
+  // Inactivamos funciones vencidas antes de contar para asegurar datos actualizados
+  await funcionesRepository.autoInactivarVencidas(now);
+
+  const [totalPeliculas, totalSalas, totalFunciones, reservasHoy] = await Promise.all([
+    peliculasRepository.countEnCartelera(inicio, fin),
+    salasRepository.countAll(),
+    funcionesRepository.countPublic(),
+    reservasRepository.countActiveTodayReservas(),
+  ]);
 
   return {
     totalPeliculas,
     totalSalas,
-    totalUsuarios,
-    reservasHoy,
     totalFunciones,
+    reservasHoy,
   };
 };
 

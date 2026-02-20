@@ -8,7 +8,8 @@ import {
   deletePendingReserva,
   getLatestReservas,
   getUserReservas,
-  confirmReserva
+  confirmReserva,
+  getCountActiveTodayReservas,
 } from './reservas.controllers.js';
 import { asyncHandler } from '../Middlewares/asyncHandler.js';
 import { authMiddleware } from '../Middlewares/authMiddleware.js';
@@ -20,11 +21,29 @@ import { reservasFilterSchema } from '../validations/CommonSchemas.js';
 
 const router = Router();
 
-router.get('/Reservas/user', authMiddleware, moderateLimiter, validateQuery(reservasFilterSchema), asyncHandler(getUserReservas));
+router.get(
+  '/Reservas/user',
+  authMiddleware,
+  moderateLimiter,
+  validateQuery(reservasFilterSchema),
+  asyncHandler(getUserReservas)
+);
 
-router.get('/Reservas', authMiddleware, authorizeRoles('ADMIN'), validateQuery(reservasFilterSchema), asyncHandler(getReservas));
+router.get(
+  '/Reservas',
+  authMiddleware,
+  authorizeRoles('ADMIN'),
+  validateQuery(reservasFilterSchema),
+  asyncHandler(getReservas)
+);
 
-router.get("/Reservas/latest", validateQuery(reservasFilterSchema), asyncHandler(getLatestReservas));
+router.get('/Reservas/count/today', asyncHandler(getCountActiveTodayReservas));
+
+router.get(
+  '/Reservas/latest',
+  validateQuery(reservasFilterSchema),
+  asyncHandler(getLatestReservas)
+);
 
 router.get(
   '/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva',
@@ -32,7 +51,13 @@ router.get(
   asyncHandler(getReserva)
 );
 
-router.post('/Reserva', authMiddleware, strictLimiter, validateBody(atomicReservaCreateSchema), asyncHandler(createReserva));
+router.post(
+  '/Reserva',
+  authMiddleware,
+  strictLimiter,
+  validateBody(atomicReservaCreateSchema),
+  asyncHandler(createReserva)
+);
 
 router.put(
   '/Reserva/:idSala/:fechaHoraFuncion/:DNI/:fechaHoraReserva',
@@ -60,6 +85,5 @@ router.patch(
   moderateLimiter,
   asyncHandler(confirmReserva)
 );
-
 
 export const reservasRoutes = router;
