@@ -109,6 +109,7 @@ export async function validateAndUseQR(encryptedData, user) {
         fechaHoraFuncion: updatedReserva.funcion.fechaHoraFuncion,
         cliente: `${updatedReserva.usuario.nombreUsuario} ${updatedReserva.usuario.apellidoUsuario}`,
         estado: updatedReserva.estado,
+        cantidadAsientos: reserva.asiento_reserva?.length ?? 0,
       },
     };
   } catch (error) {

@@ -133,7 +133,7 @@ function ReservaPage() {
     }
 
     if (!userDNI) {
-      notify.error('Acceso denegado: Inicia sesión para completar la reserva.');
+      notify.error('Inicia sesión o crea tu cuenta para completar la reserva.');
       navigate('/login', { state: { from: `/reserva/${id}` } });
       return;
     }
@@ -179,6 +179,10 @@ function ReservaPage() {
       setExpiryTimestamp(expiry);
       setStep(3);
     } catch (err) {
+      if (err.response?.status === 429) {
+        notify.error('Demasiadas solicitudes. Inténtalo de nuevo más tarde.');
+        return;
+      }
       const msg =
         err.response?.data?.message ||
         err.message ||

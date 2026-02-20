@@ -8,8 +8,11 @@ import helmet from 'helmet';
 import './config/cloudinary.js';
 import { swaggerUi, swaggerSpec } from './config/swagger.js';
 
-
 const app = express();
+
+// Necesario en producción (Render, Railway, etc.) para que express-rate-limit
+// y otros middlewares lean correctamente la IP real detrás del reverse proxy.
+app.set('trust proxy', 1);
 
 app.use(
   helmet({

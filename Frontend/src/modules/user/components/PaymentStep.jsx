@@ -69,6 +69,16 @@ function PaymentStep({
       };
 
       const response = await createPaymentPreference(paymentData);
+      // Guardamos los params para que la success page pueda verificar el estado real
+      localStorage.setItem(
+        'mp_pending_reserva',
+        JSON.stringify({
+          idSala: funcion.idSala,
+          fechaHoraFuncion: funcion.fechaHoraFuncion,
+          DNI: reservaData.DNI,
+          fechaHoraReserva: reservaData.fechaHoraReserva,
+        })
+      );
       setPreferenceId(response.id);
     } catch (err) {
       const errorMsg = err.response?.data?.error || 'Error al conectar con Mercado Pago.';

@@ -1,5 +1,5 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { Button, Label, TextInput } from 'flowbite-react';
+import { Button, TextInput } from 'flowbite-react';
 import { useState, useEffect, useCallback } from 'react';
 import { FormSkeleton } from '../../shared/components/Skeleton';
 import { searchSalas } from '../../../api/Salas.api';
@@ -154,7 +154,9 @@ export default function FuncionesForm({
               <div className="grid grid-cols-1 gap-4">
                 {/* Sala */}
                 <div className="relative">
-                  <Label htmlFor="sala" value="Sala *" className="text-white" />
+                  <label className="block text-white font-medium mb-2" htmlFor="search-sala">
+                    Sala *
+                  </label>
                   <TextInput
                     id="search-sala"
                     type="text"
@@ -185,7 +187,9 @@ export default function FuncionesForm({
 
                 {/* Película */}
                 <div className="relative">
-                  <Label htmlFor="pelicula" value="Película *" className="text-white" />
+                  <label className="block text-white font-medium mb-2" htmlFor="search-pelicula">
+                    Película *
+                  </label>
                   <TextInput
                     id="search-pelicula"
                     type="text"
@@ -220,12 +224,11 @@ export default function FuncionesForm({
 
                 {/* Fecha y Hora */}
                 <div>
-                  <Label
-                    htmlFor="fechaHoraFuncion"
-                    value="Fecha y Hora de la Función *"
-                    className="text-white"
-                  />
+                  <label className="block text-white font-medium mb-2" htmlFor="fechaHoraFuncion">
+                    Fecha y Hora de la Función *
+                  </label>
                   <Field
+                    id="fechaHoraFuncion"
                     name="fechaHoraFuncion"
                     type="datetime-local"
                     className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none"

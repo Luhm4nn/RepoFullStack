@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { authAPI } from "../api/login.api.js";
-import { usuariosAPI } from "../api/usuarios.api.js";
+import { createContext, useContext, useState, useEffect } from 'react';
+import { authAPI } from '../api/login.api.js';
+import { usuariosAPI } from '../api/usuarios.api.js';
 
 const AuthContext = createContext();
 
@@ -26,8 +26,14 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(!!userPlano);
       }
     } catch (error) {
-      console.error("[AuthContext] Error initializing auth:", error);
-      logout();
+      console.error('[AuthContext] Error initializing auth:', error);
+      const isNetworkError =
+        error.code === 'ERR_NETWORK' || error.code === 'ERR_INTERNET_DISCONNECTED';
+      const isAuthError = error.response?.status === 401 || error.response?.status === 403;
+      if (!isNetworkError || isAuthError) {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
     } finally {
       setLoading(false);
     }
@@ -41,10 +47,10 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       return { success: true, user: userData };
     } catch (error) {
-      console.error("[AuthContext] login: error en login", error);
+      console.error('[AuthContext] login: error en login', error);
       return {
         success: false,
-        error: error.message || "Error en el login",
+        error: error.message || 'Error en el login',
       };
     } finally {
       setLoading(false);
@@ -54,9 +60,13 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       setLoading(true);
-      await authAPI.logout();
+      const res = await authAPI.logout();
+      if (res && res.status === 200) {
+        localStorage.clear();
+      }
     } catch (error) {
-      // Error en logout
+      // Error en logout — limpiamos igual
+      localStorage.clear();
     } finally {
       setUser(null);
       setIsAuthenticated(false);
@@ -73,11 +83,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAdmin = () => {
-    return hasRole("ADMIN");
+    return hasRole('ADMIN');
   };
 
   const isClient = () => {
-    return hasRole("CLIENTE");
+    return hasRole('CLIENTE');
   };
 
   const register = async (userData) => {
@@ -90,7 +100,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        error: error.message || "Error en el registro",
+        error: error.message || 'Error en el registro',
       };
     } finally {
       setLoading(false);
@@ -117,7 +127,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth debe ser usado dentro de AuthProvider");
+    throw new Error('useAuth debe ser usado dentro de AuthProvider');
   }
   return context;
 };

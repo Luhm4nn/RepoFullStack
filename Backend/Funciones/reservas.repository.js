@@ -177,9 +177,9 @@ async function createWithSeats(reservaData, asientos) {
         },
       });
 
-      total += asientoInfo.tarifa.precio;
+      total += parseFloat(asientoInfo.tarifa.precio.toString());
     }
-    total = parseFloat(total);
+    total = parseFloat(total.toFixed(2));
     //---- FIN VALIDACIONES ----//
 
     //Crear la Reserva

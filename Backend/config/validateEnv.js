@@ -3,11 +3,19 @@ import logger from '../utils/logger.js';
 /**
  * Valida que todas las variables de entorno requeridas estén presentes en el sistema.
  * Se ejecuta al inicio de la aplicación para prevenir fallos en tiempo de ejecución.
- * 
+ *
  * @throws {Error} Si falta alguna variable crítica definida en 'requiredEnvVars'.
  */
 export const validateEnv = () => {
-  const requiredEnvVars = ['DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET', 'FRONTEND_URL'];
+  const requiredEnvVars = [
+    'DATABASE_URL',
+    'JWT_SECRET',
+    'JWT_REFRESH_SECRET',
+    'FRONTEND_URL',
+    'BACKEND_URL',
+    'MAILJET_API_KEY',
+    'MAILJET_SECRET_KEY',
+  ];
 
   const optionalEnvVars = [
     'CLOUDINARY_CLOUD_NAME',
