@@ -13,7 +13,7 @@ describe('Funciones API', () => {
 
   describe('GET /Funciones', () => {
     test('debe retornar lista de funciones', async () => {
-      const response = await request(app).get('/Funciones');
+      const response = await request(app).get('/api/Funciones');
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('data');
@@ -26,7 +26,7 @@ describe('Funciones API', () => {
     });
 
     test('debe filtrar por nombrePelicula', async () => {
-      const response = await request(app).get('/Funciones').query({
+      const response = await request(app).get('/api/Funciones').query({
         nombrePelicula: 'test',
       });
 
@@ -35,15 +35,13 @@ describe('Funciones API', () => {
       expect(Array.isArray(response.body.data)).toBe(true);
       response.body.data.forEach((funcion) => {
         if (funcion.pelicula?.nombrePelicula) {
-          expect(
-            funcion.pelicula.nombrePelicula.toLowerCase()
-          ).toContain('test');
+          expect(funcion.pelicula.nombrePelicula.toLowerCase()).toContain('test');
         }
       });
     });
 
     test('debe filtrar por nombreSala (busca en nombreSala o ubicacion)', async () => {
-      const response = await request(app).get('/Funciones').query({
+      const response = await request(app).get('/api/Funciones').query({
         nombreSala: 'sala',
       });
 
@@ -59,8 +57,8 @@ describe('Funciones API', () => {
       });
     });
 
-    test('debe filtrar por estado=activas (excluye Inactiva)', async () => {
-      const response = await request(app).get('/Funciones').query({
+    test('debe filtrar por estado=activas (excluye INACTIVA)', async () => {
+      const response = await request(app).get('/api/Funciones').query({
         estado: 'activas',
       });
 
@@ -68,12 +66,12 @@ describe('Funciones API', () => {
       expect(response.body).toHaveProperty('data');
       expect(Array.isArray(response.body.data)).toBe(true);
       response.body.data.forEach((funcion) => {
-        expect(funcion.estado).not.toBe('Inactiva');
+        expect(funcion.estado).not.toBe('INACTIVA');
       });
     });
 
-    test('debe filtrar por estado=inactivas (solo Inactiva)', async () => {
-      const response = await request(app).get('/Funciones').query({
+    test('debe filtrar por estado=inactivas (solo INACTIVA)', async () => {
+      const response = await request(app).get('/api/Funciones').query({
         estado: 'inactivas',
       });
 
@@ -81,19 +79,19 @@ describe('Funciones API', () => {
       expect(response.body).toHaveProperty('data');
       expect(Array.isArray(response.body.data)).toBe(true);
       response.body.data.forEach((funcion) => {
-        expect(funcion.estado).toBe('Inactiva');
+        expect(funcion.estado).toBe('INACTIVA');
       });
     });
 
-    test('debe filtrar por estado=publicas (solo Publica)', async () => {
-      const response = await request(app).get('/Funciones').query({
+    test('debe filtrar por estado=publicas (solo PUBLICA)', async () => {
+      const response = await request(app).get('/api/Funciones').query({
         estado: 'publicas',
       });
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
       response.body.forEach((funcion) => {
-        expect(funcion.estado).toBe('Publica');
+        expect(funcion.estado).toBe('PUBLICA');
       });
     });
 
@@ -101,7 +99,7 @@ describe('Funciones API', () => {
       const fechaDesde = new Date();
       fechaDesde.setDate(fechaDesde.getDate() + 1);
 
-      const response = await request(app).get('/Funciones').query({
+      const response = await request(app).get('/api/Funciones').query({
         fechaDesde: fechaDesde.toISOString(),
       });
 
@@ -110,9 +108,7 @@ describe('Funciones API', () => {
       expect(Array.isArray(response.body.data)).toBe(true);
       response.body.data.forEach((funcion) => {
         const fechaFuncion = new Date(funcion.fechaHoraFuncion);
-        expect(fechaFuncion.getTime()).toBeGreaterThanOrEqual(
-          fechaDesde.getTime()
-        );
+        expect(fechaFuncion.getTime()).toBeGreaterThanOrEqual(fechaDesde.getTime());
       });
     });
 
@@ -120,7 +116,7 @@ describe('Funciones API', () => {
       const fechaHasta = new Date();
       fechaHasta.setDate(fechaHasta.getDate() + 7);
 
-      const response = await request(app).get('/Funciones').query({
+      const response = await request(app).get('/api/Funciones').query({
         fechaHasta: fechaHasta.toISOString(),
       });
 
@@ -129,9 +125,7 @@ describe('Funciones API', () => {
       expect(Array.isArray(response.body.data)).toBe(true);
       response.body.data.forEach((funcion) => {
         const fechaFuncion = new Date(funcion.fechaHoraFuncion);
-        expect(fechaFuncion.getTime()).toBeLessThanOrEqual(
-          fechaHasta.getTime()
-        );
+        expect(fechaFuncion.getTime()).toBeLessThanOrEqual(fechaHasta.getTime());
       });
     });
 
@@ -140,7 +134,7 @@ describe('Funciones API', () => {
       const fechaHasta = new Date();
       fechaHasta.setDate(fechaHasta.getDate() + 30);
 
-      const response = await request(app).get('/Funciones').query({
+      const response = await request(app).get('/api/Funciones').query({
         estado: 'activas',
         fechaDesde: fechaDesde.toISOString(),
         fechaHasta: fechaHasta.toISOString(),
@@ -150,32 +144,25 @@ describe('Funciones API', () => {
       expect(response.body).toHaveProperty('data');
       expect(Array.isArray(response.body.data)).toBe(true);
       response.body.data.forEach((funcion) => {
-        expect(funcion.estado).not.toBe('Inactiva');
+        expect(funcion.estado).not.toBe('INACTIVA');
         const fechaFuncion = new Date(funcion.fechaHoraFuncion);
-        expect(fechaFuncion.getTime()).toBeGreaterThanOrEqual(
-          fechaDesde.getTime()
-        );
-        expect(fechaFuncion.getTime()).toBeLessThanOrEqual(
-          fechaHasta.getTime()
-        );
+        expect(fechaFuncion.getTime()).toBeGreaterThanOrEqual(fechaDesde.getTime());
+        expect(fechaFuncion.getTime()).toBeLessThanOrEqual(fechaHasta.getTime());
       });
     });
   });
 
   describe('POST /Funcion', () => {
     test('debe requerir autenticación de admin', async () => {
-      const response = await request(app).post('/Funcion').send({});
+      const response = await request(app).post('/api/Funcion').send({});
 
       expect(response.status).toBe(401);
     });
 
     test('debe validar campos requeridos', async () => {
-      const response = await request(app)
-        .post('/Funcion')
-        .set('Cookie', adminToken)
-        .send({
-          idSala: 1,
-        });
+      const response = await request(app).post('/api/Funcion').set('Cookie', adminToken).send({
+        idSala: 1,
+      });
 
       expect(response.status).toBe(400);
     });
@@ -183,15 +170,12 @@ describe('Funciones API', () => {
     test('debe detectar función antes de fecha de estreno', async () => {
       const fechaPasada = new Date('2020-01-01T20:00:00Z');
 
-      const response = await request(app)
-        .post('/Funcion')
-        .set('Cookie', adminToken)
-        .send({
-          idSala: 1,
-          idPelicula: 1,
-          fechaHoraFuncion: fechaPasada.toISOString(),
-          estado: 'Privada',
-        });
+      const response = await request(app).post('/api/Funcion').set('Cookie', adminToken).send({
+        idSala: 1,
+        idPelicula: 1,
+        fechaHoraFuncion: fechaPasada.toISOString(),
+        estado: 'PRIVADA',
+      });
 
       expect([400, 404]).toContain(response.status);
     });
@@ -205,11 +189,11 @@ describe('Funciones API', () => {
         idSala: 1,
         idPelicula: 1,
         fechaHoraFuncion: fechaFutura.toISOString(),
-        estado: 'Privada',
+        estado: 'PRIVADA',
       };
 
       const response = await request(app)
-        .post('/Funcion')
+        .post('/api/Funcion')
         .set('Cookie', adminToken)
         .send(nuevaFuncion);
 
@@ -230,15 +214,12 @@ describe('Funciones API', () => {
     test('debe detectar solapamiento de funciones', async () => {
       if (!testFuncionId) return;
 
-      const response = await request(app)
-        .post('/Funcion')
-        .set('Cookie', adminToken)
-        .send({
-          idSala: testFuncionId.idSala,
-          idPelicula: 1,
-          fechaHoraFuncion: testFuncionId.fechaHoraFuncion,
-          estado: 'Privada',
-        });
+      const response = await request(app).post('/api/Funcion').set('Cookie', adminToken).send({
+        idSala: testFuncionId.idSala,
+        idPelicula: 1,
+        fechaHoraFuncion: testFuncionId.fechaHoraFuncion,
+        estado: 'PRIVADA',
+      });
 
       expect(response.status).toBe(409);
       expect(response.body.message || response.body.error).toMatch(/solapa/i);
@@ -250,8 +231,8 @@ describe('Funciones API', () => {
       if (!testFuncionId) return;
 
       const response = await request(app)
-        .put(`/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`)
-        .send({ estado: 'Publica' });
+        .put(`/api/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`)
+        .send({ estado: 'PUBLICA' });
 
       expect(response.status).toBe(401);
     });
@@ -260,12 +241,12 @@ describe('Funciones API', () => {
       if (!testFuncionId) return;
 
       const response = await request(app)
-        .put(`/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`)
+        .put(`/api/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`)
         .set('Cookie', adminToken)
-        .send({ estado: 'Publica' });
+        .send({ estado: 'PUBLICA' });
 
       if (response.status === 200) {
-        expect(response.body).toHaveProperty('estado', 'Publica');
+        expect(response.body).toHaveProperty('estado', 'PUBLICA');
       }
     });
   });
@@ -275,7 +256,7 @@ describe('Funciones API', () => {
       if (!testFuncionId) return;
 
       const response = await request(app).delete(
-        `/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`
+        `/api/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`
       );
 
       expect(response.status).toBe(401);
@@ -285,12 +266,12 @@ describe('Funciones API', () => {
       if (!testFuncionId) return;
 
       await request(app)
-        .put(`/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`)
+        .put(`/api/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`)
         .set('Cookie', adminToken)
-        .send({ estado: 'Privada' });
+        .send({ estado: 'PRIVADA' });
 
       const response = await request(app)
-        .delete(`/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`)
+        .delete(`/api/Funcion/${testFuncionId.idSala}/${testFuncionId.fechaHoraFuncion}`)
         .set('Cookie', adminToken);
 
       expect([200, 403]).toContain(response.status);

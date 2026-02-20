@@ -12,7 +12,7 @@ describe('Peliculas API', () => {
 
   describe('GET /Peliculas', () => {
     test('debe retornar lista de películas', async () => {
-      const response = await request(app).get('/Peliculas');
+      const response = await request(app).get('/api/Peliculas');
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
@@ -21,7 +21,7 @@ describe('Peliculas API', () => {
 
   describe('GET /Peliculas/search', () => {
     test('debe buscar por nombrePelicula con query param q', async () => {
-      const response = await request(app).get('/Peliculas/search').query({
+      const response = await request(app).get('/api/Peliculas/search').query({
         q: 'john',
       });
 
@@ -35,15 +35,15 @@ describe('Peliculas API', () => {
     });
 
     test('debe ser case-insensitive en la búsqueda', async () => {
-      const responseLower = await request(app).get('/Peliculas/search').query({
+      const responseLower = await request(app).get('/api/Peliculas/search').query({
         q: 'john',
       });
       
-      const responseUpper = await request(app).get('/Peliculas/search').query({
+      const responseUpper = await request(app).get('/api/Peliculas/search').query({
         q: 'JOHN',
       });
       
-      const responseMixed = await request(app).get('/Peliculas/search').query({
+      const responseMixed = await request(app).get('/api/Peliculas/search').query({
         q: 'JoHn',
       });
 
@@ -56,7 +56,7 @@ describe('Peliculas API', () => {
     });
 
     test('debe retornar array vacío si no hay coincidencias', async () => {
-      const response = await request(app).get('/Peliculas/search').query({
+      const response = await request(app).get('/api/Peliculas/search').query({
         q: 'xyzabc123nonexistent',
       });
 
@@ -66,7 +66,7 @@ describe('Peliculas API', () => {
     });
 
     test('debe limitar resultados con limit param', async () => {
-      const response = await request(app).get('/Peliculas/search').query({
+      const response = await request(app).get('/api/Peliculas/search').query({
         q: '',
         limit: 3,
       });
@@ -77,12 +77,12 @@ describe('Peliculas API', () => {
     });
 
     test('debe buscar películas parcialmente por nombre', async () => {
-      const allPeliculas = await request(app).get('/Peliculas');
+      const allPeliculas = await request(app).get('/api/Peliculas');
       
       if (allPeliculas.body.length > 0) {
         const searchTerm = allPeliculas.body[0].nombrePelicula.slice(0, 3);
         
-        const response = await request(app).get('/Peliculas/search').query({
+        const response = await request(app).get('/api/Peliculas/search').query({
           q: searchTerm,
         });
 
@@ -102,12 +102,12 @@ describe('Peliculas API', () => {
 
   describe('GET /Pelicula/:id', () => {
     test('debe retornar película por ID', async () => {
-      const allPeliculas = await request(app).get('/Peliculas');
+      const allPeliculas = await request(app).get('/api/Peliculas');
       
       if (allPeliculas.body.length > 0) {
         const idPelicula = allPeliculas.body[0].idPelicula;
         
-        const response = await request(app).get(`/Pelicula/${idPelicula}`);
+        const response = await request(app).get(`/api/Pelicula/${idPelicula}`);
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('idPelicula', idPelicula);
@@ -116,7 +116,7 @@ describe('Peliculas API', () => {
     });
 
     test('debe retornar 404 para ID inexistente', async () => {
-      const response = await request(app).get('/Pelicula/99999');
+      const response = await request(app).get('/api/Pelicula/99999');
 
       expect(response.status).toBe(404);
     });
@@ -124,7 +124,7 @@ describe('Peliculas API', () => {
 
   describe('POST /Pelicula', () => {
     test('debe requerir autenticación de admin', async () => {
-      const response = await request(app).post('/Pelicula').send({
+      const response = await request(app).post('/api/Pelicula').send({
         nombrePelicula: 'Película Test',
         duracion: 120,
       });
@@ -134,7 +134,7 @@ describe('Peliculas API', () => {
 
     test('debe validar campos requeridos', async () => {
       const response = await request(app)
-        .post('/Pelicula')
+        .post('/api/Pelicula')
         .set('Cookie', adminToken)
         .send({
           nombrePelicula: 'Película Incompleta',

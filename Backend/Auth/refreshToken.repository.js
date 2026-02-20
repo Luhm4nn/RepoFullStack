@@ -10,7 +10,7 @@ export async function findRefreshToken(token) {
 }
 
 export async function deleteRefreshToken(token) {
-  return prisma.refresh_token.delete({ where: { token } });
+  return prisma.refresh_token.deleteMany({ where: { token } });
 }
 
 export async function deleteAllTokensForUser(userId) {

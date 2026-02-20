@@ -1,5 +1,7 @@
 import request from 'supertest';
 import app from '../app.js';
+import prisma from '../prisma/prisma.js';
+import bcrypt from 'bcryptjs';
 
 /**
  * Test helpers
@@ -11,19 +13,39 @@ let testUser = null;
 
 /**
  * Obtiene un token de admin para testing
- * @returns {Promise<string>} Token de autenticación de admin
+ * @returns {Promise<Array>} Cookies de autenticación de admin
  */
 export const getAdminToken = async () => {
   if (adminToken) return adminToken;
 
-  // Asumiendo que existe un usuario admin en la BD
-  const response = await request(app).post('/auth/login').send({
-    email: 'admin@cutzy.com',
-    password: '123456',
+  const adminEmail = 'admin_test@cutzy.com';
+  const adminPassword = '123456';
+  const adminDNI = 99999999;
+
+  // Asegurar que el admin existe en la DB de test con la contraseña correcta
+  const existingAdmin = await prisma.usuario.findUnique({ where: { email: adminEmail } });
+  if (!existingAdmin) {
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+    await prisma.usuario.create({
+      data: {
+        DNI: adminDNI,
+        nombreUsuario: 'Admin',
+        apellidoUsuario: 'System',
+        email: adminEmail,
+        contrasena: hashedPassword,
+        rol: 'ADMIN',
+        telefono: '11111111',
+      },
+    });
+  }
+
+  // Hacer login para obtener cookies
+  const response = await request(app).post('/api/auth/login').send({
+    email: adminEmail,
+    password: adminPassword,
   });
 
   if (response.status === 200) {
-    // Capturar cookies de la respuesta
     const cookies = response.headers['set-cookie'];
     if (cookies) {
       adminToken = cookies;
@@ -31,6 +53,7 @@ export const getAdminToken = async () => {
     }
   }
 
+  console.error('ERROR EN LOGIN ADMIN TEST:', response.status, response.body);
   throw new Error('No se pudo obtener token de admin (Cookies).');
 };
 
@@ -41,22 +64,25 @@ export const getAdminToken = async () => {
 export const getUserToken = async () => {
   if (userToken) return userToken;
 
+  const dniRand = Math.floor(10000000 + Math.random() * 90000000)
+    .toString()
+    .slice(0, 8);
   const userData = {
-    nombre: 'Test User',
-    apellido: 'Testing',
-    DNI: Math.floor(Math.random() * 100000000),
+    nombreUsuario: 'Test User',
+    apellidoUsuario: 'Testing',
+    DNI: dniRand,
     email: `test${Date.now()}@example.com`,
     contrasena: 'password123',
     telefono: '1234567890',
   };
 
-  const createResponse = await request(app).post('/Usuario').send(userData);
+  const createResponse = await request(app).post('/api/Usuario').send(userData);
 
   if (createResponse.status === 201) {
     testUser = createResponse.body;
 
     // Login con el usuario creado
-    const loginResponse = await request(app).post('/auth/login').send({
+    const loginResponse = await request(app).post('/api/auth/login').send({
       email: userData.email,
       password: userData.contrasena,
     });
@@ -77,17 +103,12 @@ export const getUserToken = async () => {
  * Limpia datos de prueba después de los tests
  */
 export const cleanup = async () => {
-  adminToken = null;
-  userToken = null;
-
-  // Aquí puedes agregar lógica para limpiar la BD de test
-  // Por ejemplo, eliminar el usuario de prueba creado
   if (testUser && adminToken) {
-    await request(app)
-      .delete(`/Usuario/${testUser.DNI}`)
-      .set('Authorization', `Bearer ${adminToken}`);
+    await request(app).delete(`/api/Usuario/${testUser.DNI}`).set('Cookie', adminToken);
   }
 
+  adminToken = null;
+  userToken = null;
   testUser = null;
 };
 
