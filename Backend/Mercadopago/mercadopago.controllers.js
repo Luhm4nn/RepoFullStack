@@ -48,7 +48,7 @@ export const createPaymentPreference = asyncHandler(async (req, res) => {
       failure: `${process.env.FRONTEND_URL}/reserva/failure`,
       pending: `${process.env.FRONTEND_URL}/reserva/pending`,
     },
-    notification_url: `${(process.env.BACKEND_URL || process.env.NGROK_URL).replace(/\/+$/, '')}/api/mercadopago/webhooks`,
+    notification_url: `${process.env.BACKEND_URL}/mercadopago/webhooks`,
     metadata: {
       id_sala: reserva.idSala.toString(),
       fecha_hora_funcion: reserva.fechaHoraFuncion,
@@ -71,7 +71,6 @@ export const handleWebhook = asyncHandler(async (req, res) => {
   if (type === 'payment') {
     const payment = new Payment(client);
     const result = await payment.get({ id: data.id });
-    logger.info('>>> RESULTADO PAGO MP GET:', { status: result.status, id: data.id });
 
     if (result.status === 'approved') {
       const { metadata } = result;
