@@ -296,6 +296,21 @@ async function countPublic() {
 }
 
 /**
+ * Cuenta reservas activas para una función
+ * @param {Object} params - Identificadores de la función
+ * @returns {Promise<number>} Cantidad de reservas activas
+ */
+async function countActiveReservations({ idSala, fechaHoraFuncion }) {
+  return await prisma.reserva.count({
+    where: {
+      idSala: parseInt(idSala, 10),
+      fechaHoraFuncion: new Date(fechaHoraFuncion),
+      estado: ESTADOS_RESERVA.ACTIVA,
+    },
+  });
+}
+
+/**
  * Obtiene una función con estadísticas de ocupación y ganancia
  * @param {Object} params - Parámetros de búsqueda
  * @param {number} params.idSala - ID de la sala
@@ -468,6 +483,7 @@ export {
   getByPeliculaAndFecha,
   getByPeliculaAndRange,
   countPublic,
+  countActiveReservations,
   getOneWithStats,
   getWithFilters,
   autoInactivarVencidas,

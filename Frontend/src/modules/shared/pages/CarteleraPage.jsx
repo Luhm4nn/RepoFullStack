@@ -1,8 +1,8 @@
-import { PeliculaCard } from "../../shared";
-import { EstrenoCard } from "../../shared";
-import { useEffect, useState } from "react";
-import { getPeliculasEnCartelera, getEstrenos } from "../../../api/Peliculas.api";
-import { CenteredSpinner } from "../components/Spinner";
+import { PeliculaCard } from '../../shared';
+import { EstrenoCard } from '../../shared';
+import { useEffect, useState } from 'react';
+import { getPeliculasEnCartelera, getEstrenos } from '../../../api/Peliculas.api';
+import { CenteredSpinner } from '../components/Spinner';
 
 function CarteleraPage() {
   const [peliculas, setPeliculas] = useState([]);
@@ -26,7 +26,7 @@ function CarteleraPage() {
 
   useEffect(() => {
     getEstrenos()
-      .then((data) => { 
+      .then((data) => {
         setEstrenos(Array.isArray(data) ? data : []);
         setLoading(false);
       })
@@ -35,7 +35,7 @@ function CarteleraPage() {
         setEstrenos([]);
         setLoading(false);
       });
-}, []);
+  }, []);
 
   // Auto-advance carousel
   useEffect(() => {
@@ -74,9 +74,8 @@ function CarteleraPage() {
           ¡Bienvenido a <span className="text-purple-400">Cutzy Cinema</span>!
         </h1>
         <p className="text-lg sm:text-xl md:text-3xl text-gray-200 mb-8 md:mb-12 text-center max-w-3xl px-4">
-          Tu lugar para vivir la mejor experiencia de cine. Disfruta de los
-          últimos estrenos, reserva tus asientos y sumérgete en la magia del
-          séptimo arte.
+          Tu lugar para vivir la mejor experiencia de cine. Disfruta de los últimos estrenos,
+          reserva tus asientos y sumérgete en la magia del séptimo arte.
         </p>
 
         {/* Carousel estilo pantalla de cine */}
@@ -111,9 +110,7 @@ function CarteleraPage() {
                     <div
                       key={pelicula.idPelicula}
                       className={`absolute inset-0 h-full w-full transition-opacity duration-700 ${
-                        index === currentSlide
-                          ? "opacity-100 z-10"
-                          : "opacity-0 z-0"
+                        index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
                       }`}
                     >
                       <div className="relative h-full flex items-center justify-center bg-black overflow-hidden">
@@ -121,12 +118,12 @@ function CarteleraPage() {
                         <div className="absolute inset-0">
                           {/* Capa 1: Imagen principal */}
                           <img
-                            src={pelicula.portada || "/placeholder.svg"}
+                            src={pelicula.portada || '/placeholder.svg'}
                             alt={pelicula.nombrePelicula}
                             className="w-full h-full object-cover"
                             style={{
-                              objectPosition: "center 30%",
-                              filter: "brightness(0.7) contrast(1.1)",
+                              objectPosition: 'center 30%',
+                              filter: 'brightness(0.7) contrast(1.1)',
                             }}
                           />
 
@@ -168,26 +165,20 @@ function CarteleraPage() {
                               <p
                                 className={`text-gray-200 text-xs sm:text-sm md:text-lg leading-relaxed drop-shadow-lg ${
                                   expandedSynopsis[pelicula.idPelicula]
-                                    ? ""
-                                    : "line-clamp-2 md:line-clamp-3"
+                                    ? ''
+                                    : 'line-clamp-2 md:line-clamp-3'
                                 }`}
                               >
-                                {pelicula.sinopsis ||
-                                  "Sin sinopsis disponible."}
+                                {pelicula.sinopsis || 'Sin sinopsis disponible.'}
                               </p>
-                              {pelicula.sinopsis &&
-                                pelicula.sinopsis.length > 100 && (
-                                  <button
-                                    onClick={() =>
-                                      toggleSynopsis(pelicula.idPelicula)
-                                    }
-                                    className="mt-1 text-purple-300 hover:text-purple-200 text-xs md:text-sm font-semibold underline transition-colors"
-                                  >
-                                    {expandedSynopsis[pelicula.idPelicula]
-                                      ? "Ver menos"
-                                      : "Ver más"}
-                                  </button>
-                                )}
+                              {pelicula.sinopsis && pelicula.sinopsis.length > 100 && (
+                                <button
+                                  onClick={() => toggleSynopsis(pelicula.idPelicula)}
+                                  className="mt-1 text-purple-300 hover:text-purple-200 text-xs md:text-sm font-semibold underline transition-colors"
+                                >
+                                  {expandedSynopsis[pelicula.idPelicula] ? 'Ver menos' : 'Ver más'}
+                                </button>
+                              )}
                             </div>
 
                             {/* Botones de acción responsive */}
@@ -239,7 +230,7 @@ function CarteleraPage() {
                           <div className="hidden lg:block relative group">
                             <div className="absolute -inset-2 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg opacity-50 group-hover:opacity-75 blur-xl transition-opacity duration-300"></div>
                             <img
-                              src={pelicula.portada || "/placeholder.svg"}
+                              src={pelicula.portada || '/placeholder.svg'}
                               alt={pelicula.nombrePelicula}
                               className="relative h-72 w-auto rounded-lg shadow-2xl border-2 border-white/20 transition-transform duration-300 group-hover:scale-105"
                             />
@@ -265,8 +256,8 @@ function CarteleraPage() {
                         onClick={() => goToSlide(index)}
                         className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                           index === currentSlide
-                            ? "w-8 bg-gradient-to-r from-purple-500 to-blue-500"
-                            : "w-1.5 bg-white/40 hover:bg-white/60"
+                            ? 'w-8 bg-gradient-to-r from-purple-500 to-blue-500'
+                            : 'w-1.5 bg-white/40 hover:bg-white/60'
                         }`}
                         aria-label={`Ir a la diapositiva ${index + 1}`}
                       />
@@ -287,11 +278,7 @@ function CarteleraPage() {
                         strokeWidth="2.5"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M15 19l-7-7 7-7"
-                        />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                       </svg>
                     </button>
                     <button
@@ -306,11 +293,7 @@ function CarteleraPage() {
                         strokeWidth="2.5"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M9 5l7 7-7 7"
-                        />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                       </svg>
                     </button>
                   </div>
@@ -349,24 +332,17 @@ function CarteleraPage() {
         </div>
 
         {/* Peliculas a estrenar */}
-        <div className="w-full rounded-xl max-w-6xl mx-auto mt-8">
-          <div className="mb-8 md:mb-12">
-            <h3 className="text-2xl md:text-4xl font-semibold text-white mt-4 mb-4 text-center px-4">
-              Próximos estrenos...
-            </h3>
-          </div>
-          {estrenos.length === 0 ? (
-            <div className="rounded-xl text-gray-400 text-xl md:text-2xl">
-              No hay películas próximas a estrenarse.
+        {estrenos.length > 0 && (
+          <div className="w-full rounded-xl max-w-6xl mx-auto mt-8">
+            <div className="mb-8 md:mb-12">
+              <h3 className="text-2xl md:text-4xl font-semibold text-white mt-4 mb-4 text-center px-4">
+                Próximos estrenos...
+              </h3>
             </div>
-          ) : (
             <EstrenoCard estrenos={estrenos} />
-          )}
-        </div>
-        
+          </div>
+        )}
       </div>
-
-      
 
       <style>
         {`

@@ -11,21 +11,21 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState(null);
   const itemsPerPage = 10;
-  
+
   const { error: modalError, handleApiError, hideError } = useErrorModal();
 
   const fetchFunciones = async (page = 1) => {
     try {
       setLoading(true);
-      
+
       const params = {
         estado: mostrandoActivas ? 'activas' : 'inactivas',
         page,
-        limit: itemsPerPage
+        limit: itemsPerPage,
       };
 
       const response = await getFunciones(params);
-      
+
       // El backend devuelve { data, pagination }
       const funcionesArray = Array.isArray(response?.data) ? response.data : [];
       setFunciones(funcionesArray);
@@ -44,7 +44,6 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    // No llamar fetchFunciones aquí, será llamado por useFuncionesFilter
   };
 
   const handlePaginationChange = (newPagination, newPage) => {
@@ -68,7 +67,7 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
     try {
       const idSalaOriginal = funcionOriginal.idSala;
       const fechaHoraOriginal = funcionOriginal.fechaHoraFuncion;
-      
+
       await updateFuncion(idSalaOriginal, fechaHoraOriginal, funcionActualizada);
       await fetchFunciones(currentPage);
       return { success: true };
@@ -76,23 +75,24 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
       const wasHandled = handleApiError(error);
       if (!wasHandled) {
         const errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
-        return { success: false, error: `Error actualizando función: ${errorMessage}` };
+        return { success: false, error: errorMessage };
       }
-      return { success: false, error: null }; // Error was handled by modal
+      return { success: false, error: null };
     }
   };
 
   // Publish/unpublish function
   const handlePublishFuncion = async (funcionToPublish) => {
-    const nuevoEstado = funcionToPublish.estado === ESTADOS_FUNCION.PRIVADA 
-      ? ESTADOS_FUNCION.PUBLICA 
-      : ESTADOS_FUNCION.PRIVADA;
-    
+    const nuevoEstado =
+      funcionToPublish.estado === ESTADOS_FUNCION.PRIVADA
+        ? ESTADOS_FUNCION.PUBLICA
+        : ESTADOS_FUNCION.PRIVADA;
+
     const funcionActualizada = {
       ...funcionToPublish,
-      estado: nuevoEstado
+      estado: nuevoEstado,
     };
-    
+
     return await handleUpdateFuncion(funcionToPublish, funcionActualizada);
   };
 
@@ -111,18 +111,18 @@ export const useFuncionesFetch = (mostrandoActivas = true) => {
     error,
     modalError,
     hideError,
-    
+
     // Paginación
     currentPage,
     pagination,
     handlePageChange,
     handlePaginationChange,
     itemsPerPage,
-    
+
     // Actions
     fetchFunciones,
     handleDeleteFuncion,
     handleUpdateFuncion,
-    handlePublishFuncion
+    handlePublishFuncion,
   };
 };
