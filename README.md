@@ -102,7 +102,6 @@ Configura un `.env` en la carpeta `Backend/` basándote en el archivo `.env.exam
 ```bash
 cd Backend
 npx prisma migrate dev
-npm run seed
 ```
 
 ### 5. Iniciar Proyecto
