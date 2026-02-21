@@ -60,14 +60,11 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       setLoading(true);
-      const res = await authAPI.logout();
-      if (res && res.status === 200) {
-        localStorage.clear();
-      }
+      await authAPI.logout();
     } catch (error) {
-      // Error en logout — limpiamos igual
-      localStorage.clear();
+      console.error('[AuthContext] logout: error during logout', error);
     } finally {
+      localStorage.clear();
       setUser(null);
       setIsAuthenticated(false);
       setLoading(false);

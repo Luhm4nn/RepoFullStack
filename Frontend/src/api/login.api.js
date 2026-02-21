@@ -16,7 +16,8 @@ export const authAPI = {
   // Logout
   logout: async () => {
     try {
-      await api.post("/auth/logout");
+      const response = await api.post("/auth/logout");
+      return response;
     } finally {
     }
   },

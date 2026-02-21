@@ -70,13 +70,29 @@ export async function revokeRefreshToken(req, res) {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) return res.status(400).json({ message: 'No refresh token' });
   await deleteRefreshToken(refreshToken);
-  res.clearCookie('refreshToken');
-  res.clearCookie('accessToken');
+
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  };
+
+  res.clearCookie('refreshToken', cookieOptions);
+  res.clearCookie('accessToken', cookieOptions);
   res.json({ message: 'Sesión cerrada' });
 }
 
 export async function revokeAllSessions(req, res) {
   const userId = req.user.id;
   await deleteAllTokensForUser(userId);
-  res.clearCookie('refreshToken').clearCookie('accessToken').json({ message: 'Todas las sesiones cerradas exitosamente' });
+
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  };
+
+  res.clearCookie('refreshToken', cookieOptions)
+    .clearCookie('accessToken', cookieOptions)
+    .json({ message: 'Todas las sesiones cerradas exitosamente' });
 }
