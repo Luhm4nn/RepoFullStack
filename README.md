@@ -30,6 +30,16 @@ Sistema integral de gestión y reserva de entradas de cine. Permite a los usuari
 
 ---
 
+## Metodología utilizada
+Para la gestión del proyecto se adoptó una metodología ágil adaptada, basada en elementos de Scrum y XP, ajustada al tamaño del equipo (2 integrantes).
+
+Iteraciones cada 2 semanas (ajustable según los tiempos de cada uno) con definición de tareas y revisión de avances.
+Uso de GitHub Projects como tablero Kanban para gestionar features, bugs e issues.
+Programación en pareja en tareas complejas y revisión cruzada de código (code review).
+Registro de reuniones y acuerdos en /docs/minutas.md.
+
+---
+
 ## � Estructura del Sistema
 
 ```text
