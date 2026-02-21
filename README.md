@@ -5,8 +5,8 @@ Sistema integral de gestión y reserva de entradas de cine. Permite a los usuari
 ## 🚀 Acceso Rápido
 - **[Documentación Técnica](/docs/documentacion.md)**: Contiene la arquitectura detallada, flujos de autenticación, interceptores de Axios y patrones de diseño utilizados.
 - **[Minutas de reuniones](/docs/minutas.md)**: Historial de acuerdos y seguimiento del desarrollo.
-- **API Docs (Swagger)**: `https://repofullstack.onrender.com/api-docs` documentación detallada de la API mediante Swagger.
-- **[Propuesta actualizada]**: (https://github.com/Luhm4nn/TP-DSW-lez-Luh/blob/main/proposal.md)
+- **[API Docs (Swagger)](https://repofullstack.onrender.com/api-docs)**:  documentación detallada de la API mediante Swagger.
+- **[Propuesta actualizada](https://github.com/Luhm4nn/TP-DSW-lez-Luh/blob/main/proposal.md)**
 
 ---
 
