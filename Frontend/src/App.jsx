@@ -37,23 +37,16 @@ function NavbarWrapper() {
   const location = useLocation();
   if (loading) return null;
   if (isAuthenticated && user?.rol && user.rol.trim().toUpperCase() === 'ADMIN') {
-    return <AdminNavbar user={user} onLogout={logout} currentPath={location.pathname} />;
+    return <AdminNavbar />;
   }
   if (isAuthenticated && user?.rol && user.rol.trim().toUpperCase() === 'CLIENTE') {
-    return <UserNavbar user={user} onLogout={logout} currentPath={location.pathname} />;
+    return <UserNavbar />;
   }
   if (isAuthenticated && user?.rol && user.rol.trim().toUpperCase() === 'ESCANER') {
-    return <ScannerNavbar user={user} onLogout={logout} currentPath={location.pathname} />;
+    return <ScannerNavbar />;
   }
 
-  return (
-    <PublicNavbar
-      user={user}
-      isAuthenticated={isAuthenticated}
-      onLogout={logout}
-      currentPath={location.pathname}
-    />
-  );
+  return <PublicNavbar />;
 }
 
 function AppRoutes() {
@@ -61,20 +54,8 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<CarteleraPage />} />
-      <Route
-        path="/login"
-        element={
-          <LoginPage
-
-            onLogin={login}
-            user={user}
-            isAuthenticated={isAuthenticated}
-            loading={loading}
-            logout={logout}
-          />
-        }
-      />
-      <Route path="/register" element={<RegisterPage onRegister={register} loading={loading} />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route path="/cartelera" element={<CarteleraPage />} />
       <Route path="/reserva/success" element={<ReservaSuccessPage />} />
       <Route path="/reserva/failure" element={<ReservaFailurePage />} />

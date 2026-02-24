@@ -1,23 +1,24 @@
 import { RegisterForm } from '../../shared';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../shared/hooks/useAuth';
 
-const RegisterPage = ({ onRegister, loading = false }) => {
+const RegisterPage = () => {
   const navigate = useNavigate();
+  const { register, loading } = useAuth();
 
   const handleRegister = async (userData) => {
     try {
-      if (onRegister) {
-        return await onRegister(userData);
+      if (register) {
+        return await register(userData);
       }
       return { success: false, error: 'No register handler provided' };
     } catch (error) {
       return {
         success: false,
-        error: error.message || 'Error en el registro'
+        error: error.message || 'Error en el registro',
       };
     }
   };
-
 
   const handleNavigateToLogin = () => {
     navigate('/login');

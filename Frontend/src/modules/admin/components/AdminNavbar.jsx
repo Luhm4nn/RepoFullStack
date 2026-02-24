@@ -1,12 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
 import cutzyLogoBlanco from '../../../assets/cutzy-logo-blanco.png';
 import './AdminNavbar.css';
-import { Dropdown, Drawer, DrawerHeader, DrawerItems, Button as FlowbiteButton } from 'flowbite-react';
+import {
+  Dropdown,
+  Drawer,
+  DrawerHeader,
+  DrawerItems,
+  Button as FlowbiteButton,
+} from 'flowbite-react';
 import { DropdownItem, DropdownDivider, DropdownHeader } from 'flowbite-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ModalCierreSesion } from '../../shared/components/ModalCierreSesion';
+import { useAuth } from '../../shared/hooks/useAuth';
 
-const AdminNavbar = ({ user, onLogout }) => {
+const AdminNavbar = () => {
+  const { user, logout: onLogout } = useAuth();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -55,7 +64,13 @@ const AdminNavbar = ({ user, onLogout }) => {
               onClick={toggleMenu}
             >
               <span className="sr-only">Abrir menú</span>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </FlowbiteButton>
@@ -79,19 +94,29 @@ const AdminNavbar = ({ user, onLogout }) => {
                 <span className="block text-sm !text-purple-400 font-medium break-words leading-tight mb-1">
                   {user?.apellidoUsuario}
                 </span>
-                
+
                 <div className="flex flex-col gap-1.5 mt-2">
                   <div className="flex items-center gap-2 text-[11px] text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-3.5 w-3.5 text-purple-400"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
                       <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                       <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                     </svg>
                     <span className="truncate font-mono">{user?.email}</span>
                   </div>
-                  
+
                   {user?.telefono && (
                     <div className="flex items-center gap-2 text-[11px] text-gray-400 font-mono">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3.5 w-3.5 text-green-400"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
                         <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                       </svg>
                       <span>{user?.telefono}</span>
@@ -103,10 +128,23 @@ const AdminNavbar = ({ user, onLogout }) => {
                   Administrador
                 </span>
               </DropdownHeader>
-              <DropdownItem onClick={() => handleNavigation('/Dashboard')} className="!text-white hover:!bg-white/5">Dashboard</DropdownItem>
-              <DropdownItem onClick={() => handleNavigation('/Configuracion')} className="!text-white hover:!bg-white/5">Configuración</DropdownItem>
+              <DropdownItem
+                onClick={() => handleNavigation('/Dashboard')}
+                className="!text-white hover:!bg-white/5"
+              >
+                Dashboard
+              </DropdownItem>
+              <DropdownItem
+                onClick={() => handleNavigation('/Configuracion')}
+                className="!text-white hover:!bg-white/5"
+              >
+                Configuración
+              </DropdownItem>
               <DropdownDivider />
-              <DropdownItem onClick={handleLogoutRequest} className="!text-red-400 hover:!bg-red-500/10">
+              <DropdownItem
+                onClick={handleLogoutRequest}
+                className="!text-red-400 hover:!bg-red-500/10"
+              >
                 Cerrar Sesión
               </DropdownItem>
             </Dropdown>
@@ -122,7 +160,9 @@ const AdminNavbar = ({ user, onLogout }) => {
                 <ul className="flex flex-col gap-2 mt-4">
                   <li>
                     <button
-                      onClick={() => { handleNavigation('/Dashboard') }}
+                      onClick={() => {
+                        handleNavigation('/Dashboard');
+                      }}
                       className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Dashboard') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'}`}
                     >
                       Dashboard
@@ -130,7 +170,9 @@ const AdminNavbar = ({ user, onLogout }) => {
                   </li>
                   <li>
                     <button
-                      onClick={() => { handleNavigation('/') }}
+                      onClick={() => {
+                        handleNavigation('/');
+                      }}
                       className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'}`}
                     >
                       Cartelera
@@ -138,7 +180,9 @@ const AdminNavbar = ({ user, onLogout }) => {
                   </li>
                   <li>
                     <button
-                      onClick={() => { handleNavigation('/Peliculas') }}
+                      onClick={() => {
+                        handleNavigation('/Peliculas');
+                      }}
                       className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Peliculas') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'} `}
                     >
                       Películas
@@ -146,7 +190,9 @@ const AdminNavbar = ({ user, onLogout }) => {
                   </li>
                   <li>
                     <button
-                      onClick={() => { handleNavigation('/Salas') }}
+                      onClick={() => {
+                        handleNavigation('/Salas');
+                      }}
                       className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Salas') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'} `}
                     >
                       Salas
@@ -154,7 +200,9 @@ const AdminNavbar = ({ user, onLogout }) => {
                   </li>
                   <li>
                     <button
-                      onClick={() => { handleNavigation('/Funciones') }}
+                      onClick={() => {
+                        handleNavigation('/Funciones');
+                      }}
                       data-testid="funciones-page"
                       className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Funciones') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'}`}
                     >
@@ -163,7 +211,9 @@ const AdminNavbar = ({ user, onLogout }) => {
                   </li>
                   <li>
                     <button
-                      onClick={() => { handleNavigation('/Configuracion') }}
+                      onClick={() => {
+                        handleNavigation('/Configuracion');
+                      }}
                       className={`w-full text-left py-2 px-4 text-lg rounded transition-colors ${isActive('/Configuracion') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'}`}
                     >
                       Configuración
@@ -182,7 +232,9 @@ const AdminNavbar = ({ user, onLogout }) => {
             </Drawer>
           </div>
 
-          <div className={`w-full md:w-auto md:order-1 hidden md:flex items-center md:justify-start`}>
+          <div
+            className={`w-full md:w-auto md:order-1 hidden md:flex items-center md:justify-start`}
+          >
             <ul className="flex flex-row p-2 md:p-0 mt-0 items-center md:justify-start w-full">
               <li className="flex items-center navbar-btn-space">
                 <button

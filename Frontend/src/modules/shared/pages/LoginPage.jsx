@@ -1,44 +1,45 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import LoginForm from "../../shared/components/LoginForm";
-import { CenteredSpinner } from "../components/Spinner";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import LoginForm from '../../shared/components/LoginForm';
+import { CenteredSpinner } from '../components/Spinner';
+import { useAuth } from '../../shared/hooks/useAuth';
 
-const LoginPage = ({ onLogin, user, isAuthenticated, loading }) => {
+const LoginPage = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated, loading, login } = useAuth();
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      if (user.rol === "ADMIN") {
-        navigate("/dashboard", { replace: true });
-      }
-      else if (user.rol === "ESCANER") {
-        navigate("/scanner", { replace: true });
+      if (user.rol === 'ADMIN') {
+        navigate('/dashboard', { replace: true });
+      } else if (user.rol === 'ESCANER') {
+        navigate('/scanner', { replace: true });
       } else {
-        navigate("/", { replace: true });
+        navigate('/', { replace: true });
       }
     }
   }, [isAuthenticated, user, navigate]);
 
   const handleLogin = async (email, password) => {
     try {
-      if (onLogin) {
-        return await onLogin(email, password);
+      if (login) {
+        return await login(email, password);
       }
-      return { success: false, error: "No login handler provided" };
+      return { success: false, error: 'No login handler provided' };
     } catch (error) {
       return {
         success: false,
-        error: error.message || "Error en el login",
+        error: error.message || 'Error en el login',
       };
     }
   };
 
   const handleNavigateToRegister = () => {
-    navigate("/register");
+    navigate('/register');
   };
 
   const handleNavigateHome = () => {
-    navigate("/");
+    navigate('/');
   };
 
   if (loading) {

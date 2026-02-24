@@ -4,8 +4,11 @@ import cutzyLogoBlanco from '../../../assets/cutzy-logo-blanco.png';
 import '../../admin/components/AdminNavbar.css';
 import { Button as FlowbiteButton, Drawer, DrawerHeader, DrawerItems } from 'flowbite-react';
 import { ModalCierreSesion } from '../../shared/components/ModalCierreSesion';
+import { useAuth } from '../../shared/hooks/useAuth';
 
-const ScannerNavbar = ({ user, onLogout }) => {
+const ScannerNavbar = () => {
+  const { user, logout: onLogout } = useAuth();
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -71,7 +74,13 @@ const ScannerNavbar = ({ user, onLogout }) => {
               onClick={toggleMenu}
             >
               <span className="sr-only">Abrir menú</span>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </FlowbiteButton>
@@ -82,7 +91,8 @@ const ScannerNavbar = ({ user, onLogout }) => {
                 className="hover:!ring-2 hover:!ring-white transition-all duration-200 rounded-full"
               >
                 <div className="w-14 h-14 bg-gradient-to-r from-green-600 to-teal-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                  {user?.nombreUsuario?.charAt(0) ?? ''}{user?.apellidoUsuario?.charAt(0) ?? ''}
+                  {user?.nombreUsuario?.charAt(0) ?? ''}
+                  {user?.apellidoUsuario?.charAt(0) ?? ''}
                 </div>
               </button>
               {isDropdownOpen && (
@@ -91,22 +101,18 @@ const ScannerNavbar = ({ user, onLogout }) => {
                     <span className="block text-sm !text-white font-medium">
                       {user?.nombreUsuario} {user?.apellidoUsuario}
                     </span>
-                    <span className="block truncate text-sm !text-gray-300">
-                      {user?.email}
-                    </span>
-                    <span className="block text-xs !text-blue-400 font-medium mt-1">
-                        Escaner
-                 </span>
+                    <span className="block truncate text-sm !text-gray-300">{user?.email}</span>
+                    <span className="block text-xs !text-blue-400 font-medium mt-1">Escaner</span>
                   </div>
                   <ul className="py-2">
                     <li>
-                        <button
-                            type="button"
-                            onClick={() => handleNavigation('/scanner')}
-                            className="block px-4 py-2 text-sm !text-white hover:!bg-white/10 w-full text-left"
-                        >
-                            Escaner
-                        </button>
+                      <button
+                        type="button"
+                        onClick={() => handleNavigation('/scanner')}
+                        className="block px-4 py-2 text-sm !text-white hover:!bg-white/10 w-full text-left"
+                      >
+                        Escaner
+                      </button>
                     </li>
 
                     <li className="border-t border-slate-700 mt-2 pt-2">
@@ -152,16 +158,18 @@ const ScannerNavbar = ({ user, onLogout }) => {
               </DrawerItems>
             </Drawer>
           </div>
-          <div className={`w-full md:w-auto md:order-1 hidden md:flex items-center md:justify-start`}>
+          <div
+            className={`w-full md:w-auto md:order-1 hidden md:flex items-center md:justify-start`}
+          >
             <ul className="flex flex-row p-2 md:p-0 mt-0 items-center md:justify-start w-full">
-                <li>
-                    <button
-                        onClick={() => handleNavigation('/scanner')}
-                        className={`mx-2 px-3 py-2 rounded-md text-lg font-medium transition-colors ${isActive('/scanner') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'}`}
-                    >
-                        Escaner
-                    </button>
-                </li>
+              <li>
+                <button
+                  onClick={() => handleNavigation('/scanner')}
+                  className={`mx-2 px-3 py-2 rounded-md text-lg font-medium transition-colors ${isActive('/scanner') ? 'active !text-white !bg-white/10' : 'text-white hover:!text-white hover:bg-white/10'}`}
+                >
+                  Escaner
+                </button>
+              </li>
             </ul>
           </div>
         </div>

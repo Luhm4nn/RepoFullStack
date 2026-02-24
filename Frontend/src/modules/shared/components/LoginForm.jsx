@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { loginSchema } from '../../../validations/AuthSchema';
+import { loginSchema } from '../../../validations/UsuariosSchema';
 import { ButtonSpinner } from './Spinner';
 import { notifyGlobal } from '../../../context/NotificationContext';
 
