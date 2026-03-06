@@ -15,7 +15,8 @@
 6. [Integraciones Externas](#6-integraciones-externas)
 7. [Sistema de Validación QR](#7-sistema-de-validación-qr)
 8. [Calidad y Testing](#8-calidad-y-testing)
-9. [Preguntas Clave de Defensa](#9-preguntas-clave-de-defensa)
+9. [Infraestructura y Robustez](#9-infraestructura-y-robustez)
+10. [Preguntas Clave de Defensa](#10-preguntas-clave-de-defensa)
 
 ---
 
@@ -162,10 +163,65 @@ Frontend/src/
 - Un desarrollador que trabaja en el admin no necesita tocar código del scanner.
 - Los componentes `shared/` se reutilizan entre módulos (Pagination, Skeleton, ProtectedRoute).
 
-**Context API en lugar de Redux:**
-- Usamos `AuthContext` para manejar: usuario logueado, estado de autenticación, roles, login/logout/register.
-- Usamos `NotificationContext` para el sistema de notificaciones globales con React Hot Toast.
-- **¿Por qué no Redux?** La complejidad del estado no lo justifica. Nuestro estado global es solo auth + notificaciones. Para estados de página usamos hooks locales.
+**Context API — Estado Global Centralizado:**
+
+Usamos React Context API en lugar de Redux. **¿Por qué no Redux?** La complejidad del estado no lo justifica. Nuestro estado global es solo auth + notificaciones. Para estados de página usamos hooks locales.
+
+**`AuthContext`** — Es el contexto principal. Maneja todo el ciclo de autenticación:
+
+| Estado / Función | Descripción |
+|-----------------|-------------|
+| `user` | Objeto del usuario logueado (o `null`) |
+| `loading` | Booleano para la inicialización/acción en curso |
+| `isAuthenticated` | Booleano derivado: hay sesión activa |
+| `initializeAuth()` | Se ejecuta al cargar la app — llama a `GET /auth/me` para verificar si hay sesión válida en las cookies. Si el servidor responde OK, setea el usuario. Si responde 401/403, limpia el estado. Si hay error de red, NO limpia (el usuario podría estar offline). |
+| `login(email, password)` | Llama a `POST /auth/login`, recibe cookies, setea user e isAuthenticated |
+| `logout()` | Llama a `POST /auth/logout`, hace `localStorage.clear()`, setea user a null |
+| `register(userData)` | Llama a `POST /api/Usuario`, crea la cuenta |
+| `updateUser(data)` | Actualiza el objeto user en memoria (sin request) |
+| `hasRole(role)` | Retorna `user?.rol === role` |
+| `isAdmin()` / `isClient()` | Shortcuts para verificar rol |
+
+Desde hooks se consume con diferentes niveles de detalle:
+- `useAuth()` — Contexto completo
+- `useCurrentUser()` — User + helpers formateados (fullName, initials, isAdmin)
+- `useLogout()` — Solo la función de logout con confirmación
+
+**`NotificationContext`** — Sistema de notificaciones con React Hot Toast. Expone un `notifyGlobal` que funciona **fuera del árbol de React** (necesario para el interceptor de Axios) y un hook `useNotification()` para uso en componentes.
+
+### 1.5 Centralización de Constantes
+
+Tanto el backend como el frontend comparten las mismas constantes para evitar strings sueltos y errores de tipeo:
+
+```javascript
+// constants/index.js (existe en Backend y Frontend)
+export const ESTADOS_RESERVA = {
+  PENDIENTE: 'PENDIENTE',
+  ACTIVA: 'ACTIVA',
+  CANCELADA: 'CANCELADA',
+  ASISTIDA: 'ASISTIDA',
+  NO_ASISTIDA: 'NO_ASISTIDA',
+};
+
+export const ESTADOS_FUNCION = {
+  PRIVADA: 'PRIVADA',
+  PUBLICA: 'PUBLICA',
+  INACTIVA: 'INACTIVA',
+};
+
+export const GENEROS_PELICULAS = [
+  { value: 'ACCION', label: 'Acción' },
+  { value: 'DRAMA', label: 'Drama' },
+  // ... 11 géneros total
+];
+
+export const CLASIFICACIONES_MPAA = [
+  { value: 'G', label: 'G - Apto para toda la familia' },
+  // ... hasta NC-17
+];
+```
+
+**¿Por qué?** En todo el código se usa `ESTADOS_RESERVA.PENDIENTE` en vez de la string `'PENDIENTE'`. Si mañana el estado cambia de nombre, se cambia en un solo lugar. Además, el frontend tiene constantes de error del scanner (`SCANNER_ERROR_CODES`) que mapean códigos a títulos y colores para la UI.
 
 ---
 
@@ -300,20 +356,90 @@ router.get('/reservas/usuario/:DNI', authMiddleware, ...); // Ownership check en
 - `ProtectedRoute` verifica el rol antes de renderizar la página.
 - El componente `useAuth()` expone helpers: `hasRole('ADMIN')`, `isAdmin()`, `isClient()`.
 
-### 2.5 Seguridad Adicional
+### 2.5 Cadena de Manejo de Errores (asyncHandler → errorHandler)
+
+El manejo de errores sigue una cadena bien definida. Ningún controller tiene `try/catch` — eso lo resuelve el `asyncHandler`:
+
+```javascript
+// 1. asyncHandler envuelve cada controller
+export const asyncHandler = (fn) => {
+  return (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);  // ← Si falla, llama a next(error)
+  };
+};
+
+// 2. Ese next(error) pasa el error al siguiente middleware de Express
+//    que tenga 4 parámetros (err, req, res, next) → nuestro errorHandler
+
+// 3. errorHandler es el ÚLTIMO middleware registrado en app.js:
+app.use('/api', indexRoutes);
+app.use(errorHandler);     // ← Atrapa todo lo que las rutas no manejen
+```
+
+**errorHandler** clasifica el error y responde con el status correcto:
+
+```javascript
+export function errorHandler(err, req, res, next) {
+  // Errores conocidos de Prisma → respuestas amigables
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    if (err.code === 'P2002') return res.status(409).json({ message: 'Ya existe un registro con esos datos.' });
+    if (err.code === 'P2003') return res.status(400).json({ message: 'El registro relacionado no existe.' });
+    if (err.code === 'P2025') return res.status(404).json({ message: 'Registro no encontrado.' });
+  }
+
+  // Errores de negocio (ej: throw con error.status = 400)
+  const status = err.status || 500;
+  if (status < 500) return res.status(status).json({ message: err.message });
+
+  // Errores 500 inesperados → log completo, respuesta genérica
+  logger.error('Internal server error:', err);
+  res.status(500).json({ message: 'Error interno del servidor' });
+}
+```
+
+**Flujo completo de un error:**
+```
+Controller lanza error → asyncHandler lo atrapa → llama next(error)
+→ Express busca middleware con 4 params → errorHandler
+→ Clasifica (Prisma / negocio / 500) → Responde con JSON y status correcto
+```
+
+Ninguna ruta devuelve un stack trace al cliente. Los errores 500 se loguean internamente pero al usuario le llega un mensaje genérico.
+
+### 2.6 Rutas Protegidas en el Frontend
+
+El frontend tiene componentes wrapper que protegen rutas según autenticación y rol:
+
+```javascript
+// Componentes de protección disponibles:
+<PrivateRoute>         // Requiere estar autenticado (cualquier rol)
+<AdminRoute>           // Requiere rol ADMIN
+<ClientRoute>          // Requiere rol CLIENTE
+<ScannerRoute>         // Requiere rol ESCANER o ADMIN
+<AuthenticatedRoute>   // Requiere ADMIN o CLIENTE
+
+// Uso en App.jsx:
+<Route path="/dashboard" element={<AdminRoute><DashboardPage /></AdminRoute>} />
+<Route path="/scanner" element={<ScannerRoute><ScannerPage /></ScannerRoute>} />
+<Route path="/mis-reservas" element={<AuthenticatedRoute><MisReservasPage /></AuthenticatedRoute>} />
+```
+
+Cada wrapper: (1) muestra spinner mientras carga auth, (2) si no está autenticado muestra pantalla de "Acceso Denegado" con botón a login, (3) si no tiene el rol correcto muestra "Acceso Restringido" con el rol actual. Además, el `NavbarWrapper` renderiza la navbar correcta según el rol (AdminNavbar, UserNavbar, ScannerNavbar o PublicNavbar).
+
+### 2.7 Seguridad Adicional
 
 | Medida | Implementación |
 |--------|---------------|
-| **Helmet** | Headers de seguridad HTTP (CSP, HSTS, X-Frame-Options, etc.) |
-| **CORS** | Solo acepta requests del `FRONTEND_URL` configurado |
+| **Helmet** | Headers de seguridad HTTP (CSP con whitelist a Cloudinary, HSTS con preload, X-Frame-Options) |
+| **CORS** | Solo acepta requests del `FRONTEND_URL` configurado, con `credentials: true` |
 | **Rate Limiting** | 5 intentos/min login, 3 registros/hora, 10 refresh/hora, 100 general/15min, 200 consultas/5min |
 | **bcrypt** | Contraseñas hasheadas con salt (nunca en texto plano) |
 | **Validación Yup** | Validación en backend aunque el frontend ya valide (el front puede ser bypasseado) |
-| **Logger con redacción** | En producción, el logger redacta emails, IPs, passwords y tokens del output |
-| **Trust Proxy** | `app.set('trust proxy', 1)` para funcionar correctamente detrás de reverse proxy |
-| **Manejo global de errores** | `errorHandler` middleware captura errores de Prisma (P2002: duplicado, P2003: FK inválida, P2025: no encontrado) |
+| **Logger con redacción** | En producción, redacta emails, IPs, passwords y tokens con regex |
+| **Trust Proxy** | `app.set('trust proxy', 1)` para IP real detrás de reverse proxy |
+| **Manejo global de errores** | `errorHandler` atrapa todo (ver sección 2.5) |
 
-### 2.6 Validación de Ownership
+### 2.8 Validación de Ownership
 
 Además de RBAC, validamos que un usuario solo acceda a **sus propios recursos**:
 
@@ -470,7 +596,38 @@ cron.schedule('*/120 * * * *', async () => {
 
 **¿Por qué el timeout es un parámetro?** Porque el administrador puede cambiarlo desde la interfaz sin tocar código. Si decide que 10 minutos es suficiente, lo cambia en la tabla `parametro` y el sistema lo aplica inmediatamente.
 
-### 3.4 Reglas de negocio en el Service
+### 3.4 Persistencia de Reserva en localStorage
+
+Durante el flujo de pago, el estado de la reserva se guarda en `localStorage` para que **si el usuario recarga la página, no pierda su reserva ni el tiempo del contador**:
+
+```javascript
+// reservationStorage.js — Claves de localStorage
+RESERVA_STEP    = 'reserva_step3'       // Estado completo del paso 3 (asientos, función, datos)
+TIMER_EXPIRY    = 'countdown_expiry'    // Timestamp de expiración del countdown
+MP_PENDING      = 'mp_pending_reserva'  // Datos mínimos para verificar pago con MP
+ACTIVE_RESERVA  = 'active_reserva'      // Reserva activa en flujo modal
+```
+
+**Cuándo se guarda:**
+- Al hacer "Proceder al Pago" → se crea la reserva en el backend, se guarda todo el estado en localStorage con `saveStep3()`, y se inicia el countdown.
+- El `CountdownTimer` persiste su timestamp de expiración, así que al recargar recalcula cuánto tiempo queda.
+
+**Cuándo se limpia:**
+- **Pago exitoso** → `clearAll()` borra todo.
+- **El usuario vuelve atrás** → se llama a `deletePendingReserva()` en la API (libera asientos) + `clearAll()`.
+- **El usuario navega fuera de `/reservar/`** → el hook `useReservaCleanup` detecta el cambio de ruta, llama a la API para liberar los asientos, y limpia localStorage. Esto evita "reservas zombie" que bloqueen asientos indefinidamente.
+- **Timeout expirado** → el countdown dispara `onExpire()`, se limpia todo.
+
+**Recovery al recargar:**
+```
+1. ReservaPage se monta → lee localStorage con getStep3()
+2. ¿Hay datos guardados? → Sí
+3. ¿El timestamp de expiración sigue vigente? → Sí
+4. Reconstruye la UI en el paso 3 con el countdown actualizado
+5. Si ya expiró → limpia todo y vuelve al paso 1
+```
+
+### 3.5 Reglas de negocio en el Service
 
 | Regla | Dónde se valida |
 |-------|----------------|
@@ -564,7 +721,43 @@ El componente `ClaquetaPersonaje` es una mascota SVG animada (una claqueta de ci
 - Refuerza la identidad visual "Cutzy Cinema"
 - Usa gradientes oscuros púrpura (`via-purple-900`) para el tema cinematográfico
 
-### 4.5 Countdown Timer
+### 4.5 Selector de Asientos Dinámico
+
+El `SeatSelectorReserva` renderiza el mapa de asientos de la sala de forma dinámica según la configuración real (filas × asientos por fila):
+
+```
+         PANTALLA
+   ┌─────────────────────┐
+   │    ███████████████   │
+   └─────────────────────┘
+
+   A  [🟩] [🟩] [🟨] [🟨] [🟩] [🟩]
+   B  [🟩] [🔴] [🔴] [🟩] [🟩] [🟩]
+   C  [🟩] [🟩] [🟩] [🟨] [🟩] [🟩]
+   D  [🟩] [🟩] [🟩] [🟩] [🟩] [🔴]
+
+   🟩 Disponible   🟨 VIP (tarifa premium)   🔴 Ocupado   🟦 Tu selección
+```
+
+**Colores según estado:**
+
+| Estado | Color | Interacción |
+|--------|-------|-------------|
+| Disponible (Normal) | `slate-600` | Click para seleccionar |
+| Disponible (VIP) | `yellow-400` | Click para seleccionar (precio premium) |
+| Seleccionado | `yellow-400` con borde | Click para deseleccionar |
+| Ocupado/Reservado | `red-600` | Deshabilitado, cursor no permitido |
+
+**Funcionamiento:**
+1. Al montar, consulta `getAsientosBySala()` (todos los asientos de la sala con su tipo y tarifa)
+2. Consulta `getAsientosReservadosPorFuncion()` (asientos ya reservados para esa función)
+3. Cruza ambos datos para renderizar cada asiento con su estado correcto
+4. Límite de 10 asientos por selección
+5. Al cambiar la selección, dispara `onSeatsChange({ seats, total, count })` — el total se calcula sumando la tarifa de cada asiento seleccionado
+
+El admin también tiene un `VIPSeatSelector` para configurar qué asientos son VIP, con toggle por fila completa o individual.
+
+### 4.6 Countdown Timer
 
 En el paso de pago, un **temporizador visual** muestra al usuario cuánto tiempo le queda antes de que su reserva expire:
 
@@ -572,6 +765,8 @@ En el paso de pago, un **temporizador visual** muestra al usuario cuánto tiempo
 <CountdownTimer initialSeconds={900} onExpire={() => setExpired(true)} />
 // 15 minutos = 900 segundos (configurable desde parámetros del sistema)
 ```
+
+El timer persiste en localStorage: si el usuario recarga la página, recalcula el tiempo restante desde el timestamp guardado en vez de reiniciar.
 
 ---
 
@@ -956,7 +1151,92 @@ authHeaders()     // Devuelve headers con cookie
 
 ---
 
-## 9. Preguntas Clave de Defensa
+## 9. Infraestructura y Robustez
+
+### 9.1 Validación de Variables de Entorno al Iniciar
+
+Antes de que el servidor arranque, se ejecuta `validateEnv()` que verifica que todas las variables de entorno críticas estén presentes:
+
+```javascript
+export const validateEnv = () => {
+  const requiredEnvVars = [
+    'DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET',
+    'FRONTEND_URL', 'BACKEND_URL',
+    'MAILJET_API_KEY', 'MAILJET_SECRET_KEY',
+  ];
+
+  const optionalEnvVars = [
+    'CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY',
+    'CLOUDINARY_API_SECRET', 'MERCADOPAGO_ACCESS_TOKEN',
+  ];
+
+  const missing = requiredEnvVars.filter(v => !process.env[v]);
+  if (missing.length > 0) {
+    throw new Error(`Faltan variables de entorno requeridas:\n${missing.map(v => `  - ${v}`).join('\n')}`);
+  }
+
+  // Las opcionales solo generan warning (la app puede funcionar sin ellas)
+  const missingOptional = optionalEnvVars.filter(v => !process.env[v]);
+  if (missingOptional.length > 0) {
+    logger.warn('Variables opcionales no configuradas: ...funcionalidades limitadas');
+  }
+};
+```
+
+**¿Por qué?** Es un "fail fast": si falta `JWT_SECRET`, mejor que el servidor no arranque y lo diga claro, a que falle misteriosamente 2 horas después cuando alguien intenta loguearse. Las variables opcionales (Cloudinary, MercadoPago) generan un warning pero no bloquean el arranque.
+
+### 9.2 Documentación de API con Swagger
+
+La API está documentada con **Swagger / OpenAPI 3.0**, accesible en `/api-docs`:
+
+```javascript
+// Backend/app.js
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+```
+
+La especificación se genera automáticamente desde archivos de documentación en `docs/api/`:
+
+| Archivo | Endpoints documentados |
+|---------|----------------------|
+| `auth.docs.js` | Login, logout, refresh, register |
+| `peliculas.docs.js` | CRUD películas, búsqueda |
+| `funciones.docs.js` | CRUD funciones, filtros |
+| `reservas.docs.js` | Crear, confirmar, cancelar reservas |
+| `salas.docs.js` | CRUD salas, asientos |
+| `mercadopago.docs.js` | Crear preference, webhook |
+| `tarifas.docs.js` | CRUD tarifas |
+| `parametros.docs.js` | Configuración del sistema |
+| `usuarios.docs.js` | CRUD usuarios |
+| `asientos.docs.js` | Gestión de asientos por sala |
+
+Cada endpoint documenta: método HTTP, parámetros, body esperado, respuestas posibles con códigos de estado, y si requiere autenticación.
+
+### 9.3 Logger con Redacción de Datos Sensibles
+
+El logger personalizado redacta automáticamente información sensible en producción:
+
+```javascript
+// Antes de loguear, procesa el mensaje:
+const redactSensitiveInfo = (message) => {
+  return message
+    .replace(/emails/gi, '[EMAIL_REDACTED]')
+    .replace(/IPs/g, '[IP_REDACTED]')
+    .replace(/(password|token|secret|key)[\s:=]+[^\s,}]+/gi, '$1: [REDACTED]');
+};
+```
+
+Niveles disponibles: `info`, `debug`, `error`, `warn`, `security` (auditoría), `http` (requests), `success`. En producción, `debug` e `info` se silencian.
+
+### 9.4 Dashboard y Reportes
+
+El panel de administración incluye un dashboard con métricas en tiempo real y reportes:
+- **Contadores rápidos**: total películas, salas, usuarios, reservas de hoy, funciones activas
+- **Ventas mensuales**: series de datos de los últimos 12 meses (cantidad de reservas e ingresos) para gráficos de barras/líneas
+- **Auditoría**: reservas NO_ASISTIDA permiten trackear no-shows
+
+---
+
+## 10. Preguntas Clave de Defensa
 
 ### Arquitectura
 
@@ -1004,6 +1284,14 @@ authHeaders()     // Devuelve headers con cookie
 **P: ¿Por qué la doble validación Yup front/back?**
 > R: El frontend valida por UX (feedback instantáneo al usuario). El backend valida por SEGURIDAD (el frontend puede ser bypasseado con cURL/Postman/DevTools). Nunca se confía solo en la validación del frontend. Es el principio "Never Trust the Client".
 
+### Resiliencia del flujo de reserva
+
+**P: ¿Qué pasa si el usuario recarga la página a mitad de la reserva?**
+> R: Todo el estado del paso de pago (asientos seleccionados, datos de la reserva, timestamp de expiración) se guarda en localStorage en el momento de crear la reserva pendiente. Al recargar, la app lee esos datos, verifica que el timer no haya expirado, y reconstruye la UI exactamente donde estaba. Si expiró, limpia todo y vuelve al inicio.
+
+**P: ¿Y si el usuario cierra la pestaña sin pagar?**
+> R: La reserva queda PENDIENTE en el servidor. Cuando el timeout configurado se cumple (default 15 min), la limpieza automática borra la reserva y libera los asientos. Si el usuario navega a otra página de la app (sin cerrar), el hook `useReservaCleanup` detecta que salió de la ruta `/reservar/` y libera los asientos por API inmediatamente.
+
 ### Performance
 
 **P: ¿Qué pasa si muchos usuarios buscan películas al mismo tiempo?**
@@ -1042,4 +1330,4 @@ authHeaders()     // Devuelve headers con cookie
 | **Logging** | Logger custom con redacción en producción |
 | **Scanner QR** | html5-qrcode |
 | **Notificaciones** | React Hot Toast |
-| **Documentación API** | Swagger / OpenAPI 3.0 |
+| **Documentación API** | Swagger / OpenAPI 3.0 (accesible en `/api-docs`) |
