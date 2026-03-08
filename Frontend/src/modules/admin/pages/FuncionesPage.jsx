@@ -14,7 +14,12 @@ function FuncionesPage() {
 
   const handleSubmit = async (values) => {
     try {
-      await createFuncion(values);
+      const response = await createFuncion(values);
+      if (response != undefined) {
+        notify.success('Función creada exitosamente');
+      } else {
+        notify.error('Error al crear la función');
+      }
       setMostrarFormulario(false);
       setRefreshList((prev) => prev + 1);
     } catch (error) {
